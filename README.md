@@ -1,1 +1,1 @@
-# jewellry-catalogue
+# jewellery-catalogue
