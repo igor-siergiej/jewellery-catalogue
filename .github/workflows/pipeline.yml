@@ -19,14 +19,14 @@ jobs:
 
       - name: yarn build
         env:
-          CLIENT_ID: ${{ secrets.VITE_CLIENT_ID }}
-          ISSUER: ${{ secrets.VITE_ISSUER }}
+          VITE_CLIENT_ID: ${{ secrets.VITE_CLIENT_ID }}
+          VITE_ISSUER: ${{ secrets.VITE_ISSUER }}
         run: |
           cd web
           rm -f .env
           touch .env
-          echo "VITE_CLIENT_ID=%CLIENT_ID%" >> .env
-          echo "VITE_ISSUER=%ISSUER%" >> .env
+          echo "VITE_CLIENT_ID=%VITE_CLIENT_ID%" >> .env
+          echo "VITE_ISSUER=%VITE_ISSUER%" >> .env
           yarn build
 
       - name: deploy
