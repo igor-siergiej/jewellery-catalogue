@@ -19,8 +19,12 @@ const StartPage = () => {
             justifyContent="center"
             alignItems="center"
         >
-            <Typography sx={{ mt: '5em' }} variant="h3" component="h2">
-                Welcome to your Jewellery Catalogue!
+            <Typography
+                sx={{ mt: '5em', color: 'blue' }}
+                variant="h3"
+                component="h2"
+            >
+                Welcome to Maris Jewellery Catalogue!
             </Typography>
 
             <Button
