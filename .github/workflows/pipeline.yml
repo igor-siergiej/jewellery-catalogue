@@ -23,7 +23,7 @@ jobs:
           ISSUER: ${{ secrets.VITE_ISSUER }}
         run: |
           cd web
-          rm .env
+          rm -f .env
           touch .env
           echo "VITE_CLIENT_ID=%CLIENT_ID%" >> .env
           echo "VITE_ISSUER=%ISSUER%" >> .env
