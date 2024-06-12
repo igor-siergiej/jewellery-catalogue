@@ -25,5 +25,4 @@ build-ssr
 *.sw?
 
 package-lock.json
-yarn.lock
 .env
