@@ -25,4 +25,4 @@ jobs:
       - name: deploy
         run: |
           cd web
-          cp -r build/* /var/www/web
+          sudo cp -r build/* /var/www/web
