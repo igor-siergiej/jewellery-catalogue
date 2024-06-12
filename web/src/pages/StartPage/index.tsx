@@ -20,7 +20,7 @@ const StartPage = () => {
             alignItems="center"
         >
             <Typography sx={{ mt: '5em' }} variant="h3" component="h2">
-                Welcome to your Jewellry Catalogue!
+                Welcome to your Jewellery Catalogue!
             </Typography>
 
             <Button

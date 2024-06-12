@@ -1,8 +1,8 @@
 {
-  "name": "jewellry-catalogue",
+  "name": "jewellery-catalogue",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "git@github.com:igor-siergiej/jewellry-catalogue.git",
+  "repository": "git@github.com:igor-siergiej/jewellery-catalogue.git",
   "author": "Igor Siergiej <igorsiergiej@gmail.com>",
   "license": "MIT",
   "private": true,
