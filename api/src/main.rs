@@ -44,7 +44,7 @@ async fn main() {
 
     println!("🚀 Server started successfully");
     warp::serve(routes).run(([0, 0, 0, 0], 3001)).await;
-}
+} 
 
 
 // #[tokio::main]
