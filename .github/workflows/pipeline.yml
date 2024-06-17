@@ -38,6 +38,6 @@ jobs:
         run: |
           cd api
           cargo build --release
-          systemctl stop api-server.service
-          cp target/release/api-server usr/local/bin/api-server
-          systemctl start api-server.service
+          sudo systemctl stop api-server.service
+          sudo cp target/release/api-server usr/local/bin/api-server
+          sudo systemctl start api-server.service
