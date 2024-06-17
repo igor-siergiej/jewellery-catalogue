@@ -33,3 +33,11 @@ jobs:
         run: |
           cd web
           cp -r build/* /var/www/web
+
+      - name: deploy api
+        run: |
+          cd api
+          cargo build --release
+          systemctl stop api-server.service
+          cp target/release/api-server usr/local/bin/api-server
+          systemctl start api-server.service

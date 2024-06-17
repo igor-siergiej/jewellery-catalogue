@@ -1,5 +1,5 @@
 [package]
-name = "api"
+name = "api-server"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,4 +7,8 @@ edition = "2021"
 mongodb = "2.8.2"
 tokio ={ version = "1.38.0", features = ['full']}
 dotenv = "0.15.0"
+chrono = { version = "0.4.23", features = ["serde"] }
 serde = '1.0.203'
+uuid = { version = "1.2.2", features = ["v4"] }
+warp = "0.3.3"
+pretty_env_logger = "0.4.0"
