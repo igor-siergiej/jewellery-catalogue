@@ -8,6 +8,7 @@ import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
 import { CircularProgress } from '@mui/material';
 import Start from './pages/Start';
 import { RequiredAuth } from './components/Auth';
+import Home from './pages/Home';
 
 const { VITE_CLIENT_ID, VITE_ISSUER, VITE_OKTA_TESTING_DISABLEHTTPSCHECK } =
     import.meta.env;
@@ -32,6 +33,8 @@ const queryClient = new QueryClient({
 
 const oktaConfig = new OktaAuth(config);
 
+console.log(config.redirectUri);
+
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
 );
@@ -41,6 +44,8 @@ function App() {
     const restoreOriginalUri = (_oktaAuth: any, originalUri: string) => {
         navigate(toRelativeUrl(originalUri || '/', window.location.origin));
     };
+
+    console.log(config.redirectUri);
 
     return (
         <Security oktaAuth={oktaConfig} restoreOriginalUri={restoreOriginalUri}>
@@ -56,7 +61,7 @@ function App() {
                         }
                     />
                     <Route path="/transaction" element={<RequiredAuth />}>
-                        {/* <Route path="" element={<TransactionPage />} /> */}
+                        <Route path="" element={<Home />} />
                     </Route>
                 </Routes>
             </main>
