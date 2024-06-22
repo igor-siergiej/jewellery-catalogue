@@ -33,8 +33,6 @@ const queryClient = new QueryClient({
 
 const oktaConfig = new OktaAuth(config);
 
-console.log(config.redirectUri);
-
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
 );
@@ -44,8 +42,6 @@ function App() {
     const restoreOriginalUri = (_oktaAuth: any, originalUri: string) => {
         navigate(toRelativeUrl(originalUri || '/', window.location.origin));
     };
-
-    console.log(config.redirectUri);
 
     return (
         <Security oktaAuth={oktaConfig} restoreOriginalUri={restoreOriginalUri}>
