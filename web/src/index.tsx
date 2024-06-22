@@ -43,8 +43,6 @@ function App() {
         navigate(toRelativeUrl(originalUri || '/', window.location.origin));
     };
 
-    console.log(config.clientId, config.issuer);
-
     return (
         <Security oktaAuth={oktaConfig} restoreOriginalUri={restoreOriginalUri}>
             <main>
