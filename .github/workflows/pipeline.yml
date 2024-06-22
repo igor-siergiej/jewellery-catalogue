@@ -32,7 +32,7 @@ jobs:
       - name: deploy
         run: |
           cd web
-          cp -r build/* /var/www/web
+          cp -r build/* /var/www/jewellerycatalogue.onthewifi.com/html
 
       - name: deploy api
         run: |
