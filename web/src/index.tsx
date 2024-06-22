@@ -6,7 +6,8 @@ import { BrowserRouter, Route, useNavigate, Routes } from 'react-router-dom';
 import { Security, LoginCallback } from '@okta/okta-react';
 import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
 import { CircularProgress } from '@mui/material';
-import StartPage from './pages/StartPage';
+import Start from './pages/Start';
+import { RequiredAuth } from './components/Auth';
 
 const { VITE_CLIENT_ID, VITE_ISSUER, VITE_OKTA_TESTING_DISABLEHTTPSCHECK } =
     import.meta.env;
@@ -45,7 +46,7 @@ function App() {
         <Security oktaAuth={oktaConfig} restoreOriginalUri={restoreOriginalUri}>
             <main>
                 <Routes>
-                    <Route path="/" element={<StartPage />} />
+                    <Route path="/" element={<Start />} />
                     <Route
                         path="login/callback"
                         element={
@@ -54,9 +55,9 @@ function App() {
                             />
                         }
                     />
-                    {/* <Route path="/transaction" element={<RequiredAuth />}>
-                        <Route path="" element={<TransactionPage />} />
-                    </Route> */}
+                    <Route path="/transaction" element={<RequiredAuth />}>
+                        {/* <Route path="" element={<TransactionPage />} /> */}
+                    </Route>
                 </Routes>
             </main>
         </Security>
