@@ -9,6 +9,10 @@ import { CircularProgress } from '@mui/material';
 import Start from './pages/Start';
 import { RequiredAuth } from './components/Auth';
 import Home from './pages/Home';
+import { HOME_PAGE, ITEMS_PAGE, START_PAGE } from './constants/routes';
+import Items from './pages/Items';
+import MainLayout from './components/MainLayout';
+import { StoreProvider } from './components/Store';
 
 const { VITE_CLIENT_ID, VITE_ISSUER, VITE_OKTA_TESTING_DISABLEHTTPSCHECK } =
     import.meta.env;
@@ -45,22 +49,27 @@ function App() {
 
     return (
         <Security oktaAuth={oktaConfig} restoreOriginalUri={restoreOriginalUri}>
-            <main>
-                <Routes>
-                    <Route path="/" element={<Start />} />
-                    <Route
-                        path="login/callback"
-                        element={
-                            <LoginCallback
-                                loadingElement={<CircularProgress />}
-                            />
-                        }
-                    />
-                    <Route path="/transaction" element={<RequiredAuth />}>
-                        <Route path="" element={<Home />} />
+            <Routes>
+                <Route
+                    path="login/callback"
+                    element={
+                        <LoginCallback loadingElement={<CircularProgress />} />
+                    }
+                />
+
+                <Route path={START_PAGE.route} element={<Start />}></Route>
+
+                <Route element={<RequiredAuth />}>
+                    <Route element={<MainLayout />}>
+                        <Route
+                            index
+                            path={HOME_PAGE.route}
+                            element={<Home />}
+                        />
+                        <Route path={ITEMS_PAGE.route} element={<Items />} />
                     </Route>
-                </Routes>
-            </main>
+                </Route>
+            </Routes>
         </Security>
     );
 }
@@ -69,7 +78,9 @@ root.render(
     <ThemeProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
             <BrowserRouter>
-                <App />
+                <StoreProvider>
+                    <App />
+                </StoreProvider>
             </BrowserRouter>
         </QueryClientProvider>
     </ThemeProvider>

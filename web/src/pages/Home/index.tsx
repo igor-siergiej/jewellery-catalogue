@@ -1,5 +1,5 @@
 const Home = () => {
-    return <span>Meow2</span>;
+    return <span>Home</span>;
 };
 
 export default Home;

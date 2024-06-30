@@ -3,6 +3,7 @@ import { useOktaAuth } from '@okta/okta-react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import IMAGES from '../../img';
+import { HOME_PAGE } from '../../constants/routes';
 
 const Start = () => {
     const { authState, oktaAuth } = useOktaAuth();
@@ -10,7 +11,7 @@ const Start = () => {
 
     useEffect(() => {
         if (authState?.isAuthenticated) {
-            navigate('/transaction');
+            navigate(HOME_PAGE.route);
         }
     }, [authState]);
 
@@ -36,7 +37,7 @@ const Start = () => {
             component="img"
             sx={{ objectFit: 'scale-down' }}
             src={IMAGES.startImage}
-            alt="Meow"
+            alt="jewellery"
         />
     );
 
