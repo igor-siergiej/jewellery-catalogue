@@ -1,87 +1,56 @@
+mod db;
+mod error;
+mod model;
+mod response;
+mod handler;
+
+use db::DB;
 use dotenv::dotenv;
-use mongodb::{bson::{doc, document}, options::{ClientOptions, ServerApi, ServerApiVersion}, Client, Collection};
-use std::env;
-use serde::{Serialize, Deserialize};
+use std::convert::Infallible;
+use warp::{http::Method, Filter, Rejection};
 
-#[derive(Debug, Serialize, Deserialize)]
-struct Entry {
-    test: String,
-    number: i32
-}
-
-use warp::{reply::json, Filter, Rejection, Reply};
-
+type Result<T> = std::result::Result<T, error::Error>;
 type WebResult<T> = std::result::Result<T, Rejection>;
 
-#[derive(Serialize)]
-pub struct GenericResponse {
-    pub status: String,
-    pub message: String,
-}
-
-pub async fn health_checker_handler() -> WebResult<impl Reply> {
-    const MESSAGE: &str = "Build Simple CRUD API with Rust";
-
-    let response_json = &GenericResponse {
-        status: "success".to_string(),
-        message: MESSAGE.to_string(),
-    };
-    Ok(json(response_json))
-}
-
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
     if std::env::var_os("RUST_LOG").is_none() {
         std::env::set_var("RUST_LOG", "api=info");
     }
     pretty_env_logger::init();
+    dotenv().ok();
+
+    let db = DB::init().await?;
+  
+    let cors = warp::cors()
+        .allow_methods(&[Method::GET])
+        .allow_origins(vec!["http://localhost:3000"])
+        .allow_headers(vec!["content-type"])
+        .allow_credentials(true);
+
+    let entry_router = warp::path!("api" / "entries");
 
     let health_checker = warp::path!("api" / "healthchecker")
-        .and(warp::get())
-        .and_then(health_checker_handler);
+    .and(warp::get())
+    .and_then(handler::health_checker_handler);
 
-    let routes = health_checker.with(warp::log("api"));
+    let entry_routes = entry_router
+    .and(warp::get())
+    .and(with_db(db.clone()))
+    .and_then(handler::get_entries_handler);
+
+    let routes = entry_routes
+    .with(warp::log("api"))
+    .or(health_checker)
+    .with(cors)
+    .recover(error::handle_rejection);
 
     println!("🚀 Server started successfully");
     warp::serve(routes).run(([0, 0, 0, 0], 3001)).await;
-}  
 
+    Ok(())
+}
 
-// #[tokio::main]
-// async fn main() -> Result<(), mongodb::error::Error> {
-//     dotenv().ok();
-
-//     let database_url = env::var("DATABASE_URL").expect("DATABASE URL is not in .env file");
-
-//     println!("{}", database_url);
-
-//     let client = Client::with_uri_str(database_url).await?;
-
-//     let database_name = env::var("DATABASE_NAME").expect("DATABASE NAME is not in .env file");
-//     let db = client.database(&database_name);
-    
-//     db.run_command(doc! { "ping": 1 }, None).await?;
-//     println!("Pinged your deployment. You successfully connected to MongoDB!");
-
-    
-  
-//     let user_collection_name = env::var("USER_COLLECTION_NAME").expect("COLLECTION NAME is not in .env file");
-//     let user_collection: Collection<Entry> = db.collection(&user_collection_name);
-
-//     let filter = doc! {"test": "name3"};
-//     let result = user_collection.find_one(filter, None).await?;
-
-//     println!("does user collection work? {}", user_collection.name());
-
-//     match result {
-//         Some(ref document) => {
-//             let test = document.test.clone();
-//             let number = document.number;
-
-//             println!("Found entry with test {} and number {}", test, number);
-//         }
-//         None => println!("No Worky")
-//     }
-
-//     Ok(())
-// }
+fn with_db(db: DB) -> impl Filter<Extract = (DB,), Error = Infallible> + Clone {
+    warp::any().map(move || db.clone())
+}
