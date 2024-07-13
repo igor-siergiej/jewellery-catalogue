@@ -21,8 +21,6 @@ jobs:
         env:
           VITE_CLIENT_ID: ${{ secrets.VITE_CLIENT_ID }}
           VITE_ISSUER: ${{ secrets.VITE_ISSUER }}
-          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           cd web
           rm -f .env
@@ -37,6 +35,9 @@ jobs:
           cp -r build/* /var/www/jewellerycatalogue.onthewifi.com/html
 
       - name: deploy api
+        env:
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           cd api
           cargo build --release
