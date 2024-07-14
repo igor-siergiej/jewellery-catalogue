@@ -1,4 +1,4 @@
-use crate::model::Entry;
+use crate::model::Design;
 use crate::response::Response;
 use mongodb::{Client, Collection};
 use std::env;
@@ -6,7 +6,7 @@ use crate::{error::Error::*, Result};
 
 #[derive(Clone, Debug)]
 pub struct DB {
-    pub entry_collection: Collection<Entry>
+    pub design_collection: Collection<Design>
 }
 
 impl DB {
@@ -19,27 +19,27 @@ impl DB {
 
         let database = client.database(&database_name);
 
-        let entry_collection: Collection<Entry> = database.collection("entries");
+        let design_collection: Collection<Design> = database.collection("designs");
 
         println!("✅ Database connected successfully");
 
         Ok(Self {
-            entry_collection
+            design_collection
         })
     }
 
-    pub async fn get_entries(&self) -> Result<Response> {
-        let mut cursor = self.entry_collection.find(None, None).await.map_err(MongoQueryError)?;
+    pub async fn get_designs(&self) -> Result<Response> {
+        let mut cursor = self.design_collection.find(None, None).await.map_err(MongoQueryError)?;
 
-        let mut entries: Vec<Entry> = Vec::new();
+        let mut design: Vec<Design> = Vec::new();
 
         while cursor.advance().await? {
-            entries.push(cursor.deserialize_current()?)
+            design.push(cursor.deserialize_current()?)
         }
 
         let response_json = Response {
             status: 200,
-            body: entries,
+            body: design,
         };
 
         Ok(response_json)

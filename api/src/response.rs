@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::model::Entry;
+use crate::model::Design;
 
 #[derive(Serialize)]
 pub struct GenericResponse {
@@ -12,5 +12,5 @@ pub struct GenericResponse {
 #[derive(Serialize, Debug)]
 pub struct Response {
     pub status: i32,
-    pub body: Vec<Entry>,
+    pub body: Vec<Design>,
 }

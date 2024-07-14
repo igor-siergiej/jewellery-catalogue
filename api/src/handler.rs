@@ -5,8 +5,8 @@ use crate::{
 };
 use warp::{reject, reply::json, Reply};
 
-pub async fn get_entries_handler(db: DB) -> WebResult<impl Reply> {
-    let result_json = db.get_entries()
+pub async fn get_designs_handler(db: DB) -> WebResult<impl Reply> {
+    let result_json = db.get_designs()
         .await
         .map_err(|e| reject::custom(e))?;
 

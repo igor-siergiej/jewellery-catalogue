@@ -28,7 +28,7 @@ async fn main() -> Result<()> {
         .allow_headers(vec!["content-type"])
         .allow_credentials(true);
 
-    let entry_router = warp::path!("api" / "entries");
+    let entry_router = warp::path!("api" / "designs");
 
     let health_checker = warp::path!("api" / "healthchecker")
     .and(warp::get())
@@ -37,7 +37,7 @@ async fn main() -> Result<()> {
     let entry_routes = entry_router
     .and(warp::get())
     .and(with_db(db.clone()))
-    .and_then(handler::get_entries_handler);
+    .and_then(handler::get_designs_handler);
 
     let routes = entry_routes
     .with(warp::log("api"))
