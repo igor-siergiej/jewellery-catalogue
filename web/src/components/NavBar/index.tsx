@@ -41,7 +41,9 @@ const NavBar = () => {
             <CssBaseline />
             <AppBar
                 position="fixed"
-                sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                sx={{
+                    zIndex: (theme) => theme.zIndex.drawer + 1,
+                }}
             >
                 <Toolbar
                     sx={{
@@ -49,12 +51,22 @@ const NavBar = () => {
                     }}
                 >
                     {/* TODO: logo here with navigate to home screen?  */}
-                    <Typography variant="h6" noWrap component="div">
+                    <Typography
+                        variant="h6"
+                        sx={{ lineHeight: '50px' }}
+                        noWrap
+                        component="div"
+                    >
                         Jewellery Catalogue
                     </Typography>
 
-                    <Typography variant="h6" noWrap component="div">
-                        {user?.email || ''}
+                    <Typography
+                        variant="h6"
+                        sx={{ lineHeight: '50px' }}
+                        noWrap
+                        component="div"
+                    >
+                        {user?.firstName || ''}
                     </Typography>
                 </Toolbar>
             </AppBar>

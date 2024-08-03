@@ -13,6 +13,7 @@ import { HOME_PAGE, ITEMS_PAGE, START_PAGE } from './constants/routes';
 import Items from './pages/Items';
 import MainLayout from './components/MainLayout';
 import { StoreProvider } from './components/Store';
+import LoadingScreen from './components/Loading';
 
 const { VITE_CLIENT_ID, VITE_ISSUER, VITE_OKTA_TESTING_DISABLEHTTPSCHECK } =
     import.meta.env;
@@ -53,14 +54,14 @@ function App() {
                 <Route
                     path="login/callback"
                     element={
-                        <LoginCallback loadingElement={<CircularProgress />} />
+                        <LoginCallback loadingElement={<LoadingScreen />} />
                     }
                 />
 
                 <Route path={START_PAGE.route} element={<Start />}></Route>
 
-                <Route element={<RequiredAuth />}>
-                    <Route element={<MainLayout />}>
+                <Route element={<MainLayout />}>
+                    <Route element={<RequiredAuth />}>
                         <Route
                             index
                             path={HOME_PAGE.route}
