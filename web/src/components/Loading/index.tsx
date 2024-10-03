@@ -14,8 +14,6 @@ const LoadingScreen = () => {
   );
 };
 
-
-
 const GradientCircularProgress = () => (
   <>
     <svg width={0} height={0}>

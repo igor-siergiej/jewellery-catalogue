@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom/client';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './style/theme';
 import { BrowserRouter, Route, useNavigate, Routes } from 'react-router-dom';
@@ -8,8 +8,8 @@ import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
 import Start from './pages/Start';
 import { RequiredAuth } from './components/Auth';
 import Home from './pages/Home';
-import { HOME_PAGE, ITEMS_PAGE, START_PAGE } from './constants/routes';
-import Items from './pages/Items';
+import { HOME_PAGE, START_PAGE, DESIGNS_PAGE } from './constants/routes';
+import Items from './pages/Designs';
 import MainLayout from './components/MainLayout';
 import { StoreProvider } from './components/Store';
 import LoadingScreen from './components/Loading';
@@ -63,7 +63,7 @@ function App() {
               path={HOME_PAGE.route}
               element={<Home />}
             />
-            <Route path={ITEMS_PAGE.route} element={<Items />} />
+            <Route path={DESIGNS_PAGE.route} element={<Items />} />
           </Route>
         </Route>
       </Routes>
