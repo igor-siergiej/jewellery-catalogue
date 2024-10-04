@@ -8,11 +8,14 @@ import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
 import Start from './pages/Start';
 import { RequiredAuth } from './components/Auth';
 import Home from './pages/Home';
-import { HOME_PAGE, START_PAGE, DESIGNS_PAGE } from './constants/routes';
-import Items from './pages/Designs';
+import { HOME_PAGE, START_PAGE, DESIGNS_PAGE, ADD_DESIGN_PAGE, MATERIALS_PAGE, ADD_MATERIAL_PAGE } from './constants/routes';
+import Designs from './pages/Designs';
 import MainLayout from './components/MainLayout';
 import { StoreProvider } from './components/Store';
 import LoadingScreen from './components/Loading';
+import AddDesign from './pages/AddDesign';
+import Materials from './pages/Materials';
+import AddMaterial from './pages/AddMaterial';
 
 const { VITE_CLIENT_ID, VITE_ISSUER, VITE_OKTA_TESTING_DISABLEHTTPSCHECK } =
   import.meta.env;
@@ -54,7 +57,7 @@ function App() {
           }
         />
 
-        <Route path={START_PAGE.route} element={<Start />}></Route>
+        <Route path={START_PAGE.route} element={<Start />} />
 
         <Route element={<MainLayout />}>
           <Route element={<RequiredAuth />}>
@@ -63,7 +66,10 @@ function App() {
               path={HOME_PAGE.route}
               element={<Home />}
             />
-            <Route path={DESIGNS_PAGE.route} element={<Items />} />
+            <Route path={DESIGNS_PAGE.route} element={<Designs />} />
+            <Route path={ADD_DESIGN_PAGE.route} element={<AddDesign />} />
+            <Route path={MATERIALS_PAGE.route} element={<Materials />} />
+            <Route path={ADD_MATERIAL_PAGE.route} element={<AddMaterial />} />
           </Route>
         </Route>
       </Routes>

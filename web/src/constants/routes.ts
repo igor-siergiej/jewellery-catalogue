@@ -15,4 +15,25 @@ export const DESIGNS_PAGE: NavRoute = {
   route: 'designs',
 };
 
-export const ROUTES = [HOME_PAGE, DESIGNS_PAGE];
+export const ADD_DESIGN_PAGE: NavRoute = {
+  name: 'Add Design',
+  route: 'addDesign'
+}
+
+export const MATERIALS_PAGE: NavRoute = {
+  name: 'Materials',
+  route: 'materials'
+}
+
+export const ADD_MATERIAL_PAGE: NavRoute = {
+  name: 'Add Material',
+  route: 'addMaterial'
+}
+
+export const ROUTES = [
+  HOME_PAGE,
+  DESIGNS_PAGE,
+  ADD_DESIGN_PAGE,
+  MATERIALS_PAGE,
+  ADD_MATERIAL_PAGE
+];
