@@ -13,6 +13,15 @@ const theme = createTheme({
     typography: {
         fontFamily: 'Playwrite PL',
     },
+    components: {
+        MuiOutlinedInput: {
+            styleOverrides: {
+                root: {
+                    lineHeight: 50,
+                },
+            },
+        },
+    },
 });
 
 export default theme;
