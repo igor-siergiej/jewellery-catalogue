@@ -1,7 +1,6 @@
 import { CircularProgress, Grid } from '@mui/material';
 
 const LoadingScreen = () => {
-    console.log('loadin');
     return (
         <Grid
             container

@@ -3,19 +3,22 @@ export type Material = Wire | Bead;
 export interface Wire extends BaseMaterialType {
     wireType: WIRE_TYPE;
     metalType: METAL_TYPE;
+    length: number;
     pricePerMeter: number;
 }
 
 export interface Bead extends BaseMaterialType {
     colour: string;
+    quantity: number;
     pricePerBead: number;
 }
 
 export interface BaseMaterialType {
     name: string;
     brand: string;
-    quantity: number;
     diameter: number;
+    purchaseUrl: string;
+    type: MaterialType;
 }
 
 export enum METAL_TYPE {

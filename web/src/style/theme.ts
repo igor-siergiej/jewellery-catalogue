@@ -17,7 +17,7 @@ const theme = createTheme({
         MuiOutlinedInput: {
             styleOverrides: {
                 root: {
-                    lineHeight: 50,
+                    lineHeight: 200,
                 },
             },
         },

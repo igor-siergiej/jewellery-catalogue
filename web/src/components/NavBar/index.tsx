@@ -47,13 +47,14 @@ const NavBar = () => {
             >
                 <Toolbar
                     sx={{
+                        minHeight: '80px !important',
                         justifyContent: 'space-between',
                     }}
                 >
                     {/* TODO: logo here with navigate to home screen?  */}
                     <Typography
-                        variant="h6"
-                        sx={{ lineHeight: '50px' }}
+                        variant="h4"
+                        sx={{ lineHeight: '80px' }}
                         noWrap
                         component="div"
                     >
@@ -61,8 +62,8 @@ const NavBar = () => {
                     </Typography>
 
                     <Typography
-                        variant="h6"
-                        sx={{ lineHeight: '50px' }}
+                        variant="h4"
+                        sx={{ lineHeight: '80px' }}
                         noWrap
                         component="div"
                     >
@@ -79,7 +80,7 @@ const NavBar = () => {
                     },
                 }}
             >
-                <Toolbar />
+                <Toolbar sx={{ minHeight: '80px !important' }} />
                 <Box>
                     <List>{navBarButtons}</List>
                 </Box>
