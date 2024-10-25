@@ -17,6 +17,7 @@ const Designs = () => {
     if (!data) {
         return <LoadingScreen />;
     }
+
     return <DesignTable designs={data} />;
 };
 
