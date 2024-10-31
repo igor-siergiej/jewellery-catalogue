@@ -19,6 +19,7 @@ export interface BaseMaterialType {
     diameter: number;
     purchaseUrl: string;
     type: MaterialType;
+    pricePerPack: number;
 }
 
 export enum METAL_TYPE {

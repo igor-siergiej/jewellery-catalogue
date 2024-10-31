@@ -1,7 +1,8 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { BaseMaterialType, Material, MaterialType } from '../Materials/types';
 import { Button, TextField, Typography } from '@mui/material';
-import MaterialTypeDropDown from './MaterialTypeDropDown';
+import MaterialFormResolver from '../../components/MaterialFormResolver';
+import DropDown from '../../components/DropDown';
 
 type AddMaterialInputs = BaseMaterialType;
 
@@ -12,17 +13,6 @@ const AddMaterial = () => {
 
     const onSubmit: SubmitHandler<AddMaterialInputs> = (data) => {
         console.log(data);
-    };
-
-    const materialTypeFormResolver = () => {
-        switch (currentMaterialType) {
-            case MaterialType.WIRE:
-                return 'WIRE';
-            case MaterialType.BEAD:
-                return 'BEAD';
-            default:
-                return null;
-        }
     };
 
     return (
@@ -51,11 +41,28 @@ const AddMaterial = () => {
                     color="secondary"
                     label="Diameter (mm)"
                 />
+                <TextField
+                    {...register('purchaseUrl')}
+                    color="secondary"
+                    label="URL"
+                />
+                <TextField
+                    {...register('pricePerPack')}
+                    color="secondary"
+                    label={`Price per Pack (£)`}
+                />
 
-                <MaterialTypeDropDown control={control} />
-
-                {materialTypeFormResolver()}
-
+                <DropDown
+                    label="Material Type"
+                    name="type"
+                    control={control}
+                    options={Object.keys(MaterialType) as Array<MaterialType>}
+                />
+                <MaterialFormResolver
+                    control={control}
+                    materialType={currentMaterialType}
+                    register={register}
+                />
                 <Button variant="contained" color="secondary" type="submit">
                     Add Material!
                 </Button>

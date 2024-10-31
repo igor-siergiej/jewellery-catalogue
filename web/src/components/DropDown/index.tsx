@@ -3,28 +3,27 @@ import Select from '@mui/material/Select';
 import { Controller } from 'react-hook-form';
 import MenuItem from '@mui/material/MenuItem';
 import { type Control } from 'react-hook-form';
+import { Bead, Wire } from '../../pages/Materials/types';
 
 export interface IProps {
     options: Array<string>;
     control: Control<any, any>;
     label: string;
+    name: keyof Wire | keyof Bead;
 }
 
-const DropDown: React.FC<IProps> = ({ control, options, label }) => {
+const DropDown: React.FC<IProps> = ({ control, options, label, name }) => {
     return (
         <Controller
-            name="type"
+            name={name}
             control={control}
             render={({ field }) => (
                 <>
-                    <InputLabel
-                        sx={{ marginY: 2, color: 'black' }}
-                        id="typeLabel"
-                    >
+                    <InputLabel sx={{ marginY: 2, color: 'black' }} id={name}>
                         {label}
                     </InputLabel>
                     <Select
-                        labelId="typeLabel"
+                        labelId={name}
                         sx={{
                             lineHeight: '1.4em',
                             width: '250px',
@@ -33,7 +32,7 @@ const DropDown: React.FC<IProps> = ({ control, options, label }) => {
                         defaultValue={''}
                         variant="filled"
                         color="secondary"
-                        label="Material Type"
+                        label={label}
                         {...field}
                     >
                         {options.map((type) => (
