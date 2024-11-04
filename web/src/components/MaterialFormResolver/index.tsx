@@ -1,7 +1,7 @@
-import { MaterialType } from '../../pages/Materials/types';
 import { IMaterialTypeToFormMapping, IProps } from './types';
 import AddWireForm from './Forms/Wire';
 import AddBeadForm from './Forms/Bead';
+import { MaterialType } from '../../types';
 
 const MATERIAL_TYPE_TO_FORM_MAPPING: IMaterialTypeToFormMapping = {
     [MaterialType.WIRE]: AddWireForm,

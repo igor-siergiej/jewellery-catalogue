@@ -3,7 +3,7 @@ import Select from '@mui/material/Select';
 import { Controller } from 'react-hook-form';
 import MenuItem from '@mui/material/MenuItem';
 import { type Control } from 'react-hook-form';
-import { Bead, Wire } from '../../pages/Materials/types';
+import { Bead, Wire } from '../../types';
 
 export interface IProps {
     options: Array<string>;

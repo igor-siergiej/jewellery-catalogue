@@ -1,6 +1,6 @@
 import React from 'react';
-import { Design } from '../../api/getDesigns/types';
 import DataTable, { TableColumn } from 'react-data-table-component';
+import { Design } from '../../types';
 
 export interface DesignTableProps {
     designs: Array<Design>;

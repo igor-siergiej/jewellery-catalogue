@@ -1,3 +1,9 @@
+export interface Design {
+    material: string;
+    price: number;
+    name: string;
+}
+
 export type Material = Wire | Bead;
 
 export interface Wire extends BaseMaterialType {

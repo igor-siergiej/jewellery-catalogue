@@ -1,13 +1,11 @@
-import { Design, GetDesignsResponse } from './types';
+import { DESIGNS_ENDPOINT } from '../endpoints';
+import { GetDesignsResponse } from './types';
 import { QueryClient } from '@tanstack/react-query';
 
 const makeGetDesignsRequest = async () => {
-    const endpoint = '/api/designs';
-    const url = `${window.origin}${endpoint}`;
+    const url = `${window.origin}${DESIGNS_ENDPOINT}`;
 
-    const debugUrl = 'https://jewellerycatalogue.onthewifi.com/api/designs';
-
-    const response = await fetch(debugUrl);
+    const response = await fetch(url);
 
     const responseJson = (await response.json()) as GetDesignsResponse;
 

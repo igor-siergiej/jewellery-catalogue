@@ -1,8 +1,8 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { BaseMaterialType, Material, MaterialType } from '../Materials/types';
 import { Button, TextField, Typography } from '@mui/material';
 import MaterialFormResolver from '../../components/MaterialFormResolver';
 import DropDown from '../../components/DropDown';
+import { BaseMaterialType, Material, MaterialType } from '../../types';
 
 type AddMaterialInputs = BaseMaterialType;
 
@@ -13,6 +13,9 @@ const AddMaterial = () => {
 
     const onSubmit: SubmitHandler<AddMaterialInputs> = (data) => {
         console.log(data);
+
+        // const material = convertFormDataToMaterial();
+        // addMaterial(data)
     };
 
     return (
