@@ -1,9 +1,10 @@
 import { DESIGNS_ENDPOINT } from '../endpoints';
+import { getApiUrl } from '../getApiUrl';
 import { GetDesignsResponse } from './types';
 import { QueryClient } from '@tanstack/react-query';
 
 const makeGetDesignsRequest = async () => {
-    const url = `${window.origin}${DESIGNS_ENDPOINT}`;
+    const url = `${getApiUrl()}${DESIGNS_ENDPOINT}`;
 
     const response = await fetch(url);
 

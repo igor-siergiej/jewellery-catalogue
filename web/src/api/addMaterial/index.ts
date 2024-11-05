@@ -1,9 +1,10 @@
 import { Material } from '../../types';
+import { MATERIALS_ENDPOINT } from '../endpoints';
+import { getApiUrl } from '../getApiUrl';
 import { IGenericResponse } from '../types';
-const URI = '/api/materials';
 
 const makeAddMaterialRequest = async (material: Material) => {
-    const url = `${window.origin}${URI}`;
+    const url = `${getApiUrl()}${MATERIALS_ENDPOINT}`;
 
     const response = await fetch(url, {
         method: 'PUT',
