@@ -1,12 +1,22 @@
 use crate::{
     db::DB,
+    model::{BaseMaterialType, Material, MaterialType, MetalType, Wire, WireType},
     response::GenericResponse,
     WebResult,
 };
 use warp::{reject, reply::json, Reply};
 
+use serde_json::{Result, Value};
+
 pub async fn get_designs_handler(db: DB) -> WebResult<impl Reply> {
-    let result_json = db.get_designs()
+    let result_json = db.get_designs().await.map_err(|e| reject::custom(e))?;
+
+    Ok(json(&result_json))
+}
+
+pub async fn add_materials_handler(material: Material, db: DB) -> WebResult<impl Reply> {
+    let result_json = db
+        .add_material(material)
         .await
         .map_err(|e| reject::custom(e))?;
 

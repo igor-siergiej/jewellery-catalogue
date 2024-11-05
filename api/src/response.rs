@@ -8,9 +8,8 @@ pub struct GenericResponse {
     pub message: String,
 }
 
-
 #[derive(Serialize, Debug)]
-pub struct Response {
+pub struct GetDesignsResponse {
     pub status: i32,
     pub body: Vec<Design>,
 }

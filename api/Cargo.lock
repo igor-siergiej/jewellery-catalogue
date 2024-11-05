@@ -64,6 +64,8 @@ dependencies = [
  "mongodb",
  "pretty_env_logger",
  "serde",
+ "serde_compact",
+ "serde_json",
  "thiserror",
  "tokio",
  "uuid",
@@ -1485,6 +1487,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_compact"
+version = "1.0.0-rc.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77efb462f486166ae349a2dc39d01d8d5232077076b302e708d11f11627c5a74"
+dependencies = [
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "serde_derive"
 version = "1.0.203"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1497,12 +1509,13 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.117"
+version = "1.0.132"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "455182ea6142b14f93f4bc5320a2b31c1f266b66a4a5c858b013302a5d8cbfc3"
+checksum = "d726bfaff4b320266d395898905d0eba0345aae23b54aee3a737e260fd46db03"
 dependencies = [
  "indexmap",
  "itoa",
+ "memchr",
  "ryu",
  "serde",
 ]

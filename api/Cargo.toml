@@ -5,12 +5,16 @@ edition = "2021"
 
 [dependencies]
 mongodb = "2.8.2"
-tokio ={ version = "1.38.0", features = ['full']}
+tokio = { version = "1.38.0", features = ['full'] }
 dotenv = "0.15.0"
 chrono = { version = "0.4.23", features = ["serde"] }
 serde = '1.0.203'
+serde_json = "1.0.132"
+serde_compact = "1.0.0-rc.3"
 uuid = { version = "1.2.2", features = ["v4"] }
 warp = "0.3.3"
 pretty_env_logger = "0.4.0"
 thiserror = "1.0.38"
-futures = { version = "0.3.25", default-features = false, features = ["async-await"] }
+futures = { version = "0.3.25", default-features = false, features = [
+  "async-await",
+] }
