@@ -1,4 +1,4 @@
-import { MaterialType } from '../../pages/Materials/types';
+import { MaterialType } from '../../types';
 import { IMaterialFormProps } from './Forms/types';
 
 export interface IMaterialTypeToFormMapping {

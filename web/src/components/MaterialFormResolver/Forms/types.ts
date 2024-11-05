@@ -1,5 +1,5 @@
 import { Control, UseFormRegister } from 'react-hook-form';
-import { Material } from '../../../pages/Materials/types';
+import { Material } from '../../../types';
 
 export interface IMaterialFormProps {
     register: UseFormRegister<Material>;
