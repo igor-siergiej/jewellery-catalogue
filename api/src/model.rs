@@ -49,7 +49,6 @@ pub struct BaseMaterialType {
     pub purchase_url: String,
     #[serde(rename = "type")]
     pub material_type: MaterialType,
-    pub price_per_meter: i32,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

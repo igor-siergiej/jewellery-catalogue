@@ -1,5 +1,5 @@
 use crate::model::{Design, Material};
-use crate::response::{GenericResponse, GetDesignsResponse};
+use crate::response::{GenericResponse, GetDesignsResponse, GetMaterialsResponse};
 use crate::{error::Error::*, Result};
 use mongodb::{Client, Collection};
 use std::env;
@@ -46,6 +46,27 @@ impl DB {
         let response_json = GetDesignsResponse {
             status: 200,
             body: design,
+        };
+
+        Ok(response_json)
+    }
+
+    pub async fn get_materials(&self) -> Result<GetMaterialsResponse> {
+        let mut cursor = self
+            .material_collection
+            .find(None, None)
+            .await
+            .map_err(MongoQueryError)?;
+
+        let mut materials: Vec<Material> = Vec::new();
+
+        while cursor.advance().await? {
+            materials.push(cursor.deserialize_current()?)
+        }
+
+        let response_json = GetMaterialsResponse {
+            status: 200,
+            body: materials,
         };
 
         Ok(response_json)

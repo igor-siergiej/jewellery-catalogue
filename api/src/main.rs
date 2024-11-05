@@ -6,6 +6,7 @@ mod response;
 
 use db::DB;
 use dotenv::dotenv;
+use model::{BaseMaterialType, Material, Wire};
 use std::convert::Infallible;
 use warp::{filters::body::json, http::Method, Filter, Rejection};
 
@@ -28,19 +29,24 @@ async fn main() -> Result<()> {
         .allow_headers(vec!["content-type"])
         .allow_credentials(true);
 
-    let add_material_endpoint = warp::path!("api" / "material");
-    let get_designs_endpoint = warp::path!("api" / "designs");
+    let materials_endpoint = warp::path!("api" / "materials");
+    let designs_endpoint = warp::path!("api" / "designs");
 
     let health_checker = warp::path!("api" / "healthchecker")
         .and(warp::get())
         .and_then(handler::health_checker_handler);
 
-    let get_designs_route = get_designs_endpoint
+    let get_designs_route = designs_endpoint
         .and(warp::get())
         .and(with_db(db.clone()))
         .and_then(handler::get_designs_handler);
 
-    let add_material_route = add_material_endpoint
+    let get_materials_route = materials_endpoint
+        .and(warp::get())
+        .and(with_db(db.clone()))
+        .and_then(handler::get_materials_handler);
+
+    let add_material_route = materials_endpoint
         .and(warp::put())
         .and(json())
         .and(with_db(db.clone()))
@@ -49,6 +55,7 @@ async fn main() -> Result<()> {
     let routes = get_designs_route
         .with(warp::log("api"))
         .or(add_material_route)
+        .or(get_materials_route)
         .or(health_checker)
         .with(cors)
         .recover(error::handle_rejection);
