@@ -2,20 +2,18 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { Button, TextField, Typography } from '@mui/material';
 import MaterialFormResolver from '../../components/MaterialFormResolver';
 import DropDown from '../../components/DropDown';
-import { BaseMaterialType, Material, MaterialType } from '../../types';
-
-type AddMaterialInputs = BaseMaterialType;
+import { Bead, MaterialType, Wire } from '../../types';
+import { IFormBead, IFormMaterial, IFormWire } from './types';
 
 const AddMaterial = () => {
-    const { control, handleSubmit, register, watch } = useForm<Material>();
+    const { control, handleSubmit, register, watch } = useForm<IFormMaterial>();
 
     const currentMaterialType = watch('type');
 
-    const onSubmit: SubmitHandler<AddMaterialInputs> = (data) => {
-        console.log(data);
+    const onSubmit: SubmitHandler<IFormMaterial> = (data) => {
+        const material = convertFormDataToMaterial(data);
 
-        // const material = convertFormDataToMaterial();
-        // addMaterial(data)
+        console.log(material);
     };
 
     return (
@@ -55,12 +53,19 @@ const AddMaterial = () => {
                     label={`Price per Pack (£)`}
                 />
 
+                <TextField
+                    {...register('packs')}
+                    color="secondary"
+                    label="Number of new packs"
+                />
+
                 <DropDown
                     label="Material Type"
                     name="type"
                     control={control}
                     options={Object.keys(MaterialType) as Array<MaterialType>}
                 />
+
                 <MaterialFormResolver
                     control={control}
                     materialType={currentMaterialType}
@@ -75,3 +80,36 @@ const AddMaterial = () => {
 };
 
 export default AddMaterial;
+
+const convertFormDataToMaterial = (formMaterial: IFormMaterial) => {
+    switch (formMaterial.type) {
+        case MaterialType.WIRE:
+            return convertFormWireToMaterial(formMaterial as IFormWire);
+        case MaterialType.BEAD:
+            return convertFormBeadToMaterial(formMaterial as IFormBead);
+    }
+};
+
+const convertFormWireToMaterial = (formWire: IFormWire): Wire => {
+    const totalLength = formWire.packs * formWire.length;
+    const totalPrice = formWire.packs * formWire.pricePerPack;
+    const pricePerMeter = totalPrice / totalLength;
+
+    const { packs, pricePerPack, ...rest } = formWire;
+
+    const wire = { ...rest, pricePerMeter } as Wire;
+
+    return wire;
+};
+
+const convertFormBeadToMaterial = (formBead: IFormBead): Bead => {
+    const totalQuantity = formBead.packs * formBead.quantity;
+    const totalPrice = formBead.packs * formBead.pricePerPack;
+    const pricePerBead = totalPrice / totalQuantity;
+
+    const { packs, pricePerPack, ...rest } = formBead;
+
+    const bead = { ...rest, pricePerBead } as Bead;
+
+    return bead;
+};

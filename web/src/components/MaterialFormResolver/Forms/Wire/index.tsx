@@ -1,5 +1,4 @@
 import { IMaterialFormProps } from '../types';
-import Typography from '@mui/material/Typography';
 import DropDown from '../../../DropDown';
 import TextField from '@mui/material/TextField';
 import { METAL_TYPE, WIRE_TYPE } from '../../../../types';
@@ -7,8 +6,6 @@ import { METAL_TYPE, WIRE_TYPE } from '../../../../types';
 const AddWireForm: React.FC<IMaterialFormProps> = ({ register, control }) => {
     return (
         <>
-            <Typography variant="body2">Add Wire Form</Typography>
-
             <DropDown
                 name="wireType"
                 label="Wire Type"
@@ -25,7 +22,7 @@ const AddWireForm: React.FC<IMaterialFormProps> = ({ register, control }) => {
             <TextField
                 {...register('length')}
                 color="secondary"
-                label="Length (Meters)"
+                label="Length per pack (Meters)"
             />
         </>
     );

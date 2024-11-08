@@ -1,7 +1,7 @@
 import { Control, UseFormRegister } from 'react-hook-form';
-import { Material } from '../../../types';
+import { IFormMaterial } from '../../../pages/AddMaterial/types';
 
 export interface IMaterialFormProps {
-    register: UseFormRegister<Material>;
-    control: Control<Material, any>;
+    register: UseFormRegister<IFormMaterial>;
+    control: Control<IFormMaterial, any>;
 }

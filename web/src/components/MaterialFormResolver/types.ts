@@ -5,6 +5,6 @@ export interface IMaterialTypeToFormMapping {
     [key: string]: React.FC<IMaterialFormProps>;
 }
 
-export interface IProps extends IMaterialFormProps {
+export interface IMaterialFormResolverProps extends IMaterialFormProps {
     materialType: MaterialType;
 }
