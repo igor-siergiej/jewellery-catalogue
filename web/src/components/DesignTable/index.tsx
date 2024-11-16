@@ -1,27 +1,43 @@
 import React from 'react';
-import DataTable, { TableColumn } from 'react-data-table-component';
 import { Design } from '../../types';
+import MUIDataTable, {
+    MUIDataTableColumn,
+    MUIDataTableOptions,
+} from 'mui-datatables';
 
 export interface DesignTableProps {
     designs: Array<Design>;
 }
 
 const DesignTable: React.FC<DesignTableProps> = ({ designs }) => {
-    const columns: TableColumn<Design>[] = [
+    const columns: Array<MUIDataTableColumn> = [
         {
-            name: 'Name',
-            selector: (row) => row.name,
+            name: 'name',
+            label: 'Name',
         },
         {
-            name: 'Material',
-            selector: (row) => row.material,
+            label: 'Price',
+            name: 'price',
         },
         {
-            name: 'Price',
-            selector: (row) => row.price,
+            label: 'Material',
+            name: 'material',
         },
     ];
-    return <DataTable columns={columns} data={designs} />;
+
+    const tableOptions: MUIDataTableOptions = {
+        print: false,
+        download: false,
+    };
+
+    return (
+        <MUIDataTable
+            title={'Designs'}
+            data={designs}
+            columns={columns}
+            options={tableOptions}
+        />
+    );
 };
 
 export default DesignTable;

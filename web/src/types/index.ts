@@ -4,7 +4,7 @@ export interface Design {
     name: string;
 }
 
-export type Material = Wire | Bead;
+export type Material = Spread<Wire & Bead>;
 
 export interface Wire extends BaseMaterialType {
     wireType: WIRE_TYPE;
@@ -25,7 +25,6 @@ export interface BaseMaterialType {
     diameter: number;
     purchaseUrl: string;
     type: MaterialType;
-    pricePerPack: number;
 }
 
 export enum METAL_TYPE {
@@ -45,3 +44,5 @@ export enum MaterialType {
     WIRE = 'WIRE',
     BEAD = 'BEAD',
 }
+
+export type Spread<T> = { [Key in keyof T]: T[Key] };

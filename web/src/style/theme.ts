@@ -4,14 +4,17 @@ const theme = createTheme({
     palette: {
         mode: 'light',
         primary: {
-            main: '#CCDAF4',
+            main: '#a600ff',
         },
         secondary: {
             main: '#2D7DD2',
         },
+        background: {
+            default: '#CCDAF4',
+        },
     },
     typography: {
-        fontFamily: 'Playwrite PL',
+        fontFamily: 'Faculty Glyphic, sans-serif',
     },
     components: {
         MuiOutlinedInput: {
