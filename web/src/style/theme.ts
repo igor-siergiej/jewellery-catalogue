@@ -1,5 +1,11 @@
 import { createTheme } from '@mui/material';
 
+declare module '@mui/material/styles' {
+    interface Components {
+        [key: string]: any;
+    }
+}
+
 const theme = createTheme({
     palette: {
         mode: 'light',
@@ -17,6 +23,9 @@ const theme = createTheme({
         fontFamily: 'Faculty Glyphic, sans-serif',
     },
     components: {
+        MUIDataTableToolbarSelect: {
+            styleOverrides: { root: { backgroundColor: '#d078ff' } },
+        },
         MuiOutlinedInput: {
             styleOverrides: {
                 root: {

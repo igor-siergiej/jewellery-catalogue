@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Typography } from '@mui/material';
+import { Box, Button, Card, Grid, Typography } from '@mui/material';
 import { useOktaAuth } from '@okta/okta-react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -48,9 +48,12 @@ const Start = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 userSelect: 'none',
+                height: '100vh',
+                width: '100vw',
             }}
         >
-            <Box
+            <Card
+                raised
                 sx={{
                     backgroundColor: '#fff',
                     width: '800px',
@@ -90,7 +93,7 @@ const Start = () => {
                         {image}
                     </Grid>
                 </Grid>
-            </Box>
+            </Card>
         </Box>
     );
 };

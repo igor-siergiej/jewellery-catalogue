@@ -5,14 +5,24 @@ import DropDown from '../../components/DropDown';
 import { Bead, MaterialType, Wire } from '../../types';
 import { IFormBead, IFormMaterial, IFormWire } from './types';
 
+const URL_REGEX =
+    /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/g;
+
 const AddMaterial = () => {
-    const { control, handleSubmit, register, watch } = useForm<IFormMaterial>();
+    const {
+        control,
+        handleSubmit,
+        register,
+        watch,
+        formState: { errors },
+    } = useForm<IFormMaterial>();
 
     const currentMaterialType = watch('type');
 
     const onSubmit: SubmitHandler<IFormMaterial> = (data) => {
         const material = convertFormDataToMaterial(data);
 
+        // TODO: Add api to make a request to add material endpoint
         console.log(material);
     };
 
@@ -43,7 +53,18 @@ const AddMaterial = () => {
                     label="Diameter (mm)"
                 />
                 <TextField
-                    {...register('purchaseUrl')}
+                    {...register('purchaseUrl', {
+                        required: {
+                            value: true,
+                            message: 'Please enter a URL',
+                        },
+                        pattern: {
+                            value: URL_REGEX,
+                            message: 'Please enter a valid URL',
+                        },
+                    })}
+                    error={Boolean(errors.purchaseUrl)}
+                    helperText={errors.purchaseUrl?.message}
                     color="secondary"
                     label="URL"
                 />

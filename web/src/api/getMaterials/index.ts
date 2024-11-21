@@ -14,7 +14,7 @@ const makeGetMaterialsRequest = async () => {
 };
 
 export const getMaterialsQuery = () => ({
-    queryKey: ['designs'],
+    queryKey: ['materials'],
     queryFn: async () => makeGetMaterialsRequest(),
 });
 
