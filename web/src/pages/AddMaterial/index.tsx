@@ -7,6 +7,8 @@ import { IFormBead, IFormMaterial, IFormWire } from './types';
 
 const URL_REGEX =
     /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/g;
+const DECIMAL_REGEX = /^\d*(\.\d+)?$/;
+const NUMBER_REGEX = /^[0-9]*$/;
 
 const AddMaterial = () => {
     const {
@@ -38,46 +40,93 @@ const AddMaterial = () => {
             </Typography>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <TextField
-                    {...register('name')}
+                    {...register('name', {
+                        required: {
+                            value: true,
+                            message: 'Please enter the material name.',
+                        },
+                    })}
                     color="secondary"
                     label="Name"
+                    error={Boolean(errors.name)}
+                    helperText={errors.name?.message}
                 />
                 <TextField
-                    {...register('brand')}
+                    {...register('brand', {
+                        required: {
+                            value: true,
+                            message: 'Please enter the brand name.',
+                        },
+                    })}
                     color="secondary"
                     label="Brand"
+                    error={Boolean(errors.brand)}
+                    helperText={errors.brand?.message}
                 />
                 <TextField
-                    {...register('diameter')}
+                    {...register('diameter', {
+                        required: {
+                            value: true,
+                            message: 'Please enter the diameter.',
+                        },
+                        pattern: {
+                            value: DECIMAL_REGEX,
+                            message: 'Please enter a valid number',
+                        },
+                    })}
                     color="secondary"
                     label="Diameter (mm)"
+                    error={Boolean(errors.diameter)}
+                    helperText={errors.diameter?.message}
                 />
                 <TextField
                     {...register('purchaseUrl', {
                         required: {
                             value: true,
-                            message: 'Please enter a URL',
+                            message: 'Please enter the URL',
                         },
                         pattern: {
                             value: URL_REGEX,
                             message: 'Please enter a valid URL',
                         },
                     })}
-                    error={Boolean(errors.purchaseUrl)}
-                    helperText={errors.purchaseUrl?.message}
                     color="secondary"
                     label="URL"
+                    error={Boolean(errors.purchaseUrl)}
+                    helperText={errors.purchaseUrl?.message}
                 />
                 <TextField
-                    {...register('pricePerPack')}
+                    {...register('pricePerPack', {
+                        required: {
+                            value: true,
+                            message: 'Please enter the price.',
+                        },
+                        pattern: {
+                            value: DECIMAL_REGEX,
+                            message: 'Please enter a valid price',
+                        },
+                    })}
                     color="secondary"
                     label={`Price per Pack (£)`}
+                    error={Boolean(errors.pricePerPack)}
+                    helperText={errors.pricePerPack?.message}
                 />
 
                 <TextField
-                    {...register('packs')}
+                    {...register('packs', {
+                        required: {
+                            value: true,
+                            message: 'Please enter the quantity of packs.',
+                        },
+                        pattern: {
+                            value: NUMBER_REGEX,
+                            message: 'Please enter a valid quantity of packs',
+                        },
+                    })}
                     color="secondary"
                     label="Number of new packs"
+                    error={Boolean(errors.packs)}
+                    helperText={errors.packs?.message}
                 />
 
                 <DropDown
