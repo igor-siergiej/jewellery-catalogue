@@ -1,7 +1,10 @@
 export interface Design {
-    material: string;
-    price: number;
+    materials: Array<Material>;
     name: string;
+    imageUrl: string;
+    timeRequired: string;
+    totalMaterialCosts: number;
+    suggestedSellingPrice: number;
 }
 
 export type Material = Spread<Wire & Bead>;
