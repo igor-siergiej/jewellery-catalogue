@@ -11,7 +11,7 @@ import {
     Typography,
 } from '@mui/material';
 import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Store } from '../Store';
 import { ROUTES } from '../../constants/routes';
 
@@ -20,10 +20,20 @@ const NavBar = () => {
     const { user } = state || {};
 
     const navigate = useNavigate();
+    const location = useLocation();
 
     const navBarButtons = ROUTES.map((route) => {
         return (
-            <ListItem disablePadding key={route.route}>
+            <ListItem
+                disablePadding
+                sx={{
+                    backgroundColor: (theme) =>
+                        location.pathname.replace('/', '') === route.route
+                            ? theme.palette.background.default
+                            : 'white',
+                }}
+                key={route.route}
+            >
                 <ListItemButton
                     onClick={() => {
                         navigate(route.route);

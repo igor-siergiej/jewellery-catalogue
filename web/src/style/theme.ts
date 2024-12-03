@@ -26,13 +26,6 @@ const theme = createTheme({
         MUIDataTableToolbarSelect: {
             styleOverrides: { root: { backgroundColor: '#d078ff' } },
         },
-        MuiOutlinedInput: {
-            styleOverrides: {
-                root: {
-                    lineHeight: 200,
-                },
-            },
-        },
     },
 });
 
