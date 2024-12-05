@@ -1,6 +1,6 @@
-import { METAL_TYPE, MaterialType, WIRE_TYPE } from '../../types';
+import { METAL_TYPE, MaterialType, Spread, WIRE_TYPE } from '../../types';
 
-export type IFormMaterial = IFormBead | IFormWire;
+export type IFormMaterial = Spread<IFormBead | IFormWire>;
 
 export interface IFormWire extends BaseFormMaterialType {
     wireType: WIRE_TYPE;

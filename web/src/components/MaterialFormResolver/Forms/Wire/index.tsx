@@ -20,9 +20,16 @@ const AddWireForm: React.FC<IMaterialFormProps> = ({ register, control }) => {
             />
 
             <TextField
-                {...register('length')}
                 color="secondary"
                 label="Length per pack (Meters)"
+                {...register('length', {
+                    valueAsNumber: true,
+                    required: {
+                        value: true,
+                        message: 'Please enter the wire length.',
+                    },
+                    validate: (value) => value > 0,
+                })}
             />
         </>
     );

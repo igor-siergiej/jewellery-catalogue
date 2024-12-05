@@ -1,9 +1,14 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { Button, TextField, Typography } from '@mui/material';
+import { Collapse, IconButton, TextField, Typography } from '@mui/material';
 import MaterialFormResolver from '../../components/MaterialFormResolver';
 import DropDown from '../../components/DropDown';
 import { Bead, MaterialType, Wire } from '../../types';
 import { IFormBead, IFormMaterial, IFormWire } from './types';
+import makeAddMaterialRequest from '../../api/addMaterial';
+import { useState } from 'react';
+import LoadingButton from '@mui/lab/LoadingButton';
+import Alert from '@mui/material/Alert';
+import CloseIcon from '@mui/icons-material/Close';
 
 const URL_REGEX =
     /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/g;
@@ -19,13 +24,25 @@ const AddMaterial = () => {
         formState: { errors },
     } = useForm<IFormMaterial>();
 
+    const [isMakingRequest, setIsMakingRequest] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
+
     const currentMaterialType = watch('type');
 
-    const onSubmit: SubmitHandler<IFormMaterial> = (data) => {
+    const onSubmit: SubmitHandler<IFormMaterial> = async (data) => {
         const material = convertFormDataToMaterial(data);
 
-        // TODO: Add api to make a request to add material endpoint
-        console.log(material);
+        setIsMakingRequest(true);
+        try {
+            await makeAddMaterialRequest(material);
+            // create positive alert
+        } catch (error) {
+            setShowAlert(true);
+            setTimeout(() => setShowAlert(false), 5000);
+            setIsMakingRequest(false);
+        } finally {
+            setIsMakingRequest(false);
+        }
     };
 
     return (
@@ -65,14 +82,12 @@ const AddMaterial = () => {
                 />
                 <TextField
                     {...register('diameter', {
+                        valueAsNumber: true,
                         required: {
                             value: true,
                             message: 'Please enter the diameter.',
                         },
-                        pattern: {
-                            value: DECIMAL_REGEX,
-                            message: 'Please enter a valid number',
-                        },
+                        validate: (value) => value > 0,
                     })}
                     color="secondary"
                     label="Diameter (mm)"
@@ -141,10 +156,20 @@ const AddMaterial = () => {
                     materialType={currentMaterialType}
                     register={register}
                 />
-                <Button variant="contained" color="secondary" type="submit">
+                <LoadingButton
+                    variant="contained"
+                    color="secondary"
+                    type="submit"
+                    loading={isMakingRequest}
+                >
                     Add Material!
-                </Button>
+                </LoadingButton>
             </form>
+            <Collapse in={showAlert}>
+                <Alert variant="outlined" severity="error">
+                    This is an outlined error Alert.
+                </Alert>
+            </Collapse>
         </>
     );
 };
@@ -167,7 +192,7 @@ const convertFormWireToMaterial = (formWire: IFormWire): Wire => {
 
     const { packs, pricePerPack, ...rest } = formWire;
 
-    const wire = { ...rest, pricePerMeter } as Wire;
+    const wire: Wire = { ...rest, pricePerMeter };
 
     return wire;
 };

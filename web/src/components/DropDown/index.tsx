@@ -25,6 +25,7 @@ const DropDown: React.FC<IProps> = ({ control, options, label, name }) => {
             <Controller
                 name={name}
                 control={control}
+                defaultValue={''}
                 render={({ field }) => (
                     <FormControl variant="filled" fullWidth>
                         <InputLabel id={name}>{label}</InputLabel>
@@ -36,6 +37,7 @@ const DropDown: React.FC<IProps> = ({ control, options, label, name }) => {
                             defaultValue={''}
                             variant="filled"
                             color="secondary"
+                            required
                             {...field}
                         >
                             {options.map((type) => (
