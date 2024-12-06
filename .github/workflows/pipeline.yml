@@ -17,16 +17,16 @@ jobs:
           cache: 'yarn'
 
       - name: yarn install web
+        working-directory: ./web
         run: |
-          cd web
           yarn install
 
       - name: yarn build
+        working-directory: ./web
         env:
           VITE_CLIENT_ID: ${{ secrets.VITE_CLIENT_ID }}
           VITE_ISSUER: ${{ secrets.VITE_ISSUER }}
         run: |
-          cd web
           rm -f .env
           touch .env
           echo "VITE_CLIENT_ID=%VITE_CLIENT_ID%" >> .env
@@ -34,8 +34,8 @@ jobs:
           yarn build
 
       - name: deploy
+        working-directory: ./web
         run: |
-          cd web
           cp -r build/* /var/www/jewellerycatalogue.onthewifi.com/html
 
       - name: deploy api
