@@ -37,12 +37,15 @@ jobs:
       - name: deploy api
         run: |
           cd api
+          cargo build --release
+          echo ${{ secrets.PASS }} | sudo -S systemctl stop api-server.service
+          echo ${{ secrets.PASS }} | sudo -S cp target/release/api-server /usr/local/bin/api-server
+          cd /usr/local/bin
           rm -f .env
           touch .env
           echo "ACCESS_KEY= ${{ secrets.ACCESS_KEY }}" >> .env
           echo "SECRET_KEY= ${{ secrets.SECRET_KEY }}" >> .env
           echo "BUCKET_URL= ${{ secrets.BUCKET_URL }}" >> .env
-          cargo build --release
-          echo ${{ secrets.PASS }} | sudo -S systemctl stop api-server.service
-          echo ${{ secrets.PASS }} | sudo -S cp target/release/api-server /usr/local/bin/api-server
+          echo "DATABASE_URL= ${{ secrets.DATABASE_URL }}" >> .env
+          echo "DATABASE_NAME= ${{ secrets.DATABASE_NAME }}" >> .env
           echo ${{ secrets.PASS }} | sudo -S systemctl start api-server.service
