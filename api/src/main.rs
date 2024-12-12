@@ -28,7 +28,7 @@ async fn main() -> Result<()> {
 
     let cors = warp::cors()
         .allow_methods(&[Method::GET, Method::PUT, Method::POST])
-        .allow_origins(vec!["http://localhost:3000"])
+        .allow_origins(vec!["http://localhost:3000", "https://jewellerycatalogue.onthewifi.com"])
         .allow_headers(vec!["content-type"])
         .allow_credentials(true);
 
