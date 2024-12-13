@@ -8,14 +8,11 @@ import { useQuery } from '@tanstack/react-query';
 import AddMaterialsForm from '../../components/AddMaterialsForm';
 import TimeInput from '../../components/TimeInput';
 
-const DECIMAL_REGEX = /^\d*(\.\d+)?$/;
-
 const AddDesign = () => {
     const {
         setValue,
         handleSubmit,
         register,
-        control,
         formState: { errors },
     } = useForm<IFormDesign>();
 
@@ -63,17 +60,13 @@ const AddDesign = () => {
 
                 <TimeInput setValue={setValue} />
 
-                <AddMaterialsForm
-                    availableMaterials={data}
-                    register={register}
-                    setValue={setValue}
-                    control={control}
-                />
-
                 <Button variant="contained" color="secondary" type="submit">
                     Add Design!
                 </Button>
             </form>
+
+            {/* This should be in like a bottom panel stuck to the bottom of the screen */}
+            <AddMaterialsForm availableMaterials={data} setValue={setValue} />
         </>
     );
 };

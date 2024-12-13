@@ -1,6 +1,6 @@
 import { Box, Button, Divider, Typography } from '@mui/material';
 import { useState } from 'react';
-import { Control, UseFormRegister, UseFormSetValue } from 'react-hook-form';
+import { UseFormSetValue } from 'react-hook-form';
 import { IFormDesign } from '../../pages/AddDesign/types';
 import { Material } from '../../types';
 import AddMaterialFields from './AddMaterialsFields';
@@ -8,13 +8,12 @@ import AddIcon from '@mui/icons-material/Add';
 
 interface AddMaterialsFormProps {
     setValue: UseFormSetValue<IFormDesign>;
-    control: Control<IFormDesign, any>;
-    register: UseFormRegister<IFormDesign>;
     availableMaterials: Array<Material>;
 }
-// TODO: Should this be a form in of itself??
+
 const AddMaterialsForm: React.FC<AddMaterialsFormProps> = ({
     availableMaterials,
+    setValue,
 }) => {
     const [currentMaterials, setCurrentMaterials] = useState<Array<Material>>(
         []
@@ -47,6 +46,7 @@ const AddMaterialsForm: React.FC<AddMaterialsFormProps> = ({
                         setShowAddMaterialForm(false);
                     }}
                     currentMaterials={currentMaterials}
+                    setFormMaterials={setValue}
                 />
             ) : (
                 <Button
