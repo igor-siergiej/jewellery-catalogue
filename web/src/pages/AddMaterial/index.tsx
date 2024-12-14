@@ -8,7 +8,6 @@ import makeAddMaterialRequest from '../../api/addMaterial';
 import { useState } from 'react';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Alert from '@mui/material/Alert';
-import ImageUploadButton from '../../components/ImageUploadButton';
 
 const URL_REGEX =
     /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/g;
@@ -110,7 +109,6 @@ const AddMaterial = () => {
                     error={Boolean(errors.purchaseUrl)}
                     helperText={errors.purchaseUrl?.message}
                 />
-                <ImageUploadButton />
                 <TextField
                     {...register('pricePerPack', {
                         required: {
@@ -205,7 +203,7 @@ const convertFormBeadToMaterial = (formBead: IFormBead): Bead => {
 
     const { packs, pricePerPack, ...rest } = formBead;
 
-    const bead = { ...rest, pricePerBead } as Bead;
+    const bead: Bead = { ...rest, pricePerBead };
 
     return bead;
 };

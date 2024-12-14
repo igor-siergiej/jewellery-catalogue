@@ -3,8 +3,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import useStyles from './index.styles';
 
 const ImageUploadButton: React.FC = () => {
-    const classes = useStyles();
-    const test = 5;
+    const { classes } = useStyles();
 
     return (
         <Button

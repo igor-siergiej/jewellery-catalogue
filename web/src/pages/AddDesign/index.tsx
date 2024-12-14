@@ -7,6 +7,7 @@ import { getMaterialsQuery } from '../../api/getMaterials';
 import { useQuery } from '@tanstack/react-query';
 import AddMaterialsForm from '../../components/AddMaterialsForm';
 import TimeInput from '../../components/TimeInput';
+import ImageUploadButton from '../../components/ImageUploadButton';
 
 const AddDesign = () => {
     const {
@@ -22,6 +23,10 @@ const AddDesign = () => {
 
     const onSubmit: SubmitHandler<IFormDesign> = (data) => {
         // TODO: Add api to make a request
+        //
+        // Also need to get total material cost and selling price
+        //
+        // and get image url
         console.log(data);
     };
 
@@ -65,6 +70,7 @@ const AddDesign = () => {
                 </Button>
             </form>
 
+            <ImageUploadButton />
             {/* This should be in like a bottom panel stuck to the bottom of the screen */}
             <AddMaterialsForm availableMaterials={data} setValue={setValue} />
         </>

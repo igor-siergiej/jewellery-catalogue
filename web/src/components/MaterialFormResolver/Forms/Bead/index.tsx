@@ -11,7 +11,14 @@ const AddBeadForm: React.FC<IMaterialFormProps> = ({ register }) => {
             />
 
             <TextField
-                {...register('quantity')}
+                {...register('quantity', {
+                    valueAsNumber: true,
+                    required: {
+                        value: true,
+                        message: 'Please enter a quantity of beads.',
+                    },
+                    validate: (value) => value > 0,
+                })}
                 color="secondary"
                 label={`Quantity`}
             />

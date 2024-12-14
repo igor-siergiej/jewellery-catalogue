@@ -1,6 +1,6 @@
-import { makeStyles } from '@mui/material/styles';
+import { makeStyles } from 'tss-react/mui';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
     upload: {
         display: 'none',
     },

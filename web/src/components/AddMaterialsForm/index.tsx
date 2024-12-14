@@ -46,7 +46,7 @@ const AddMaterialsForm: React.FC<AddMaterialsFormProps> = ({
                         setShowAddMaterialForm(false);
                     }}
                     currentMaterials={currentMaterials}
-                    setFormMaterials={setValue}
+                    setValue={setValue}
                 />
             ) : (
                 <Button
