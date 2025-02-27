@@ -32,7 +32,7 @@ jobs:
       - name: deploy
         run: |
           cd web
-          cp -r build/* /var/www/jewellerycatalogue.imapps.co.uk/html
+          cp -r build/* /var/www/jewellerycatalogue.imapps.co.uk
 
       - name: deploy api
         run: |
