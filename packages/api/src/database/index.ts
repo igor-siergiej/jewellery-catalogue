@@ -1,7 +1,6 @@
-import { MongoClient, Db } from 'mongodb';
+import { MongoClient, Db, Collection } from 'mongodb';
 import 'dotenv/config';
 import { CollectionName, IDatabase } from './types';
-import { Design, Material } from 'types';
 
 export class Database implements IDatabase {
     private client: MongoClient;
@@ -32,19 +31,12 @@ export class Database implements IDatabase {
             await this.client.connect();
 
             this.databaseInstance = this.client.db(databaseName);
-        }
-        catch (e) {
+        } catch (e) {
             console.error(e);
         }
     };
 
-    // TODO: maybe make this better, duplication of type
-
-    getMaterialsCollection = () => {
-        return this.databaseInstance.collection<Material>(CollectionName.Materials);
+    getCollection<T>(collectionName: CollectionName): Collection<T> {
+        return this.databaseInstance.collection<T>(collectionName);
     };
-
-    getDesignsCollection = () => {
-        return this.databaseInstance.collection<Design>(CollectionName.Designs);
-    }
 }

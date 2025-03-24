@@ -12,40 +12,34 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: yarn install web
+      - name: install packages 
         run: |
-          cd web
-          yarn install
+          yarn
 
-      - name: yarn build
+      - name: build types
+        run: |
+          yarn workspace types build
+
+      - name: build web 
         env:
           VITE_CLIENT_ID: ${{ secrets.VITE_CLIENT_ID }}
           VITE_ISSUER: ${{ secrets.VITE_ISSUER }}
         run: |
-          cd web
-          rm -f .env
-          touch .env
-          echo "VITE_CLIENT_ID=%VITE_CLIENT_ID%" >> .env
-          echo "VITE_ISSUER=%VITE_ISSUER%" >> .env
-          yarn build
+          yarn workspace web build
 
-      - name: deploy
+      - name: deploy web
         run: |
-          cd web
-          cp -r build/* /var/www/jewellerycatalogue.imapps.co.uk
+          cp -r packages/web/build/* /var/www/jewellerycatalogue.imapps.co.uk
 
+      - name: build api 
+        run: |
+          yarn workspace api build
+          
       - name: deploy api
+        env: 
+          ACCESS_KEY: ${{ secrets.ACCESS_KEY }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          BUCKET_URL: ${{ secrets.BUCKET_URL }}
         run: |
-          cd api
-          cargo build --release
-          echo ${{ secrets.PASS }} | sudo -S systemctl stop api-server.service
-          echo ${{ secrets.PASS }} | sudo -S cp target/release/api-server /usr/local/bin/api-server
-          cd /usr/local/bin
-          rm -f .env
-          touch .env
-          echo "ACCESS_KEY= ${{ secrets.ACCESS_KEY }}" >> .env
-          echo "SECRET_KEY= ${{ secrets.SECRET_KEY }}" >> .env
-          echo "BUCKET_URL= ${{ secrets.BUCKET_URL }}" >> .env
-          echo "DATABASE_URL= ${{ secrets.DATABASE_URL }}" >> .env
-          echo "DATABASE_NAME= ${{ secrets.DATABASE_NAME }}" >> .env
-          echo ${{ secrets.PASS }} | sudo -S systemctl start api-server.service
+          echo ${{ secrets.PASS }} | sudo -S cp packages/api/build/. /usr/local/bin/jewellerycatalogue-api-server
+          echo ${{ secrets.PASS }} | sudo -S systemctl restart jewellerycatalogue-api-server.service
