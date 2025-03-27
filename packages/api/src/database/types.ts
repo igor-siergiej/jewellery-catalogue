@@ -1,8 +1,7 @@
 import { Collection } from 'mongodb/mongodb';
 
 export enum CollectionName {
-    Designs = 'designs',
-    Materials = 'materials'
+    Catalogues = 'catalogues'
 }
 
 export interface IDatabase {
