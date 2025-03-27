@@ -1,4 +1,4 @@
-import { Material } from '../../types';
+import { Material } from 'types';
 import MUIDataTable, {
     MUIDataTableColumn,
     MUIDataTableOptions,
@@ -50,7 +50,7 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
             label: 'Price Per Meter',
             name: 'pricePerMeter',
         },
-        //TODO: Add price per bead here
+        // TODO: Add price per bead here
     ];
 
     const tableOptions: MUIDataTableOptions = {
@@ -60,7 +60,7 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
 
     return (
         <MUIDataTable
-            title={'Materials'}
+            title="Materials"
             data={materials}
             columns={columns}
             options={tableOptions}

@@ -3,12 +3,13 @@ import Select from '@mui/material/Select';
 import { Controller } from 'react-hook-form';
 import MenuItem from '@mui/material/MenuItem';
 import { type Control } from 'react-hook-form';
-import { Design, Material } from '../../types';
+import { Design, Material } from 'types';
 import FormControl from '@mui/material/FormControl';
 import Box from '@mui/material/Box';
 
 export interface IProps {
     options: Array<string>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     control: Control<any, any>;
     label: string;
     name: keyof Material | keyof Design;
@@ -25,7 +26,7 @@ const DropDown: React.FC<IProps> = ({ control, options, label, name }) => {
             <Controller
                 name={name}
                 control={control}
-                defaultValue={''}
+                defaultValue=""
                 render={({ field }) => (
                     <FormControl variant="filled" fullWidth>
                         <InputLabel id={name}>{label}</InputLabel>
@@ -34,13 +35,13 @@ const DropDown: React.FC<IProps> = ({ control, options, label, name }) => {
                             sx={{
                                 width: '200px',
                             }}
-                            defaultValue={''}
+                            defaultValue=""
                             variant="filled"
                             color="secondary"
                             required
                             {...field}
                         >
-                            {options.map((type) => (
+                            {options.map(type => (
                                 <MenuItem key={type} value={type}>
                                     {type}
                                 </MenuItem>

@@ -27,7 +27,7 @@ const NavBar = () => {
             <ListItem
                 disablePadding
                 sx={{
-                    backgroundColor: (theme) =>
+                    backgroundColor: theme =>
                         location.pathname.replace('/', '') === route.route
                             ? theme.palette.background.default
                             : 'white',
@@ -52,10 +52,10 @@ const NavBar = () => {
             <AppBar
                 position="fixed"
                 sx={{
-                    color: (theme) => theme.palette.common.black,
-                    backgroundColor: (theme) =>
+                    color: theme => theme.palette.common.black,
+                    backgroundColor: theme =>
                         theme.palette.background.default,
-                    zIndex: (theme) => theme.zIndex.drawer + 1,
+                    zIndex: theme => theme.zIndex.drawer + 1,
                 }}
             >
                 <Toolbar
@@ -87,7 +87,7 @@ const NavBar = () => {
             <Drawer
                 variant="permanent"
                 sx={{
-                    width: '150px',
+                    'width': '150px',
                     '& .MuiDrawer-paper': {
                         width: '150px',
                     },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Design } from '../../types';
+import { Design } from 'types';
 import MUIDataTable, {
     MUIDataTableColumn,
     MUIDataTableOptions,
@@ -32,7 +32,7 @@ const DesignTable: React.FC<DesignTableProps> = ({ designs }) => {
 
     return (
         <MUIDataTable
-            title={'Designs'}
+            title="Designs"
             data={designs}
             columns={columns}
             options={tableOptions}
