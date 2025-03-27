@@ -13,7 +13,7 @@ import {
     useForm,
     UseFormSetValue,
 } from 'react-hook-form';
-import { Material } from '../../../types';
+import { Material } from 'types';
 import { IFormDesign } from '../../../pages/AddDesign/types';
 
 const DECIMAL_REGEX = /^\d*(\.\d+)?$/;
@@ -50,7 +50,7 @@ const AddMaterialFields: React.FC<IAddMaterialFieldsProps> = ({
 
     const onSubmit: SubmitHandler<ISelectMaterial> = async (data) => {
         const material = availableMaterials.find(
-            (searchMaterial) => searchMaterial.name === data.materialName
+            searchMaterial => searchMaterial.name === data.materialName
         );
 
         if (!material) {
@@ -74,19 +74,19 @@ const AddMaterialFields: React.FC<IAddMaterialFieldsProps> = ({
                 }}
             >
                 <Controller
-                    name={'materialName'}
+                    name="materialName"
                     control={control}
-                    defaultValue={''}
+                    defaultValue=""
                     render={({ field }) => (
                         <FormControl variant="filled" fullWidth>
-                            <InputLabel>{'Select Material'}</InputLabel>
+                            <InputLabel>Select Material</InputLabel>
                             <Select
-                                labelId={'materialName'}
+                                labelId="materialName"
                                 sx={{
                                     width: '200px',
                                 }}
                                 error={Boolean(errors.materialName)}
-                                defaultValue={''}
+                                defaultValue=""
                                 required
                                 variant="filled"
                                 color="secondary"

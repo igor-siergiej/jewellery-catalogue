@@ -4,11 +4,10 @@
         "declaration": true,
         "declarationMap": true,
         "sourceMap": true,
-        "rootDir": "./",
-        "outDir": "build"
+        "rootDir": "./src",
+        "outDir": "./build",
     },
     "include": [
-        "./src",
-        "./index.ts"
+        "./src/**/*",
     ]
 }

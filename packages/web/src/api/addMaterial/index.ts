@@ -4,7 +4,6 @@ import { getApiUrl } from '../getApiUrl';
 import { IGenericResponse } from '../types';
 
 const makeAddMaterialRequest = async (material: Wire | Bead) => {
-    console.log(material);
     const url = `${getApiUrl()}${MATERIALS_ENDPOINT}`;
 
     const response = await fetch(url, {
