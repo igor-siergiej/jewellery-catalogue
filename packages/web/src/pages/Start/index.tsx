@@ -1,19 +1,9 @@
 import { Box, Button, Card, Grid, Typography } from '@mui/material';
-import { useOktaAuth } from '@okta/okta-react';
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import IMAGES from '../../img';
-import { HOME_PAGE } from '../../constants/routes';
 
 const Start = () => {
-    const { authState, oktaAuth } = useOktaAuth();
     const navigate = useNavigate();
-
-    useEffect(() => {
-        if (authState?.isAuthenticated) {
-            navigate(HOME_PAGE.route);
-        }
-    }, [authState]);
 
     const loginButton = (
         <Button
@@ -25,7 +15,7 @@ const Start = () => {
                 marginRight: 'auto',
             }}
             onClick={() => {
-                oktaAuth.signInWithRedirect();
+                navigate('home');
             }}
         >
             Log In or Sign up

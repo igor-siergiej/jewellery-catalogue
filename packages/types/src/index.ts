@@ -88,3 +88,18 @@ export const MaterialKeysMap = {
 };
 
 export type Spread<T> = { [Key in keyof T]: T[Key] };
+
+export interface MakeRequestProps {
+    pathname: string;
+    method: MethodType;
+    operationString: string;
+    headers?: Record<string, string>;
+    body?: object;
+}
+
+export enum MethodType {
+    GET = 'GET',
+    PUT = 'PUT',
+    POST = 'POST',
+    DELETE = 'DELETE',
+}

@@ -3,11 +3,11 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import TextField from '@mui/material/TextField';
 import { IFormDesign } from './types';
 import Button from '@mui/material/Button';
-import { getMaterialsQuery } from '../../api/getMaterials';
 import { useQuery } from '@tanstack/react-query';
 import AddMaterialsForm from '../../components/AddMaterialsForm';
 import TimeInput from '../../components/TimeInput';
 import ImageUploadButton from '../../components/ImageUploadButton';
+import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
 
 const AddDesign = () => {
     const {

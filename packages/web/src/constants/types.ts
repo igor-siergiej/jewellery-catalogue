@@ -1,4 +1,4 @@
-export type NavRoute = {
+export interface NavRoute {
     name: string;
     route: string;
 };

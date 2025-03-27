@@ -2,12 +2,13 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { Collapse, TextField, Typography } from '@mui/material';
 import MaterialFormResolver from '../../components/MaterialFormResolver';
 import DropDown from '../../components/DropDown';
-import { Bead, MaterialType, Wire } from 'types';
-import { IFormBead, IFormMaterial, IFormWire } from './types';
-import makeAddMaterialRequest from '../../api/addMaterial';
+import { MaterialType } from 'types';
+import { IFormMaterial } from './types';
 import { useState } from 'react';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Alert from '@mui/material/Alert';
+import makeAddMaterialRequest from '../../api/endpoints/addMaterial';
+import { convertFormDataToMaterial } from './util';
 
 const URL_REGEX
     = /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/g;
@@ -35,7 +36,8 @@ const AddMaterial = () => {
         try {
             await makeAddMaterialRequest(material);
             // create positive alert
-        } catch (error) {
+        } catch (e) {
+            console.error(e);
             setShowAlert(true);
             setTimeout(() => setShowAlert(false), 5000);
             setIsMakingRequest(false);
@@ -174,36 +176,3 @@ const AddMaterial = () => {
 };
 
 export default AddMaterial;
-
-const convertFormDataToMaterial = (formMaterial: IFormMaterial) => {
-    switch (formMaterial.type) {
-        case MaterialType.WIRE:
-            return convertFormWireToMaterial(formMaterial as IFormWire);
-        case MaterialType.BEAD:
-            return convertFormBeadToMaterial(formMaterial as IFormBead);
-    }
-};
-
-const convertFormWireToMaterial = (formWire: IFormWire): Wire => {
-    const totalLength = formWire.packs * formWire.length;
-    const totalPrice = formWire.packs * formWire.pricePerPack;
-    const pricePerMeter = totalPrice / totalLength;
-
-    const { packs, pricePerPack, ...rest } = formWire;
-
-    const wire: Wire = { ...rest, pricePerMeter };
-
-    return wire;
-};
-
-const convertFormBeadToMaterial = (formBead: IFormBead): Bead => {
-    const totalQuantity = formBead.packs * formBead.quantity;
-    const totalPrice = formBead.packs * formBead.pricePerPack;
-    const pricePerBead = totalPrice / totalQuantity;
-
-    const { packs, pricePerPack, ...rest } = formBead;
-
-    const bead: Bead = { ...rest, pricePerBead };
-
-    return bead;
-};

@@ -1,16 +1,10 @@
-import { DESIGNS_ENDPOINT } from '../endpoints';
-import { getApiUrl } from '../getApiUrl';
-import { GetDesignsResponse } from './types';
 import { QueryClient } from '@tanstack/react-query';
+import { makeRequest } from '../../makeRequest';
+import { Design, MethodType } from 'types';
+import { DESIGNS_ENDPOINT } from '../../endpoints';
 
 const makeGetDesignsRequest = async () => {
-    const url = `${getApiUrl()}${DESIGNS_ENDPOINT}`;
-
-    const response = await fetch(url);
-
-    const responseJson = (await response.json()) as GetDesignsResponse;
-
-    return responseJson.body;
+    return await makeRequest<Array<Design>>({ pathname: DESIGNS_ENDPOINT, method: MethodType.GET, operationString: 'fetch designs' });
 };
 
 export const getDesignsQuery = () => ({

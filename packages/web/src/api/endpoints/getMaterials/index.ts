@@ -1,16 +1,10 @@
 import { QueryClient } from '@tanstack/react-query';
-import { MATERIALS_ENDPOINT } from '../endpoints';
-import { GetMaterialsResponse } from './types';
-import { getApiUrl } from '../getApiUrl';
+import { makeRequest } from '../../makeRequest';
+import { MATERIALS_ENDPOINT } from '../../endpoints';
+import { Material, MethodType } from 'types';
 
 const makeGetMaterialsRequest = async () => {
-    const url = `${getApiUrl()}${MATERIALS_ENDPOINT}`;
-
-    const response = await fetch(url);
-
-    const responseJson = (await response.json()) as GetMaterialsResponse;
-
-    return responseJson.body;
+    return await makeRequest<Array<Material>>({ pathname: MATERIALS_ENDPOINT, method: MethodType.GET, operationString: 'fetch materials' });
 };
 
 export const getMaterialsQuery = () => ({

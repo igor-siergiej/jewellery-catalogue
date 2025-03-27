@@ -23,7 +23,7 @@ const corsOptions: Options = {
         }
         return '*';
     },
-    methods: ['GET'],
+    methods: ['GET', 'POST'],
 };
 
 export const onStartup = async () => {
@@ -61,7 +61,7 @@ export const onStartup = async () => {
 
         await database.connect();
 
-        app.use(routes.routes()).use(routes.allowedMethods());
+        app.use(routes.routes());
 
         app.listen(port, () => {
             console.log(`Jewellery Catalogue Api server running on port ${port}.`);
