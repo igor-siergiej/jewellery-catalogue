@@ -42,4 +42,4 @@ jobs:
           BUCKET_URL: ${{ secrets.BUCKET_URL }}
         run: |
           echo ${{ secrets.PASS }} | sudo -S cp -a packages/api/build/. /usr/local/bin/jewellerycatalogue-api-server
-          echo ${{ secrets.PASS }} | sudo -S systemctl restart jewellerycatalogue-api-server.service
+          echo ${{ secrets.PASS }} | sudo -S systemctl restart jewellery-catalogue-api-server.service
