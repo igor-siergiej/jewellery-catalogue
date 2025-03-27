@@ -13,18 +13,13 @@
         "resolveJsonModule": true,
         "esModuleInterop": true,
         "rootDir": "./src",
-        "skipLibCheck": true,
-        "paths": {
-            "*": [
-                "node_modules/*"
-            ]
-        }
+        "skipLibCheck": true
     },
     "ts-node": {
         "files": true
     },
     "include": [
-        "src/**/*",
+        "src/**/*"
     ],
     "references": [
         {

@@ -13,13 +13,7 @@
         "resolveJsonModule": true,
         "esModuleInterop": true,
         "baseUrl": "./",
-        "rootDir": "src",
-        "skipLibCheck": true,
-        "paths": {
-            "*": [
-                "node_modules/*"
-            ]
-        }
+        "rootDir": "src"
     },
     "ts-node": {
         "files": true
