@@ -22,8 +22,7 @@ jobs:
 
       - name: build web 
         env:
-          VITE_CLIENT_ID: ${{ secrets.VITE_CLIENT_ID }}
-          VITE_ISSUER: ${{ secrets.VITE_ISSUER }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
         run: |
           yarn workspace web build
 
