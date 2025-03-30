@@ -18,7 +18,7 @@ jobs:
 
       - name: build types
         run: |
-          yarn workspace types build
+          yarn workspace @jewellery-catalogue/types build
 
       - name: build web 
         env:
@@ -32,7 +32,7 @@ jobs:
 
       - name: build api 
         run: |
-          yarn workspace api build
+          yarn workspace @jewellery-catalogue/api build
           
       - name: deploy api
         env: 
