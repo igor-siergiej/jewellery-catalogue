@@ -5,8 +5,7 @@
     "types": "build/index.d.ts",
     "scripts": {
         "start": "ts-node-dev --watch 'src/**/*.ts' src/index.ts",
-        "build": "tsc --pretty --skipLibCheck",
-        "postBuild": "cp package*.json yarn.lock build/ && cd build && yarn install --production"
+        "build": "tsc --pretty --skipLibCheck"
     },
     "dependencies": {
         "dotenv": "^16.4.7",
