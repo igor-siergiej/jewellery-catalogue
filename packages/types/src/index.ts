@@ -95,11 +95,11 @@ export interface MakeRequestProps {
     operationString: string;
     headers?: Record<string, string>;
     body?: object;
-}
+};
 
 export enum MethodType {
     GET = 'GET',
     PUT = 'PUT',
     POST = 'POST',
     DELETE = 'DELETE',
-}
+};

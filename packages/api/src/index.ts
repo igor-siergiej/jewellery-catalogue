@@ -9,6 +9,9 @@ import routes from './routes';
 // TODO: this needs to use @koa/cors
 import koaCors, { Options } from 'koa-cors';
 import { HttpErrorCode } from './types';
+import { MethodType } from '@jewellery-catalogue/types';
+
+console.log(MethodType.PUT);
 
 const port = process.env.PORT;
 

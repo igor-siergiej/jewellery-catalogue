@@ -1,4 +1,4 @@
-import { METAL_TYPE, MaterialType, Spread, WIRE_TYPE } from 'types';
+import { METAL_TYPE, MaterialType, Spread, WIRE_TYPE } from '@jewellery-catalogue/types';
 
 export type IFormMaterial = Spread<IFormBead | IFormWire>;
 

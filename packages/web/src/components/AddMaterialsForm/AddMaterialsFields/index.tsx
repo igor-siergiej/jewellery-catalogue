@@ -13,7 +13,7 @@ import {
     useForm,
     UseFormSetValue,
 } from 'react-hook-form';
-import { Material } from 'types';
+import { Material } from '@jewellery-catalogue/types';
 import { IFormDesign } from '../../../pages/AddDesign/types';
 
 const DECIMAL_REGEX = /^\d*(\.\d+)?$/;

@@ -24,7 +24,7 @@ const TimeInput: React.FC<TimeInputProps> = ({ setValue }) => {
             ampm={false}
             label="Time Spent Crafting"
             format="HH:mm"
-            onChange={(value) => onChange(value)}
+            onChange={value => onChange(value)}
         />
     );
 };

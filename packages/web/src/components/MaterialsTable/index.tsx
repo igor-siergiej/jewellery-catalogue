@@ -1,4 +1,4 @@
-import { Material } from 'types';
+import { Material } from '@jewellery-catalogue/types';
 import MUIDataTable, {
     MUIDataTableColumn,
     MUIDataTableOptions,

@@ -4,7 +4,42 @@
         "skipLibCheck": true,
         "module": "ESNext",
         "moduleResolution": "bundler",
-        "allowSyntheticDefaultImports": true
+        "allowSyntheticDefaultImports": true,
+        "target": "ES2020",
+        "useDefineForClassFields": true,
+        "lib": [
+            "DOM",
+            "DOM.Iterable",
+            "ESNext"
+        ],
+        "rootDir": "src",
+        "allowJs": false,
+        "esModuleInterop": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "baseUrl": "./",
+        "types": [
+            "vitest/globals",
+            "@testing-library/jest-dom"
+        ],
+        "isolatedModules": true,
+        "jsx": "react-jsx",
+        "paths": {
+            "@mui/styled-engine": [
+                "./node_modules/@mui/styled-engine-sc"
+            ],
+            "@jewellery-catalogue/types": [
+                "../types/src"
+            ]
+        }
     },
-    "include": ["vite.config.ts"]
+    "include": [
+        "vite.config.ts"
+    ],
+    "references": [
+        {
+            "path": "../types"
+        }
+    ]
 }

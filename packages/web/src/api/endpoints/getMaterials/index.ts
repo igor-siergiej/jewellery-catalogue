@@ -1,7 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
 import { makeRequest } from '../../makeRequest';
 import { MATERIALS_ENDPOINT } from '../../endpoints';
-import { Material, MethodType } from 'types';
+import { Material, MethodType } from '@jewellery-catalogue/types';
 
 const makeGetMaterialsRequest = async () => {
     return await makeRequest<Array<Material>>({ pathname: MATERIALS_ENDPOINT, method: MethodType.GET, operationString: 'fetch materials' });

@@ -1,4 +1,4 @@
-import { MaterialType } from 'types';
+import { MaterialType } from '@jewellery-catalogue/types';
 import { IMaterialFormProps } from './Forms/types';
 
 export type IMaterialTypeToFormMapping = Record<string, React.FC<IMaterialFormProps>>;

@@ -1,4 +1,4 @@
-import { Bead, MaterialType, Wire } from 'types';
+import { Bead, MaterialType, Wire } from '@jewellery-catalogue/types';
 import { IFormBead, IFormMaterial, IFormWire } from '../types';
 
 export const convertFormDataToMaterial = (formMaterial: IFormMaterial) => {

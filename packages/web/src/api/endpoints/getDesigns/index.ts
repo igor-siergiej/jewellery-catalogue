@@ -1,6 +1,6 @@
 import { QueryClient } from '@tanstack/react-query';
 import { makeRequest } from '../../makeRequest';
-import { Design, MethodType } from 'types';
+import { Design, MethodType } from '@jewellery-catalogue/types';
 import { DESIGNS_ENDPOINT } from '../../endpoints';
 
 const makeGetDesignsRequest = async () => {

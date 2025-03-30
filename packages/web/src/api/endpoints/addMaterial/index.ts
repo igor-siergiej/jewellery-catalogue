@@ -1,4 +1,4 @@
-import { Bead, Material, MethodType, Wire } from 'types';
+import { Bead, Material, MethodType, Wire } from '@jewellery-catalogue/types';
 import { makeRequest } from '../../makeRequest';
 import { MATERIALS_ENDPOINT } from '../../endpoints';
 

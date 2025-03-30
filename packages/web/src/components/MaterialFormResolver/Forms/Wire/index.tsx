@@ -1,7 +1,7 @@
 import { IMaterialFormProps } from '../types';
 import DropDown from '../../../DropDown';
 import TextField from '@mui/material/TextField';
-import { METAL_TYPE, WIRE_TYPE } from 'types';
+import { METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
 
 const AddWireForm: React.FC<IMaterialFormProps> = ({ register, control }) => {
     return (

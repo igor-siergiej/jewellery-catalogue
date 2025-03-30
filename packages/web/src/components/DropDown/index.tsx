@@ -3,7 +3,7 @@ import Select from '@mui/material/Select';
 import { Controller } from 'react-hook-form';
 import MenuItem from '@mui/material/MenuItem';
 import { type Control } from 'react-hook-form';
-import { Design, Material } from 'types';
+import { Design, Material } from '@jewellery-catalogue/types';
 import FormControl from '@mui/material/FormControl';
 import Box from '@mui/material/Box';
 

@@ -2,7 +2,7 @@ import { Box, Button, Divider, Typography } from '@mui/material';
 import { useState } from 'react';
 import { UseFormSetValue } from 'react-hook-form';
 import { IFormDesign } from '../../pages/AddDesign/types';
-import { Material } from 'types';
+import { Material } from '@jewellery-catalogue/types';
 import AddMaterialFields from './AddMaterialsFields';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -40,25 +40,25 @@ const AddMaterialsForm: React.FC<AddMaterialsFormProps> = ({
 
             {showAddMaterialForm
                 ? (
-                        <AddMaterialFields
-                            availableMaterials={availableMaterials}
-                            setCurrentMaterials={(materials) => {
-                                setCurrentMaterials(materials);
-                                setShowAddMaterialForm(false);
-                            }}
-                            currentMaterials={currentMaterials}
-                            setValue={setValue}
-                        />
-                    )
+                    <AddMaterialFields
+                        availableMaterials={availableMaterials}
+                        setCurrentMaterials={(materials) => {
+                            setCurrentMaterials(materials);
+                            setShowAddMaterialForm(false);
+                        }}
+                        currentMaterials={currentMaterials}
+                        setValue={setValue}
+                    />
+                )
                 : (
-                        <Button
-                            variant="contained"
-                            onClick={() => setShowAddMaterialForm(true)}
-                            endIcon={<AddIcon />}
-                        >
-                            Add Material
-                        </Button>
-                    )}
+                    <Button
+                        variant="contained"
+                        onClick={() => setShowAddMaterialForm(true)}
+                        endIcon={<AddIcon />}
+                    >
+                        Add Material
+                    </Button>
+                )}
         </Box>
     );
 };

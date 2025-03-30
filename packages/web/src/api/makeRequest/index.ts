@@ -1,4 +1,4 @@
-import { MakeRequestProps } from 'types';
+import { MakeRequestProps } from '@jewellery-catalogue/types';
 
 const origin = import.meta.env.VITE_API_URL;
 

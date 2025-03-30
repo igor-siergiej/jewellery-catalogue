@@ -2620,17 +2620,17 @@
     "@svgr/plugin-svgo" "^5.5.0"
     loader-utils "^2.0.0"
 
-"@tanstack/query-core@5.70.0":
-  version "5.70.0"
-  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.70.0.tgz#fb092c657440f38e5f5af570679ee1d7273ab5f4"
-  integrity sha512-ZkkjQAZjI6nS5OyAmaSQafQXK180Xvp0lZYk4BzrnskkTV8On3zSJUxOIXnh0h/8EgqRkCA9i879DiJovA1kGw==
+"@tanstack/query-core@5.71.0":
+  version "5.71.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.71.0.tgz#10ebac969b38f3c201c4b1286bf7612c6c39eb0f"
+  integrity sha512-p4+T7CIEe1kMhii4booWiw42nuaiYI9La/bRCNzBaj1P3PDb0dEZYDhc/7oBifKJfHYN+mtS1ynW1qsmzQW7Og==
 
 "@tanstack/react-query@^5.59.0":
-  version "5.70.0"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.70.0.tgz#5130b38b7f2354b97de6b256c008b24a50885743"
-  integrity sha512-z0tx1zz2CQ6nTm+fCaOp93FqsFjNgXtOy+4mC5ifQ4B+rJiMD0AGfJrYSGh/OuefhrzTYDAbkGUAGw6JzkWy8g==
+  version "5.71.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.71.0.tgz#4babdd88b74de8c395100109eab8eb2750960757"
+  integrity sha512-Udhlz9xHwk0iB7eLDchIqvu666NZFxPZZF80KnL8sZy+5J0kMvnJkzQNYRJwF70g8Vc1nn0TSMkPJgvx6+Pn4g==
   dependencies:
-    "@tanstack/query-core" "5.70.0"
+    "@tanstack/query-core" "5.71.0"
 
 "@testing-library/dom@^8.5.0":
   version "8.20.1"
@@ -6841,9 +6841,9 @@ html-encoding-sniffer@^4.0.0:
     whatwg-encoding "^3.1.1"
 
 html-entities@^2.1.0, html-entities@^2.3.2:
-  version "2.5.5"
-  resolved "https://registry.yarnpkg.com/html-entities/-/html-entities-2.5.5.tgz#849c3fe580cd0e5a34e25d2d916cc32c03609a82"
-  integrity sha512-24CG9o869vSa86BGCf7x65slrAztzFTU5VBQzEIwqjhKuB4zCC7xlH/7NCcZ1EN5MdmGx9lUqugfutuT6J+jKQ==
+  version "2.5.6"
+  resolved "https://registry.yarnpkg.com/html-entities/-/html-entities-2.5.6.tgz#b26e780b769e24a6342ff1c8eacec11b544b2c58"
+  integrity sha512-he75h7h3poG52iRupbVtjupeGz24QgHOYK/cbJpj3TSLsHbnmG3DyPg94V2DC7w0O6f76xnYMS09J5UkbMkARQ==
 
 html-escaper@^2.0.0:
   version "2.0.2"

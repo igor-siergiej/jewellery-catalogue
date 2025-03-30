@@ -2,7 +2,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { Collapse, TextField, Typography } from '@mui/material';
 import MaterialFormResolver from '../../components/MaterialFormResolver';
 import DropDown from '../../components/DropDown';
-import { MaterialType } from 'types';
+import { MaterialType } from '@jewellery-catalogue/types';
 import { IFormMaterial } from './types';
 import { useState } from 'react';
 import LoadingButton from '@mui/lab/LoadingButton';

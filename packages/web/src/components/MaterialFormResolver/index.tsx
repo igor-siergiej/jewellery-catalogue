@@ -4,7 +4,7 @@ import {
 } from './types';
 import AddWireForm from './Forms/Wire';
 import AddBeadForm from './Forms/Bead';
-import { MaterialType } from 'types';
+import { MaterialType } from '@jewellery-catalogue/types';
 
 const MATERIAL_TYPE_TO_FORM_MAPPING: IMaterialTypeToFormMapping = {
     [MaterialType.WIRE]: AddWireForm,
