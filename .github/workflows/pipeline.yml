@@ -41,5 +41,5 @@ jobs:
           BUCKET_URL: ${{ secrets.BUCKET_URL }}
         run: |
           echo ${{ secrets.PASS }} | sudo -S cp -a packages/api/build/. /usr/local/bin/jewellery-catalogue-api-server
-          echo ${{ secrets.PASS }} | sudo -S cp -a packages/api/node_modules/. /usr/local/bin/jewellery-catalogue-api-server 
+          echo ${{ secrets.PASS }} | sudo -S cp -a node_modules/. /usr/local/bin/jewellery-catalogue-api-server 
           echo ${{ secrets.PASS }} | sudo -S systemctl restart jewellery-catalogue-api-server.service
