@@ -1,6 +1,6 @@
 import { Context } from 'koa';
 import { DependencyContainer } from '../../lib/dependencyContainer';
-import { Catalogue } from 'types';
+import { Catalogue } from '@jewellery-catalogue/types';
 import { DependencyToken } from '../../lib/dependencyContainer/types';
 import { CollectionName } from '../../database/types';
 import { ObjectId } from 'mongodb';

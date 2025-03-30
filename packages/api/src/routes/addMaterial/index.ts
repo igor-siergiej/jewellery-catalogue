@@ -4,7 +4,7 @@ import { DependencyToken } from '../../lib/dependencyContainer/types';
 import { CollectionName } from '../../database/types';
 import { ObjectId } from 'mongodb';
 import { catalogueId } from '..';
-import { Catalogue, Material, MaterialKeysMap, MaterialType } from 'types';
+import { Catalogue, Material, MaterialKeysMap, MaterialType } from '@jewellery-catalogue/types';
 
 export const addMaterial = async (ctx: Context) => {
     const material = getMaterial(ctx.request.body as Material);

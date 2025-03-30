@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "baseUrl": "./",
         "composite": true,
         "declaration": true,
         "module": "commonjs",
@@ -13,13 +14,18 @@
         "resolveJsonModule": true,
         "esModuleInterop": true,
         "rootDir": "./src",
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "paths": {
+            "@jewellery-catalogue/types": [
+                "../types/src"
+            ]
+        }
     },
     "ts-node": {
         "files": true
     },
     "include": [
-        "src/**/*"
+        "src"
     ],
     "references": [
         {
