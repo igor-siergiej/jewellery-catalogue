@@ -42,4 +42,5 @@ jobs:
         run: |
           echo ${{ secrets.PASS }} | sudo -S cp -a . /usr/local/bin/jewellery-catalogue-api-server
           yarn
+          yarn workspace @jewellery-catalogue/api build
           echo ${{ secrets.PASS }} | sudo -S systemctl restart jewellery-catalogue-api-server.service
