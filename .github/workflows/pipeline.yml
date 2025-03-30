@@ -40,6 +40,6 @@ jobs:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           BUCKET_URL: ${{ secrets.BUCKET_URL }}
         run: |
-          echo ${{ secrets.PASS }} | sudo -S cp -a packages/api/. /usr/local/bin/jewellery-catalogue-api-server
+          echo ${{ secrets.PASS }} | sudo -S cp -a /. /usr/local/bin/jewellery-catalogue-api-server
           yarn
           echo ${{ secrets.PASS }} | sudo -S systemctl restart jewellery-catalogue-api-server.service
