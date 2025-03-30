@@ -14,8 +14,7 @@ jobs:
 
       - name: install packages 
         run: |
-          yarn install --production
-
+          yarn install
       - name: build types
         run: |
           yarn workspace @jewellery-catalogue/types build
