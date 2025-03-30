@@ -14,6 +14,7 @@ jobs:
 
       - name: install packages 
         run: |
+          yarn cache clean
           yarn install
       - name: build types
         run: |
