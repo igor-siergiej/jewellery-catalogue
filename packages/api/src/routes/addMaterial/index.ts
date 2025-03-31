@@ -17,6 +17,8 @@ export const addMaterial = async (ctx: Context) => {
     ctx.body = updated.materials;
 };
 
+
+// TODO: maybe abstract this out into a validation function or something
 const getMaterial = (material: Material): Material | null => {
     const materialType = material?.type;
 
