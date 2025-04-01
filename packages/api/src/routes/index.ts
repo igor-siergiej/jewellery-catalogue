@@ -11,6 +11,6 @@ const router = new Router();
 router.get('/api/catalogue', getCatalogue);
 router.get('/api/materials', getMaterials);
 router.post('/api/materials', addMaterial);
-router.get('/api/designs', getDesigns)
+router.get('/api/designs', getDesigns);
 
 export default router;

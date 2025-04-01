@@ -12,5 +12,6 @@ export const getMaterials = async (ctx: Context) => {
 
     const catalogue = await collection.findOne({ _id: new ObjectId(catalogueId) });
 
+    ctx.status = 200;
     ctx.body = catalogue.materials;
 };
