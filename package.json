@@ -7,7 +7,7 @@
     "license": "MIT",
     "type": "module",
     "scripts": {
-        "start": "yarn workspace api start & yarn workspace web start"
+        "start": "yarn workspace @jewellery-catalogue/web start & yarn workspace @jewellery-catalogue/api start"
     },
     "workspaces": [
         "packages/*"

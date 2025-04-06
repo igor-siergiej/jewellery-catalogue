@@ -10,6 +10,7 @@
     "dependencies": {
         "@emotion/react": "^11.13.3",
         "@emotion/styled": "^11.13.0",
+        "@jewellery-catalogue/types": "*",
         "@mui/icons-material": "^5.15.14",
         "@mui/lab": "^6.0.0-beta.17",
         "@mui/material": "^6.1.9",
@@ -23,6 +24,7 @@
         "dayjs": "^1.11.13",
         "jsdom": "^23.0.1",
         "mui-datatables": "^4.3.0",
+        "quill": "^2.0.3",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-hook-form": "^7.53.0",
@@ -30,15 +32,14 @@
         "react-router-dom": "^6.21.1",
         "react-scripts": "5.0.1",
         "styled-components": "^6.1.13",
-        "@jewellery-catalogue/types": "*",
-        "web-vitals": "^2.1.4",
-        "typescript": "^5.2.2"
+        "typescript": "^5.2.2",
+        "web-vitals": "^2.1.4"
     },
     "devDependencies": {
-        "@types/react": "^19.0.12",
         "@types/jest": "^27.5.2",
         "@types/mui-datatables": "^4.3.12",
         "@types/node": "^16.18.58",
+        "@types/react": "^19.0.12",
         "@types/react-dom": "^18.2.15",
         "@typescript-eslint/eslint-plugin": "^6.10.0",
         "@typescript-eslint/parser": "^6.10.0",

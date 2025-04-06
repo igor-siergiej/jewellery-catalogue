@@ -1,4 +1,3 @@
-import bodyParser from 'koa-bodyparser';
 import { registerDepdendencies } from './dependencies';
 import { DependencyContainer } from './lib/dependencyContainer';
 import { DependencyToken } from './lib/dependencyContainer/types';
@@ -6,12 +5,9 @@ import 'dotenv/config';
 import Koa, { Request } from 'koa';
 import KoaLogger from 'koa-logger';
 import routes from './routes';
-// TODO: this needs to use @koa/cors
 import koaCors, { Options } from 'koa-cors';
 import { HttpErrorCode } from './types';
-import { MethodType } from '@jewellery-catalogue/types';
-
-console.log(MethodType.PUT);
+import koaBody from 'koa-body';
 
 const port = process.env.PORT;
 
@@ -29,13 +25,19 @@ const corsOptions: Options = {
     methods: ['GET', 'POST'],
 };
 
+const bodyOptions = {
+    multipart: true,
+    formidable: {
+        keepExtensions: true,
+    },
+}
+
 export const onStartup = async () => {
     try {
         const app = new Koa();
         app.use(koaCors(corsOptions));
         app.use(logger);
-        app.use(bodyParser());
-
+        app.use(koaBody(bodyOptions))
         app.use(async (ctx, next) => {
             try {
                 await next();

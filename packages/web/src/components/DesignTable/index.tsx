@@ -1,43 +1,18 @@
 import React from 'react';
 import { Design } from '@jewellery-catalogue/types';
-import MUIDataTable, {
-    MUIDataTableColumn,
-    MUIDataTableOptions,
-} from 'mui-datatables';
 
 export interface DesignTableProps {
     designs: Array<Design>;
 }
 
 const DesignTable: React.FC<DesignTableProps> = ({ designs }) => {
-    const columns: Array<MUIDataTableColumn> = [
-        {
-            name: 'name',
-            label: 'Name',
-        },
-        {
-            label: 'Price',
-            name: 'price',
-        },
-        {
-            label: 'Material',
-            name: 'material',
-        },
-    ];
-
-    const tableOptions: MUIDataTableOptions = {
-        print: false,
-        download: false,
-    };
-
     return (
-        <MUIDataTable
-            title="Designs"
-            data={designs}
-            columns={columns}
-            options={tableOptions}
-        />
-    );
+        <div>
+            {designs.map((design) => {
+                return (<span>{`${design.name}, ${design.description}, ${design.materials[0].name}`}</span>)
+            })}
+        </div>
+    )
 };
 
 export default DesignTable;

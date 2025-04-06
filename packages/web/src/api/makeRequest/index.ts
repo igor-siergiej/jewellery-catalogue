@@ -10,11 +10,12 @@ export const makeRequest = async <T>({
     body,
 }: MakeRequestProps) => {
     const url = origin + pathname;
+    const parsedBody = (body instanceof FormData) ? body : JSON.stringify(body);
     try {
         const response = await fetch(url, {
             method: method,
             headers,
-            body: JSON.stringify(body),
+            body: body ? parsedBody : undefined
         });
 
         if (response.ok) {

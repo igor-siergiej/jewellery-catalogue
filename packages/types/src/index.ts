@@ -6,15 +6,46 @@ export interface Catalogue {
     materials: Array<Material>;
 }
 
-export interface Design {
-    _id: ObjectId;
+export interface FormDesign {
     materials: Array<Material>;
     name: string;
-    imageUrl: string;
+    description: string;
     timeRequired: string;
-    totalMaterialCosts: number;
-    suggestedSellingPrice: number;
+    image: FileList;
 }
+
+export interface UploadDesign {
+    materials: string;
+    name: string;
+    description: string;
+    timeRequired: string;
+    image: PersistentFile;
+}
+
+export interface PersistentFile {
+    filepath: string;
+    mimetype?: string;
+}
+
+
+export interface Design {
+    id: string;
+    materials: Array<Material>;
+    name: string;
+    imageId: string;
+    timeRequired: string;
+    description: string
+}
+
+// export interface Design {
+//     _id: ObjectId;
+//     materials: Array<Material>;
+//     name: string;
+//     imageUrl: string;
+//     timeRequired: string;
+//     totalMaterialCosts: number;
+//     suggestedSellingPrice: number;
+// }
 
 export interface Material extends Spread<Wire & Bead> {
     _id: ObjectId;
@@ -89,12 +120,14 @@ export const MaterialKeysMap = {
 
 export type Spread<T> = { [Key in keyof T]: T[Key] };
 
+export type Time = `${number}:${number}`;
+
 export interface MakeRequestProps {
     pathname: string;
     method: MethodType;
     operationString: string;
     headers?: Record<string, string>;
-    body?: object;
+    body?: object | FormData;
 };
 
 export enum MethodType {

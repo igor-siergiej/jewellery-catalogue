@@ -1,13 +1,12 @@
 import { Box, Button, Divider, Typography } from '@mui/material';
 import { useState } from 'react';
 import { UseFormSetValue } from 'react-hook-form';
-import { IFormDesign } from '../../pages/AddDesign/types';
-import { Material } from '@jewellery-catalogue/types';
+import { FormDesign, Material } from '@jewellery-catalogue/types';
 import AddMaterialFields from './AddMaterialsFields';
 import AddIcon from '@mui/icons-material/Add';
 
 interface AddMaterialsFormProps {
-    setValue: UseFormSetValue<IFormDesign>;
+    setValue: UseFormSetValue<FormDesign>;
     availableMaterials: Array<Material>;
 }
 

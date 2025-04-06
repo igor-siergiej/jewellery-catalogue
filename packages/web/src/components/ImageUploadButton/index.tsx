@@ -1,8 +1,14 @@
 import Button from '@mui/material/Button';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import useStyles from './index.styles';
+import { UseFormRegister } from 'react-hook-form';
+import { FormDesign } from '@jewellery-catalogue/types';
 
-const ImageUploadButton: React.FC = () => {
+export interface ImageUploadButtonProps {
+    register: UseFormRegister<FormDesign>
+}
+
+const ImageUploadButton: React.FC<ImageUploadButtonProps> = ({ register }) => {
     const { classes } = useStyles();
 
     return (
@@ -15,12 +21,12 @@ const ImageUploadButton: React.FC = () => {
         >
             Upload files
             <input
+                {...register('image')}
                 className={classes.upload}
                 type="file"
-                onChange={(event) => console.log(event.target.files)}
-                multiple
             />
         </Button>
     );
 };
+
 export default ImageUploadButton;

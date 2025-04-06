@@ -1,13 +1,14 @@
 import Typography from '@mui/material/Typography';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import TextField from '@mui/material/TextField';
-import { IFormDesign } from './types';
 import Button from '@mui/material/Button';
 import { useQuery } from '@tanstack/react-query';
 import AddMaterialsForm from '../../components/AddMaterialsForm';
 import TimeInput from '../../components/TimeInput';
 import ImageUploadButton from '../../components/ImageUploadButton';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
+import makeAddDesignRequest from '../../api/endpoints/addDesign';
+import { FormDesign } from '@jewellery-catalogue/types';
 
 const AddDesign = () => {
     const {
@@ -15,19 +16,14 @@ const AddDesign = () => {
         handleSubmit,
         register,
         formState: { errors },
-    } = useForm<IFormDesign>();
+    } = useForm<FormDesign>();
 
     const { data } = useQuery({
         ...getMaterialsQuery(),
     });
 
-    const onSubmit: SubmitHandler<IFormDesign> = (data) => {
-        // TODO: Add api to make a request
-        //
-        // Also need to get total material cost and selling price
-        //
-        // and get image url
-        console.log(data);
+    const onSubmit: SubmitHandler<FormDesign> = (data) => {
+        makeAddDesignRequest(data)
     };
 
     if (!data) {
@@ -65,14 +61,18 @@ const AddDesign = () => {
 
                 <TimeInput setValue={setValue} />
 
+
+                <ImageUploadButton register={register} />
+
                 <Button variant="contained" color="secondary" type="submit">
                     Add Design!
                 </Button>
             </form>
 
-            <ImageUploadButton />
-            {/* This should be in like a bottom panel stuck to the bottom of the screen */}
+
             <AddMaterialsForm availableMaterials={data} setValue={setValue} />
+
+            {/* This should be in like a bottom panel stuck to the bottom of the screen */}
         </>
     );
 };
