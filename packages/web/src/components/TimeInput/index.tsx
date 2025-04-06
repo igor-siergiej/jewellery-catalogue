@@ -1,10 +1,10 @@
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { IFormDesign } from '../../pages/AddDesign/types';
 import { UseFormSetValue } from 'react-hook-form';
 import { Dayjs } from 'dayjs';
+import { FormDesign } from '@jewellery-catalogue/types';
 
 export interface TimeInputProps {
-    setValue: UseFormSetValue<IFormDesign>;
+    setValue: UseFormSetValue<FormDesign>;
 }
 
 const TimeInput: React.FC<TimeInputProps> = ({ setValue }) => {

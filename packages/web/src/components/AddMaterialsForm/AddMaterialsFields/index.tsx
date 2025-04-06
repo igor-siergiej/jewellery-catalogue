@@ -13,8 +13,7 @@ import {
     useForm,
     UseFormSetValue,
 } from 'react-hook-form';
-import { Material } from '@jewellery-catalogue/types';
-import { IFormDesign } from '../../../pages/AddDesign/types';
+import { FormDesign, Material } from '@jewellery-catalogue/types';
 
 const DECIMAL_REGEX = /^\d*(\.\d+)?$/;
 
@@ -22,7 +21,7 @@ interface IAddMaterialFieldsProps {
     availableMaterials: Array<Material>;
     setCurrentMaterials: (materials: Array<Material>) => void;
     currentMaterials: Array<Material>;
-    setValue: UseFormSetValue<IFormDesign>;
+    setValue: UseFormSetValue<FormDesign>;
 }
 
 // TODO: I hate this so much
