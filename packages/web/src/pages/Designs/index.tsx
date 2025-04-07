@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import DesignTable from '../../components/DesignTable';
 import LoadingScreen from '../../components/Loading';
 import { getDesignsQuery } from '../../api/endpoints/getDesigns';
+import { DesignCard } from '../../components/DesignCard';
 
 const Designs = () => {
     const { data, isError } = useQuery({
@@ -16,7 +16,15 @@ const Designs = () => {
         return <LoadingScreen />;
     }
 
-    return <DesignTable designs={data} />;
+    const designs = data.map((design) => {
+        return (<DesignCard design={design} />);
+    });
+
+    return (
+        <div>
+            {designs}
+        </div>
+    );
 };
 
 export default Designs;
