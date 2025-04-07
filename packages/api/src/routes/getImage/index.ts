@@ -6,7 +6,7 @@ export const getImage = async (ctx: Context) => {
     const { id } = ctx.params;
 
     if (Array.isArray(id)) {
-        throw new Error('Inalid path params')
+        throw new Error('Inalid path params');
     }
 
     const bucket = DependencyContainer.getInstance().resolve(DependencyToken.Bucket);
@@ -22,10 +22,10 @@ export const getImage = async (ctx: Context) => {
     const pipe = async () => {
         return new Promise((resolve, reject) => {
             objectStream.pipe(ctx.res, { end: true });
-            objectStream.on('end', resolve)
-            objectStream.on('error', reject)
-        })
-    }
+            objectStream.on('end', resolve);
+            objectStream.on('error', reject);
+        });
+    };
 
     await pipe();
 };

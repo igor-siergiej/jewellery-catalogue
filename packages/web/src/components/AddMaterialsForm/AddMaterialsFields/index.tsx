@@ -31,7 +31,7 @@ interface IAddMaterialFieldsProps {
 
 interface ISelectMaterial {
     materialName: string;
-    quantity: number;
+    amount: number;
 }
 
 const AddMaterialFields: React.FC<IAddMaterialFieldsProps> = ({
@@ -56,7 +56,7 @@ const AddMaterialFields: React.FC<IAddMaterialFieldsProps> = ({
             return;
         }
 
-        const returnMaterial = { ...material, quantity: data.quantity };
+        const returnMaterial = { ...material, amount: data.amount };
 
         const materials = [...currentMaterials, returnMaterial];
 
@@ -102,7 +102,7 @@ const AddMaterialFields: React.FC<IAddMaterialFieldsProps> = ({
                 />
 
                 <TextField
-                    {...register('quantity', {
+                    {...register('amount', {
                         required: {
                             value: true,
                             message: 'Please enter the quantity/length.',
@@ -112,10 +112,11 @@ const AddMaterialFields: React.FC<IAddMaterialFieldsProps> = ({
                             message: 'Please enter a valid quantity/length',
                         },
                     })}
-                    error={Boolean(errors.quantity)}
-                    helperText={errors.quantity?.message}
+                    sx={{ width: '230px' }}
+                    error={Boolean(errors.amount)}
+                    helperText={errors.amount?.message}
                     color="secondary"
-                    label="Quantity/Length used"
+                    label="Quantity/Length used (cm)"
                 />
             </Box>
 

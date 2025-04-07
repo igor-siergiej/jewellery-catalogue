@@ -12,6 +12,16 @@ export interface FormDesign {
     description: string;
     timeRequired: string;
     image: FileList;
+    totalMaterialCosts: number;
+    price: number;
+}
+
+export interface FormWire extends Wire {
+    amount: number;
+}
+
+export interface FormBead extends Bead {
+    amount: number;
 }
 
 export interface UploadDesign {
@@ -20,6 +30,8 @@ export interface UploadDesign {
     description: string;
     timeRequired: string;
     image: PersistentFile;
+    totalMaterialCosts: number;
+    price: number;
 }
 
 export interface PersistentFile {
@@ -27,28 +39,19 @@ export interface PersistentFile {
     mimetype?: string;
 }
 
-
 export interface Design {
     id: string;
     materials: Array<Material>;
     name: string;
     imageId: string;
     timeRequired: string;
-    description: string
+    description: string;
+    totalMaterialCosts: number;
+    price: number;
 }
 
-// export interface Design {
-//     _id: ObjectId;
-//     materials: Array<Material>;
-//     name: string;
-//     imageUrl: string;
-//     timeRequired: string;
-//     totalMaterialCosts: number;
-//     suggestedSellingPrice: number;
-// }
-
 export interface Material extends Spread<Wire & Bead> {
-    _id: ObjectId;
+    id: string;
 }
 
 export interface Wire extends BaseMaterialType {

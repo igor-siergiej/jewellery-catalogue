@@ -1,6 +1,7 @@
 import { Bead, MaterialType, Wire } from '@jewellery-catalogue/types';
 import { IFormBead, IFormMaterial, IFormWire } from '../types';
 
+// TODO: this should be in top level utils
 export const convertFormDataToMaterial = (formMaterial: IFormMaterial) => {
     switch (formMaterial.type) {
         case MaterialType.WIRE:

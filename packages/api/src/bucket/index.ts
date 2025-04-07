@@ -1,7 +1,7 @@
 import { Client } from 'minio';
 import { IBucket } from './types';
 import { PersistentFile } from '@jewellery-catalogue/types';
-import fs from 'fs'
+import fs from 'fs';
 
 export class Bucket implements IBucket {
     private client: Client;
@@ -31,7 +31,7 @@ export class Bucket implements IBucket {
         const { filepath, mimetype } = image ?? {};
 
         if (!mimetype) {
-            console.log('Warning unknown uploaded file type')
+            console.log('Warning unknown uploaded file type');
         }
 
         const fileStream = fs.createReadStream(filepath);
@@ -43,11 +43,10 @@ export class Bucket implements IBucket {
     };
 
     public getObjectStream = async (id: string) => {
-        return this.client.getObject(this.bucketName, id)
-    }
+        return this.client.getObject(this.bucketName, id);
+    };
 
     public getHeadObject = async (id: string) => {
-        return this.client.statObject(this.bucketName, id)
-    }
+        return this.client.statObject(this.bucketName, id);
+    };
 }
-

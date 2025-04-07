@@ -9,22 +9,26 @@ import ImageUploadButton from '../../components/ImageUploadButton';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
 import makeAddDesignRequest from '../../api/endpoints/addDesign';
 import { FormDesign } from '@jewellery-catalogue/types';
+import { getTotalMaterialCosts } from '../../util/getPriceOfMaterials';
 
 const AddDesign = () => {
     const {
         setValue,
         handleSubmit,
         register,
+        watch,
         formState: { errors },
     } = useForm<FormDesign>();
-
     const { data } = useQuery({
         ...getMaterialsQuery(),
     });
 
     const onSubmit: SubmitHandler<FormDesign> = (data) => {
-        makeAddDesignRequest(data)
+        makeAddDesignRequest(data);
     };
+
+    const selectedMaterials = watch('materials');
+    console.log(selectedMaterials);
 
     if (!data) {
         return null;
@@ -59,8 +63,20 @@ const AddDesign = () => {
                     label="description"
                 />
 
-                <TimeInput setValue={setValue} />
+                <TextField
+                    {...register('price', {
+                        required: {
+                            value: true,
+                            message: 'Please enter the desired price.',
+                        },
+                    })}
+                    color="secondary"
+                    label="Price"
+                    error={Boolean(errors.price)}
+                    helperText={errors.price?.message}
+                />
 
+                <TimeInput setValue={setValue} />
 
                 <ImageUploadButton register={register} />
 
@@ -69,6 +85,13 @@ const AddDesign = () => {
                 </Button>
             </form>
 
+            <Typography
+                variant="subtitle2"
+            >
+                Current total material costs:
+                {' '}
+                {selectedMaterials && getTotalMaterialCosts(selectedMaterials)}
+            </Typography>
 
             <AddMaterialsForm availableMaterials={data} setValue={setValue} />
 

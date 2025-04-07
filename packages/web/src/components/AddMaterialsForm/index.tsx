@@ -39,25 +39,25 @@ const AddMaterialsForm: React.FC<AddMaterialsFormProps> = ({
 
             {showAddMaterialForm
                 ? (
-                    <AddMaterialFields
-                        availableMaterials={availableMaterials}
-                        setCurrentMaterials={(materials) => {
-                            setCurrentMaterials(materials);
-                            setShowAddMaterialForm(false);
-                        }}
-                        currentMaterials={currentMaterials}
-                        setValue={setValue}
-                    />
-                )
+                        <AddMaterialFields
+                            availableMaterials={availableMaterials}
+                            setCurrentMaterials={(materials) => {
+                                setCurrentMaterials(materials);
+                                setShowAddMaterialForm(false);
+                            }}
+                            currentMaterials={currentMaterials}
+                            setValue={setValue}
+                        />
+                    )
                 : (
-                    <Button
-                        variant="contained"
-                        onClick={() => setShowAddMaterialForm(true)}
-                        endIcon={<AddIcon />}
-                    >
-                        Add Material
-                    </Button>
-                )}
+                        <Button
+                            variant="contained"
+                            onClick={() => setShowAddMaterialForm(true)}
+                            endIcon={<AddIcon />}
+                        >
+                            Add Material
+                        </Button>
+                    )}
         </Box>
     );
 };

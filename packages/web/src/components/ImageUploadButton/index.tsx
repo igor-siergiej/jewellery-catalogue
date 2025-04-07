@@ -12,6 +12,7 @@ export interface ImageUploadButtonProps {
 const ImageUploadButton: React.FC<ImageUploadButtonProps> = ({ register }) => {
     const { classes } = useStyles();
     const [selectedImage, setSelectedImage] = useState<string>();
+    const { onChange, ...rest } = register('image');
 
     return (
         <div>
@@ -24,10 +25,11 @@ const ImageUploadButton: React.FC<ImageUploadButtonProps> = ({ register }) => {
             >
                 Upload files
                 <input
-                    {...register('image')}
+                    {...rest}
                     onChange={(e) => {
                         const file = e.target.files?.[0];
                         setSelectedImage(file ? URL.createObjectURL(file) : undefined);
+                        onChange(e);
                     }}
                     className={classes.upload}
                     type="file"

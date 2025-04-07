@@ -39,6 +39,6 @@ const getMaterial = (material: Material): Material | null => {
 
     return {
         ...material,
-        _id: new ObjectId()
+        id: new ObjectId().toString()
     };
 };

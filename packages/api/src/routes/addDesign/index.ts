@@ -10,20 +10,22 @@ export const addDesign = async (ctx: Context) => {
     const file = ctx.request.files.file as unknown as PersistentFile;
     const imageId = new ObjectId();
 
-    const { name, description, timeRequired, materials } = ctx.request.body as Partial<UploadDesign>;
+    const { name, description, timeRequired, materials, totalMaterialCosts, price } = ctx.request.body as Partial<UploadDesign>;
 
     const bucket = DependencyContainer.getInstance().resolve(DependencyToken.Bucket);
 
-    await bucket.addImage(imageId.toString(), file)
+    await bucket.addImage(imageId.toString(), file);
 
     const design: Design = {
         id: new ObjectId().toString(),
         name,
         description,
         timeRequired,
+        totalMaterialCosts,
+        price,
         imageId: imageId.toString(),
         materials: JSON.parse(materials)
-    }
+    };
 
     const database = DependencyContainer.getInstance().resolve(DependencyToken.Database);
     const collection = database.getCollection<Catalogue>(CollectionName.Catalogues);
