@@ -3,14 +3,14 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { useQuery } from '@tanstack/react-query';
-import AddMaterialsForm from '../../components/AddMaterialsForm';
 import TimeInput from '../../components/TimeInput';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
 import makeAddDesignRequest from '../../api/endpoints/addDesign';
 import { FormDesign } from '@jewellery-catalogue/types';
 import { getTotalMaterialCosts } from '../../util/getPriceOfMaterials';
-import { Box, Card, Grid2 } from '@mui/material';
+import { Box, Card, Divider, Grid2 } from '@mui/material';
 import ImageUpload from '../../components/ImageUploadButton';
+import { AddMaterialsTable } from '../../components/AddMaterialsTable';
 
 const AddDesign = () => {
     const {
@@ -30,7 +30,7 @@ const AddDesign = () => {
 
     const selectedMaterials = watch('materials');
 
-    console.log(watch('image'));
+    console.log(selectedMaterials);
 
     if (!data) {
         return null;
@@ -49,6 +49,8 @@ const AddDesign = () => {
                         >
                             Adding New Design
                         </Typography>
+
+                        <Divider variant="fullWidth" />
                     </Grid2>
 
                     <Grid2 container direction="row">
@@ -101,6 +103,8 @@ const AddDesign = () => {
                         </Grid2>
                     </Grid2>
 
+                    <Divider variant="fullWidth" />
+
                     <Grid2 container direction="row">
                         <Grid2 size={4}>
                             <Typography
@@ -116,6 +120,8 @@ const AddDesign = () => {
                             <ImageUpload setImage={setValue} />
                         </Grid2>
                     </Grid2>
+
+                    <Divider variant="fullWidth" />
 
                     <Grid2 container direction="row">
                         <Grid2 size={4}>
@@ -136,7 +142,7 @@ const AddDesign = () => {
                                 {selectedMaterials && getTotalMaterialCosts(selectedMaterials)}
                             </Typography>
 
-                            <AddMaterialsForm availableMaterials={data} setValue={setValue} />
+                            <AddMaterialsTable availableMaterials={data} setValue={setValue} />
 
                         </Grid2>
                     </Grid2>

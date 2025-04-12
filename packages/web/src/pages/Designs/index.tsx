@@ -17,7 +17,7 @@ const Designs = () => {
     }
 
     const designs = data.map((design) => {
-        return (<DesignCard design={design} />);
+        return (<DesignCard key={design.id} design={design} />);
     });
 
     return (
