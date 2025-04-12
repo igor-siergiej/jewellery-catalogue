@@ -10,15 +10,11 @@ import {
     Toolbar,
     Typography,
 } from '@mui/material';
-import { useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Store } from '../Store';
-import { ROUTES } from '../../constants/routes';
+import { HOME_PAGE, ROUTES } from '../../constants/routes';
+import IMAGES from '../../img';
 
 const NavBar = () => {
-    const { state } = useContext(Store);
-    const { user } = state || {};
-
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -61,10 +57,16 @@ const NavBar = () => {
                 <Toolbar
                     sx={{
                         minHeight: '80px !important',
-                        justifyContent: 'space-between',
+                        gap: 4
                     }}
                 >
-                    {/* TODO: logo here with navigate to home screen?  */}
+                    <Box
+                        component="img"
+                        sx={{ objectFit: 'scale-down', width: 64, height: 64 }}
+                        src={IMAGES.logo}
+                        alt="jewellery"
+                        onClick={() => navigate(HOME_PAGE.route)}
+                    />
                     <Typography
                         variant="h4"
                         sx={{ lineHeight: '80px' }}
@@ -74,14 +76,6 @@ const NavBar = () => {
                         Jewellery Catalogue
                     </Typography>
 
-                    <Typography
-                        variant="h4"
-                        sx={{ lineHeight: '80px' }}
-                        noWrap
-                        component="div"
-                    >
-                        {user?.firstName || ''}
-                    </Typography>
                 </Toolbar>
             </AppBar>
             <Drawer
