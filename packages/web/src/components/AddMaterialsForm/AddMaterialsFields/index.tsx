@@ -11,28 +11,10 @@ import {
     Controller,
     SubmitHandler,
     useForm,
-    UseFormSetValue,
 } from 'react-hook-form';
-import { FormDesign, Material } from '@jewellery-catalogue/types';
+import { IAddMaterialFieldsProps, ISelectMaterial } from './types';
 
 const DECIMAL_REGEX = /^\d*(\.\d+)?$/;
-
-interface IAddMaterialFieldsProps {
-    availableMaterials: Array<Material>;
-    setCurrentMaterials: (materials: Array<Material>) => void;
-    currentMaterials: Array<Material>;
-    setValue: UseFormSetValue<FormDesign>;
-}
-
-// TODO: I hate this so much
-// please use form hook and make this a form please
-// don't ignore this and stick to this crap
-// plug in the rest of this crap
-
-interface ISelectMaterial {
-    materialName: string;
-    amount: number;
-}
 
 const AddMaterialFields: React.FC<IAddMaterialFieldsProps> = ({
     availableMaterials,
@@ -65,7 +47,7 @@ const AddMaterialFields: React.FC<IAddMaterialFieldsProps> = ({
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <>
             <Box
                 sx={{
                     marginTop: 2,
@@ -120,8 +102,8 @@ const AddMaterialFields: React.FC<IAddMaterialFieldsProps> = ({
                 />
             </Box>
 
-            <Button type="submit">ADD MATERIAL TO DESIGN</Button>
-        </form>
+            <Button onClick={handleSubmit(onSubmit)}>ADD MATERIAL TO DESIGN</Button>
+        </>
     );
 };
 

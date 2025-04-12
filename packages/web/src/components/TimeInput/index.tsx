@@ -19,7 +19,7 @@ const TimeInput: React.FC<TimeInputProps> = ({ setValue }) => {
     return (
         <TimePicker
             sx={{
-                maxWidth: 200,
+                width: '100%',
             }}
             ampm={false}
             label="Time Spent Crafting"
