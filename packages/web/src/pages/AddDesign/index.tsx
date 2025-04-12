@@ -5,12 +5,12 @@ import Button from '@mui/material/Button';
 import { useQuery } from '@tanstack/react-query';
 import AddMaterialsForm from '../../components/AddMaterialsForm';
 import TimeInput from '../../components/TimeInput';
-import ImageUploadButton from '../../components/ImageUploadButton';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
 import makeAddDesignRequest from '../../api/endpoints/addDesign';
 import { FormDesign } from '@jewellery-catalogue/types';
 import { getTotalMaterialCosts } from '../../util/getPriceOfMaterials';
 import { Box, Card, Grid2 } from '@mui/material';
+import ImageUpload from '../../components/ImageUploadButton';
 
 const AddDesign = () => {
     const {
@@ -29,6 +29,8 @@ const AddDesign = () => {
     };
 
     const selectedMaterials = watch('materials');
+
+    console.log(watch('image'));
 
     if (!data) {
         return null;
@@ -111,7 +113,7 @@ const AddDesign = () => {
                         </Grid2>
 
                         <Grid2 size={8}>
-                            <ImageUploadButton register={register} />
+                            <ImageUpload setImage={setValue} />
                         </Grid2>
                     </Grid2>
 
@@ -136,10 +138,13 @@ const AddDesign = () => {
 
                             <AddMaterialsForm availableMaterials={data} setValue={setValue} />
 
-                            <Button variant="contained" color="secondary" type="submit">
-                                Add Design!
-                            </Button>
                         </Grid2>
+                    </Grid2>
+
+                    <Grid2 container justifyContent="end">
+                        <Button variant="contained" color="secondary" type="submit">
+                            Add Design!
+                        </Button>
                     </Grid2>
                 </Grid2>
             </form>

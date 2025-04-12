@@ -11,7 +11,7 @@ export interface FormDesign {
     name: string;
     description: string;
     timeRequired: string;
-    image: FileList;
+    image: File;
     totalMaterialCosts: number;
     price: number;
 }
