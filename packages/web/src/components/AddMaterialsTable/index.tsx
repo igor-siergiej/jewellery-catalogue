@@ -1,6 +1,4 @@
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
@@ -11,57 +9,20 @@ import {
     GridRowModes,
     DataGrid,
     GridColDef,
-    GridToolbarContainer,
     GridActionsCellItem,
     GridEventListener,
     GridRowId,
     GridRowEditStopReasons,
-    GridSlotProps,
 } from '@mui/x-data-grid';
 import { useState } from 'react';
-import { UseFormSetValue } from 'react-hook-form';
-import { FormDesign, Material } from '@jewellery-catalogue/types';
-
-declare module '@mui/x-data-grid' {
-    interface ToolbarPropsOverrides {
-        setRows: React.Dispatch<React.SetStateAction<ReadonlyArray<TableMaterial>>>;
-        setRowModesModel: React.Dispatch<React.SetStateAction<GridRowModesModel>>;
-    }
-}
-
-type TableMaterial = Pick<Material, 'id' | 'name' | 'quantity'> & { isNew?: boolean };
-
-const EditToolbar = (props: GridSlotProps['toolbar']) => {
-    const { setRows, setRowModesModel } = props;
-
-    const handleClick = () => {
-        setRows(oldRows => [
-            ...oldRows,
-            { id: 'new', name: '', quantity: 0 },
-        ]);
-        setRowModesModel(oldModel => ({
-            ...oldModel,
-            ['new']: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
-        }));
-    };
-
-    return (
-        <GridToolbarContainer>
-            <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
-                Add Material
-            </Button>
-        </GridToolbarContainer>
-    );
-};
-
-export interface AddMaterialsTableProps {
-    setValue: UseFormSetValue<FormDesign>;
-    availableMaterials: Array<Material>;
-}
+import { Material } from '@jewellery-catalogue/types';
+import { AddMaterialsTableProps, TableMaterial } from './types';
+import { EditToolbar } from './EditToolBar';
 
 export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, availableMaterials }) => {
     const [rows, setRows] = useState<GridRowsProp<TableMaterial>>([]);
     const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+    const [selectedMaterials, setSelectedMaterials] = useState<Array<TableMaterial>>([]);
 
     const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
         if (params.reason === GridRowEditStopReasons.rowFocusOut) {
@@ -94,20 +55,9 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
         }
     };
 
-    const processRowUpdate = (newRow: TableMaterial) => {
-        const actualId = availableMaterials.find(material => material.name === newRow.name)?.id;
-
-        if (!actualId) {
-            throw new Error('Could not find a matching material name from availableMaterials');
-        }
-
-        const updatedRow = { ...newRow, isNew: false, id: actualId };
-
-        const newRows = rows.map(row => (row.id === 'new' ? updatedRow : row));
-        setRows(newRows);
-
+    const setMaterials = (rows: Array<TableMaterial>) => {
         const actualMaterials = availableMaterials.reduce((acc, material) => {
-            const matchedRow = newRows.find(tableMaterial => tableMaterial.id === material.id);
+            const matchedRow = rows.find(tableMaterial => tableMaterial.id === material.id);
 
             if (matchedRow) {
                 return [...acc, { ...material, amount: matchedRow.quantity }];
@@ -117,6 +67,24 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
         }, [] as Array<Material>);
 
         setValue('materials', actualMaterials);
+    }
+
+    const processRowUpdate = (newRow: TableMaterial) => {
+        const actualId = availableMaterials.find(material => material.name === newRow.name)?.id;
+
+        if (!actualId) {
+            throw new Error('Could not find a matching material name from availableMaterials');
+        }
+
+        const updatedRow = { ...newRow, isNew: false, id: actualId };
+
+        const newRows = rows.map(row => (row.id === 'new' || row.id === actualId ? updatedRow : row));
+
+        setSelectedMaterials(newRows)
+
+        setRows(newRows);
+        setMaterials(newRows);
+
         return updatedRow;
     };
 
@@ -124,15 +92,20 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
         setRowModesModel(newRowModesModel);
     };
 
-    // TODO: need to not show the materials that have been selected
     const columns: Array<GridColDef<TableMaterial>> = [
         {
             field: 'name',
             headerName: 'Material',
             editable: true,
             flex: 0.40,
+            sortable: false,
+            filterable: false,
             type: 'singleSelect',
-            valueOptions: availableMaterials.map(material => material.name),
+            valueOptions: availableMaterials.filter(material => {
+                const materialHasAlreadyBeenSelected = selectedMaterials.some((selectedMaterial) => selectedMaterial.name === material.name);
+                return !materialHasAlreadyBeenSelected;
+
+            }).map(material => material.name)
         },
         {
             field: 'quantity',
@@ -142,12 +115,16 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
             align: 'left',
             headerAlign: 'left',
             editable: true,
+            sortable: false,
+            filterable: false
         },
         {
             field: 'actions',
             type: 'actions',
             flex: 0.2,
             headerName: 'Actions',
+            sortable: false,
+            filterable: false,
             cellClassName: 'actions',
             getActions: ({ id }) => {
                 const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
@@ -208,6 +185,9 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
             <DataGrid<TableMaterial>
                 rows={rows}
                 columns={columns}
+                disableColumnMenu
+                hideFooter
+                hideFooterPagination
                 editMode="row"
                 rowModesModel={rowModesModel}
                 onRowModesModelChange={handleRowModesModelChange}
