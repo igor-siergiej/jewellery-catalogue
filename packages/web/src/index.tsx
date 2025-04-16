@@ -22,6 +22,8 @@ import AddMaterial from './pages/AddMaterial';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
+import 'react-quill/dist/quill.snow.css';
+
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {

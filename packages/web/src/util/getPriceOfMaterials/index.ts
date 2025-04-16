@@ -30,12 +30,10 @@ export const MaterialPriceResolver = (material: Material) => {
 };
 
 export const getTotalMaterialCosts = (materials: Array<Material>): number => {
-    // TODO: reducer here to add up all materials
     return materials.reduce((acc, material) => {
         const calculator = MaterialPriceResolver(material);
 
         const priceOfMaterial = calculator(material as unknown as FormBead & FormWire);
-        console.log(priceOfMaterial);
         return acc + priceOfMaterial;
     }, 0);
 };

@@ -9,8 +9,8 @@ const makeAddDesignRequest = async (formDesign: FormDesign) => {
         if (formDesign.hasOwnProperty(key)) {
             const value = formDesign[key as keyof FormDesign];
 
-            if (key === 'image' && value instanceof FileList) {
-                formData.append('file', value[0]);
+            if (key === 'image' && value instanceof File) {
+                formData.append('file', value);
             }
             else if (key === 'materials' && Array.isArray(value)) {
                 formData.append(key, JSON.stringify(value));

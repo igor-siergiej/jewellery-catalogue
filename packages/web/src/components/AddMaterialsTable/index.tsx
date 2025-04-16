@@ -168,7 +168,6 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
         },
     ];
 
-    // TODO: Need to remove all the default table crap like pagination and filtering
     return (
         <Box
             sx={{

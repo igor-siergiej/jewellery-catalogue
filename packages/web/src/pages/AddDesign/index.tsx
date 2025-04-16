@@ -1,5 +1,5 @@
 import Typography from '@mui/material/Typography';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { useQuery } from '@tanstack/react-query';
@@ -11,6 +11,7 @@ import { getTotalMaterialCosts } from '../../util/getPriceOfMaterials';
 import { Box, Card, Divider, Grid2 } from '@mui/material';
 import ImageUpload from '../../components/ImageUploadButton';
 import { AddMaterialsTable } from '../../components/AddMaterialsTable';
+import TextEditor from '../../components/Editor';
 
 const AddDesign = () => {
     const {
@@ -18,6 +19,7 @@ const AddDesign = () => {
         handleSubmit,
         register,
         watch,
+        control,
         formState: { errors },
     } = useForm<FormDesign>();
     const { data } = useQuery({
@@ -29,8 +31,6 @@ const AddDesign = () => {
     };
 
     const selectedMaterials = watch('materials');
-
-    console.log(selectedMaterials);
 
     if (!data) {
         return null;
@@ -147,10 +147,31 @@ const AddDesign = () => {
                         </Grid2>
                     </Grid2>
 
-                    <Grid2 container justifyContent="end">
-                        <Button variant="contained" color="secondary" type="submit">
-                            Add Design!
-                        </Button>
+                    <Grid2 container direction="row">
+                        <Grid2 size={4}>
+                            <Typography
+                                align="center"
+                                variant="h6"
+                            >
+                                Add Description
+                            </Typography>
+                        </Grid2>
+
+                        <Grid2 size={8}>
+                            <Controller
+                                name="description"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextEditor value={field.value} onChange={field.onChange} />
+                                )}
+                            />
+                        </Grid2>
+
+                        <Grid2 container justifyContent="end">
+                            <Button variant="contained" color="secondary" type="submit">
+                                Add Design!
+                            </Button>
+                        </Grid2>
                     </Grid2>
                 </Grid2>
             </form>
