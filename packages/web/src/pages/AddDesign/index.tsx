@@ -9,7 +9,7 @@ import makeAddDesignRequest from '../../api/endpoints/addDesign';
 import { FormDesign } from '@jewellery-catalogue/types';
 import { getTotalMaterialCosts } from '../../util/getPriceOfMaterials';
 import { Box, Card, Divider, Grid2 } from '@mui/material';
-import ImageUpload from '../../components/ImageUploadButton';
+import ImageUpload from '../../components/ImageUpload';
 import { AddMaterialsTable } from '../../components/AddMaterialsTable';
 import TextEditor from '../../components/Editor';
 

@@ -74,7 +74,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ setImage }) => {
                 width: '300px',
                 height: '300px',
                 cursor: 'pointer',
-                backgroundColor: isDragging ? '#f0f8ff' : '#fafafa',
+                backgroundColor: isDragging ? '#f0f8ff' : '#e6efff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -91,27 +91,27 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ setImage }) => {
             />
             {preview
                 ? (
-                        <img
-                            src={preview}
-                            alt="Preview"
-                            style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover',
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                            }}
-                        />
-                    )
+                    <img
+                        src={preview}
+                        alt="Preview"
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                        }}
+                    />
+                )
                 : (
-                        <Grid2 container direction="column" display="flex" justifyContent="center" alignItems="center" sx={{ width: '100%' }}>
-                            <AddPhotoAlternateIcon sx={{ width: 32, height: 32, color: '#666' }} />
-                            <span style={{ color: '#666', textAlign: 'center' }}>
-                                Drag & Drop or Click to Upload
-                            </span>
-                        </Grid2>
-                    )}
+                    <Grid2 container direction="column" display="flex" justifyContent="center" alignItems="center" sx={{ width: '100%' }}>
+                        <AddPhotoAlternateIcon sx={{ width: 32, height: 32, color: '#666' }} />
+                        <span style={{ color: '#666', textAlign: 'center' }}>
+                            Drag & Drop or Click to Upload
+                        </span>
+                    </Grid2>
+                )}
 
             {preview && (
                 <Button
