@@ -5,6 +5,7 @@ export enum METAL_TYPE {
     COPPER = 'COPPER',
     SILVER = 'SILVER',
     GOLD = 'GOLD',
+    GILT = 'GILT'
 }
 
 export enum WIRE_TYPE {
@@ -19,6 +20,7 @@ export enum MaterialType {
 }
 
 export const WireKeysEnum: { [K in keyof Required<Wire>]: K } = {
+    id: 'id',
     wireType: 'wireType',
     metalType: 'metalType',
     length: 'length',
@@ -31,6 +33,7 @@ export const WireKeysEnum: { [K in keyof Required<Wire>]: K } = {
 };
 
 export const BeadKeysEnum: { [K in keyof Required<Bead>]: K } = {
+    id: 'id',
     colour: 'colour',
     quantity: 'quantity',
     pricePerBead: 'pricePerBead',

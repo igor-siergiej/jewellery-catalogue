@@ -1,8 +1,8 @@
-import { Bead, Material, MethodType, Wire } from '@jewellery-catalogue/types';
+import { FormMaterial, Material, MethodType } from '@jewellery-catalogue/types';
 import { makeRequest } from '../../makeRequest';
 import { MATERIALS_ENDPOINT } from '../../endpoints';
 
-const makeAddMaterialRequest = async (material: Wire | Bead) => {
+const makeAddMaterialRequest = async (material: FormMaterial) => {
     return await makeRequest<Array<Material>>({
         pathname: MATERIALS_ENDPOINT,
         method: MethodType.POST,

@@ -1,39 +1,48 @@
-import { FormBead, FormWire, Material, MaterialType } from '@jewellery-catalogue/types';
+import { Bead, Material, MaterialType, Wire } from '@jewellery-catalogue/types';
+import { RequiredBead, RequiredWire, RequiredMaterial } from '@jewellery-catalogue/types/src/requiredMaterial';
 
-const BeadPriceCalculator = (bead: FormBead) => {
-    const { quantity, pricePerBead } = bead;
+const BeadPriceCalculator = (requiredBead: RequiredBead, bead: Bead) => {
+    const { requiredQuantity } = requiredBead
+    const { pricePerBead } = bead;
 
-    const totalPrice = quantity * pricePerBead;
+    const totalPrice = requiredQuantity * pricePerBead;
 
     return parseFloat(totalPrice.toFixed(2));
 };
 
-const WirePriceCalculator = (wire: FormWire) => {
-    const { amount, pricePerMeter } = wire;
+const WirePriceCalculator = (requiredWire: RequiredWire, wire: Wire) => {
+    const { requiredLength } = requiredWire;
+    const { pricePerMeter } = wire;
 
-    const amountInMeters = amount / 10;
+    const amountInMeters = requiredLength / 10;
     const totalPrice = pricePerMeter * amountInMeters;
 
     return parseFloat(totalPrice.toFixed(2));
 };
-export const MaterialPriceCalculatorMap = {
-    [MaterialType.BEAD]: BeadPriceCalculator,
-    [MaterialType.WIRE]: WirePriceCalculator,
-};
 
-export const MaterialPriceResolver = (material: Material) => {
+export const MaterialPriceResolver = (requiredMaterial: RequiredMaterial, material: Material) => {
+    const MaterialPriceCalculatorMap = {
+        [MaterialType.BEAD]: BeadPriceCalculator(requiredMaterial as RequiredBead, material as Bead),
+        [MaterialType.WIRE]: WirePriceCalculator(requiredMaterial as RequiredWire, material as Wire),
+    };
+
     if (material.type in MaterialPriceCalculatorMap) {
-        return MaterialPriceCalculatorMap[material.type];
+        return MaterialPriceCalculatorMap[material.type]
     }
 
-    throw new Error('Unsupported material, cannot get price');
+    throw new Error(`Unsupported material type!`)
 };
 
-export const getTotalMaterialCosts = (materials: Array<Material>): number => {
-    return materials.reduce((acc, material) => {
-        const calculator = MaterialPriceResolver(material);
+export const getTotalMaterialCosts = (selectedMaterials: Array<RequiredMaterial>, materials: Array<Material>): number => {
+    const matchedMaterials = selectedMaterials.reduce<Array<{ selectedMaterial: RequiredMaterial, material: Material }>>((acc, requiredMaterial) => {
+        const match = materials.find(searchMaterial => searchMaterial.id === requiredMaterial.id);
+        if (match) {
+            acc.push({ selectedMaterial: requiredMaterial, material: match });
+        }
+        return acc;
+    }, []);
 
-        const priceOfMaterial = calculator(material as unknown as FormBead & FormWire);
-        return acc + priceOfMaterial;
+    return matchedMaterials.reduce((acc, { selectedMaterial, material }) => {
+        return acc + MaterialPriceResolver(selectedMaterial, material);
     }, 0);
 };

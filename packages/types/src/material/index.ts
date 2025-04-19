@@ -1,38 +1,21 @@
-import { Spread } from "../util";
-import { WIRE_TYPE, METAL_TYPE, MaterialType, WireKeysEnum, BeadKeysEnum } from "./enum";
+import { BaseMaterial } from "../baseMaterial";
+import { BeadKeysEnum, METAL_TYPE, MaterialType, WIRE_TYPE, WireKeysEnum } from "./enum";
 
-export interface Material extends Spread<Wire & Bead> {
+export type Material = Wire | Bead;
+
+export interface Wire extends BaseMaterial {
     id: string;
-}
-
-export interface Wire extends BaseMaterialType {
     wireType: WIRE_TYPE;
     metalType: METAL_TYPE;
     length: number;
     pricePerMeter: number;
 }
 
-export interface Bead extends BaseMaterialType {
+export interface Bead extends BaseMaterial {
+    id: string;
     colour: string;
     quantity: number;
     pricePerBead: number;
-}
-
-export interface BaseMaterialType {
-    name: string;
-    brand: string;
-    diameter: number;
-    purchaseUrl: string;
-    type: MaterialType;
-}
-
-
-export interface FormWire extends Wire {
-    amount: number;
-}
-
-export interface FormBead extends Bead {
-    amount: number;
 }
 
 export const MaterialKeysMap = {

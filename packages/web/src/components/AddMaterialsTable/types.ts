@@ -2,7 +2,12 @@ import { FormDesign, Material } from "@jewellery-catalogue/types";
 import { GridRowModesModel } from "@mui/x-data-grid/models";
 import { UseFormSetValue } from "react-hook-form";
 
-export type TableMaterial = Pick<Material, 'id' | 'name' | 'quantity'> & { isNew?: boolean };
+export interface TableMaterial {
+    name: string;
+    id: string;
+    required: number;
+    isNew?: boolean
+};
 
 export interface AddMaterialsTableProps {
     setValue: UseFormSetValue<FormDesign>;

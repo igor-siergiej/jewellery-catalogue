@@ -1,8 +1,8 @@
-import { Material } from "../material";
+import { RequiredMaterial } from "../requiredMaterial";
 import { PersistentFile } from "../util";
 
 export interface FormDesign {
-    materials: Array<Material>;
+    materials: Array<RequiredMaterial>;
     name: string;
     description: string;
     timeRequired: string;
@@ -23,7 +23,7 @@ export interface UploadDesign {
 
 export interface Design {
     id: string;
-    materials: Array<Material>;
+    materials: Array<RequiredMaterial>;
     name: string;
     imageId: string;
     timeRequired: string;

@@ -1,3 +1,5 @@
+import { Bead, Material, Wire } from "../material";
+
 export interface MakeRequestProps {
     pathname: string;
     method: MethodType;
@@ -22,3 +24,10 @@ export interface PersistentFile {
     mimetype?: string;
 }
 
+export const isWireMaterial = (material: Material): material is Wire => {
+    return material.type === 'WIRE';
+}
+
+export const isBeadMaterial = (material: Material): material is Bead => {
+    return material.type === 'BEAD';
+}

@@ -139,7 +139,7 @@ const AddDesign = () => {
                             >
                                 Current total material costs:
                                 {' '}
-                                {selectedMaterials && getTotalMaterialCosts(selectedMaterials)}
+                                {selectedMaterials && getTotalMaterialCosts(selectedMaterials, data)}
                             </Typography>
 
                             <AddMaterialsTable availableMaterials={data} setValue={setValue} />

@@ -1,14 +1,11 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { Collapse, TextField, Typography } from '@mui/material';
+import { TextField, Typography } from '@mui/material';
 import MaterialFormResolver from '../../components/MaterialFormResolver';
 import DropDown from '../../components/DropDown';
-import { MaterialType } from '@jewellery-catalogue/types';
-import { IFormMaterial } from './types';
+import { FormMaterial, MaterialType } from '@jewellery-catalogue/types';
 import { useState } from 'react';
 import LoadingButton from '@mui/lab/LoadingButton';
-import Alert from '@mui/material/Alert';
 import makeAddMaterialRequest from '../../api/endpoints/addMaterial';
-import { convertFormDataToMaterial } from './util';
 
 const URL_REGEX
     = /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/g;
@@ -22,25 +19,18 @@ const AddMaterial = () => {
         register,
         watch,
         formState: { errors },
-    } = useForm<IFormMaterial>();
-
+    } = useForm<FormMaterial>();
     const [isMakingRequest, setIsMakingRequest] = useState(false);
-    const [showAlert, setShowAlert] = useState(false);
 
     const currentMaterialType = watch('type');
 
-    const onSubmit: SubmitHandler<IFormMaterial> = async (data) => {
-        const material = convertFormDataToMaterial(data);
-
+    const onSubmit: SubmitHandler<FormMaterial> = async (data) => {
         setIsMakingRequest(true);
         try {
-            await makeAddMaterialRequest(material);
-            // create positive alert
+            await makeAddMaterialRequest(data);
+            // some kind of clean up to remove the fields
         } catch (e) {
             console.error(e);
-            setShowAlert(true);
-            setTimeout(() => setShowAlert(false), 5000);
-            setIsMakingRequest(false);
         } finally {
             setIsMakingRequest(false);
         }
@@ -166,11 +156,12 @@ const AddMaterial = () => {
                     Add Material!
                 </LoadingButton>
             </form>
-            <Collapse in={showAlert}>
-                <Alert variant="outlined" severity="error">
-                    This is an outlined error Alert.
-                </Alert>
-            </Collapse>
+            {/* // TODO: this should be in a global alert component with a reducer context to dispatch alerts */}
+            {/* <Collapse in={showAlert}> */}
+            {/*     <Alert variant="outlined" severity="error"> */}
+            {/*         This is an outlined error Alert. */}
+            {/*     </Alert> */}
+            {/* </Collapse> */}
         </>
     );
 };

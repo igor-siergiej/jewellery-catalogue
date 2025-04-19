@@ -15,9 +15,10 @@ import {
     GridRowEditStopReasons,
 } from '@mui/x-data-grid';
 import { useState } from 'react';
-import { Material } from '@jewellery-catalogue/types';
+import { RequiredMaterial } from '@jewellery-catalogue/types';
 import { AddMaterialsTableProps, TableMaterial } from './types';
 import { EditToolbar } from './EditToolBar';
+import { getRequiredMaterial } from './util';
 
 export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, availableMaterials }) => {
     const [rows, setRows] = useState<GridRowsProp<TableMaterial>>([]);
@@ -56,15 +57,15 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
     };
 
     const setMaterials = (rows: Array<TableMaterial>) => {
-        const actualMaterials = availableMaterials.reduce((acc, material) => {
+        const actualMaterials = availableMaterials.reduce<Array<RequiredMaterial>>((acc, material) => {
             const matchedRow = rows.find(tableMaterial => tableMaterial.id === material.id);
 
             if (matchedRow) {
-                return [...acc, { ...material, amount: matchedRow.quantity }];
+                return [...acc, getRequiredMaterial(material, matchedRow)];
             }
 
             return acc;
-        }, [] as Array<Material>);
+        }, []);
 
         setValue('materials', actualMaterials);
     }
@@ -108,7 +109,7 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
             }).map(material => material.name)
         },
         {
-            field: 'quantity',
+            field: 'required',
             headerName: 'Length (cm)/Quantity',
             flex: 0.40,
             type: 'number',
