@@ -1,5 +1,5 @@
-import { BaseMaterial } from "../baseMaterial";
-import { BeadKeysEnum, METAL_TYPE, MaterialType, WIRE_TYPE, WireKeysEnum } from "./enum";
+import { BaseMaterial } from '../baseMaterial';
+import { BeadKeysEnum, METAL_TYPE, MaterialType, WIRE_TYPE, WireKeysEnum } from './enum';
 
 export type Material = Wire | Bead;
 

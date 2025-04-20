@@ -1,4 +1,4 @@
-import { Bead, Wire } from ".";
+import { Bead, Wire } from '.';
 
 export enum METAL_TYPE {
     BRASS = 'BRASS',
@@ -43,4 +43,3 @@ export const BeadKeysEnum: { [K in keyof Required<Bead>]: K } = {
     purchaseUrl: 'purchaseUrl',
     type: 'type'
 };
-

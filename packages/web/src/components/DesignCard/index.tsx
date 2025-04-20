@@ -13,19 +13,13 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design }) => {
     const { name, timeRequired, id, imageId, materials } = design;
     const { classes } = useStyles();
 
-    const materialsLabels = materials.map(({ name, type }) => {
+    const materialsLabels = materials.map(({ id }) => {
         return (
             <Grid2 direction="row" container sx={{ width: '100%', justifyContent: 'space-around', alignItems: 'center' }}>
                 <Typography variant="subtitle2">
-                    Name:
+                    id:
                     {' '}
-                    {name}
-                </Typography>
-
-                <Typography variant="subtitle2">
-                    Type:
-                    {' '}
-                    {type}
+                    {id}
                 </Typography>
 
                 <Button>Go To Material</Button>

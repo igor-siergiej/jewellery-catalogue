@@ -1,5 +1,5 @@
-import { Button } from "@mui/material";
-import { GridSlotProps, GridRowModes, GridToolbarContainer } from "@mui/x-data-grid";
+import { Button } from '@mui/material';
+import { GridSlotProps, GridRowModes, GridToolbarContainer } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 
 export const EditToolbar = (props: GridSlotProps['toolbar']) => {
@@ -8,7 +8,7 @@ export const EditToolbar = (props: GridSlotProps['toolbar']) => {
     const handleClick = () => {
         setRows(oldRows => [
             ...oldRows,
-            { id: 'new', name: '', quantity: 0 },
+            { id: 'new', name: '', required: 0 },
         ]);
         setRowModesModel(oldModel => ({
             ...oldModel,
