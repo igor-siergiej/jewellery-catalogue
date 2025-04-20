@@ -81,22 +81,20 @@ const AddDesign = () => {
 
                         <Grid2 size={8}>
                             <Grid2 gap={2} container direction="column">
-                                <TextField
-                                    {...register('name', {
-                                        required: {
-                                            value: true,
-                                            message: 'Please enter the design name.',
-                                        },
-                                    })}
-                                    sx={{ width: '100%' }}
-                                    color="secondary"
-                                    label="Name"
-                                    error={Boolean(errors.name)}
-                                    helperText={errors.name?.message}
-                                />
-
                                 <Box sx={{ display: 'flex', gap: 2 }}>
-
+                                    <TextField
+                                        {...register('name', {
+                                            required: {
+                                                value: true,
+                                                message: 'Please enter the design name.',
+                                            },
+                                        })}
+                                        sx={{ width: '50%' }}
+                                        color="secondary"
+                                        label="Name"
+                                        error={Boolean(errors.name)}
+                                        helperText={errors.name?.message}
+                                    />
                                     <Box sx={{ width: '50%', display: 'flex' }}>
                                         <TimeInput setValue={setValue} />
                                     </Box>
@@ -160,7 +158,7 @@ const AddDesign = () => {
                                         message: 'Please enter the desired price.',
                                     },
                                 })}
-                                sx={{ width: '50%' }}
+                                sx={{ width: 300 }}
                                 color="secondary"
                                 label="Price"
                                 error={Boolean(errors.price)}

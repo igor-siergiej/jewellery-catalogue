@@ -15,7 +15,7 @@ import {
 } from './constants/routes';
 import Designs from './pages/Designs';
 import MainLayout from './components/MainLayout';
-import { StoreProvider } from './components/Store';
+import { AlertProvider } from './context/Alert';
 import AddDesign from './pages/AddDesign';
 import Materials from './pages/Materials';
 import AddMaterial from './pages/AddMaterial';
@@ -23,6 +23,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import 'react-quill/dist/quill.snow.css';
+import { GlobalAlert } from './components/Alert';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -75,9 +76,10 @@ root.render(
     <ThemeProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
             <BrowserRouter>
-                <StoreProvider>
+                <AlertProvider>
+                    <GlobalAlert />
                     <App />
-                </StoreProvider>
+                </AlertProvider>
             </BrowserRouter>
         </QueryClientProvider>
     </ThemeProvider>

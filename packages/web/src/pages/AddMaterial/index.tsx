@@ -6,6 +6,8 @@ import { FormMaterial, MaterialType } from '@jewellery-catalogue/types';
 import { useState } from 'react';
 import LoadingButton from '@mui/lab/LoadingButton';
 import makeAddMaterialRequest from '../../api/endpoints/addMaterial';
+import { useAlert } from '../../context/Alert';
+import { AlertStoreActions } from '../../context/Alert/types';
 
 const URL_REGEX
     = /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/g;
@@ -18,9 +20,12 @@ const AddMaterial = () => {
         handleSubmit,
         register,
         watch,
+        reset,
         formState: { errors },
     } = useForm<FormMaterial>();
     const [isMakingRequest, setIsMakingRequest] = useState(false);
+
+    const { dispatch } = useAlert();
 
     const currentMaterialType = watch('type');
 
@@ -28,9 +33,28 @@ const AddMaterial = () => {
         setIsMakingRequest(true);
         try {
             await makeAddMaterialRequest(data);
-            // some kind of clean up to remove the fields
+
+            dispatch({
+                type: AlertStoreActions.SHOW_ALERT,
+                payload: {
+                    title: 'Yahoooo!',
+                    message: 'Added material successfully!',
+                    severity: 'success',
+                    variant: 'standard'
+                }
+            });
+            reset();
         } catch (e) {
-            console.error(e);
+            const message = e instanceof Error ? e.message : 'Unknown Error';
+            dispatch({
+                type: AlertStoreActions.SHOW_ALERT,
+                payload: {
+                    title: 'Error occured during adding material! :(',
+                    message: `Details: ${message}`,
+                    severity: 'error',
+                    variant: 'standard'
+                }
+            });
         } finally {
             setIsMakingRequest(false);
         }
@@ -147,6 +171,7 @@ const AddMaterial = () => {
                     materialType={currentMaterialType}
                     register={register}
                 />
+
                 <LoadingButton
                     variant="contained"
                     color="secondary"
@@ -156,12 +181,6 @@ const AddMaterial = () => {
                     Add Material!
                 </LoadingButton>
             </form>
-            {/* // TODO: this should be in a global alert component with a reducer context to dispatch alerts */}
-            {/* <Collapse in={showAlert}> */}
-            {/*     <Alert variant="outlined" severity="error"> */}
-            {/*         This is an outlined error Alert. */}
-            {/*     </Alert> */}
-            {/* </Collapse> */}
         </>
     );
 };
