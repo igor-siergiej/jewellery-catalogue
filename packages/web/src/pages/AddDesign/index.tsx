@@ -8,10 +8,15 @@ import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
 import makeAddDesignRequest from '../../api/endpoints/addDesign';
 import { FormDesign } from '@jewellery-catalogue/types';
 import { getTotalMaterialCosts } from '../../util/getPriceOfMaterials';
-import { Box, Card, Divider, Grid2 } from '@mui/material';
+import { Box, Card, Divider, Grid2, InputAdornment } from '@mui/material';
 import ImageUpload from '../../components/ImageUpload';
 import { AddMaterialsTable } from '../../components/AddMaterialsTable';
 import TextEditor from '../../components/Editor';
+import { useEffect } from 'react';
+import { getWageCosts } from '../../util/getWageCost';
+
+const PROFIT_COEFFICIENT = 1.15;
+const HOURLY_WAGE = 10;
 
 const AddDesign = () => {
     const {
@@ -31,6 +36,16 @@ const AddDesign = () => {
     };
 
     const selectedMaterials = watch('materials');
+    const currentTimeRequired = watch('timeRequired');
+
+    useEffect(() => {
+        if (data && selectedMaterials) {
+            const materialsCost = getTotalMaterialCosts(selectedMaterials, data);
+            const timeSpentCost = parseFloat((getWageCosts(currentTimeRequired) * HOURLY_WAGE).toFixed(2));
+            const totalCosts = materialsCost + timeSpentCost;
+            setValue('price', parseFloat((totalCosts * PROFIT_COEFFICIENT).toFixed(2)));
+        }
+    }, [selectedMaterials]);
 
     if (!data) {
         return null;
@@ -81,19 +96,6 @@ const AddDesign = () => {
                                 />
 
                                 <Box sx={{ display: 'flex', gap: 2 }}>
-                                    <TextField
-                                        {...register('price', {
-                                            required: {
-                                                value: true,
-                                                message: 'Please enter the desired price.',
-                                            },
-                                        })}
-                                        sx={{ width: '50%' }}
-                                        color="secondary"
-                                        label="Price"
-                                        error={Boolean(errors.price)}
-                                        helperText={errors.price?.message}
-                                    />
 
                                     <Box sx={{ width: '50%', display: 'flex' }}>
                                         <TimeInput setValue={setValue} />
@@ -134,18 +136,45 @@ const AddDesign = () => {
                         </Grid2>
 
                         <Grid2 size={8}>
-                            <Typography
-                                variant="subtitle2"
-                            >
-                                Current total material costs:
-                                {' '}
-                                {selectedMaterials && getTotalMaterialCosts(selectedMaterials, data)}
-                            </Typography>
-
                             <AddMaterialsTable availableMaterials={data} setValue={setValue} />
-
                         </Grid2>
                     </Grid2>
+
+                    <Divider variant="fullWidth" />
+
+                    <Grid2 container direction="row">
+                        <Grid2 size={4}>
+                            <Typography
+                                align="center"
+                                variant="h6"
+                            >
+                                Set Price
+                            </Typography>
+                        </Grid2>
+
+                        <Grid2 size={8}>
+                            <TextField
+                                {...register('price', {
+                                    required: {
+                                        value: true,
+                                        message: 'Please enter the desired price.',
+                                    },
+                                })}
+                                sx={{ width: '50%' }}
+                                color="secondary"
+                                label="Price"
+                                error={Boolean(errors.price)}
+                                helperText={errors.price?.message}
+                                slotProps={{
+                                    input: {
+                                        startAdornment: <InputAdornment position="start">£</InputAdornment>
+                                    }
+                                }}
+                            />
+                        </Grid2>
+                    </Grid2>
+
+                    <Divider variant="fullWidth" />
 
                     <Grid2 container direction="row">
                         <Grid2 size={4}>
