@@ -1,7 +1,6 @@
 import Typography from '@mui/material/Typography';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
 import { useQuery } from '@tanstack/react-query';
 import TimeInput from '../../components/TimeInput';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
@@ -12,31 +11,67 @@ import { Box, Card, Divider, Grid2, InputAdornment } from '@mui/material';
 import ImageUpload from '../../components/ImageUpload';
 import { AddMaterialsTable } from '../../components/AddMaterialsTable';
 import TextEditor from '../../components/Editor';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { getWageCosts } from '../../util/getWageCost';
+import LoadingButton from '@mui/lab/LoadingButton';
+import { useAlert } from '../../context/Alert';
+import { AlertStoreActions } from '../../context/Alert/types';
 
 const PROFIT_COEFFICIENT = 1.15;
 const HOURLY_WAGE = 10;
 
-const AddDesign = () => {
+const AddDesign: React.FC = () => {
     const {
         setValue,
         handleSubmit,
         register,
         watch,
         control,
+        reset,
         formState: { errors },
     } = useForm<FormDesign>();
+
+    const [isMakingRequest, setIsMakingRequest] = useState(false);
+
     const { data } = useQuery({
         ...getMaterialsQuery(),
     });
 
-    const onSubmit: SubmitHandler<FormDesign> = (data) => {
-        makeAddDesignRequest(data);
-    };
-
     const selectedMaterials = watch('materials');
     const currentTimeRequired = watch('timeRequired');
+
+    const { dispatch } = useAlert();
+
+    const onSubmit: SubmitHandler<FormDesign> = async (data) => {
+        setIsMakingRequest(true);
+        try {
+            await makeAddDesignRequest(data);
+
+            dispatch({
+                type: AlertStoreActions.SHOW_ALERT,
+                payload: {
+                    title: 'Yahoooo!',
+                    message: 'Added design successfully!',
+                    severity: 'success',
+                    variant: 'standard'
+                }
+            });
+            reset();
+        } catch (e) {
+            const message = e instanceof Error ? e.message : 'Unknown Error';
+            dispatch({
+                type: AlertStoreActions.SHOW_ALERT,
+                payload: {
+                    title: 'Error occured during the adding of the design! :(',
+                    message: `Details: ${message}`,
+                    severity: 'error',
+                    variant: 'standard'
+                }
+            });
+        } finally {
+            setIsMakingRequest(false);
+        }
+    };
 
     useEffect(() => {
         if (data && selectedMaterials) {
@@ -193,12 +228,19 @@ const AddDesign = () => {
                                 )}
                             />
                         </Grid2>
+                    </Grid2>
 
-                        <Grid2 container justifyContent="end">
-                            <Button variant="contained" color="secondary" type="submit">
-                                Add Design!
-                            </Button>
-                        </Grid2>
+                    <Divider variant="fullWidth" />
+
+                    <Grid2 container justifyContent="end">
+                        <LoadingButton
+                            variant="contained"
+                            color="secondary"
+                            type="submit"
+                            loading={isMakingRequest}
+                        >
+                            Add Material!
+                        </LoadingButton>
                     </Grid2>
                 </Grid2>
             </form>
