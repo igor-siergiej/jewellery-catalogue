@@ -18,7 +18,7 @@ export const GlobalAlert: React.FC = () => {
     };
     return (
         <Box sx={{
-            position: 'absolute',
+            position: 'fixed',
             bottom: 24,
             left: '50%',
             transform: 'translateX(-50%)',
