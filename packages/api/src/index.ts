@@ -30,14 +30,14 @@ const bodyOptions = {
     formidable: {
         keepExtensions: true,
     },
-}
+};
 
 export const onStartup = async () => {
     try {
         const app = new Koa();
         app.use(koaCors(corsOptions));
         app.use(logger);
-        app.use(koaBody(bodyOptions))
+        app.use(koaBody(bodyOptions));
         app.use(async (ctx, next) => {
             try {
                 await next();

@@ -1,4 +1,4 @@
-import { MaterialType } from "../material";
+import { MaterialType } from '../material';
 
 export interface BaseMaterial {
     name: string;

@@ -19,7 +19,6 @@ const DropDown: React.FC<IProps> = ({ control, options, label, name }) => {
     return (
         <Box
             sx={{
-                marginTop: 2,
                 marginBottom: 2,
             }}
         >
