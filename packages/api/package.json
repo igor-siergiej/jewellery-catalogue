@@ -1,11 +1,6 @@
 {
     "name": "@jewellery-catalogue/api",
     "version": "1.0.0",
-    "main": "build/index.js",
-    "types": [
-        "build/index.d.ts",
-        "koa-body"
-    ],
     "scripts": {
         "start": "ts-node-dev --watch 'src/**/*.ts' src/index.ts",
         "build": "tsc --pretty --skipLibCheck"
