@@ -1,46 +1,41 @@
-name: pipeline
+name: Deploy 
 
 on:
   push:
     branches:
       - main
 
+
+
 jobs:
-  build:
-    runs-on: self-hosted
+  deploy:
+    runs-on: [self-hosted, linux, x64]
 
     steps:
-      - uses: actions/checkout@v1
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: install packages 
+      - name: Write .env from Secrets
         run: |
-          yarn cache clean
-          yarn install
-      - name: build types
-        run: |
-          yarn workspace @jewellery-catalogue/types build
+          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > .env
+          echo "CONNECTION_URI=${{ secrets.CONNECTION_URI }}" >> .env
+          echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
+          echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> .env
+          echo "BUCKET_ACCESS_KEY=${{ secrets.BUCKET_ACCESS_KEY }}" >> .env
+          echo "BUCKET_SECRET_KEY=${{ secrets.BUCKET_SECRET_KEY }}" >> .env
+          echo "BUCKET_PORT=${{ secrets.BUCKET_PORT }}" >> .env
+          echo "BUCKET_ENDPOINT=${{ secrets.BUCKET_ENDPOINT }}" >> .env
+          echo "CATALOGUE_ID=${{ secrets.CATALOGUE_ID }}" >> .env
+          echo "PORT=${{ secrets.PORT }}" >> .env
+          echo "MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}" >> .env
+          echo "MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}" >> .env
 
-      - name: build web 
-        env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+      - name: Build Docker images with Compose
         run: |
-          yarn workspace @jewellery-catalogue/web build
+          docker compose build
 
-      - name: deploy web
+      - name: Restart services with Compose
         run: |
-          cp -r packages/web/build/* /var/www/jewellerycatalogue.imapps.co.uk
+          docker compose down
+          docker compose up -d
 
-      - name: build api 
-        run: |
-          yarn workspace @jewellery-catalogue/api build
-          
-      - name: deploy api
-        env: 
-          ACCESS_KEY: ${{ secrets.ACCESS_KEY }}
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          BUCKET_URL: ${{ secrets.BUCKET_URL }}
-        run: |
-          echo ${{ secrets.PASS }} | sudo -S cp -a . /usr/local/bin/jewellery-catalogue-api-server
-          yarn
-          yarn workspace @jewellery-catalogue/api build
-          echo ${{ secrets.PASS }} | sudo -S systemctl restart jewellery-catalogue-api-server.service
