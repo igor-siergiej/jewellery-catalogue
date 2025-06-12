@@ -30,6 +30,7 @@ services:
       - '3001:3001'
     depends_on:
       - jewellery-catalogue-mongodb
+      - jewellery-catalogue-minio
 
   jewellery-catalogue-web:
     build:
