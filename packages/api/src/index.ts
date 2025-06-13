@@ -12,6 +12,7 @@ import koaBody from 'koa-body';
 const port = process.env.PORT;
 
 const allowedOrigins = ['http://localhost:3000', 'https://jewellerycatalogue.imapps.co.uk'];
+
 const logger = KoaLogger();
 
 const corsOptions: Options = {
