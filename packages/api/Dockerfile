@@ -20,6 +20,6 @@ RUN yarn workspace @jewellery-catalogue/api build
 
 RUN yarn install --production
 
-EXPOSE 4001
+EXPOSE 3001
 CMD ["node", "/app/packages/api/build/index.js"]
 
