@@ -15,10 +15,8 @@ RUN yarn install --frozen-lockfile
 
 COPY . .
 
-# Build types package for production
 RUN yarn workspace @jewellery-catalogue/types build
 
-# Build web package
 RUN yarn workspace @jewellery-catalogue/web build
 
 FROM nginx:alpine
