@@ -2,7 +2,7 @@
     "compilerOptions": {
         "composite": true,
         "declaration": true,
-        "module": "ESNext",
+        "module": "commonjs",
         "moduleResolution": "node",
         "target": "ES2020",
         "noImplicitAny": true,
@@ -20,6 +20,9 @@
                 "../types/src"
             ]
         }
+    },
+    "ts-node": {
+        "files": true
     },
     "include": [
         "src/**/*",
