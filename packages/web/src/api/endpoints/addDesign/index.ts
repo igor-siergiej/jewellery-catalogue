@@ -6,16 +6,14 @@ const makeAddDesignRequest = async (formDesign: FormDesign) => {
     const formData = new FormData();
 
     for (const key in formDesign) {
-        if (formDesign.hasOwnProperty(key)) {
+        if (Object.hasOwn(formDesign, key)) {
             const value = formDesign[key as keyof FormDesign];
 
             if (key === 'image' && value instanceof File) {
                 formData.append('file', value);
-            }
-            else if (key === 'materials' && Array.isArray(value)) {
+            } else if (key === 'materials' && Array.isArray(value)) {
                 formData.append(key, JSON.stringify(value));
-            }
-            else if (typeof value === 'string' || typeof value === 'number') {
+            } else if (typeof value === 'string' || typeof value === 'number') {
                 formData.append(key, value.toString());
             }
         }

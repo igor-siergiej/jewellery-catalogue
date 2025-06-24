@@ -1,16 +1,10 @@
 {
     "compilerOptions": {
-        "composite": true,
-        "declaration": true,
-        "declarationMap": true,
-        "sourceMap": true,
-        "rootDir": "src",
-        "outDir": "build",
-        "skipLibCheck": true,
-        "strict": true,
-        "module": "CommonJS",
+        "target": "ESNext",
+        "module": "ESNext",
         "moduleResolution": "Node",
-        "target": "ESNext"
+        "strict": true,
+        "skipLibCheck": true
     },
     "include": [
         "src"
