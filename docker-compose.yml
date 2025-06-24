@@ -27,7 +27,7 @@ services:
       - .env
     container_name: jewellery-catalogue-api
     ports:
-      - '3001:3001'
+      - '3001:4001'
     depends_on:
       - jewellery-catalogue-mongodb
       - jewellery-catalogue-minio

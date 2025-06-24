@@ -12,11 +12,13 @@ RUN yarn install
 
 COPY . .
 
+# Build types package for production
 RUN yarn workspace @jewellery-catalogue/types build
 
+# Build API package  
 RUN yarn workspace @jewellery-catalogue/api build
 
-RUN yarn install
+RUN yarn install --production
 
 EXPOSE 4001
 CMD ["node", "/app/packages/api/build/index.js"]

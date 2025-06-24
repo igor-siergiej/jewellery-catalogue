@@ -15,8 +15,8 @@ RUN yarn install --frozen-lockfile
 
 COPY . .
 
-RUN yarn workspace @jewellery-catalogue/types build
-
+# Note: Types package is now pure TypeScript source consumed directly
+# No need to build types package for web builds
 RUN yarn workspace @jewellery-catalogue/web build
 
 FROM nginx:alpine
