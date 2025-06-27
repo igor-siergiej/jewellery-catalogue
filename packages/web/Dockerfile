@@ -5,13 +5,16 @@ ENV VITE_API_URL=$VITE_API_URL
 
 WORKDIR /app
 
-COPY package.json yarn.lock ./
+
+COPY package.json yarn.lock .yarnrc.yml ./
 
 COPY packages/types/package.json packages/types/package.json
 COPY packages/api/package.json packages/api/package.json
 COPY packages/web/package.json packages/web/package.json
 
-RUN yarn install --frozen-lockfile --production
+RUN corepack enable && corepack prepare yarn@stable --activate
+
+RUN yarn install --immutable 
 
 COPY . .
 
