@@ -11,11 +11,9 @@ COPY packages/types/package.json packages/types/package.json
 COPY packages/api/package.json packages/api/package.json
 COPY packages/web/package.json packages/web/package.json
 
-RUN yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile --production
 
 COPY . .
-
-RUN yarn workspace @jewellery-catalogue/types build
 
 RUN yarn workspace @jewellery-catalogue/web build
 

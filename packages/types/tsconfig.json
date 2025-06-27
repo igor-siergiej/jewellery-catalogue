@@ -1,17 +1,6 @@
 {
-    "compilerOptions": {
-        "composite": true,
-        "declaration": true,
-        "declarationMap": true,
-        "sourceMap": true,
-        "rootDir": "src",
-        "outDir": "build",
-        "skipLibCheck": true,
-        "strict": true,
-        "module": "CommonJS",
-        "moduleResolution": "Node",
-        "target": "ESNext"
-    },
+    "extends": "../../tsconfig.json",
+    "rootDir": ".",
     "include": [
         "src"
     ]

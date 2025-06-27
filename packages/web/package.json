@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "scripts": {
         "start": "vite --port 3000",
-        "build": "tsc --skipLibCheck && vite build --emptyOutDir",
+        "build": "vite build --emptyOutDir",
         "test": "vitest --coverage",
         "preview": "vite preview"
     },

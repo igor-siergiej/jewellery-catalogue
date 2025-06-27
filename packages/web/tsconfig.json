@@ -1,25 +1,18 @@
 {
+    "extends": "../../tsconfig.json",
     "compilerOptions": {
-        "composite": true,
-        "target": "ESNext",
-        "baseUrl": "./",
         "useDefineForClassFields": true,
-        "rootDir": "src",
+        "rootDir": ".",
         "allowJs": false,
-        "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
-        "strict": true,
         "forceConsistentCasingInFileNames": true,
-        "module": "ESNext",
-        "moduleResolution": "Node",
-        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+        "jsx": "react-jsx",
         "types": [
             "vitest/globals",
             "@testing-library/jest-dom"
         ],
-        "isolatedModules": true,
-        "noEmit": true,
-        "jsx": "react-jsx",
         "paths": {
             "@mui/styled-engine": [
                 "./node_modules/@mui/styled-engine-sc"
@@ -33,13 +26,5 @@
         "src",
         "eslintrc.js",
         "vite-env.d.ts"
-    ],
-    "references": [
-        {
-            "path": "./tsconfig.node.json"
-        },
-        {
-            "path": "../types"
-        }
     ]
 }

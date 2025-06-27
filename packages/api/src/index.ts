@@ -65,6 +65,10 @@ export const onStartup = async () => {
 
         const database = DependencyContainer.getInstance().resolve(DependencyToken.Database);
 
+        if (!database) {
+            throw new Error('Could not connect to DB');
+        }
+
         await database.connect();
 
         app.use(routes.routes());

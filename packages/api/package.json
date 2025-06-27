@@ -1,13 +1,12 @@
 {
     "name": "@jewellery-catalogue/api",
     "version": "1.0.0",
+    "type": "commonjs",
     "scripts": {
-        "start": "ts-node-dev --watch 'src/**/*.ts' src/index.ts",
-        "build": "tsc --pretty --skipLibCheck",
-        "postBuild": "cp package*.json build/package.json && cd build && yarn"
+        "start": "vite-node --watch src/index.ts",
+        "build": "tsup"
     },
     "dependencies": {
-        "@jewellery-catalogue/types": "*",
         "dotenv": "^16.4.7",
         "koa": "^2.16.0",
         "koa-body": "^6.0.1",
