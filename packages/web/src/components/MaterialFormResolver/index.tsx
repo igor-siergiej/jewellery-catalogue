@@ -5,10 +5,14 @@ import {
 import AddWireForm from './Forms/Wire';
 import AddBeadForm from './Forms/Bead';
 import { MaterialType } from '@jewellery-catalogue/types';
+import AddEarHookForm from './Forms/EarHook';
+import AddChainForm from './Forms/Chain';
 
 const MATERIAL_TYPE_TO_FORM_MAPPING: IMaterialTypeToFormMapping = {
     [MaterialType.WIRE]: AddWireForm,
     [MaterialType.BEAD]: AddBeadForm,
+    [MaterialType.EAR_HOOK]: AddEarHookForm,
+    [MaterialType.CHAIN]: AddChainForm
 } as const;
 
 const content = (props: IMaterialFormResolverProps) => {

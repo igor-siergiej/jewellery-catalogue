@@ -1,9 +1,10 @@
 import { BaseMaterial } from '../baseMaterial';
-import { BeadKeysEnum, METAL_TYPE, MaterialType, WIRE_TYPE, WireKeysEnum } from './enum';
+import { BeadKeysEnum, ChainKeysEnum, EarHookKeysEnum, METAL_TYPE, MaterialType, WIRE_TYPE, WireKeysEnum } from './enum';
 
-export type Material = Wire | Bead;
+export type Material = Wire | Bead | Chain;
 
 export interface Wire extends BaseMaterial {
+    diameter: number;
     id: string;
     wireType: WIRE_TYPE;
     metalType: METAL_TYPE;
@@ -12,15 +13,31 @@ export interface Wire extends BaseMaterial {
 }
 
 export interface Bead extends BaseMaterial {
+    diameter: number;
     id: string;
     colour: string;
     quantity: number;
     pricePerBead: number;
 }
 
+export interface Chain extends BaseMaterial {
+    metalType: METAL_TYPE;
+    wireType: WIRE_TYPE;
+    diameter: number;
+    length: number;
+}
+
+export interface EarHook extends BaseMaterial {
+    metalType: METAL_TYPE;
+    wireType: WIRE_TYPE;
+    quantity: number;
+}
+
 export const MaterialKeysMap = {
     [MaterialType.BEAD]: BeadKeysEnum,
     [MaterialType.WIRE]: WireKeysEnum,
+    [MaterialType.EAR_HOOK]: EarHookKeysEnum,
+    [MaterialType.CHAIN]: ChainKeysEnum
 };
 
 export * from './enum';

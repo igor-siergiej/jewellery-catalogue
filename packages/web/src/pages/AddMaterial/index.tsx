@@ -11,8 +11,6 @@ import { AlertStoreActions } from '../../context/Alert/types';
 
 const URL_REGEX
     = /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/g;
-const DECIMAL_REGEX = /^\d*(\.\d+)?$/;
-const NUMBER_REGEX = /^[0-9]*$/;
 
 const AddMaterial = () => {
     const {
@@ -22,7 +20,22 @@ const AddMaterial = () => {
         watch,
         reset,
         formState: { errors },
-    } = useForm<FormMaterial>();
+    } = useForm<FormMaterial>({
+        defaultValues: {
+            name: '',
+            brand: '',
+            diameter: undefined,
+            purchaseUrl: '',
+            pricePerPack: undefined,
+            packs: undefined,
+            type: undefined,
+            wireType: undefined,
+            metalType: undefined,
+            length: undefined,
+            colour: '',
+            quantity: undefined
+        }
+    });
     const [isMakingRequest, setIsMakingRequest] = useState(false);
 
     const { dispatch } = useAlert();
@@ -114,20 +127,6 @@ const AddMaterial = () => {
                                 helperText={errors.brand?.message}
                             />
                             <TextField
-                                {...register('diameter', {
-                                    valueAsNumber: true,
-                                    required: {
-                                        value: true,
-                                        message: 'Please enter the diameter.',
-                                    },
-                                    validate: value => value > 0,
-                                })}
-                                color="secondary"
-                                label="Diameter (mm)"
-                                error={Boolean(errors.diameter)}
-                                helperText={errors.diameter?.message}
-                            />
-                            <TextField
                                 {...register('purchaseUrl', {
                                     required: {
                                         value: true,
@@ -149,11 +148,10 @@ const AddMaterial = () => {
                                         value: true,
                                         message: 'Please enter the price.',
                                     },
-                                    pattern: {
-                                        value: DECIMAL_REGEX,
-                                        message: 'Please enter a valid price',
-                                    },
+                                    setValueAs: (value) => value === '' ? undefined : Number(value),
                                 })}
+                                type="number"
+                                inputProps={{ step: "0.01" }}
                                 color="secondary"
                                 label="Price per Pack (£)"
                                 error={Boolean(errors.pricePerPack)}
@@ -166,11 +164,10 @@ const AddMaterial = () => {
                                         value: true,
                                         message: 'Please enter the quantity of packs.',
                                     },
-                                    pattern: {
-                                        value: NUMBER_REGEX,
-                                        message: 'Please enter a valid quantity of packs',
-                                    },
+                                    setValueAs: (value) => value === '' ? undefined : Number(value),
                                 })}
+                                type="number"
+                                inputProps={{ step: "1" }}
                                 color="secondary"
                                 label="Number of new packs"
                                 error={Boolean(errors.packs)}

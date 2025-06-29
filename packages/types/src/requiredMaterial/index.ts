@@ -8,4 +8,14 @@ export interface RequiredBead {
     requiredQuantity: number;
 }
 
-export type RequiredMaterial = RequiredWire | RequiredBead;
+export interface RequiredChain {
+    id: string;
+    requiredLength: number;
+}
+
+export interface RequiredEarHook {
+    id: string;
+    requiredQuantity: number;
+}
+
+export type RequiredMaterial = RequiredWire | RequiredBead | RequiredChain | RequiredEarHook;
