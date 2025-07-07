@@ -31,6 +31,9 @@ services:
     depends_on:
       - jewellery-catalogue-mongodb
       - jewellery-catalogue-minio
+    labels:
+      logging_job: "jewellery-catalogue-api"
+      logging_stack: "jewellery-catalogue"
 
   jewellery-catalogue-web:
     build:
