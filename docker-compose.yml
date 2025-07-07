@@ -20,12 +20,12 @@ services:
       - jewellery-catalogue-mongo-data:/data/db
 
   jewellery-catalogue-api:
+    container_name: jewellery-catalogue-api
     build:
       context: .
       dockerfile: packages/api/Dockerfile
     env_file:
       - .env
-    container_name: jewellery-catalogue-api
     ports:
       - '3001:3001'
     depends_on:
@@ -34,6 +34,8 @@ services:
     labels:
       logging_job: "jewellery-catalogue-api"
       logging_stack: "jewellery-catalogue"
+    volumes:
+      - jewellery-catalogue-api-data:/data
 
   jewellery-catalogue-web:
     build:
@@ -52,3 +54,4 @@ services:
 volumes:
   jewellery-catalogue-mongo-data:
   jewellery-catalogue-minio-data:
+  jewellery-catalogue-api-data:
