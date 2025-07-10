@@ -1,35 +1,10 @@
-import { Box, Button, Card, Grid, Typography } from '@mui/material';
+import { Box, Button, Card, Grid2 as Grid, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import IMAGES from '../../img';
+import { LoginForm } from '../../components/LoginForm';
 
 const Start = () => {
     const navigate = useNavigate();
-
-    const loginButton = (
-        <Button
-            variant="contained"
-            sx={{
-                width: '80%',
-                marginTop: '90%',
-                marginLeft: 'auto',
-                marginRight: 'auto',
-            }}
-            onClick={() => {
-                navigate('home');
-            }}
-        >
-            Log In or Sign up
-        </Button>
-    );
-
-    const image = (
-        <Box
-            component="img"
-            sx={{ objectFit: 'scale-down' }}
-            src={IMAGES.startImage}
-            alt="jewellery"
-        />
-    );
 
     return (
         <Box
@@ -46,41 +21,60 @@ const Start = () => {
                 raised
                 sx={{
                     backgroundColor: '#fff',
-                    width: '800px',
-                    height: '720px',
-                    marginTop: '20px',
+                    width: '1000px',
+                    height: '800px',
                 }}
             >
-                <Grid container direction="row" sx={{ height: '100%' }}>
-                    <Grid item xs={7}>
+                <Grid container sx={{ height: '100%', width: '100%' }}>
+                    <Grid size={7}>
                         <Grid
                             container
-                            direction="column"
-                            sx={{ display: 'flex' }}
+                            sx={{ display: 'flex', height: '100%', padding: '3em 1em 1em 1em', alignItems: 'center', flexDirection: 'column'}}
                         >
                             <Typography
-                                sx={{ paddingTop: '1em', paddingLeft: '0.5em' }}
                                 variant="h3"
                             >
-                                Sign Up
+                                Jewellery Catalogue
                             </Typography>
+
                             <Typography
-                                sx={{ paddingTop: '2em', paddingLeft: '2em' }}
-                                variant="body2"
+                                variant="h5"
+                                sx={{ padding: '2em 0 1em 0' }}
                             >
-                                Welcome to the Jewellery Catalogue!
+                                Welcome back Goldsmith!
                             </Typography>
-                            <Typography
-                                sx={{ paddingTop: '1em', paddingLeft: '2em' }}
-                                variant="body2"
-                            >
-                                Press the button below to log in or sign up.
-                            </Typography>
-                            {loginButton}
+
+
+                            <Box sx={{ width: '60%', gap: '1em', display:'flex', flexDirection: 'column' }}>
+
+                                <LoginForm />
+
+                                <Typography
+                                    variant="body2"
+                                    paddingTop={8}
+                                >
+                                    Haven't joined the goldsmith empire yet?
+                                </Typography>
+
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    onClick={() => {
+                                        navigate('home');
+                                    }}
+                                >
+                                    Register!
+                                </Button>
+                            </Box>
                         </Grid>
                     </Grid>
-                    <Grid item xs={5} sx={{ overflow: 'hidden' }}>
-                        {image}
+                    <Grid size={5} sx={{ overflow: 'hidden' }}>
+                        <Box
+                            component="img"
+                            sx={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                            src={IMAGES.startImage}
+                            alt="jewellery"
+                        />
                     </Grid>
                 </Grid>
             </Card>
