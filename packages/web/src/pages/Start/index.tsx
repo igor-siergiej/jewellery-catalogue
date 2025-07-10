@@ -45,7 +45,7 @@ const Start = () => {
                             </Typography>
 
 
-                            <Box sx={{ width: '60%', gap: '1em', display:'flex', flexDirection: 'column' }}>
+                            <Box sx={{ width: '60%', gap: '1em', display:'flex', flexDirection: 'column', alignItems: 'center'}}>
 
                                 <LoginForm />
 
@@ -58,6 +58,7 @@ const Start = () => {
 
                                 <Button
                                     fullWidth
+                                    color='secondary'
                                     variant="contained"
                                     onClick={() => {
                                         navigate('home');
