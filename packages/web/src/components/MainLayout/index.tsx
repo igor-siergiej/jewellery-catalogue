@@ -1,4 +1,4 @@
-import Box from '@mui/material/Box/Box';
+import Box from '@mui/material/Box';
 import { ReactNode } from 'react';
 import { Outlet } from 'react-router-dom';
 import NavBar from '../NavBar';
