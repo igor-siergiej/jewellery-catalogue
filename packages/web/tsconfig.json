@@ -2,12 +2,12 @@
     "extends": "../../tsconfig.json",
     "compilerOptions": {
         "useDefineForClassFields": true,
-        "rootDir": ".",
         "allowJs": false,
         "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
         "isolatedModules": true,
         "noEmit": true,
+        "emitDeclarationOnly": false,
         "jsx": "react-jsx",
         "types": [
             "vitest/globals",
