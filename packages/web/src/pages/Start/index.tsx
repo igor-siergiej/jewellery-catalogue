@@ -2,9 +2,12 @@ import { Box, Button, Card, Grid, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import IMAGES from '../../img';
 import { LoginForm } from '../../components/LoginForm';
+import { useRedirectIfAuthenticated } from '../../hooks/useAuthRedirect';
 
 const Start = () => {
     const navigate = useNavigate();
+
+    useRedirectIfAuthenticated();
 
     return (
         <Box

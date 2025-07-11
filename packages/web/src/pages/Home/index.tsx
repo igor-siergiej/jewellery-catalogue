@@ -1,8 +1,11 @@
+import Box from '@mui/material/Box';
+import UserInfo from '../../components/UserInfo';
+
 const Home = () => {
     return (
-        <span>
-            Hello
-        </span>
+        <Box>
+            <UserInfo />
+        </Box>
     );
 };
 

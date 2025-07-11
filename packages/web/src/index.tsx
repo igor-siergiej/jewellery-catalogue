@@ -16,11 +16,15 @@ import {
 import Designs from './pages/Designs';
 import MainLayout from './components/MainLayout';
 import { AlertProvider } from './context/Alert';
+import { AuthProvider } from './context/AuthContext';
+import { UserProvider } from './context/UserContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import AddDesign from './pages/AddDesign';
 import Materials from './pages/Materials';
 import AddMaterial from './pages/AddMaterial';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import AppInitializer from './components/AppInitializer';
 
 import 'react-quill/dist/quill.snow.css';
 import { GlobalAlert } from './components/Alert';
@@ -44,28 +48,30 @@ function App() {
             <Routes>
                 <Route path={START_PAGE.route} element={<Start />} />
 
-                <Route element={<MainLayout />}>
-                    <Route
-                        index
-                        path={HOME_PAGE.route}
-                        element={<Home />}
-                    />
-                    <Route
-                        path={DESIGNS_PAGE.route}
-                        element={<Designs />}
-                    />
-                    <Route
-                        path={ADD_DESIGN_PAGE.route}
-                        element={<AddDesign />}
-                    />
-                    <Route
-                        path={MATERIALS_PAGE.route}
-                        element={<Materials />}
-                    />
-                    <Route
-                        path={ADD_MATERIAL_PAGE.route}
-                        element={<AddMaterial />}
-                    />
+                <Route element={<ProtectedRoute />}>
+                    <Route element={<MainLayout />}>
+                        <Route
+                            index
+                            path={HOME_PAGE.route}
+                            element={<Home />}
+                        />
+                        <Route
+                            path={DESIGNS_PAGE.route}
+                            element={<Designs />}
+                        />
+                        <Route
+                            path={ADD_DESIGN_PAGE.route}
+                            element={<AddDesign />}
+                        />
+                        <Route
+                            path={MATERIALS_PAGE.route}
+                            element={<Materials />}
+                        />
+                        <Route
+                            path={ADD_MATERIAL_PAGE.route}
+                            element={<AddMaterial />}
+                        />
+                    </Route>
                 </Route>
             </Routes>
         </LocalizationProvider>
@@ -76,10 +82,16 @@ root.render(
     <ThemeProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
             <BrowserRouter>
-                <AlertProvider>
-                    <GlobalAlert />
-                    <App />
-                </AlertProvider>
+                <UserProvider>
+                    <AuthProvider>
+                        <AppInitializer>
+                            <AlertProvider>
+                                <GlobalAlert />
+                                <App />
+                            </AlertProvider>
+                        </AppInitializer>
+                    </AuthProvider>
+                </UserProvider>
             </BrowserRouter>
         </QueryClientProvider>
     </ThemeProvider>

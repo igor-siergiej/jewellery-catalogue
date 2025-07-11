@@ -3,10 +3,12 @@ import LoadingScreen from '../../components/Loading';
 import { getDesignsQuery } from '../../api/endpoints/getDesigns';
 import { DesignCard } from '../../components/DesignCard';
 import { EmptyStateContainer, EmptyStateTitle, EmptyStateSubtitle } from './index.styles';
+import { useAuth } from '../../context/AuthContext';
 
 const Designs = () => {
+    const { accessToken, login, logout } = useAuth();
     const { data, isError } = useQuery({
-        ...getDesignsQuery(),
+        ...getDesignsQuery(accessToken, login, logout),
     });
 
     if (isError) {

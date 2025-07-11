@@ -1,4 +1,4 @@
-import { Bead, Material, Wire } from "../material";
+import { Bead, Material, Wire } from '../material';
 
 export interface MakeRequestProps {
     pathname: string;
@@ -6,6 +6,7 @@ export interface MakeRequestProps {
     operationString: string;
     headers?: Record<string, string>;
     body?: object | FormData;
+    accessToken?: string;
 };
 
 export enum MethodType {
@@ -26,8 +27,8 @@ export interface PersistentFile {
 
 export const isWireMaterial = (material: Material): material is Wire => {
     return material.type === 'WIRE';
-}
+};
 
 export const isBeadMaterial = (material: Material): material is Bead => {
     return material.type === 'BEAD';
-}
+};

@@ -8,6 +8,8 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { HOME_PAGE } from '../../constants/routes';
 
 export const LoginForm: React.FC = () => {
     const {
@@ -19,6 +21,7 @@ export const LoginForm: React.FC = () => {
     const [isLoading, setIsLoading] = React.useState(false);
     const { dispatch } = useAlert();
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const onSubmit = async (data: LoginParams) => {
         setIsLoading(true);
@@ -29,13 +32,16 @@ export const LoginForm: React.FC = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data),
+                credentials: 'include',
             });
             if (!response.ok) {
                 const json = await response.json();
                 throw new Error(json.message);
             }
-            // On successful login, redirect to home and show success alert
-            navigate('/home');
+            const json = await response.json();
+            if (!json.accessToken) throw new Error('No access token returned');
+            login(json.accessToken);
+            navigate(HOME_PAGE.route);
         } catch (e) {
             const message = e instanceof Error ? e.message : 'Unknown error';
             dispatch({

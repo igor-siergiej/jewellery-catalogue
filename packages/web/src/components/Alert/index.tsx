@@ -5,7 +5,6 @@ import { AlertStoreActions } from '../../context/Alert/types';
 export const GlobalAlert: React.FC = () => {
     const { state, dispatch } = useAlert();
     const onClose = () => {
-        console.log(state);
         dispatch({
             type: AlertStoreActions.HIDE_ALERT,
             payload: {

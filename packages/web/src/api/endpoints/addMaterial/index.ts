@@ -1,17 +1,24 @@
 import { FormMaterial, Material, MethodType } from '@jewellery-catalogue/types';
-import { makeRequest } from '../../makeRequest';
+import { makeRequestWithAutoRefresh } from '../../makeRequest';
 import { MATERIALS_ENDPOINT } from '../../endpoints';
 
-const makeAddMaterialRequest = async (material: FormMaterial) => {
-    return await makeRequest<Array<Material>>({
-        pathname: MATERIALS_ENDPOINT,
-        method: MethodType.POST,
-        operationString: 'add materials',
-        headers: {
-            'Content-Type': 'application/json'
+const makeAddMaterialRequest = async (
+    material: FormMaterial,
+    accessToken: string,
+    onTokenRefresh: (newToken: string) => void,
+    onTokenClear: () => void
+) => {
+    return await makeRequestWithAutoRefresh<Array<Material>>(
+        {
+            pathname: MATERIALS_ENDPOINT,
+            method: MethodType.POST,
+            operationString: 'add materials',
+            body: material,
+            accessToken
         },
-        body: material
-    });
+        onTokenRefresh,
+        onTokenClear
+    );
 };
 
 export default makeAddMaterialRequest;

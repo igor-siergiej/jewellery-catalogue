@@ -16,6 +16,7 @@ import { getWageCosts } from '../../util/getWageCost';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
+import { useAuth } from '../../context/AuthContext';
 
 const PROFIT_COEFFICIENT = 1.15;
 const HOURLY_WAGE = 10;
@@ -30,11 +31,11 @@ const AddDesign: React.FC = () => {
         reset,
         formState: { errors },
     } = useForm<FormDesign>();
-
+    const { accessToken, login, logout } = useAuth();
     const [isMakingRequest, setIsMakingRequest] = useState(false);
 
     const { data } = useQuery({
-        ...getMaterialsQuery(),
+        ...getMaterialsQuery(accessToken, login, logout),
     });
 
     const selectedMaterials = watch('materials');
@@ -45,7 +46,7 @@ const AddDesign: React.FC = () => {
     const onSubmit: SubmitHandler<FormDesign> = async (data) => {
         setIsMakingRequest(true);
         try {
-            await makeAddDesignRequest(data);
+            await makeAddDesignRequest(data, accessToken, login, logout);
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
@@ -219,7 +220,7 @@ const AddDesign: React.FC = () => {
                             </Typography>
                         </Grid>
 
-                        <Grid size={8}>
+                        {/* <Grid size={8}>
                             <Controller
                                 name="description"
                                 control={control}
@@ -227,7 +228,7 @@ const AddDesign: React.FC = () => {
                                     <TextEditor value={field.value} onChange={field.onChange} />
                                 )}
                             />
-                        </Grid>
+                        </Grid> */}
                     </Grid>
 
                     <Divider variant="fullWidth" />
