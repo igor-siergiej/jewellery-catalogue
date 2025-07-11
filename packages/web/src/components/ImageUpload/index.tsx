@@ -3,7 +3,7 @@ import { FormDesign } from '@jewellery-catalogue/types';
 import { useState, useRef } from 'react';
 import Box from '@mui/material/Box';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
-import { Button, Grid2 } from '@mui/material';
+import { Button, Grid } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
 
 interface ImageUploadProps {
@@ -105,12 +105,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ setImage }) => {
                     />
                 )
                 : (
-                    <Grid2 container direction="column" display="flex" justifyContent="center" alignItems="center" sx={{ width: '100%' }}>
+                    <Grid container direction="column" display="flex" justifyContent="center" alignItems="center" sx={{ width: '100%' }}>
                         <AddPhotoAlternateIcon sx={{ width: 32, height: 32, color: '#666' }} />
                         <span style={{ color: '#666', textAlign: 'center' }}>
                             Drag & Drop or Click to Upload
                         </span>
-                    </Grid2>
+                    </Grid>
                 )}
 
             {preview && (

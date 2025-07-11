@@ -1,5 +1,5 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { Card, Divider, Grid2, TextField, Typography } from '@mui/material';
+import { Card, Divider, Grid, TextField, Typography } from '@mui/material';
 import MaterialFormResolver from '../../components/MaterialFormResolver';
 import DropDown from '../../components/DropDown';
 import { FormMaterial, MaterialType } from '@jewellery-catalogue/types';
@@ -76,8 +76,8 @@ const AddMaterial = () => {
     return (
         <Card sx={{ padding: 2 }}>
             <form onSubmit={handleSubmit(onSubmit)}>
-                <Grid2 gap={4} container direction="column">
-                    <Grid2>
+                <Grid gap={4} container direction="column">
+                    <Grid>
                         <Typography
                             variant="h5"
                             sx={{ paddingLeft: 2, lineHeight: '50px' }}
@@ -88,10 +88,10 @@ const AddMaterial = () => {
                         </Typography>
 
                         <Divider variant="fullWidth" />
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2 container direction="row">
-                        <Grid2 size={4}>
+                    <Grid container direction="row">
+                        <Grid size={4}>
                             <Typography
                                 align="center"
                                 variant="h6"
@@ -99,9 +99,9 @@ const AddMaterial = () => {
                             >
                                 Material Details
                             </Typography>
-                        </Grid2>
+                        </Grid>
 
-                        <Grid2 size={8}>
+                        <Grid size={8}>
                             <TextField
                                 {...register('name', {
                                     required: {
@@ -174,13 +174,13 @@ const AddMaterial = () => {
                                 helperText={errors.packs?.message}
                             />
 
-                        </Grid2>
-                    </Grid2>
+                        </Grid>
+                    </Grid>
 
                     <Divider variant="fullWidth" />
 
-                    <Grid2 container direction="row">
-                        <Grid2 size={4}>
+                    <Grid container direction="row">
+                        <Grid size={4}>
                             <Typography
                                 align="center"
                                 variant="h6"
@@ -188,9 +188,9 @@ const AddMaterial = () => {
                             >
                                 Material Type
                             </Typography>
-                        </Grid2>
+                        </Grid>
 
-                        <Grid2 size={8}>
+                        <Grid size={8}>
                             <DropDown
                                 label="Material Type"
                                 name="type"
@@ -203,12 +203,12 @@ const AddMaterial = () => {
                                 materialType={currentMaterialType}
                                 register={register}
                             />
-                        </Grid2>
-                    </Grid2>
+                        </Grid>
+                    </Grid>
 
                     <Divider variant="fullWidth" />
 
-                    <Grid2 container justifyContent="end">
+                    <Grid container justifyContent="end">
                         <LoadingButton
                             variant="contained"
                             color="secondary"
@@ -217,8 +217,8 @@ const AddMaterial = () => {
                         >
                             Add Material!
                         </LoadingButton>
-                    </Grid2>
-                </Grid2>
+                    </Grid>
+                </Grid>
             </form>
         </Card>
     );

@@ -7,7 +7,7 @@ import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
 import makeAddDesignRequest from '../../api/endpoints/addDesign';
 import { FormDesign } from '@jewellery-catalogue/types';
 import { getTotalMaterialCosts } from '../../util/getPriceOfMaterials';
-import { Box, Card, Divider, Grid2, InputAdornment } from '@mui/material';
+import { Box, Card, Divider, Grid, InputAdornment } from '@mui/material';
 import ImageUpload from '../../components/ImageUpload';
 import { AddMaterialsTable } from '../../components/AddMaterialsTable';
 import TextEditor from '../../components/Editor';
@@ -89,8 +89,8 @@ const AddDesign: React.FC = () => {
     return (
         <Card sx={{ padding: 2 }}>
             <form onSubmit={handleSubmit(onSubmit)}>
-                <Grid2 gap={4} container direction="column">
-                    <Grid2>
+                <Grid gap={4} container direction="column">
+                    <Grid>
                         <Typography
                             variant="h5"
                             sx={{ paddingLeft: 2, lineHeight: '50px' }}
@@ -101,10 +101,10 @@ const AddDesign: React.FC = () => {
                         </Typography>
 
                         <Divider variant="fullWidth" />
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2 container direction="row">
-                        <Grid2 size={4}>
+                    <Grid container direction="row">
+                        <Grid size={4}>
                             <Typography
                                 align="center"
                                 variant="h6"
@@ -112,10 +112,10 @@ const AddDesign: React.FC = () => {
                             >
                                 Design Details
                             </Typography>
-                        </Grid2>
+                        </Grid>
 
-                        <Grid2 size={8}>
-                            <Grid2 gap={2} container direction="column">
+                        <Grid size={8}>
+                            <Grid gap={2} container direction="column">
                                 <Box sx={{ display: 'flex', gap: 2 }}>
                                     <TextField
                                         {...register('name', {
@@ -134,14 +134,14 @@ const AddDesign: React.FC = () => {
                                         <TimeInput setValue={setValue} />
                                     </Box>
                                 </Box>
-                            </Grid2>
-                        </Grid2>
-                    </Grid2>
+                            </Grid>
+                        </Grid>
+                    </Grid>
 
                     <Divider variant="fullWidth" />
 
-                    <Grid2 container direction="row">
-                        <Grid2 size={4}>
+                    <Grid container direction="row">
+                        <Grid size={4}>
                             <Typography
                                 align="center"
                                 variant="h6"
@@ -149,43 +149,43 @@ const AddDesign: React.FC = () => {
                             >
                                 Upload Image
                             </Typography>
-                        </Grid2>
+                        </Grid>
 
-                        <Grid2 size={8}>
+                        <Grid size={8}>
                             <ImageUpload setImage={setValue} />
-                        </Grid2>
-                    </Grid2>
+                        </Grid>
+                    </Grid>
 
                     <Divider variant="fullWidth" />
 
-                    <Grid2 container direction="row">
-                        <Grid2 size={4}>
+                    <Grid container direction="row">
+                        <Grid size={4}>
                             <Typography
                                 align="center"
                                 variant="h6"
                             >
                                 Add Materials
                             </Typography>
-                        </Grid2>
+                        </Grid>
 
-                        <Grid2 size={8}>
+                        <Grid size={8}>
                             <AddMaterialsTable availableMaterials={data} setValue={setValue} />
-                        </Grid2>
-                    </Grid2>
+                        </Grid>
+                    </Grid>
 
                     <Divider variant="fullWidth" />
 
-                    <Grid2 container direction="row">
-                        <Grid2 size={4}>
+                    <Grid container direction="row">
+                        <Grid size={4}>
                             <Typography
                                 align="center"
                                 variant="h6"
                             >
                                 Set Price
                             </Typography>
-                        </Grid2>
+                        </Grid>
 
-                        <Grid2 size={8}>
+                        <Grid size={8}>
                             <TextField
                                 {...register('price', {
                                     required: {
@@ -204,22 +204,22 @@ const AddDesign: React.FC = () => {
                                     }
                                 }}
                             />
-                        </Grid2>
-                    </Grid2>
+                        </Grid>
+                    </Grid>
 
                     <Divider variant="fullWidth" />
 
-                    <Grid2 container direction="row">
-                        <Grid2 size={4}>
+                    <Grid container direction="row">
+                        <Grid size={4}>
                             <Typography
                                 align="center"
                                 variant="h6"
                             >
                                 Add Description
                             </Typography>
-                        </Grid2>
+                        </Grid>
 
-                        <Grid2 size={8}>
+                        <Grid size={8}>
                             <Controller
                                 name="description"
                                 control={control}
@@ -227,12 +227,12 @@ const AddDesign: React.FC = () => {
                                     <TextEditor value={field.value} onChange={field.onChange} />
                                 )}
                             />
-                        </Grid2>
-                    </Grid2>
+                        </Grid>
+                    </Grid>
 
                     <Divider variant="fullWidth" />
 
-                    <Grid2 container justifyContent="end">
+                    <Grid container justifyContent="end">
                         <LoadingButton
                             variant="contained"
                             color="secondary"
@@ -241,8 +241,8 @@ const AddDesign: React.FC = () => {
                         >
                             Add Material!
                         </LoadingButton>
-                    </Grid2>
-                </Grid2>
+                    </Grid>
+                </Grid>
             </form>
         </Card>
     );
