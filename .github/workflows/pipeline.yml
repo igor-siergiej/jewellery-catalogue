@@ -16,6 +16,7 @@ jobs:
       - name: Write .env from Secrets
         run: |
           echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > .env
+          echo "VITE_AUTH_URL=${{ secrets.VITE_AUTH_URL }}" >> .env
           echo "CONNECTION_URI=${{ secrets.CONNECTION_URI }}" >> .env
           echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
           echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> .env
