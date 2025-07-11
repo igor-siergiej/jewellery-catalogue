@@ -1,6 +1,6 @@
-import React from "react";
-import { useForm } from "react-hook-form";
-import { LoginParams } from "./types";
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { LoginParams } from './types';
 import { Box, TextField, IconButton, InputAdornment, FormControl, InputLabel, OutlinedInput, FormHelperText } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -9,11 +9,7 @@ import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
 import { useNavigate } from 'react-router-dom';
 
-export interface ILoginFormProps {
-
-}
-
-export const LoginForm: React.FC<ILoginFormProps> = ({ }) => {
+export const LoginForm: React.FC = () => {
     const {
         handleSubmit,
         register,
@@ -35,8 +31,8 @@ export const LoginForm: React.FC<ILoginFormProps> = ({ }) => {
                 body: JSON.stringify(data),
             });
             if (!response.ok) {
-                const json = await response.json()
-                throw new Error(json.message)
+                const json = await response.json();
+                throw new Error(json.message);
             }
             // On successful login, redirect to home and show success alert
             navigate('/home');
@@ -76,17 +72,17 @@ export const LoginForm: React.FC<ILoginFormProps> = ({ }) => {
                     autoComplete="current-password"
                     label="Password"
                     {...register('password', { required: 'Password is required' })}
-                    endAdornment={
+                    endAdornment={(
                         <InputAdornment position="end">
                             <IconButton
                                 aria-label={showPassword ? 'Hide password' : 'Show password'}
-                                onClick={() => setShowPassword((show) => !show)}
+                                onClick={() => setShowPassword(show => !show)}
                                 edge="end"
                             >
                                 {showPassword ? <Visibility /> : <VisibilityOff />}
                             </IconButton>
                         </InputAdornment>
-                    }
+                    )}
                 />
                 <FormHelperText sx={{ minHeight: 24 }}>
                     {errors.password?.message || ' '}
@@ -104,4 +100,4 @@ export const LoginForm: React.FC<ILoginFormProps> = ({ }) => {
             </LoadingButton>
         </Box>
     );
-} 
+};

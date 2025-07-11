@@ -1,4 +1,4 @@
-import { Box, Button, Card, Grid2 as Grid, Typography } from '@mui/material';
+import { Box, Button, Card, Grid, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import IMAGES from '../../img';
 import { LoginForm } from '../../components/LoginForm';
@@ -22,15 +22,13 @@ const Start = () => {
                 sx={{
                     backgroundColor: '#fff',
                     width: '1000px',
+
                     height: '800px',
                 }}
             >
-                <Grid container sx={{ height: '100%', width: '100%' }}>
+                <Grid container spacing={0} sx={{ height: '100%', width: '100%' }}>
                     <Grid size={7}>
-                        <Grid
-                            container
-                            sx={{ display: 'flex', height: '100%', padding: '3em 1em 1em 1em', alignItems: 'center', flexDirection: 'column'}}
-                        >
+                        <Grid container sx={{ display: 'flex', height: '100%', padding: '3em 1em 1em 1em', alignItems: 'center', flexDirection: 'column' }}>
                             <Typography
                                 variant="h3"
                             >
@@ -44,8 +42,7 @@ const Start = () => {
                                 Welcome back Goldsmith!
                             </Typography>
 
-
-                            <Box sx={{ width: '60%', gap: '1em', display:'flex', flexDirection: 'column', alignItems: 'center'}}>
+                            <Box sx={{ width: '60%', gap: '1em', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
                                 <LoginForm />
 
@@ -58,7 +55,7 @@ const Start = () => {
 
                                 <Button
                                     fullWidth
-                                    color='secondary'
+                                    color="secondary"
                                     variant="contained"
                                     onClick={() => {
                                         navigate('home');
