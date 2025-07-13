@@ -4,10 +4,12 @@ import { ThemeProvider } from '@mui/material/styles';
 import theme from './style/theme';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Start from './pages/Start';
+import Register from './pages/Register';
 import Home from './pages/Home';
 import {
     HOME_PAGE,
     START_PAGE,
+    REGISTER_PAGE,
     DESIGNS_PAGE,
     ADD_DESIGN_PAGE,
     MATERIALS_PAGE,
@@ -47,6 +49,7 @@ function App() {
         <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Routes>
                 <Route path={START_PAGE.route} element={<Start />} />
+                <Route path={REGISTER_PAGE.route} element={<Register />} />
 
                 <Route element={<ProtectedRoute />}>
                     <Route element={<MainLayout />}>

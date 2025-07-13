@@ -5,6 +5,11 @@ export const START_PAGE: NavRoute = {
     route: '/',
 };
 
+export const REGISTER_PAGE: NavRoute = {
+    name: 'Register',
+    route: '/register',
+};
+
 export const HOME_PAGE: NavRoute = {
     name: 'Home',
     route: 'home',

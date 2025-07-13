@@ -1,10 +1,11 @@
+import React from 'react';
 import { Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../../components/AuthLayout';
-import { LoginForm } from '../../components/LoginForm';
+import { RegisterForm } from '../../components/RegisterForm';
 import { useRedirectIfAuthenticated } from '../../hooks/useAuthRedirect';
 
-const Start = () => {
+const Register = () => {
     const navigate = useNavigate();
 
     useRedirectIfAuthenticated();
@@ -12,15 +13,15 @@ const Start = () => {
     return (
         <AuthLayout
             title="Jewellery Catalogue"
-            subtitle="Welcome back Goldsmith!"
+            subtitle="Join the goldsmith empire!"
         >
-            <LoginForm />
+            <RegisterForm />
 
             <Typography
                 variant="body2"
                 paddingTop={8}
             >
-                Haven't joined the goldsmith empire yet?
+                Already part of the goldsmith empire?
             </Typography>
 
             <Button
@@ -28,13 +29,13 @@ const Start = () => {
                 color="secondary"
                 variant="contained"
                 onClick={() => {
-                    navigate('/register');
+                    navigate('/');
                 }}
             >
-                Register!
+                Login!
             </Button>
         </AuthLayout>
     );
 };
 
-export default Start;
+export default Register;

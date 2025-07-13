@@ -5,7 +5,7 @@ interface AuthContextType {
     accessToken: string | null;
     isAuthenticated: boolean;
     login: (accessToken: string) => void;
-    logout: () => void;
+    logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,8 +26,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setAccessToken(token);
     }, []);
 
-    const logout = useCallback(() => {
-        setAccessToken(null);
+    const logout = useCallback(async () => {
+        try {
+            // Make request to logout endpoint to invalidate session
+            await fetch(`${import.meta.env.VITE_AUTH_URL}/logout`, {
+                method: 'POST',
+                credentials: 'include',
+            });
+        } catch (error) {
+            // Even if logout request fails, we still want to clear local auth
+            console.error('Logout request failed:', error);
+        } finally {
+            // Always clear the access token locally
+            setAccessToken(null);
+        }
     }, []);
 
     const contextValue = useMemo(() => ({
