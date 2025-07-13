@@ -2,7 +2,7 @@ import { Bead, Material, MaterialType, Wire } from '@jewellery-catalogue/types';
 import { RequiredBead, RequiredWire, RequiredMaterial } from '@jewellery-catalogue/types/src/requiredMaterial';
 
 const BeadPriceCalculator = (requiredBead: RequiredBead, bead: Bead) => {
-    const { requiredQuantity } = requiredBead
+    const { requiredQuantity } = requiredBead;
     const { pricePerBead } = bead;
 
     const totalPrice = requiredQuantity * pricePerBead;
@@ -27,14 +27,14 @@ export const MaterialPriceResolver = (requiredMaterial: RequiredMaterial, materi
     };
 
     if (material.type in MaterialPriceCalculatorMap) {
-        return MaterialPriceCalculatorMap[material.type]
+        return MaterialPriceCalculatorMap[material.type];
     }
 
-    throw new Error(`Unsupported material type!`)
+    throw new Error(`Unsupported material type!`);
 };
 
 export const getTotalMaterialCosts = (selectedMaterials: Array<RequiredMaterial>, materials: Array<Material>): number => {
-    const matchedMaterials = selectedMaterials.reduce<Array<{ selectedMaterial: RequiredMaterial, material: Material }>>((acc, requiredMaterial) => {
+    const matchedMaterials = selectedMaterials.reduce<Array<{ selectedMaterial: RequiredMaterial; material: Material }>>((acc, requiredMaterial) => {
         const match = materials.find(searchMaterial => searchMaterial.id === requiredMaterial.id);
         if (match) {
             acc.push({ selectedMaterial: requiredMaterial, material: match });
