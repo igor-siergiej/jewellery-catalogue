@@ -36,6 +36,8 @@ services:
       logging_stack: "jewellery-catalogue"
     volumes:
       - jewellery-catalogue-api-data:/data
+    networks:
+      - proxy
 
   jewellery-catalogue-web:
     build:
@@ -51,6 +53,8 @@ services:
       - '80'
     depends_on:
       - jewellery-catalogue-api
+    networks:
+      - proxy
 
 volumes:
   jewellery-catalogue-mongo-data:
