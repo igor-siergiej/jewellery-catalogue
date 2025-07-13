@@ -1,18 +1,18 @@
 import Typography from '@mui/material/Typography';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import TextField from '@mui/material/TextField';
 import { useQuery } from '@tanstack/react-query';
 import TimeInput from '../../components/TimeInput';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
 import makeAddDesignRequest from '../../api/endpoints/addDesign';
 import { FormDesign } from '@jewellery-catalogue/types';
-import { getTotalMaterialCosts } from '../../util/getPriceOfMaterials';
+import { getTotalMaterialCosts } from '../../utils/getPriceOfMaterials';
 import { Box, Card, Divider, Grid, InputAdornment } from '@mui/material';
 import ImageUpload from '../../components/ImageUpload';
 import { AddMaterialsTable } from '../../components/AddMaterialsTable';
-import TextEditor from '../../components/Editor';
+// import TextEditor from '../../components/Editor';
 import { useEffect, useState } from 'react';
-import { getWageCosts } from '../../util/getWageCost';
+import { getWageCosts } from '../../utils/getWageCost';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
@@ -27,7 +27,6 @@ const AddDesign: React.FC = () => {
         handleSubmit,
         register,
         watch,
-        control,
         reset,
         formState: { errors },
     } = useForm<FormDesign>();
