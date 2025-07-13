@@ -58,7 +58,7 @@ services:
 
 networks:
   proxy:
-    driver: bridge
+    external: true
 
 volumes:
   jewellery-catalogue-mongo-data:
