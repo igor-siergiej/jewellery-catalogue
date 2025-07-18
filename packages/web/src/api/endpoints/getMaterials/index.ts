@@ -3,13 +3,14 @@ import { MATERIALS_ENDPOINT } from '../../endpoints';
 import { Material, MethodType } from '@jewellery-catalogue/types';
 
 const makeGetMaterialsRequest = async (
+    catalogueId: string,
     accessToken: string,
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
 ) => {
     return await makeRequestWithAutoRefresh<Array<Material>>(
         {
-            pathname: MATERIALS_ENDPOINT,
+            pathname: `${MATERIALS_ENDPOINT}/${catalogueId}`,
             method: MethodType.GET,
             operationString: 'fetch materials',
             accessToken,
@@ -20,10 +21,11 @@ const makeGetMaterialsRequest = async (
 };
 
 export const getMaterialsQuery = (
+    catalogueId: string,
     accessToken: string,
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
 ) => ({
-    queryKey: ['materials'],
-    queryFn: async () => makeGetMaterialsRequest(accessToken, onTokenRefresh, onTokenClear),
+    queryKey: ['materials', catalogueId],
+    queryFn: async () => makeGetMaterialsRequest(catalogueId, accessToken, onTokenRefresh, onTokenClear),
 });

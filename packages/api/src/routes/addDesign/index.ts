@@ -4,13 +4,19 @@ import { DependencyContainer } from '../../lib/dependencyContainer';
 import { DependencyToken } from '../../lib/dependencyContainer/types';
 import { Catalogue, Design, PersistentFile, UploadDesign } from '@jewellery-catalogue/types';
 import { CollectionName } from '../../database/types';
-import { catalogueId } from '..';
 
 export const addDesign = async (ctx: Context) => {
+    const { catalogueId } = ctx.params;
     const file = ctx.request.files.file as unknown as PersistentFile;
     const imageId = new ObjectId();
 
     const { name, description, timeRequired, materials, totalMaterialCosts, price } = ctx.request.body as Partial<UploadDesign>;
+
+    if (!catalogueId) {
+        ctx.status = 400;
+        ctx.body = { error: 'Catalogue ID is required' };
+        return;
+    }
 
     const bucket = DependencyContainer.getInstance().resolve(DependencyToken.Bucket);
 
@@ -28,9 +34,22 @@ export const addDesign = async (ctx: Context) => {
     };
 
     const database = DependencyContainer.getInstance().resolve(DependencyToken.Database);
+
+    if (!database) {
+        ctx.status = 500;
+        ctx.body = { error: 'Database connection failed' };
+        return;
+    }
+
     const collection = database.getCollection<Catalogue>(CollectionName.Catalogues);
 
     const updated = await collection.findOneAndUpdate({ _id: new ObjectId(catalogueId) }, { $push: { designs: design } }, { returnDocument: 'after' });
+
+    if (!updated) {
+        ctx.status = 404;
+        ctx.body = { error: 'Catalogue not found' };
+        return;
+    }
 
     ctx.status = 200;
     ctx.body = updated.designs;

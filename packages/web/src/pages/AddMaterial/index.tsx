@@ -9,6 +9,7 @@ import makeAddMaterialRequest from '../../api/endpoints/addMaterial';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
 import { useAuth } from '../../context/AuthContext';
+import { useUser } from '../../context/UserContext';
 
 const URL_REGEX
     = /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/g;
@@ -39,6 +40,7 @@ const AddMaterial = () => {
     });
     const [isMakingRequest, setIsMakingRequest] = useState(false);
     const { accessToken, login, logout } = useAuth();
+    const { user } = useUser();
 
     const { dispatch } = useAlert();
 
@@ -47,7 +49,10 @@ const AddMaterial = () => {
     const onSubmit: SubmitHandler<FormMaterial> = async (data) => {
         setIsMakingRequest(true);
         try {
-            await makeAddMaterialRequest(data, accessToken, login, logout);
+            if (!user?.id) {
+                throw new Error('User not authenticated');
+            }
+            await makeAddMaterialRequest(user.id, data, accessToken, login, logout);
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,

@@ -3,6 +3,7 @@ import { makeRequestWithAutoRefresh } from '../../makeRequest';
 import { DESIGNS_ENDPOINT } from '../../endpoints';
 
 const makeAddDesignRequest = async (
+    catalogueId: string,
     formDesign: FormDesign,
     accessToken: string,
     onTokenRefresh: (newToken: string) => void,
@@ -26,7 +27,7 @@ const makeAddDesignRequest = async (
 
     return await makeRequestWithAutoRefresh<Array<Material>>(
         {
-            pathname: DESIGNS_ENDPOINT,
+            pathname: `${DESIGNS_ENDPOINT}/${catalogueId}`,
             method: MethodType.POST,
             operationString: 'add design',
             body: formData,

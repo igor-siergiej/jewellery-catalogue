@@ -3,16 +3,39 @@ import { DependencyContainer } from '../../lib/dependencyContainer';
 import { DependencyToken } from '../../lib/dependencyContainer/types';
 import { CollectionName } from '../../database/types';
 import { ObjectId } from 'mongodb';
-import { catalogueId } from '..';
 import { Catalogue, FormMaterial, FormMaterialKeysMap, Material, MaterialType } from '@jewellery-catalogue/types';
 import { convertFormDataToMaterial } from './util';
 
 export const addMaterial = async (ctx: Context) => {
-    const material = getMaterial(ctx.request.body as FormMaterial);
+    const { catalogueId } = ctx.params;
+    const materialData = ctx.request.body as FormMaterial;
+
+    if (!catalogueId) {
+        ctx.status = 400;
+        ctx.body = { error: 'Catalogue ID is required' };
+        return;
+    }
+
+    console.log('materialData', materialData);
+
+    const material = getMaterial(materialData);
 
     const database = DependencyContainer.getInstance().resolve(DependencyToken.Database);
+
+    if (!database) {
+        ctx.status = 500;
+        ctx.body = { error: 'Database connection failed' };
+        return;
+    }
+
     const collection = database.getCollection<Catalogue>(CollectionName.Catalogues);
     const updated = await collection.findOneAndUpdate({ _id: new ObjectId(catalogueId) }, { $push: { materials: material } }, { returnDocument: 'after' });
+
+    if (!updated) {
+        ctx.status = 404;
+        ctx.body = { error: 'Catalogue not found' };
+        return;
+    }
 
     ctx.status = 200;
     ctx.body = updated.materials;

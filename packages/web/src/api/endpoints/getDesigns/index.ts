@@ -4,12 +4,13 @@ import { Design, MethodType } from '@jewellery-catalogue/types';
 import { DESIGNS_ENDPOINT } from '../../endpoints';
 
 const makeGetDesignsRequest = async (
+    catalogueId: string,
     accessToken: string,
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
 ) => {
     return await makeRequestWithAutoRefresh<Array<Design>>({
-        pathname: DESIGNS_ENDPOINT,
+        pathname: `${DESIGNS_ENDPOINT}/${catalogueId}`,
         method: MethodType.GET,
         operationString: 'fetch designs',
         accessToken
@@ -17,21 +18,23 @@ const makeGetDesignsRequest = async (
 };
 
 export const getDesignsQuery = (
+    catalogueId: string,
     accessToken: string,
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
 ) => ({
-    queryKey: ['designs'],
-    queryFn: async () => makeGetDesignsRequest(accessToken, onTokenRefresh, onTokenClear),
+    queryKey: ['designs', catalogueId],
+    queryFn: async () => makeGetDesignsRequest(catalogueId, accessToken, onTokenRefresh, onTokenClear),
 });
 
 export const designsLoader = (queryClient: QueryClient) => async (
+    catalogueId: string,
     accessToken: string,
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
 ) => {
     const result = await queryClient.fetchQuery({
-        ...getDesignsQuery(accessToken, onTokenRefresh, onTokenClear),
+        ...getDesignsQuery(catalogueId, accessToken, onTokenRefresh, onTokenClear),
     });
     return result;
 };

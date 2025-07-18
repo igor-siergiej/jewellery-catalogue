@@ -4,18 +4,21 @@ import { getDesignsQuery } from '../../api/endpoints/getDesigns';
 import { DesignCard } from '../../components/DesignCard';
 import { EmptyStateContainer, EmptyStateTitle, EmptyStateSubtitle } from './index.styles';
 import { useAuth } from '../../context/AuthContext';
+import { useUser } from '../../context/UserContext';
 
 const Designs = () => {
     const { accessToken, login, logout } = useAuth();
+    const { user } = useUser();
     const { data, isError } = useQuery({
-        ...getDesignsQuery(accessToken, login, logout),
+        ...getDesignsQuery(user?.id || '', accessToken, login, logout),
+        enabled: !!user?.id && !!accessToken,
     });
 
     if (isError) {
         return <span>Something went wrong! :(</span>;
     }
 
-    if (!data) {
+    if (!data || !user?.id) {
         return <LoadingScreen />;
     }
 

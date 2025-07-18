@@ -3,6 +3,7 @@ import { makeRequestWithAutoRefresh } from '../../makeRequest';
 import { MATERIALS_ENDPOINT } from '../../endpoints';
 
 const makeAddMaterialRequest = async (
+    catalogueId: string,
     material: FormMaterial,
     accessToken: string,
     onTokenRefresh: (newToken: string) => void,
@@ -10,7 +11,7 @@ const makeAddMaterialRequest = async (
 ) => {
     return await makeRequestWithAutoRefresh<Array<Material>>(
         {
-            pathname: MATERIALS_ENDPOINT,
+            pathname: `${MATERIALS_ENDPOINT}/${catalogueId}`,
             method: MethodType.POST,
             operationString: 'add materials',
             body: material,

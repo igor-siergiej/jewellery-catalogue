@@ -22,6 +22,12 @@ const UserInfo = () => {
                 variant="outlined"
                 size="small"
             />
+            <Chip
+                label={user?.id}
+                color="secondary"
+                variant="outlined"
+                size="small"
+            />
             <IconButton
                 size="small"
                 onClick={logout}

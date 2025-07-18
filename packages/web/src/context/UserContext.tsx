@@ -3,6 +3,7 @@ import { extractUserFromToken } from '../utils/jwtUtils';
 
 export interface UserInfo {
     username: string;
+    id: string;
 }
 
 interface UserContextType {
@@ -19,6 +20,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     const updateUserFromToken = useCallback((token: string) => {
         const userInfo = extractUserFromToken(token);
+        console.log('userInfo', userInfo);
         if (userInfo) {
             setUser(userInfo);
         } else {

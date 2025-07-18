@@ -9,6 +9,8 @@ import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { extractUserFromToken } from '../../utils/jwtUtils';
+import { addCatalogue } from '../../api/endpoints/addCatalogue';
 import { HOME_PAGE } from '../../constants/routes';
 
 export const RegisterForm: React.FC = () => {
@@ -47,7 +49,19 @@ export const RegisterForm: React.FC = () => {
             }
             const json = await response.json();
             if (!json.accessToken) throw new Error('No access token returned');
+
+            // Extract user ID from the token
+            const userInfo = extractUserFromToken(json.accessToken);
+            if (!userInfo?.id) {
+                throw new Error('Could not extract user ID from token');
+            }
+
+            // Login the user first
             login(json.accessToken);
+
+            // Create catalogue with user ID using the addCatalogue endpoint
+            await addCatalogue(userInfo.id);
+
             navigate(`/${HOME_PAGE.route}`);
         } catch (e) {
             const message = e instanceof Error ? e.message : 'Unknown error';

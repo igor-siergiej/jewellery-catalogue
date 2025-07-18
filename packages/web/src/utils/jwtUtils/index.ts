@@ -1,5 +1,6 @@
 export interface DecodedToken {
     username: string;
+    id: string;
     exp: number;
     iat: number;
     [key: string]: string | number | boolean;
@@ -46,13 +47,14 @@ export const getTokenExpirationTime = (token: string): Date | null => {
     return new Date(decoded.exp * 1000);
 };
 
-export const extractUserFromToken = (token: string): { username: string } | null => {
+export const extractUserFromToken = (token: string): { username: string; id: string } | null => {
     const decoded = decodeJWT(token);
-    if (!decoded || !decoded.username) {
+    if (!decoded || !decoded.username || !decoded.id) {
         return null;
     }
 
     return {
-        username: decoded.username
+        username: decoded.username,
+        id: decoded.id
     };
 };

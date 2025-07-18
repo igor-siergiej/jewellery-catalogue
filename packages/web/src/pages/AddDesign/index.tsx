@@ -17,6 +17,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
 import { useAuth } from '../../context/AuthContext';
+import { useUser } from '../../context/UserContext';
 
 const PROFIT_COEFFICIENT = 1.15;
 const HOURLY_WAGE = 10;
@@ -31,10 +32,12 @@ const AddDesign: React.FC = () => {
         formState: { errors },
     } = useForm<FormDesign>();
     const { accessToken, login, logout } = useAuth();
+    const { user } = useUser();
     const [isMakingRequest, setIsMakingRequest] = useState(false);
 
     const { data } = useQuery({
-        ...getMaterialsQuery(accessToken, login, logout),
+        ...getMaterialsQuery(user?.id || '', accessToken, login, logout),
+        enabled: !!user?.id && !!accessToken,
     });
 
     const selectedMaterials = watch('materials');
@@ -45,7 +48,10 @@ const AddDesign: React.FC = () => {
     const onSubmit: SubmitHandler<FormDesign> = async (data) => {
         setIsMakingRequest(true);
         try {
-            await makeAddDesignRequest(data, accessToken, login, logout);
+            if (!user?.id) {
+                throw new Error('User not authenticated');
+            }
+            await makeAddDesignRequest(user.id, data, accessToken, login, logout);
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
