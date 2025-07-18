@@ -13,6 +13,8 @@ services:
     labels:
       logging_job: "jewellery-catalogue-minio"
       logging_stack: "jewellery-catalogue"
+    networks:
+      - internal
 
   jewellery-catalogue-mongodb:
     image: mongodb/mongodb-community-server
@@ -24,6 +26,8 @@ services:
     labels:
       logging_job: "jewellery-catalogue-mongodb"
       logging_stack: "jewellery-catalogue"
+    networks:
+      - internal
 
   jewellery-catalogue-api:
     container_name: jewellery-catalogue-api
@@ -43,6 +47,7 @@ services:
     volumes:
       - jewellery-catalogue-api-data:/data
     networks:
+      - internal
       - proxy
 
   jewellery-catalogue-web:
@@ -66,6 +71,8 @@ services:
       logging_stack: "jewellery-catalogue"
 
 networks:
+  internal:
+    driver: bridge
   proxy:
     external: true
 
