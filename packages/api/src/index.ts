@@ -2,8 +2,7 @@ import { registerDepdendencies } from './dependencies';
 import { DependencyContainer } from './lib/dependencyContainer';
 import { DependencyToken } from './lib/dependencyContainer/types';
 import 'dotenv/config';
-import Koa, { Request } from 'koa';
-import KoaLogger from 'koa-logger';
+import Koa, { Request, Context, Next } from 'koa';
 import routes from './routes';
 import koaCors, { Options } from 'koa-cors';
 import { HttpErrorCode } from './types';
@@ -13,7 +12,26 @@ const port = process.env.PORT;
 
 const allowedOrigins = ['http://localhost:3000', 'https://jewellerycatalogue.imapps.co.uk'];
 
-const logger = KoaLogger();
+const customLogger = async (ctx: Context, next: Next) => {
+    const start = Date.now();
+    const appLogger = DependencyContainer.getInstance().resolve(DependencyToken.Logger);
+
+    if (appLogger) {
+        appLogger.info(`Incoming request: ${ctx.method} ${ctx.url}`, {
+            method: ctx.method,
+            url: ctx.url,
+            userAgent: ctx.get('user-agent') || 'unknown'
+        });
+    }
+
+    await next();
+
+    const responseTime = Date.now() - start;
+
+    if (appLogger) {
+        appLogger.logHttpRequest(ctx.method, ctx.url, ctx.status, responseTime);
+    }
+};
 
 const corsOptions: Options = {
     origin: (request: Request) => {
@@ -37,7 +55,13 @@ export const onStartup = async () => {
     try {
         const app = new Koa();
         app.use(koaCors(corsOptions));
-        app.use(logger);
+
+        // Register dependencies first so logger is available
+        registerDepdendencies();
+
+        // Use custom logger instead of koa-logger
+        app.use(customLogger);
+
         app.use(koaBody(bodyOptions));
         app.use(async (ctx, next) => {
             try {
@@ -60,12 +84,11 @@ export const onStartup = async () => {
                     message: err.message,
                     stack: err.stack,
                     path: ctx.request.path,
-                    method: ctx.request.method
+                    method: ctx.request.method,
+                    status: ctx.status
                 });
             }
         });
-
-        registerDepdendencies();
 
         const appLogger = DependencyContainer.getInstance().resolve(DependencyToken.Logger);
 

@@ -48,20 +48,20 @@ export const addMaterial = async (ctx: Context) => {
 };
 
 // TODO: maybe abstract this out into a validation function or something
-const getMaterial = (material: FormMaterial): Material | null => {
+const getMaterial = (material: FormMaterial): Material => {
     const materialType = material?.type;
 
     if (!(materialType in MaterialType)) {
         throw new Error(`Unknown material type: ${materialType}`);
     }
 
-    const missingKeys = Object.keys(FormMaterialKeysMap[materialType]).filter((key: keyof Material) => !(key in material));
+    const missingKeys = Object.keys(FormMaterialKeysMap[materialType]).filter(key => !(key in material));
 
     if (missingKeys.length > 0) {
         throw new Error(`Material of type '${materialType}' is missing the following keys: ${missingKeys.join(', ')}`);
     }
 
-    const additionalKeys = Object.keys(material).filter((key: keyof Material) => !(key in FormMaterialKeysMap[materialType]));
+    const additionalKeys = Object.keys(material).filter(key => !(key in FormMaterialKeysMap[materialType]));
 
     if (additionalKeys.length > 0) {
         throw new Error(`Unexpected additional keys: ${additionalKeys.join(', ')}`);

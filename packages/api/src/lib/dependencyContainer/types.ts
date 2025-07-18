@@ -23,4 +23,5 @@ export interface ILogger {
     info: (message: string, ...meta: Array<unknown>) => void;
     warn: (message: string, ...meta: Array<unknown>) => void;
     error: (message: string, ...meta: Array<unknown>) => void;
+    logHttpRequest: (method: string, url: string, status: number, responseTime: number) => void;
 }

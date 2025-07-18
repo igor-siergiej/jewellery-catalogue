@@ -8,6 +8,8 @@ export const convertFormDataToMaterial = (formMaterial: FormMaterial) => {
             return convertFormBeadToMaterial(formMaterial as FormBead);
         case MaterialType.CHAIN:
             return convertFormChainToMaterial(formMaterial as FormChain);
+        default:
+            throw new Error(`Unsupported material type: ${formMaterial.type}`);
     }
 };
 
@@ -16,9 +18,17 @@ export const convertFormWireToMaterial = (formWire: FormWire): Omit<Wire, 'id'> 
     const totalPrice = formWire.packs * formWire.pricePerPack;
     const pricePerMeter = totalPrice / totalLength;
 
-    const { packs, pricePerPack, ...rest } = formWire;
-
-    return { ...rest, pricePerMeter };
+    return {
+        type: formWire.type,
+        name: formWire.name,
+        brand: formWire.brand,
+        purchaseUrl: formWire.purchaseUrl,
+        diameter: formWire.diameter,
+        wireType: formWire.wireType,
+        metalType: formWire.metalType,
+        length: formWire.length,
+        pricePerMeter
+    };
 };
 
 export const convertFormBeadToMaterial = (formBead: FormBead): Omit<Bead, 'id'> => {
@@ -26,12 +36,27 @@ export const convertFormBeadToMaterial = (formBead: FormBead): Omit<Bead, 'id'> 
     const totalPrice = formBead.packs * formBead.pricePerPack;
     const pricePerBead = totalPrice / totalQuantity;
 
-    const { packs, pricePerPack, ...rest } = formBead;
-
-    return { ...rest, pricePerBead };
+    return {
+        type: formBead.type,
+        name: formBead.name,
+        brand: formBead.brand,
+        purchaseUrl: formBead.purchaseUrl,
+        diameter: formBead.diameter,
+        colour: formBead.colour,
+        quantity: formBead.quantity,
+        pricePerBead
+    };
 };
 
 export const convertFormChainToMaterial = (formChain: FormChain): Omit<Chain, 'id'> => {
-    const { packs, pricePerPack, ...rest } = formChain;
-    return { ...rest };
+    return {
+        type: formChain.type,
+        name: formChain.name,
+        brand: formChain.brand,
+        purchaseUrl: formChain.purchaseUrl,
+        metalType: formChain.metalType,
+        wireType: formChain.wireType,
+        diameter: formChain.diameter,
+        length: formChain.length
+    };
 };

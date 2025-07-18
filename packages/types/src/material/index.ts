@@ -1,11 +1,10 @@
 import { BaseMaterial } from '../baseMaterial';
 import { BeadKeysEnum, ChainKeysEnum, EarHookKeysEnum, METAL_TYPE, MaterialType, WIRE_TYPE, WireKeysEnum } from './enum';
 
-export type Material = Wire | Bead | Chain;
+export type Material = Wire | Bead | Chain | EarHook;
 
 export interface Wire extends BaseMaterial {
     diameter: number;
-    id: string;
     wireType: WIRE_TYPE;
     metalType: METAL_TYPE;
     length: number;
@@ -14,7 +13,6 @@ export interface Wire extends BaseMaterial {
 
 export interface Bead extends BaseMaterial {
     diameter: number;
-    id: string;
     colour: string;
     quantity: number;
     pricePerBead: number;

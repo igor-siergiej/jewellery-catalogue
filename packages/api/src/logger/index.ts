@@ -2,9 +2,7 @@ import { ILogger } from '../lib/dependencyContainer/types';
 
 export class Logger implements ILogger {
     private formatMessage(level: string, message: string, meta: Array<unknown>): string {
-        const timestamp = new Date().toISOString();
         const logObject = {
-            timestamp,
             level,
             message,
             ...(meta.length > 0 && { meta })
@@ -23,5 +21,10 @@ export class Logger implements ILogger {
 
     public error = (message: string, ...meta: Array<unknown>): void => {
         console.error(this.formatMessage('[ERROR]', message, meta));
+    };
+
+    public logHttpRequest = (method: string, url: string, status: number, responseTime: number): void => {
+        const message = `${method} ${url} ${status} ${responseTime}ms`;
+        console.log(this.formatMessage('[INFO]', message, []));
     };
 }
