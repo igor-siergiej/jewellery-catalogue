@@ -22,8 +22,6 @@ export const addMaterial = async (ctx: Context) => {
         throw new Error('Logger dependency not resolved');
     }
 
-    logger.info('Processing material data', { catalogueId, materialData });
-
     const material = getMaterial(materialData);
 
     const database = DependencyContainer.getInstance().resolve(DependencyToken.Database);
@@ -55,20 +53,22 @@ const getMaterial = (material: FormMaterial): Material => {
         throw new Error(`Unknown material type: ${materialType}`);
     }
 
-    const missingKeys = Object.keys(FormMaterialKeysMap[materialType]).filter(key => !(key in material));
+    const expectedKeys = Object.keys(FormMaterialKeysMap[materialType]);
+    const missingKeys = expectedKeys.filter(key => !(key in material));
 
     if (missingKeys.length > 0) {
         throw new Error(`Material of type '${materialType}' is missing the following keys: ${missingKeys.join(', ')}`);
     }
 
-    const additionalKeys = Object.keys(material).filter(key => !(key in FormMaterialKeysMap[materialType]));
-
-    if (additionalKeys.length > 0) {
-        throw new Error(`Unexpected additional keys: ${additionalKeys.join(', ')}`);
-    }
+    const filteredMaterial = Object.keys(material)
+        .filter(key => expectedKeys.includes(key))
+        .reduce((obj, key) => {
+            obj[key] = material[key];
+            return obj;
+        }, {} as FormMaterial);
 
     return {
         id: new ObjectId().toString(),
-        ...convertFormDataToMaterial(material),
+        ...convertFormDataToMaterial(filteredMaterial),
     };
 };

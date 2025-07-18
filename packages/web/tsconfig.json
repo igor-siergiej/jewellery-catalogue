@@ -9,6 +9,7 @@
         "noEmit": true,
         "emitDeclarationOnly": false,
         "jsx": "react-jsx",
+        "outDir": "./build",
         "types": [
             "vitest/globals",
             "@testing-library/jest-dom"
@@ -26,5 +27,10 @@
         "src",
         "eslintrc.js",
         "vite-env.d.ts"
+    ],
+    "references": [
+        {
+            "path": "../types"
+        }
     ]
 }

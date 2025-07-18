@@ -2,9 +2,9 @@ import { registerDepdendencies } from './dependencies';
 import { DependencyContainer } from './lib/dependencyContainer';
 import { DependencyToken } from './lib/dependencyContainer/types';
 import 'dotenv/config';
-import Koa, { Request, Context, Next } from 'koa';
+import Koa, { Context, Next } from 'koa';
 import routes from './routes';
-import koaCors, { Options } from 'koa-cors';
+import cors from '@koa/cors';
 import { HttpErrorCode } from './types';
 import koaBody from 'koa-body';
 
@@ -33,18 +33,22 @@ const customLogger = async (ctx: Context, next: Next) => {
     }
 };
 
-const corsOptions: Options = {
-    origin: (request: Request) => {
-        const origin = request.url;
+const corsOptions = {
+    origin: (ctx: Context) => {
+        const origin = ctx.get('origin');
         if (allowedOrigins.includes(origin)) {
             return origin;
         }
         return '*';
     },
-    methods: ['GET', 'POST'],
+    credentials: true,
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
 };
 
 const bodyOptions = {
+    json: true,
+    text: true,
     multipart: true,
     formidable: {
         keepExtensions: true,
@@ -54,12 +58,10 @@ const bodyOptions = {
 export const onStartup = async () => {
     try {
         const app = new Koa();
-        app.use(koaCors(corsOptions));
+        app.use(cors(corsOptions));
 
-        // Register dependencies first so logger is available
         registerDepdendencies();
 
-        // Use custom logger instead of koa-logger
         app.use(customLogger);
 
         app.use(koaBody(bodyOptions));

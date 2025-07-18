@@ -29,6 +29,9 @@ const makeAddDesignRequest = async (
         {
             pathname: `${DESIGNS_ENDPOINT}/${catalogueId}`,
             method: MethodType.POST,
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
             operationString: 'add design',
             body: formData,
             accessToken

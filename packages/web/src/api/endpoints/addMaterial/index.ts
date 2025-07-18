@@ -13,6 +13,9 @@ const makeAddMaterialRequest = async (
         {
             pathname: `${MATERIALS_ENDPOINT}/${catalogueId}`,
             method: MethodType.POST,
+            headers: {
+                'Content-Type': 'application/json',
+            },
             operationString: 'add materials',
             body: material,
             accessToken
