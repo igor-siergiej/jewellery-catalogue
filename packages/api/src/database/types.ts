@@ -1,4 +1,4 @@
-import { Collection } from 'mongodb/mongodb';
+import { Collection, BSON } from 'mongodb/mongodb';
 
 export enum CollectionName {
     Catalogues = 'catalogues'
@@ -6,5 +6,5 @@ export enum CollectionName {
 
 export interface IDatabase {
     connect: () => Promise<void>;
-    getCollection<T>(collectionName: CollectionName): Collection<T>;
+    getCollection<T extends BSON.Document>(collectionName: CollectionName): Collection<T>;
 }

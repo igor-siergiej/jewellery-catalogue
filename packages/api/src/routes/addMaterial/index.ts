@@ -16,7 +16,13 @@ export const addMaterial = async (ctx: Context) => {
         return;
     }
 
-    console.log('materialData', materialData);
+    const logger = DependencyContainer.getInstance().resolve(DependencyToken.Logger);
+
+    if (!logger) {
+        throw new Error('Logger dependency not resolved');
+    }
+
+    logger.info('Processing material data', { catalogueId, materialData });
 
     const material = getMaterial(materialData);
 
@@ -24,7 +30,7 @@ export const addMaterial = async (ctx: Context) => {
 
     if (!database) {
         ctx.status = 500;
-        ctx.body = { error: 'Database connection failed' };
+        ctx.body = { error: 'Database not available' };
         return;
     }
 

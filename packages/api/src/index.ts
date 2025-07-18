@@ -53,15 +53,25 @@ export const onStartup = async () => {
         });
 
         app.on('error', (err, ctx) => {
-            console.error('Server Error:', {
-                message: err.message,
-                stack: err.stack,
-                path: ctx.request.path,
-                method: ctx.request.method
-            });
+            const appLogger = DependencyContainer.getInstance().resolve(DependencyToken.Logger);
+
+            if (appLogger) {
+                appLogger.error('Server Error', {
+                    message: err.message,
+                    stack: err.stack,
+                    path: ctx.request.path,
+                    method: ctx.request.method
+                });
+            }
         });
 
         registerDepdendencies();
+
+        const appLogger = DependencyContainer.getInstance().resolve(DependencyToken.Logger);
+
+        if (!appLogger) {
+            throw new Error('Logger dependency not resolved');
+        }
 
         const database = DependencyContainer.getInstance().resolve(DependencyToken.Database);
 
@@ -74,13 +84,20 @@ export const onStartup = async () => {
         app.use(routes.routes());
 
         app.listen(port, () => {
-            console.log(`Jewellery Catalogue Api server running on port ${port}.`);
+            appLogger.info(`Jewellery Catalogue Api server running on port ${port}`);
         });
     } catch (error: unknown) {
+        const dependencyContainer = DependencyContainer.getInstance();
+        const appLogger = dependencyContainer.resolve(DependencyToken.Logger);
+
         if (error instanceof Error) {
-            console.error('Encountered an error on start up', error.message);
+            if (appLogger) {
+                appLogger.error('Encountered an error on start up', { error: error.message });
+            }
         } else {
-            console.error('Encountered unexpected error on start up', error);
+            if (appLogger) {
+                appLogger.error('Encountered unexpected error on start up', { error });
+            }
         }
         process.exit(1);
     }

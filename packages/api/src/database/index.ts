@@ -1,10 +1,13 @@
-import { MongoClient, Db, Collection } from 'mongodb';
+import { MongoClient, Db, Collection, BSON } from 'mongodb';
 import 'dotenv/config';
 import { CollectionName, IDatabase } from './types';
+import { DependencyContainer } from '../lib/dependencyContainer';
+import { DependencyToken, ILogger } from '../lib/dependencyContainer/types';
 
 export class Database implements IDatabase {
     private client: MongoClient;
     private databaseInstance: Db;
+    private logger: ILogger;
 
     constructor() {
         const connectionString = process.env.CONNECTION_URI;
@@ -14,17 +17,25 @@ export class Database implements IDatabase {
         }
 
         this.client = new MongoClient(connectionString);
+
+        const logger = DependencyContainer.getInstance().resolve(DependencyToken.Logger);
+
+        if (!logger) {
+            throw new Error('Logger dependency not resolved');
+        } else {
+            this.logger = logger;
+        }
     };
 
     public connect = async () => {
         const databaseName = process.env.DATABASE_NAME;
 
         if (!databaseName) {
-            throw new Error('Database name missing in environment variables');
+            this.logger.error('Database name missing in environment variables');
         }
 
         if (!this?.client) {
-            throw new Error('Database client does not exist');
+            this.logger.error('Database client does not exist');
         }
 
         try {
@@ -32,11 +43,11 @@ export class Database implements IDatabase {
 
             this.databaseInstance = this.client.db(databaseName);
         } catch (e) {
-            console.error(e);
+            this.logger.error('Failed to connect to database', { error: e });
         }
     };
 
-    getCollection<T>(collectionName: CollectionName): Collection<T> {
-        return this.databaseInstance.collection<T>(collectionName);
+    getCollection<T extends BSON.Document>(collectionName: CollectionName): Collection<T> {
+        return this.databaseInstance.collection<T & BSON.Document>(collectionName);
     };
 }

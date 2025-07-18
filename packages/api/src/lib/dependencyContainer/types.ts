@@ -1,4 +1,4 @@
-import { IBucket } from 'src/bucket/types';
+import { IBucket } from '../../bucket/types';
 import { IDatabase } from '../../database/types';
 
 export type ConstructorOfType<T> = new (...args: Array<unknown>) => T;
@@ -20,5 +20,7 @@ export type IDependencies = {
 };
 
 export interface ILogger {
-    debug: () => void;
+    info: (message: string, ...meta: Array<unknown>) => void;
+    warn: (message: string, ...meta: Array<unknown>) => void;
+    error: (message: string, ...meta: Array<unknown>) => void;
 }
