@@ -14,7 +14,11 @@ import { DependencyToken } from './lib/dependencyContainer/types';
 import routes from './routes';
 import { HttpErrorCode } from './types';
 
-const allowedOrigins = ['http://localhost:3000', 'https://jewellerycatalogue.imapps.co.uk'];
+const allowedOrigins = [
+    'http://localhost:3000', // Development
+    'http://localhost:8082', // Staging
+    'https://jewellerycatalogue.imapps.co.uk' // Production
+];
 
 const logger = KoaLogger();
 

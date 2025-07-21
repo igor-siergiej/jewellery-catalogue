@@ -12,7 +12,11 @@ import { HttpErrorCode } from './types';
 
 const port = process.env.API_PORT;
 
-const allowedOrigins = ['http://localhost:3000', 'https://jewellerycatalogue.imapps.co.uk'];
+const allowedOrigins = [
+    'http://localhost:3000', // Development
+    'http://localhost:8082', // Staging
+    'https://jewellerycatalogue.imapps.co.uk' // Production
+];
 
 const customLogger = async (ctx: Context, next: Next) => {
     const start = Date.now();
