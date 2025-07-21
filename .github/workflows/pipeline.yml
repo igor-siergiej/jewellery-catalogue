@@ -1,0 +1,125 @@
+name: CI/CD Pipeline 
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/ms-playwright
+            packages/web/node_modules/@playwright/test
+          key: ${{ runner.os }}-playwright-${{ hashFiles('packages/web/package.json', 'packages/web/yarn.lock') }}-${{ hashFiles('packages/web/playwright.config.ts') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-${{ hashFiles('packages/web/package.json') }}
+            ${{ runner.os }}-playwright-
+
+      - name: Install Playwright Browsers
+        run: cd packages/web && yarn playwright install --with-deps
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
+
+      - name: Write .env for tests
+        run: |
+          echo "VITE_API_URL=http://localhost:5000" > .env
+          echo "VITE_AUTH_URL=http://localhost:5000/auth" >> .env
+
+      - name: Build web package
+        run: cd packages/web && yarn build
+
+      - name: Run Playwright Tests
+        run: cd packages/web && yarn pw:run --project=chromium
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: packages/web/playwright-report/
+          retention-days: 30
+
+      - name: Upload test screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-test-results
+          path: packages/web/test-results/
+          retention-days: 30
+
+  deploy:
+    needs: test
+    runs-on: [self-hosted, linux, x64]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Write .env from Secrets
+        run: |
+          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > .env
+          echo "VITE_AUTH_URL=${{ secrets.VITE_AUTH_URL }}" >> .env
+          echo "API_CONNECTION_URI=${{ secrets.API_CONNECTION_URI }}" >> .env
+          echo "API_DATABASE_NAME=${{ secrets.API_DATABASE_NAME }}" >> .env
+          echo "API_PORT=${{ secrets.API_PORT }}" >> .env
+          echo "AUTH_CONNECTION_URI=${{ secrets.AUTH_CONNECTION_URI }}" >> .env
+          echo "AUTH_DATABASE_NAME=${{ secrets.AUTH_DATABASE_NAME }}" >> .env
+          echo "AUTH_PORT=${{ secrets.AUTH_PORT }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "ACCESS_TOKEN_EXPIRY=${{ secrets.ACCESS_TOKEN_EXPIRY }}" >> .env
+          echo "REFRESH_TOKEN_EXPIRY=${{ secrets.REFRESH_TOKEN_EXPIRY }}" >> .env
+          echo "SECURE=${{ secrets.SECURE }}" >> .env
+          echo "SAME_SITE=${{ secrets.SAME_SITE }}" >> .env
+          echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> .env
+          echo "BUCKET_ACCESS_KEY=${{ secrets.BUCKET_ACCESS_KEY }}" >> .env
+          echo "BUCKET_SECRET_KEY=${{ secrets.BUCKET_SECRET_KEY }}" >> .env
+          echo "BUCKET_PORT=${{ secrets.BUCKET_PORT }}" >> .env
+          echo "BUCKET_ENDPOINT=${{ secrets.BUCKET_ENDPOINT }}" >> .env
+          echo "MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}" >> .env
+          echo "MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}" >> .env
+
+      - name: Build Docker images with Compose
+        run: |
+          docker compose build
+
+      - name: Restart services with Compose
+        run: |
+          docker compose down
+          docker compose up -d
+
