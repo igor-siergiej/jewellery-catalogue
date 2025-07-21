@@ -120,6 +120,8 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
             filterable: false,
             valueFormatter: (value, row) => {
                 if (!availableMaterials.length) return value;
+
+                // TODO: move this into a util function
                 const material = availableMaterials.find(m => m.name === row.name);
                 if (material?.type === 'WIRE' || material?.type === 'CHAIN') {
                     return `${value} cm`;
