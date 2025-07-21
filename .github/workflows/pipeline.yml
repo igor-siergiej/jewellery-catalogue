@@ -79,11 +79,9 @@ jobs:
 
       - name: Wait for staging services to be ready
         run: |
-          # Wait for services to be healthy
-          timeout 300 bash -c 'until curl -f http://localhost:8080/health 2>/dev/null; do sleep 5; done' || echo "API health check timeout"
-          timeout 300 bash -c 'until curl -f http://localhost:8081/health 2>/dev/null; do sleep 5; done' || echo "Auth health check timeout"
-          timeout 300 bash -c 'until curl -f http://localhost:8082 2>/dev/null; do sleep 5; done' || echo "Web health check timeout"
-          sleep 30  # Additional buffer for services to stabilize
+          timeout 60 bash -c 'until curl -f http://localhost:5001/health 2>/dev/null; do sleep 5; done' || echo "API health check timeout"
+          timeout 60 bash -c 'until curl -f http://localhost:5002/health 2>/dev/null; do sleep 5; done' || echo "Auth health check timeout"
+          timeout 60 bash -c 'until curl -f http://localhost:8082 2>/dev/null; do sleep 5; done' || echo "Web health check timeout"
 
       - name: Set staging info
         id: staging-info
