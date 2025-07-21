@@ -88,10 +88,10 @@ services:
       - staging-internal
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "5002"]
-      interval: 30s
-      timeout: 10s
+      interval: 15s
+      timeout: 5s
       retries: 3
-      start_period: 40s
+      start_period: 20s
 
   jewellery-catalogue-staging-web:
     build:
@@ -115,10 +115,10 @@ services:
       logging_stack: "jewellery-catalogue-staging"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
-      interval: 30s
-      timeout: 10s
+      interval: 15s
+      timeout: 5s
       retries: 3
-      start_period: 40s
+      start_period: 20s
 
 networks:
   staging-internal:
