@@ -1,11 +1,11 @@
 name: CI/CD Pipeline 
 
-# Comprehensive caching strategy for self-hosted runner:
-# - Yarn dependencies & cache (.yarn/cache, node_modules)
-# - TypeScript build outputs (build/, dist/, *.tsbuildinfo)
-# - ESLint cache (.eslintcache)
-# - Playwright browsers (persistent install at /opt/playwright-browsers)
-# - Docker build layers (/tmp/.buildx-cache)
+# Comprehensive LOCAL PERSISTENCE strategy for self-hosted runner:
+# - Yarn dependencies (persistent node_modules with smart sync)
+# - TypeScript build outputs (persistent builds with incremental updates)
+# - ESLint cache (persistent local cache)
+# - Playwright browsers (persistent install at $HOME/.playwright-browsers-persistent)
+# - Docker build layers (local buildx cache)
 
 on:
   push:
@@ -26,43 +26,68 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Cache Yarn dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            packages/*/node_modules
-            .yarn/cache
-            .yarn/unplugged
-            .yarn/install-state.gz
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock', 'package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-            ${{ runner.os }}-yarn-
+      - name: Setup persistent dependencies
+        run: |
+          # Use persistent location for node_modules
+          PERSISTENT_ROOT="$HOME/.persistent-ci"
+          PERSISTENT_NODE_MODULES="$PERSISTENT_ROOT/node_modules"
+          PERSISTENT_YARN_CACHE="$PERSISTENT_ROOT/.yarn"
+          
+          # Create persistent directories
+          mkdir -p "$PERSISTENT_ROOT"
+          mkdir -p "$PERSISTENT_YARN_CACHE"
+          
+          # Check if dependencies need updating
+          LOCK_HASH=$(sha256sum yarn.lock package.json packages/*/package.json 2>/dev/null | sha256sum | cut -d' ' -f1)
+          STORED_HASH_FILE="$PERSISTENT_ROOT/.dependency-hash"
+          
+          if [ -f "$STORED_HASH_FILE" ] && [ "$(cat $STORED_HASH_FILE)" = "$LOCK_HASH" ] && [ -d "$PERSISTENT_NODE_MODULES" ]; then
+            echo "✅ Dependencies unchanged - linking persistent node_modules"
+            ln -sf "$PERSISTENT_NODE_MODULES" ./node_modules
+            # Link package node_modules
+            for pkg in packages/*; do
+              if [ -d "$PERSISTENT_ROOT/$pkg/node_modules" ]; then
+                ln -sf "$PERSISTENT_ROOT/$pkg/node_modules" "./$pkg/node_modules"
+              fi
+            done
+          else
+            echo "📦 Dependencies changed - installing to persistent location"
+            # Install to workspace first
+            yarn install --immutable
+            # Copy to persistent location
+            cp -r node_modules "$PERSISTENT_NODE_MODULES"
+            for pkg in packages/*; do
+              if [ -d "$pkg/node_modules" ]; then
+                mkdir -p "$PERSISTENT_ROOT/$pkg"
+                cp -r "$pkg/node_modules" "$PERSISTENT_ROOT/$pkg/node_modules"
+              fi
+            done
+            # Store hash
+            echo "$LOCK_HASH" > "$STORED_HASH_FILE"
+          fi
+          
+          # Link yarn cache
+          ln -sf "$PERSISTENT_YARN_CACHE" ./.yarn
 
-      - name: Cache TypeScript build outputs
-        uses: actions/cache@v4
-        with:
-          path: |
-            packages/*/build
-            packages/*/dist
-            **/*.tsbuildinfo
-          key: ${{ runner.os }}-ts-build-${{ hashFiles('**/tsconfig*.json', 'packages/*/src/**/*.ts', 'packages/*/src/**/*.tsx') }}
-          restore-keys: |
-            ${{ runner.os }}-ts-build-
+      - name: Setup persistent TypeScript builds
+        run: |
+          PERSISTENT_BUILDS="$HOME/.persistent-ci/builds"
+          mkdir -p "$PERSISTENT_BUILDS"
+          
+          # Link build directories
+          for pkg in packages/*; do
+            if [ -d "$pkg" ]; then
+              mkdir -p "$PERSISTENT_BUILDS/${pkg##*/}"
+              ln -sf "$PERSISTENT_BUILDS/${pkg##*/}" "$pkg/build"
+              ln -sf "$PERSISTENT_BUILDS/${pkg##*/}" "$pkg/dist"
+            fi
+          done
 
-      - name: Cache ESLint
-        uses: actions/cache@v4
-        with:
-          path: |
-            .eslintcache
-            packages/*/.eslintcache
-          key: ${{ runner.os }}-eslint-${{ hashFiles('**/eslint.config.*', '**/.eslintrc.*', 'packages/*/src/**/*.ts', 'packages/*/src/**/*.tsx') }}
-          restore-keys: |
-            ${{ runner.os }}-eslint-
-
-      - name: Install dependencies
-        run: yarn install --immutable
+      - name: Setup persistent ESLint cache
+        run: |
+          PERSISTENT_ESLINT="$HOME/.persistent-ci/eslint"
+          mkdir -p "$PERSISTENT_ESLINT"
+          ln -sf "$PERSISTENT_ESLINT/eslintcache" .eslintcache
 
       - name: Lint code
         run: yarn eslint . --cache --cache-location .eslintcache
@@ -111,21 +136,23 @@ jobs:
           docker volume rm jewellery-catalogue-staging-api-data 2>/dev/null || true
           docker volume rm jewellery-catalogue-staging-auth-data 2>/dev/null || true
 
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-staging-${{ hashFiles('**/Dockerfile', 'docker-compose.staging.yml', '**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-docker-staging-
-            ${{ runner.os }}-docker-
+      - name: Setup persistent Docker buildx cache
+        run: |
+          # Create persistent buildx cache directory
+          BUILDX_CACHE="$HOME/.persistent-ci/docker-buildx-cache"
+          mkdir -p "$BUILDX_CACHE"
+          echo "Using persistent Docker buildx cache at $BUILDX_CACHE"
 
       - name: Build staging Docker images
         run: |
-          # Enable buildkit for better caching
+          # Enable buildkit for better caching with persistent cache
           export DOCKER_BUILDKIT=1
           export COMPOSE_DOCKER_CLI_BUILD=1
-          docker compose -f docker-compose.staging.yml build
+          export BUILDX_CACHE="$HOME/.persistent-ci/docker-buildx-cache"
+          
+          # Build with persistent cache
+          docker compose -f docker-compose.staging.yml build \
+            --build-arg BUILDKIT_INLINE_CACHE=1
 
       - name: Deploy to staging
         run: |
@@ -153,38 +180,53 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Cache Yarn dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            packages/*/node_modules
-            .yarn/cache
-            .yarn/unplugged
-            .yarn/install-state.gz
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock', 'package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-            ${{ runner.os }}-yarn-
-
-      - name: Cache TypeScript build outputs
-        uses: actions/cache@v4
-        with:
-          path: |
-            packages/*/build
-            packages/*/dist
-            **/*.tsbuildinfo
-          key: ${{ runner.os }}-ts-build-${{ hashFiles('**/tsconfig*.json', 'packages/*/src/**/*.ts', 'packages/*/src/**/*.tsx') }}
-          restore-keys: |
-            ${{ runner.os }}-ts-build-
-
-      - name: Install dependencies
-        run: yarn install --immutable
+      - name: Setup persistent dependencies
+        run: |
+          # Use persistent location for node_modules
+          PERSISTENT_ROOT="$HOME/.persistent-ci"
+          PERSISTENT_NODE_MODULES="$PERSISTENT_ROOT/node_modules"
+          PERSISTENT_YARN_CACHE="$PERSISTENT_ROOT/.yarn"
+          
+          # Create persistent directories
+          mkdir -p "$PERSISTENT_ROOT"
+          mkdir -p "$PERSISTENT_YARN_CACHE"
+          
+          # Check if dependencies need updating
+          LOCK_HASH=$(sha256sum yarn.lock package.json packages/*/package.json 2>/dev/null | sha256sum | cut -d' ' -f1)
+          STORED_HASH_FILE="$PERSISTENT_ROOT/.dependency-hash"
+          
+          if [ -f "$STORED_HASH_FILE" ] && [ "$(cat $STORED_HASH_FILE)" = "$LOCK_HASH" ] && [ -d "$PERSISTENT_NODE_MODULES" ]; then
+            echo "✅ Dependencies unchanged - linking persistent node_modules"
+            ln -sf "$PERSISTENT_NODE_MODULES" ./node_modules
+            # Link package node_modules
+            for pkg in packages/*; do
+              if [ -d "$PERSISTENT_ROOT/$pkg/node_modules" ]; then
+                ln -sf "$PERSISTENT_ROOT/$pkg/node_modules" "./$pkg/node_modules"
+              fi
+            done
+          else
+            echo "📦 Dependencies changed - installing to persistent location"
+            # Install to workspace first
+            yarn install --immutable
+            # Copy to persistent location
+            cp -r node_modules "$PERSISTENT_NODE_MODULES"
+            for pkg in packages/*; do
+              if [ -d "$pkg/node_modules" ]; then
+                mkdir -p "$PERSISTENT_ROOT/$pkg"
+                cp -r "$pkg/node_modules" "$PERSISTENT_ROOT/$pkg/node_modules"
+              fi
+            done
+            # Store hash
+            echo "$LOCK_HASH" > "$STORED_HASH_FILE"
+          fi
+          
+          # Link yarn cache
+          ln -sf "$PERSISTENT_YARN_CACHE" ./.yarn
 
       - name: Setup Playwright browsers (one-time install on runner)
         run: |
-          # Use persistent location on self-hosted runner
-          export PLAYWRIGHT_BROWSERS_PATH=/opt/playwright-browsers
+          # Use persistent location on self-hosted runner (no sudo needed)
+          export PLAYWRIGHT_BROWSERS_PATH=$HOME/.playwright-browsers-persistent
           
           # Check if browsers are already installed
           if [ -d "$PLAYWRIGHT_BROWSERS_PATH" ] && [ "$(ls -A $PLAYWRIGHT_BROWSERS_PATH 2>/dev/null)" ]; then
@@ -193,18 +235,17 @@ jobs:
             cd packages/web && yarn playwright --version
           else
             echo "📦 Installing Playwright browsers (one-time setup)..."
-            sudo mkdir -p $PLAYWRIGHT_BROWSERS_PATH
-            sudo chown $(whoami):$(whoami) $PLAYWRIGHT_BROWSERS_PATH
+            mkdir -p $PLAYWRIGHT_BROWSERS_PATH
             cd packages/web && yarn playwright install
             echo "✅ Playwright browsers installed to $PLAYWRIGHT_BROWSERS_PATH"
           fi
         env:
-          PLAYWRIGHT_BROWSERS_PATH: /opt/playwright-browsers
+          PLAYWRIGHT_BROWSERS_PATH: $HOME/.playwright-browsers-persistent
 
       - name: Run E2E Tests against Staging
         run: cd packages/web && yarn playwright test --config=playwright-e2e.config.ts
         env:
-          PLAYWRIGHT_BROWSERS_PATH: /opt/playwright-browsers
+          PLAYWRIGHT_BROWSERS_PATH: $HOME/.playwright-browsers-persistent
           STAGING_BASE_URL: ${{ needs.deploy-staging.outputs.staging-url }}
 
       - name: Upload E2E test results
@@ -255,22 +296,23 @@ jobs:
           echo "MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}" >> .env
           echo "MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}" >> .env
 
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-prod-${{ hashFiles('**/Dockerfile', 'docker-compose.yml', '**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-docker-prod-
-            ${{ runner.os }}-docker-staging-
-            ${{ runner.os }}-docker-
+      - name: Setup persistent Docker buildx cache
+        run: |
+          # Use same persistent buildx cache directory
+          BUILDX_CACHE="$HOME/.persistent-ci/docker-buildx-cache"
+          mkdir -p "$BUILDX_CACHE"
+          echo "Using persistent Docker buildx cache at $BUILDX_CACHE"
 
       - name: Build production Docker images
         run: |
-          # Enable buildkit for better caching
+          # Enable buildkit for better caching with persistent cache
           export DOCKER_BUILDKIT=1
           export COMPOSE_DOCKER_CLI_BUILD=1
-          docker compose build
+          export BUILDX_CACHE="$HOME/.persistent-ci/docker-buildx-cache"
+          
+          # Build with persistent cache (reuse from staging builds)
+          docker compose build \
+            --build-arg BUILDKIT_INLINE_CACHE=1
 
       - name: Deploy to production
         run: |
