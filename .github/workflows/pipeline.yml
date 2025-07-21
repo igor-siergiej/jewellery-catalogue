@@ -242,6 +242,7 @@ jobs:
         env:
           PLAYWRIGHT_BROWSERS_PATH: $HOME/.playwright-browsers-persistent
 
+
       - name: Run E2E Tests against Staging
         run: cd packages/web && yarn playwright test --config=playwright-e2e.config.ts
         env:
