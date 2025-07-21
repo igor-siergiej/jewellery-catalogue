@@ -62,7 +62,7 @@ services:
     networks:
       - staging-internal
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      test: ["CMD", "nc", "-z", "localhost", "5001"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -87,7 +87,7 @@ services:
     networks:
       - staging-internal
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5002/health"]
+      test: ["CMD", "nc", "-z", "localhost", "5002"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -114,7 +114,7 @@ services:
       logging_job: "jewellery-catalogue-staging-web"
       logging_stack: "jewellery-catalogue-staging"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      test: ["CMD", "nc", "-z", "localhost", "80"]
       interval: 30s
       timeout: 10s
       retries: 3
