@@ -1,6 +1,5 @@
 import { useCallback, useRef } from 'react';
 
-import { origin } from '../api/makeRequest';
 import { useAuth } from '../context/AuthContext';
 
 export interface RefreshTokenResponse {
@@ -28,7 +27,7 @@ export const useTokenRefresh = () => {
 
     const performTokenRefresh = useCallback(async (): Promise<string> => {
         try {
-            const response = await fetch(`${origin}/refresh`, {
+            const response = await fetch(`${import.meta.env.VITE_AUTH_URL}/refresh`, {
                 method: 'POST',
                 credentials: 'include', // Include cookies
             });
