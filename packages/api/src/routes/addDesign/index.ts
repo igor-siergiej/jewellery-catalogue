@@ -1,9 +1,10 @@
+import { Catalogue, Design, PersistentFile, UploadDesign } from '@jewellery-catalogue/types';
 import { Context } from 'koa';
 import { ObjectId } from 'mongodb';
+
+import { CollectionName } from '../../database/types';
 import { DependencyContainer } from '../../lib/dependencyContainer';
 import { DependencyToken } from '../../lib/dependencyContainer/types';
-import { Catalogue, Design, PersistentFile, UploadDesign } from '@jewellery-catalogue/types';
-import { CollectionName } from '../../database/types';
 
 export const addDesign = async (ctx: Context) => {
     const { catalogueId } = ctx.params;

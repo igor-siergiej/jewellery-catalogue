@@ -1,9 +1,10 @@
-import { Client } from 'minio';
-import { IBucket } from './types';
 import { PersistentFile } from '@jewellery-catalogue/types';
 import fs from 'fs';
+import { Client } from 'minio';
+
 import { DependencyContainer } from '../lib/dependencyContainer';
 import { DependencyToken, ILogger } from '../lib/dependencyContainer/types';
+import { IBucket } from './types';
 
 export class Bucket implements IBucket {
     private client: Client;

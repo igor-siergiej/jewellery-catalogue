@@ -1,15 +1,16 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { LoginParams } from './types';
-import { Box, TextField, IconButton, InputAdornment, FormControl, InputLabel, OutlinedInput, FormHelperText } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LoadingButton from '@mui/lab/LoadingButton';
+import { Box, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+
+import { HOME_PAGE } from '../../constants/routes';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { HOME_PAGE } from '../../constants/routes';
+import { LoginParams } from './types';
 
 export const LoginForm: React.FC = () => {
     const {

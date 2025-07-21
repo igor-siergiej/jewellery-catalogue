@@ -1,8 +1,8 @@
 import { Bucket } from './bucket';
 import { Database } from './database';
-import { Logger } from './logger';
 import { DependencyContainer } from './lib/dependencyContainer';
 import { DependencyToken } from './lib/dependencyContainer/types';
+import { Logger } from './logger';
 
 export const registerDepdendencies = () => {
     const dependencyContainer = DependencyContainer.getInstance();

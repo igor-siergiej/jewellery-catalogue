@@ -1,23 +1,24 @@
+import { RequiredMaterial } from '@jewellery-catalogue/types';
+import AddIcon from '@mui/icons-material/Add';
+import CancelIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/DeleteOutlined';
-import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Close';
-import AddIcon from '@mui/icons-material/Add';
 import {
-    GridRowsProp,
-    GridRowModesModel,
-    GridRowModes,
     DataGrid,
-    GridColDef,
     GridActionsCellItem,
+    GridColDef,
     GridEventListener,
-    GridRowId,
     GridRowEditStopReasons,
+    GridRowId,
+    GridRowModes,
+    GridRowModesModel,
+    GridRowsProp,
 } from '@mui/x-data-grid';
 import { useState } from 'react';
-import { RequiredMaterial } from '@jewellery-catalogue/types';
+
 import { AddMaterialsTableProps, TableMaterial } from './types';
 import { getRequiredMaterial } from './util';
 

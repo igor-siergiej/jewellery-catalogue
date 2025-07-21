@@ -1,23 +1,24 @@
-import Typography from '@mui/material/Typography';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import TextField from '@mui/material/TextField';
-import { useQuery } from '@tanstack/react-query';
-import TimeInput from '../../components/TimeInput';
-import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
-import makeAddDesignRequest from '../../api/endpoints/addDesign';
 import { FormDesign } from '@jewellery-catalogue/types';
-import { getTotalMaterialCosts } from '../../utils/getPriceOfMaterials';
+import LoadingButton from '@mui/lab/LoadingButton';
 import { Box, Card, Divider, Grid, InputAdornment } from '@mui/material';
-import ImageUpload from '../../components/ImageUpload';
-import { AddMaterialsTable } from '../../components/AddMaterialsTable';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import { useQuery } from '@tanstack/react-query';
 // import TextEditor from '../../components/Editor';
 import { useEffect, useState } from 'react';
-import { getWageCosts } from '../../utils/getWageCost';
-import LoadingButton from '@mui/lab/LoadingButton';
+import { SubmitHandler, useForm } from 'react-hook-form';
+
+import makeAddDesignRequest from '../../api/endpoints/addDesign';
+import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
+import { AddMaterialsTable } from '../../components/AddMaterialsTable';
+import ImageUpload from '../../components/ImageUpload';
+import TimeInput from '../../components/TimeInput';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
 import { useAuth } from '../../context/AuthContext';
 import { useUser } from '../../context/UserContext';
+import { getTotalMaterialCosts } from '../../utils/getPriceOfMaterials';
+import { getWageCosts } from '../../utils/getWageCost';
 
 const PROFIT_COEFFICIENT = 1.15;
 const HOURLY_WAGE = 10;
@@ -86,7 +87,7 @@ const AddDesign: React.FC = () => {
             const totalCosts = materialsCost + timeSpentCost;
             setValue('price', parseFloat((totalCosts * PROFIT_COEFFICIENT).toFixed(2)));
         }
-    }, [selectedMaterials]);
+    }, [selectedMaterials, currentTimeRequired, data, setValue]);
 
     if (!data) {
         return null;

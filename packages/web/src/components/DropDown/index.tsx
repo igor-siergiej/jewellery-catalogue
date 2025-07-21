@@ -1,11 +1,11 @@
+import { BeadKeysEnum, ChainKeysEnum, EarHookKeysEnum, WireKeysEnum } from '@jewellery-catalogue/types';
+import Box from '@mui/material/Box';
+import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { Controller } from 'react-hook-form';
-import MenuItem from '@mui/material/MenuItem';
 import { type Control } from 'react-hook-form';
-import { WireKeysEnum, BeadKeysEnum, ChainKeysEnum, EarHookKeysEnum } from '@jewellery-catalogue/types';
-import FormControl from '@mui/material/FormControl';
-import Box from '@mui/material/Box';
 
 export interface IProps {
     options: Array<string>;

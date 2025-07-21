@@ -1,9 +1,10 @@
 import { Design } from '@jewellery-catalogue/types';
-import useStyles from './index.styles';
-import { Button, Card, CardActions, Divider, Grid, IconButton, Typography } from '@mui/material';
-import FavoriteIcon from '@mui/icons-material/Favorite';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import { Button, Card, CardActions, Divider, Grid, IconButton, Typography } from '@mui/material';
+
 import { Image } from '../Image';
+import useStyles from './index.styles';
 
 export interface DesignCardProps {
     design: Design;

@@ -1,35 +1,36 @@
-import ReactDOM from 'react-dom/client';
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import 'react-quill/dist/quill.snow.css';
+
 import { ThemeProvider } from '@mui/material/styles';
-import theme from './style/theme';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import Start from './pages/Start';
-import Register from './pages/Register';
-import Home from './pages/Home';
-import {
-    HOME_PAGE,
-    START_PAGE,
-    REGISTER_PAGE,
-    DESIGNS_PAGE,
-    ADD_DESIGN_PAGE,
-    MATERIALS_PAGE,
-    ADD_MATERIAL_PAGE,
-} from './constants/routes';
-import Designs from './pages/Designs';
+
+import { GlobalAlert } from './components/Alert';
+import AppInitializer from './components/AppInitializer';
 import MainLayout from './components/MainLayout';
+import ProtectedRoute from './components/ProtectedRoute';
+import {
+    ADD_DESIGN_PAGE,
+    ADD_MATERIAL_PAGE,
+    DESIGNS_PAGE,
+    HOME_PAGE,
+    MATERIALS_PAGE,
+    REGISTER_PAGE,
+    START_PAGE,
+} from './constants/routes';
 import { AlertProvider } from './context/Alert';
 import { AuthProvider } from './context/AuthContext';
 import { UserProvider } from './context/UserContext';
-import ProtectedRoute from './components/ProtectedRoute';
 import AddDesign from './pages/AddDesign';
-import Materials from './pages/Materials';
 import AddMaterial from './pages/AddMaterial';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import AppInitializer from './components/AppInitializer';
-
-import 'react-quill/dist/quill.snow.css';
-import { GlobalAlert } from './components/Alert';
+import Designs from './pages/Designs';
+import Home from './pages/Home';
+import Materials from './pages/Materials';
+import Register from './pages/Register';
+import Start from './pages/Start';
+import theme from './style/theme';
 
 const queryClient = new QueryClient({
     defaultOptions: {

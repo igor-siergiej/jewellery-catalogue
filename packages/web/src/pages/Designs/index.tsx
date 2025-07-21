@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import LoadingScreen from '../../components/Loading';
+
 import { getDesignsQuery } from '../../api/endpoints/getDesigns';
 import { DesignCard } from '../../components/DesignCard';
-import { EmptyStateContainer, EmptyStateTitle, EmptyStateSubtitle } from './index.styles';
+import LoadingScreen from '../../components/Loading';
 import { useAuth } from '../../context/AuthContext';
 import { useUser } from '../../context/UserContext';
+import { EmptyStateContainer, EmptyStateSubtitle, EmptyStateTitle } from './index.styles';
 
 const Designs = () => {
     const { accessToken, login, logout } = useAuth();

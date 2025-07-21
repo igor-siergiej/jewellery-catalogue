@@ -1,7 +1,8 @@
-import { IMaterialFormProps } from '../types';
-import DropDown from '../../../DropDown';
-import TextField from '@mui/material/TextField';
 import { METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
+import TextField from '@mui/material/TextField';
+
+import DropDown from '../../../DropDown';
+import { IMaterialFormProps } from '../types';
 
 const AddWireForm: React.FC<IMaterialFormProps> = ({ register, control }) => {
     return (
@@ -23,28 +24,28 @@ const AddWireForm: React.FC<IMaterialFormProps> = ({ register, control }) => {
                 color="secondary"
                 label="Diameter (Millimeters)"
                 type="number"
-                inputProps={{ step: "0.1" }}
+                inputProps={{ step: '0.1' }}
                 {...register('diameter', {
                     required: {
                         value: true,
                         message: 'Please enter the diameter.',
                     },
                     validate: value => value > 0,
-                    setValueAs: (value) => value === '' ? undefined : Number(value),
+                    setValueAs: value => value === '' ? undefined : Number(value),
                 })}
             />
             <TextField
                 color="secondary"
                 label="Length per pack (Meters)"
                 type="number"
-                inputProps={{ step: "0.01" }}
+                inputProps={{ step: '0.01' }}
                 {...register('length', {
                     required: {
                         value: true,
                         message: 'Please enter the wire length.',
                     },
                     validate: value => value > 0,
-                    setValueAs: (value) => value === '' ? undefined : Number(value),
+                    setValueAs: value => value === '' ? undefined : Number(value),
                 })}
             />
         </>

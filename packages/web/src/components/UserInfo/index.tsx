@@ -1,5 +1,6 @@
-import { Typography, Box, Chip, IconButton } from '@mui/material';
 import { Logout } from '@mui/icons-material';
+import { Box, Chip, IconButton, Typography } from '@mui/material';
+
 import { useAuth } from '../../context/AuthContext';
 import { useUser } from '../../context/UserContext';
 

@@ -1,7 +1,7 @@
-import { DependencyContainer } from './lib/dependencyContainer';
-import { Database } from './lib/database';
-import { DependencyToken } from './lib/dependencyContainer/types';
 import { ConfigService } from './lib/config';
+import { Database } from './lib/database';
+import { DependencyContainer } from './lib/dependencyContainer';
+import { DependencyToken } from './lib/dependencyContainer/types';
 
 export const registerDepdendencies = () => {
     const dependencyContainer = DependencyContainer.getInstance();

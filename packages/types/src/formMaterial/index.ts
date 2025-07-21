@@ -1,6 +1,6 @@
 import { BaseMaterial } from '../baseMaterial';
 import { MaterialType, METAL_TYPE, WIRE_TYPE } from '../material';
-import { FormBeadKeysEnum, FormWireKeysEnum, FormChainKeysEnum } from './enum';
+import { FormBeadKeysEnum, FormChainKeysEnum, FormWireKeysEnum } from './enum';
 
 export type FormMaterial = FormBead | FormWire | FormChain;
 

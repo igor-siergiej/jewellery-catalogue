@@ -1,10 +1,10 @@
-import { UseFormSetValue } from 'react-hook-form';
 import { FormDesign } from '@jewellery-catalogue/types';
-import { useState, useRef } from 'react';
-import Box from '@mui/material/Box';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
-import { Button, Grid } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
+import { Button, Grid } from '@mui/material';
+import Box from '@mui/material/Box';
+import { useRef, useState } from 'react';
+import { UseFormSetValue } from 'react-hook-form';
 
 interface ImageUploadProps {
     setImage: UseFormSetValue<FormDesign>;
@@ -91,27 +91,27 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ setImage }) => {
             />
             {preview
                 ? (
-                    <img
-                        src={preview}
-                        alt="Preview"
-                        style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                        }}
-                    />
-                )
+                        <img
+                            src={preview}
+                            alt="Preview"
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                            }}
+                        />
+                    )
                 : (
-                    <Grid container direction="column" display="flex" justifyContent="center" alignItems="center" sx={{ width: '100%' }}>
-                        <AddPhotoAlternateIcon sx={{ width: 32, height: 32, color: '#666' }} />
-                        <span style={{ color: '#666', textAlign: 'center' }}>
-                            Drag & Drop or Click to Upload
-                        </span>
-                    </Grid>
-                )}
+                        <Grid container direction="column" display="flex" justifyContent="center" alignItems="center" sx={{ width: '100%' }}>
+                            <AddPhotoAlternateIcon sx={{ width: 32, height: 32, color: '#666' }} />
+                            <span style={{ color: '#666', textAlign: 'center' }}>
+                                Drag & Drop or Click to Upload
+                            </span>
+                        </Grid>
+                    )}
 
             {preview && (
                 <Button

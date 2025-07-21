@@ -1,8 +1,10 @@
-import { MongoClient, Db, Collection, BSON } from 'mongodb';
 import 'dotenv/config';
-import { CollectionName, IDatabase } from './types';
+
+import { BSON, Collection, Db, MongoClient } from 'mongodb';
+
 import { DependencyContainer } from '../lib/dependencyContainer';
 import { DependencyToken, ILogger } from '../lib/dependencyContainer/types';
+import { CollectionName, IDatabase } from './types';
 
 export class Database implements IDatabase {
     private client: MongoClient;

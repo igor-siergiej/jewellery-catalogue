@@ -1,17 +1,18 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { RegisterParams } from './types';
-import { Box, TextField, IconButton, InputAdornment, FormControl, InputLabel, OutlinedInput, FormHelperText } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { useAlert } from '../../context/Alert';
-import { AlertStoreActions } from '../../context/Alert/types';
+import { Box, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
+import React from 'react';
+import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { extractUserFromToken } from '../../utils/jwtUtils';
+
 import { addCatalogue } from '../../api/endpoints/addCatalogue';
 import { HOME_PAGE } from '../../constants/routes';
+import { useAlert } from '../../context/Alert';
+import { AlertStoreActions } from '../../context/Alert/types';
+import { useAuth } from '../../context/AuthContext';
+import { extractUserFromToken } from '../../utils/jwtUtils';
+import { RegisterParams } from './types';
 
 export const RegisterForm: React.FC = () => {
     const {

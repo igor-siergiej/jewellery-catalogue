@@ -1,8 +1,9 @@
-import { Context } from 'koa';
 import jwt from 'jsonwebtoken';
+import { Context } from 'koa';
+
+import { IConfig } from '../../lib/config/types';
 import { DependencyContainer } from '../../lib/dependencyContainer';
 import { DependencyToken } from '../../lib/dependencyContainer/types';
-import { IConfig } from '../../lib/config/types';
 
 export const verify = async (ctx: Context) => {
     const config = DependencyContainer.getInstance().resolve(DependencyToken.Config) as IConfig;
@@ -23,10 +24,11 @@ export const verify = async (ctx: Context) => {
             ctx.body = { success: false, message: 'Invalid or expired token' };
             return;
         }
-        
+
         ctx.body = { success: true, payload };
     } catch (error) {
+        console.error('Error verifying token', error);
         ctx.status = 401;
         ctx.body = { success: false, message: 'Invalid or expired token' };
     }
-}; 
+};

@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
+
 import { extractUserFromToken } from '../utils/jwtUtils';
 
 export interface UserInfo {

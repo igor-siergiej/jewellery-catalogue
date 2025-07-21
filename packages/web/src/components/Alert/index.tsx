@@ -1,4 +1,5 @@
 import { Alert, AlertTitle, Box, Collapse } from '@mui/material';
+
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
 

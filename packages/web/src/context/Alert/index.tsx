@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { ReactNode, createContext, useContext, useReducer, useRef } from 'react';
+import { createContext, ReactNode, useContext, useReducer, useRef } from 'react';
+
 import { AlertState, AlertStoreAction, AlertStoreActions } from './types';
 
 const DEFAULT_DURATION = 10_000;

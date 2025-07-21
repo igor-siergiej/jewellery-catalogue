@@ -1,9 +1,10 @@
+import { Catalogue, FormMaterial, FormMaterialKeysMap, Material, MaterialType } from '@jewellery-catalogue/types';
 import { Context } from 'koa';
+import { ObjectId } from 'mongodb';
+
+import { CollectionName } from '../../database/types';
 import { DependencyContainer } from '../../lib/dependencyContainer';
 import { DependencyToken } from '../../lib/dependencyContainer/types';
-import { CollectionName } from '../../database/types';
-import { ObjectId } from 'mongodb';
-import { Catalogue, FormMaterial, FormMaterialKeysMap, Material, MaterialType } from '@jewellery-catalogue/types';
 import { convertFormDataToMaterial } from './util';
 
 export const addMaterial = async (ctx: Context) => {

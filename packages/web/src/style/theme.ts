@@ -1,9 +1,7 @@
 import { createTheme } from '@mui/material';
 
 declare module '@mui/material/styles' {
-    interface Components {
-        [key: string]: any;
-    }
+    type Components = Record<string, unknown>;
 }
 
 const theme = createTheme({
@@ -21,11 +19,6 @@ const theme = createTheme({
     },
     typography: {
         fontFamily: 'Faculty Glyphic, sans-serif',
-    },
-    components: {
-        MUIDataTableToolbarSelect: {
-            styleOverrides: { root: { backgroundColor: '#d078ff' } },
-        },
     },
 });
 

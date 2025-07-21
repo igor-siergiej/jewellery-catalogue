@@ -1,8 +1,9 @@
-import { MongoClient, Db, Collection } from 'mongodb';
-import { CollectionName, IDatabase } from './types';
+import { Collection, Db, MongoClient } from 'mongodb';
+
+import { IConfig } from '../config/types';
 import { DependencyContainer } from '../dependencyContainer';
 import { DependencyToken } from '../dependencyContainer/types';
-import { IConfig } from '../config/types';
+import { CollectionName, IDatabase } from './types';
 
 export class Database implements IDatabase {
     private client: MongoClient;

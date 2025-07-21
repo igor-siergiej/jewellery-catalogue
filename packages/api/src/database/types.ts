@@ -1,4 +1,4 @@
-import { Collection, BSON } from 'mongodb/mongodb';
+import { BSON, Collection } from 'mongodb/mongodb';
 
 export enum CollectionName {
     Catalogues = 'catalogues'

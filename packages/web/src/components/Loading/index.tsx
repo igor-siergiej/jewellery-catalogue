@@ -31,8 +31,8 @@ const GradientCircularProgress = () => (
         </svg>
         <CircularProgress
             sx={{
-                width: '20% !important',
-                height: '0% !important',
+                'width': '20% !important',
+                'height': '0% !important',
                 'svg circle': { stroke: 'url(#my_gradient)' },
             }}
         />

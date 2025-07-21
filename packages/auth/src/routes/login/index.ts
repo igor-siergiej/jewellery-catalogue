@@ -1,12 +1,13 @@
-import { Context } from 'koa';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
+import { Context } from 'koa';
+import { ObjectId } from 'mongodb';
+
+import { IConfig } from '../../lib/config/types';
+import { CollectionName, Session, User } from '../../lib/database/types';
 import { DependencyContainer } from '../../lib/dependencyContainer';
 import { DependencyToken } from '../../lib/dependencyContainer/types';
-import { CollectionName } from '../../lib/database/types';
-import { ObjectId } from 'mongodb';
-import crypto from 'crypto';
-import { IConfig } from '../../lib/config/types';
 
 interface IUser {
     _id?: ObjectId;
@@ -26,7 +27,7 @@ export const login = async (ctx: Context) => {
     }
 
     const database = DependencyContainer.getInstance().resolve(DependencyToken.Database)!;
-    const usersCollection = database.getCollection<any>(CollectionName.Users);
+    const usersCollection = database.getCollection<User>(CollectionName.Users);
 
     const user = (await usersCollection.findOne({ username })) as IUser | null;
 
@@ -54,9 +55,9 @@ export const login = async (ctx: Context) => {
     ctx.set('Pragma', 'no-cache');
 
     // Save session (hashed refresh token)
-    const sessionsCollection = database.getCollection<any>(CollectionName.Sessions);
+    const sessionsCollection = database.getCollection<Session>(CollectionName.Sessions);
     const tokenHash = hashToken(refreshToken);
-    await sessionsCollection.insertOne({ username, tokenHash, createdAt: new Date() });
+    await sessionsCollection.insertOne({ _id: new ObjectId(), username, tokenHash, createdAt: new Date() });
 
     // Store refresh token in secure, httpOnly cookie (30 days)
     ctx.cookies.set('refreshToken', refreshToken, {

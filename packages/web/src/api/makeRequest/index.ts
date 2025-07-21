@@ -1,4 +1,5 @@
 import { MakeRequestProps } from '@jewellery-catalogue/types';
+
 import { withTokenRefresh } from '../../utils/tokenUtils';
 
 export const origin = import.meta.env.VITE_API_URL;

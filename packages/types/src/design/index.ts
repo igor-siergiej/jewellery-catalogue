@@ -1,5 +1,5 @@
-import { RequiredMaterial } from "../requiredMaterial";
-import { PersistentFile } from "../util";
+import { RequiredMaterial } from '../requiredMaterial';
+import { PersistentFile } from '../util';
 
 export interface FormDesign {
     materials: Array<RequiredMaterial>;
@@ -31,4 +31,3 @@ export interface Design {
     totalMaterialCosts: number;
     price: number;
 }
-

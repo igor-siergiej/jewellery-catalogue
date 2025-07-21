@@ -1,9 +1,10 @@
 import Router from 'koa-router';
+
 import { login } from './login';
+import { logout } from './logout';
+import { refresh } from './refresh';
 import { register } from './register';
 import { verify } from './verify';
-import { refresh } from './refresh';
-import { logout } from './logout';
 
 const router = new Router();
 

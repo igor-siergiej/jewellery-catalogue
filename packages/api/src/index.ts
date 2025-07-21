@@ -1,12 +1,14 @@
+import 'dotenv/config';
+
+import cors from '@koa/cors';
+import Koa, { Context, Next } from 'koa';
+import koaBody from 'koa-body';
+
 import { registerDepdendencies } from './dependencies';
 import { DependencyContainer } from './lib/dependencyContainer';
 import { DependencyToken } from './lib/dependencyContainer/types';
-import 'dotenv/config';
-import Koa, { Context, Next } from 'koa';
 import routes from './routes';
-import cors from '@koa/cors';
 import { HttpErrorCode } from './types';
-import koaBody from 'koa-body';
 
 const port = process.env.API_PORT;
 

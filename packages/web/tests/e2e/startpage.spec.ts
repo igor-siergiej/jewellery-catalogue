@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('E2E: Jewellery Catalogue Start Page', () => {
     test('should load the start page and verify application is running end-to-end', async ({ page }) => {

@@ -1,4 +1,4 @@
-import { Bead, FormBead, FormMaterial, FormWire, FormChain, MaterialType, Wire, Chain } from '@jewellery-catalogue/types';
+import { Bead, Chain, FormBead, FormChain, FormMaterial, FormWire, MaterialType, Wire } from '@jewellery-catalogue/types';
 
 export const convertFormDataToMaterial = (formMaterial: FormMaterial) => {
     switch (formMaterial.type) {

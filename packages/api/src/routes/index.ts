@@ -1,11 +1,12 @@
 import Router from 'koa-router';
-import { getCatalogue } from './getCatalogue';
+
 import { addCatalogue } from './addCatalogue';
-import { addMaterial } from './addMaterial';
-import { getMaterials } from './getMaterials';
-import { getDesigns } from './getDesigns';
 import { addDesign } from './addDesign';
+import { addMaterial } from './addMaterial';
+import { getCatalogue } from './getCatalogue';
+import { getDesigns } from './getDesigns';
 import { getImage } from './getImage';
+import { getMaterials } from './getMaterials';
 
 const router = new Router();
 

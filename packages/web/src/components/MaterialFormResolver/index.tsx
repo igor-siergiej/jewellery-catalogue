@@ -1,12 +1,13 @@
+import { MaterialType } from '@jewellery-catalogue/types';
+
+import AddBeadForm from './Forms/Bead';
+import AddChainForm from './Forms/Chain';
+import AddEarHookForm from './Forms/EarHook';
+import AddWireForm from './Forms/Wire';
 import {
     IMaterialFormResolverProps,
     IMaterialTypeToFormMapping,
 } from './types';
-import AddWireForm from './Forms/Wire';
-import AddBeadForm from './Forms/Bead';
-import { MaterialType } from '@jewellery-catalogue/types';
-import AddEarHookForm from './Forms/EarHook';
-import AddChainForm from './Forms/Chain';
 
 const MATERIAL_TYPE_TO_FORM_MAPPING: IMaterialTypeToFormMapping = {
     [MaterialType.WIRE]: AddWireForm,

@@ -1,9 +1,10 @@
-import { Context } from 'koa';
 import crypto from 'crypto';
+import { Context } from 'koa';
+
+import { IConfig } from '../../lib/config/types';
+import { CollectionName, Session } from '../../lib/database/types';
 import { DependencyContainer } from '../../lib/dependencyContainer';
 import { DependencyToken } from '../../lib/dependencyContainer/types';
-import { CollectionName } from '../../lib/database/types';
-import { IConfig } from '../../lib/config/types';
 
 const hashToken = (token: string) => crypto.createHash('sha256').update(token).digest('hex');
 
@@ -18,7 +19,7 @@ export const logout = async (ctx: Context) => {
     const container = DependencyContainer.getInstance();
     const database = container.resolve(DependencyToken.Database)!;
     const { secure, sameSite } = container.resolve(DependencyToken.Config) as IConfig;
-    const sessionsCollection = database.getCollection<any>(CollectionName.Sessions);
+    const sessionsCollection = database.getCollection<Session>(CollectionName.Sessions);
 
     const tokenHash = hashToken(refreshToken);
 
@@ -33,4 +34,4 @@ export const logout = async (ctx: Context) => {
     });
 
     ctx.body = { success: true };
-}; 
+};

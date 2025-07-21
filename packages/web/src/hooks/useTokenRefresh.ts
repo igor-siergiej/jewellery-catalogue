@@ -1,6 +1,7 @@
 import { useCallback, useRef } from 'react';
-import { useAuth } from '../context/AuthContext';
+
 import { origin } from '../api/makeRequest';
+import { useAuth } from '../context/AuthContext';
 
 export interface RefreshTokenResponse {
     accessToken: string;

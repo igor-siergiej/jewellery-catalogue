@@ -1,15 +1,18 @@
-import { registerDepdendencies } from './dependencies';
 import 'dotenv/config';
+
 import Koa, { Context, Request } from 'koa';
-import KoaLogger from 'koa-logger';
-import routes from './routes';
-import koaCors, { Options } from 'koa-cors';
-import { HttpErrorCode } from './types';
 import koaBody from 'koa-body';
+import koaCors, { Options } from 'koa-cors';
+import helmet from 'koa-helmet';
+import KoaLogger from 'koa-logger';
+import ratelimit from 'koa-ratelimit';
+
+import { registerDepdendencies } from './dependencies';
+import { CollectionName, Session } from './lib/database/types';
 import { DependencyContainer } from './lib/dependencyContainer';
 import { DependencyToken } from './lib/dependencyContainer/types';
-import helmet from 'koa-helmet';
-import ratelimit from 'koa-ratelimit';
+import routes from './routes';
+import { HttpErrorCode } from './types';
 
 const allowedOrigins = ['http://localhost:3000', 'https://jewellerycatalogue.imapps.co.uk'];
 
@@ -97,8 +100,10 @@ export const onStartup = async () => {
 
         await database.connect();
 
-        const sessions = database.getCollection<any>('sessions' as any);
-        sessions.createIndex({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 30 }).catch(() => {});
+        const sessions = database.getCollection<Session>(CollectionName.Sessions);
+        sessions.createIndex({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 30 }).catch((error) => {
+            console.error('Error creating session index', error);
+        });
 
         app.use(routes.routes());
 

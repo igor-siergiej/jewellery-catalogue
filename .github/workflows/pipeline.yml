@@ -9,7 +9,46 @@ on:
       - main
 
 jobs:
+  test:
+    runs-on: [self-hosted, linux, x64]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Lint code
+        run: yarn eslint .
+
+      - name: Type check
+        run: yarn tsc --noEmit --composite false
+
+      - name: Build API package
+        run: yarn workspace @jewellery-catalogue/api build
+
+      - name: Build Auth package
+        run: yarn workspace @jewellery-catalogue/auth build
+
+      - name: Build Web package
+        run: yarn workspace @jewellery-catalogue/web build
+
   deploy-staging:
+    needs: test
     runs-on: [self-hosted, linux, x64]
     if: github.ref == 'refs/heads/main'
     outputs:

@@ -1,5 +1,5 @@
 import { Bead, Material, MaterialType, Wire } from '@jewellery-catalogue/types';
-import { RequiredBead, RequiredWire, RequiredMaterial } from '@jewellery-catalogue/types/src/requiredMaterial';
+import { RequiredBead, RequiredMaterial, RequiredWire } from '@jewellery-catalogue/types/src/requiredMaterial';
 
 const BeadPriceCalculator = (requiredBead: RequiredBead, bead: Bead) => {
     const { requiredQuantity } = requiredBead;

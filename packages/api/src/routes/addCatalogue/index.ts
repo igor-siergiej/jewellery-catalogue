@@ -1,9 +1,10 @@
+import { Catalogue } from '@jewellery-catalogue/types';
 import { Context } from 'koa';
+import { ObjectId } from 'mongodb';
+
+import { CollectionName } from '../../database/types';
 import { DependencyContainer } from '../../lib/dependencyContainer';
 import { DependencyToken } from '../../lib/dependencyContainer/types';
-import { CollectionName } from '../../database/types';
-import { ObjectId } from 'mongodb';
-import { Catalogue } from '@jewellery-catalogue/types';
 
 export const addCatalogue = async (ctx: Context) => {
     const { id } = ctx.request.body as { id: string };

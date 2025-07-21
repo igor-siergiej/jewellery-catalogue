@@ -1,26 +1,18 @@
-import { Context } from 'koa';
 import bcrypt from 'bcrypt';
-import jwt, { SignOptions } from 'jsonwebtoken';
 import crypto from 'crypto';
+import jwt, { SignOptions } from 'jsonwebtoken';
+import { Context } from 'koa';
+import { ObjectId } from 'mongodb';
+
+import { IConfig } from '../../lib/config/types';
+import { CollectionName, Session, User } from '../../lib/database/types';
 import { DependencyContainer } from '../../lib/dependencyContainer';
 import { DependencyToken } from '../../lib/dependencyContainer/types';
-import { CollectionName } from '../../lib/database/types';
-import { IConfig } from '../../lib/config/types';
-
-interface IUser {
-    username: string;
-    passwordHash: string;
-}
 
 const hashToken = (token: string) => crypto.createHash('sha256').update(token).digest('hex');
 
 export const register = async (ctx: Context) => {
     const { username, password } = ctx.request.body as { username?: string; password?: string };
-
-    console.log(ctx.headers);
-    console.log(ctx.protocol);
-    console.log(ctx.secure);
-    console.log(ctx.request.headers);
 
     if (!username || !password) {
         ctx.status = 400;
@@ -40,7 +32,7 @@ export const register = async (ctx: Context) => {
     const database = container.resolve(DependencyToken.Database)!;
     const { jwtSecret, accessTokenExpiry, refreshTokenExpiry, secure, sameSite } = container.resolve(DependencyToken.Config) as IConfig;
 
-    const usersCollection = database.getCollection<any>(CollectionName.Users);
+    const usersCollection = database.getCollection<User>(CollectionName.Users);
 
     const existing = await usersCollection.findOne({ username });
     if (existing) {
@@ -51,7 +43,7 @@ export const register = async (ctx: Context) => {
 
     const saltRounds = 14;
     const passwordHash = await bcrypt.hash(password, saltRounds);
-    const result = await usersCollection.insertOne({ username, passwordHash } as IUser);
+    const result = await usersCollection.insertOne({ _id: new ObjectId(), username, passwordHash });
 
     // generate tokens
     const tokenPayload = { sub: username, username, id: result.insertedId, aud: 'auth-service' };
@@ -63,9 +55,9 @@ export const register = async (ctx: Context) => {
     ctx.set('Pragma', 'no-cache');
 
     // Save session with hashed refresh token
-    const sessionsCollection = database.getCollection<any>(CollectionName.Sessions);
+    const sessionsCollection = database.getCollection<Session>(CollectionName.Sessions);
     const tokenHash = hashToken(refreshToken);
-    await sessionsCollection.insertOne({ username, tokenHash, createdAt: new Date() });
+    await sessionsCollection.insertOne({ _id: new ObjectId(), username, tokenHash, createdAt: new Date() });
 
     // Set cookie
     ctx.cookies.set('refreshToken', refreshToken, {
@@ -78,4 +70,4 @@ export const register = async (ctx: Context) => {
     ctx.body = {
         accessToken
     };
-}; 
+};

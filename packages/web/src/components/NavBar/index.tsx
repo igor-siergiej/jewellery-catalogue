@@ -11,6 +11,7 @@ import {
     Typography,
 } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
+
 import { HOME_PAGE, ROUTES } from '../../constants/routes';
 import IMAGES from '../../img';
 

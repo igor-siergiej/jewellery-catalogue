@@ -1,5 +1,5 @@
-import { IDatabase } from '../database/types';
 import { IConfig } from '../config/types';
+import { IDatabase } from '../database/types';
 
 export type ConstructorOfType<T> = new (...args: Array<unknown>) => T;
 
@@ -16,4 +16,3 @@ export interface IInstances {
 export type IDependencies = {
     [key in keyof IInstances]?: ConstructorOfType<IInstances[key]>
 };
-

@@ -1,6 +1,7 @@
 import { FormMaterial, Material, MethodType } from '@jewellery-catalogue/types';
-import { makeRequestWithAutoRefresh } from '../../makeRequest';
+
 import { MATERIALS_ENDPOINT } from '../../endpoints';
+import { makeRequestWithAutoRefresh } from '../../makeRequest';
 
 const makeAddMaterialRequest = async (
     catalogueId: string,

@@ -1,7 +1,8 @@
-import { IMaterialFormProps } from '../types';
-import DropDown from '../../../DropDown';
-import TextField from '@mui/material/TextField';
 import { METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
+import TextField from '@mui/material/TextField';
+
+import DropDown from '../../../DropDown';
+import { IMaterialFormProps } from '../types';
 
 const AddEarHookForm: React.FC<IMaterialFormProps> = ({ register, control }) => {
     return (
@@ -24,14 +25,14 @@ const AddEarHookForm: React.FC<IMaterialFormProps> = ({ register, control }) => 
                 color="secondary"
                 label="Quantity"
                 type="number"
-                inputProps={{ step: "1" }}
+                inputProps={{ step: '1' }}
                 {...register('quantity', {
                     required: {
                         value: true,
                         message: 'Please enter the quantity.',
                     },
                     validate: value => value > 0,
-                    setValueAs: (value) => value === '' ? undefined : Number(value),
+                    setValueAs: value => value === '' ? undefined : Number(value),
                 })}
             />
 
@@ -39,14 +40,14 @@ const AddEarHookForm: React.FC<IMaterialFormProps> = ({ register, control }) => 
                 color="secondary"
                 label="Diameter (Millimeters)"
                 type="number"
-                inputProps={{ step: "0.1" }}
+                inputProps={{ step: '0.1' }}
                 {...register('diameter', {
                     required: {
                         value: true,
                         message: 'Please enter the diameter.',
                     },
                     validate: value => value > 0,
-                    setValueAs: (value) => value === '' ? undefined : Number(value),
+                    setValueAs: value => value === '' ? undefined : Number(value),
                 })}
             />
 
@@ -54,14 +55,14 @@ const AddEarHookForm: React.FC<IMaterialFormProps> = ({ register, control }) => 
                 color="secondary"
                 label="Length per hook (Millimeters)"
                 type="number"
-                inputProps={{ step: "0.1" }}
+                inputProps={{ step: '0.1' }}
                 {...register('length', {
                     required: {
                         value: true,
                         message: 'Please enter the hook length.',
                     },
                     validate: value => value > 0,
-                    setValueAs: (value) => value === '' ? undefined : Number(value),
+                    setValueAs: value => value === '' ? undefined : Number(value),
                 })}
             />
         </>

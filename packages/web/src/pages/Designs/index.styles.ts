@@ -16,4 +16,3 @@ export const EmptyStateSubtitle = styled.p`
     margin: 0;
     color: #666;
 `;
-

@@ -1,4 +1,4 @@
-import { FormBead, FormWire, FormChain } from '.';
+import { FormBead, FormChain, FormWire } from '.';
 
 export const FormWireKeysEnum: { [K in keyof Required<FormWire>]: K } = {
     wireType: 'wireType',

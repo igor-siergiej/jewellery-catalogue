@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useLocation, useNavigate } from 'react-router-dom';
+
 import { HOME_PAGE, START_PAGE } from '../constants/routes';
+import { useAuth } from '../context/AuthContext';
 
 interface UseAuthRedirectOptions {
     redirectTo?: string;

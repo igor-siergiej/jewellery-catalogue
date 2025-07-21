@@ -1,4 +1,5 @@
 import 'dotenv/config';
+
 import { IConfig } from './types';
 
 export class ConfigError extends Error {

@@ -1,7 +1,8 @@
-import { QueryClient } from '@tanstack/react-query';
-import { makeRequestWithAutoRefresh } from '../../makeRequest';
 import { Design, MethodType } from '@jewellery-catalogue/types';
+import { QueryClient } from '@tanstack/react-query';
+
 import { DESIGNS_ENDPOINT } from '../../endpoints';
+import { makeRequestWithAutoRefresh } from '../../makeRequest';
 
 const makeGetDesignsRequest = async (
     catalogueId: string,
