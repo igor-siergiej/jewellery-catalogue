@@ -16,7 +16,8 @@ import { HttpErrorCode } from './types';
 
 const allowedOrigins = [
     'http://localhost:3000', // Development
-    'http://localhost:8082', // Staging
+    'http://localhost:8082', // Staging (localhost)
+    'http://192.168.68.54:8082', // Staging (IP)
     'https://jewellerycatalogue.imapps.co.uk' // Production
 ];
 
