@@ -1,5 +1,12 @@
 name: CI/CD Pipeline 
 
+# Comprehensive caching strategy for self-hosted runner:
+# - Yarn dependencies & cache (.yarn/cache, node_modules)
+# - TypeScript build outputs (build/, dist/, *.tsbuildinfo)
+# - ESLint cache (.eslintcache)
+# - Playwright browsers (~/.cache/ms-playwright)
+# - Docker build layers (/tmp/.buildx-cache)
+
 on:
   push:
     branches:
@@ -19,21 +26,46 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Cache node modules
+      - name: Cache Yarn dependencies
         uses: actions/cache@v4
         with:
           path: |
             node_modules
             packages/*/node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+            .yarn/cache
+            .yarn/unplugged
+            .yarn/install-state.gz
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock', 'package.json') }}
           restore-keys: |
+            ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
             ${{ runner.os }}-yarn-
+
+      - name: Cache TypeScript build outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            packages/*/build
+            packages/*/dist
+            **/*.tsbuildinfo
+          key: ${{ runner.os }}-ts-build-${{ hashFiles('**/tsconfig*.json', 'packages/*/src/**/*.ts', 'packages/*/src/**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-ts-build-
+
+      - name: Cache ESLint
+        uses: actions/cache@v4
+        with:
+          path: |
+            .eslintcache
+            packages/*/.eslintcache
+          key: ${{ runner.os }}-eslint-${{ hashFiles('**/eslint.config.*', '**/.eslintrc.*', 'packages/*/src/**/*.ts', 'packages/*/src/**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-eslint-
 
       - name: Install dependencies
         run: yarn install --immutable
 
       - name: Lint code
-        run: yarn eslint .
+        run: yarn eslint . --cache --cache-location .eslintcache
 
       - name: Type check
         run: yarn tsc --noEmit --composite false
@@ -79,8 +111,20 @@ jobs:
           docker volume rm jewellery-catalogue-staging-api-data 2>/dev/null || true
           docker volume rm jewellery-catalogue-staging-auth-data 2>/dev/null || true
 
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-staging-${{ hashFiles('**/Dockerfile', 'docker-compose.staging.yml', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-docker-staging-
+            ${{ runner.os }}-docker-
+
       - name: Build staging Docker images
         run: |
+          # Enable buildkit for better caching
+          export DOCKER_BUILDKIT=1
+          export COMPOSE_DOCKER_CLI_BUILD=1
           docker compose -f docker-compose.staging.yml build
 
       - name: Deploy to staging
@@ -109,15 +153,30 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Cache node modules
+      - name: Cache Yarn dependencies
         uses: actions/cache@v4
         with:
           path: |
             node_modules
             packages/*/node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+            .yarn/cache
+            .yarn/unplugged
+            .yarn/install-state.gz
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock', 'package.json') }}
           restore-keys: |
+            ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
             ${{ runner.os }}-yarn-
+
+      - name: Cache TypeScript build outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            packages/*/build
+            packages/*/dist
+            **/*.tsbuildinfo
+          key: ${{ runner.os }}-ts-build-${{ hashFiles('**/tsconfig*.json', 'packages/*/src/**/*.ts', 'packages/*/src/**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-ts-build-
 
       - name: Install dependencies
         run: yarn install --immutable
@@ -128,15 +187,22 @@ jobs:
         with:
           path: |
             ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('packages/web/package.json') }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('packages/web/package.json', 'packages/web/yarn.lock') }}
           restore-keys: |
+            ${{ runner.os }}-playwright-${{ hashFiles('packages/web/package.json') }}
             ${{ runner.os }}-playwright-
 
       - name: Install Playwright Browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: cd packages/web && yarn playwright install
+        run: |
+          echo "Cache miss - downloading Playwright browsers..."
+          cd packages/web && yarn playwright install
         env:
           PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
+          
+      - name: Verify Playwright cache
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: echo "✅ Playwright browsers restored from cache!"
 
       - name: Run E2E Tests against Staging
         run: cd packages/web && yarn playwright test --config=playwright-e2e.config.ts
@@ -192,8 +258,21 @@ jobs:
           echo "MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}" >> .env
           echo "MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}" >> .env
 
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-prod-${{ hashFiles('**/Dockerfile', 'docker-compose.yml', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-docker-prod-
+            ${{ runner.os }}-docker-staging-
+            ${{ runner.os }}-docker-
+
       - name: Build production Docker images
         run: |
+          # Enable buildkit for better caching
+          export DOCKER_BUILDKIT=1
+          export COMPOSE_DOCKER_CLI_BUILD=1
           docker compose build
 
       - name: Deploy to production
