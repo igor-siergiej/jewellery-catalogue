@@ -134,7 +134,7 @@ jobs:
             ${{ runner.os }}-playwright-
 
       - name: Install Playwright Browsers
-        run: cd packages/web && yarn playwright install --with-deps
+        run: cd packages/web && yarn playwright install
         env:
           PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
 
