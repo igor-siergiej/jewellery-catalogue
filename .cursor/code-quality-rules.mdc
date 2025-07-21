@@ -1,0 +1,596 @@
+# Expert TypeScript React Code Quality Rules
+
+## Core Philosophy
+You are an expert TypeScript React developer. Write clean, maintainable, performant code that follows industry best practices. Avoid obvious comments - let the code speak for itself through clear naming and structure.
+
+## Code Quality Standards
+
+### Comments - Only When Necessary
+```typescript
+// ❌ BAD - Obvious comments
+const user = getUser(); // Get the user
+setLoading(true); // Set loading to true
+
+// ✅ GOOD - Only complex business logic or "why" explanations
+// Debounce search to prevent excessive API calls during fast typing
+const debouncedSearch = useMemo(
+  () => debounce(handleSearch, 300),
+  [handleSearch]
+);
+
+// Using exponential backoff for retry logic per API requirements
+const retryWithBackoff = (attempt: number) => Math.pow(2, attempt) * 1000;
+```
+
+### TypeScript Excellence
+
+#### Strict Type Safety
+```typescript
+// ✅ Prefer interfaces for object shapes
+interface UserProfile {
+  readonly id: string;
+  email: string;
+  preferences: UserPreferences;
+}
+
+// ✅ Use discriminated unions for state management
+type RequestState = 
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: User[] }
+  | { status: 'error'; error: string };
+
+// ✅ Utility types for transformations
+type CreateUserRequest = Omit<User, 'id' | 'createdAt'>;
+type PartialUserUpdate = Partial<Pick<User, 'email' | 'preferences'>>;
+```
+
+#### Generic Constraints
+```typescript
+// ✅ Constrain generics appropriately
+interface ApiResponse<T extends Record<string, unknown>> {
+  data: T;
+  meta: ResponseMeta;
+}
+
+// ✅ Use conditional types for complex scenarios
+type EventHandler<T> = T extends keyof HTMLElementEventMap 
+  ? (event: HTMLElementEventMap[T]) => void
+  : never;
+```
+
+### React Component Excellence
+
+#### Component Architecture
+```typescript
+// ✅ Props interface with clear naming
+interface ProductCardProps {
+  product: Product;
+  onAddToCart: (productId: string) => void;
+  isInCart: boolean;
+  variant?: 'compact' | 'detailed';
+}
+
+// ✅ Component with proper type annotations
+const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  onAddToCart,
+  isInCart,
+  variant = 'detailed'
+}) => {
+  const handleAddToCart = useCallback(() => {
+    onAddToCart(product.id);
+  }, [onAddToCart, product.id]);
+
+  return (
+    <Card variant={variant}>
+      <CardContent>
+        <Typography variant="h6">{product.name}</Typography>
+        <Button 
+          onClick={handleAddToCart}
+          disabled={isInCart}
+          variant={isInCart ? 'outlined' : 'contained'}
+        >
+          {isInCart ? 'In Cart' : 'Add to Cart'}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
+```
+
+#### Custom Hooks
+```typescript
+// ✅ Generic, reusable hooks with proper typing
+function useAsyncOperation<T, E = Error>() {
+  const [state, setState] = useState<{
+    data: T | null;
+    error: E | null;
+    isLoading: boolean;
+  }>({
+    data: null,
+    error: null,
+    isLoading: false
+  });
+
+  const execute = useCallback(async (operation: () => Promise<T>) => {
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
+    
+    try {
+      const data = await operation();
+      setState({ data, error: null, isLoading: false });
+      return data;
+    } catch (error) {
+      setState({ data: null, error: error as E, isLoading: false });
+      throw error;
+    }
+  }, []);
+
+  return { ...state, execute };
+}
+```
+
+### Error Handling Excellence
+
+#### Comprehensive Error Boundaries
+```typescript
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends Component<PropsWithChildren, ErrorBoundaryState> {
+  constructor(props: PropsWithChildren) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo);
+    // Log to monitoring service
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <ErrorFallback error={this.state.error} />;
+    }
+
+    return this.props.children;
+  }
+}
+```
+
+#### Async Error Handling
+```typescript
+// ✅ Proper async error handling with user feedback
+const useApiCall = <T>(endpoint: string) => {
+  const [state, setState] = useState<AsyncState<T>>({ status: 'idle' });
+  
+  const makeRequest = useCallback(async (params?: Record<string, unknown>) => {
+    setState({ status: 'loading' });
+    
+    try {
+      const response = await makeRequestWithAutoRefresh<T>({
+        pathname: endpoint,
+        method: 'GET',
+        operationString: `fetch ${endpoint}`,
+        body: params
+      }, tokenRefresh, clearToken);
+      
+      setState({ status: 'success', data: response });
+      return response;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setState({ status: 'error', error: errorMessage });
+      throw error;
+    }
+  }, [endpoint, tokenRefresh, clearToken]);
+
+  return { ...state, makeRequest };
+};
+```
+
+### Performance Optimization
+
+#### Memoization Strategy
+```typescript
+// ✅ Memoize expensive calculations
+const ExpensiveComponent: React.FC<{ items: Item[]; filter: string }> = ({ 
+  items, 
+  filter 
+}) => {
+  const filteredItems = useMemo(
+    () => items.filter(item => 
+      item.name.toLowerCase().includes(filter.toLowerCase())
+    ),
+    [items, filter]
+  );
+
+  const itemStats = useMemo(
+    () => calculateComplexStats(filteredItems),
+    [filteredItems]
+  );
+
+  return <ItemList items={filteredItems} stats={itemStats} />;
+};
+
+// ✅ Memoize component with shallow comparison
+export default React.memo(ExpensiveComponent, (prevProps, nextProps) => 
+  prevProps.items === nextProps.items && 
+  prevProps.filter === nextProps.filter
+);
+```
+
+#### Code Splitting
+```typescript
+// ✅ Lazy load heavy components
+const AdminPanel = lazy(() => import('./AdminPanel'));
+const ReportsDashboard = lazy(() => import('./ReportsDashboard'));
+
+const App: React.FC = () => (
+  <Suspense fallback={<LoadingSpinner />}>
+    <Routes>
+      <Route path="/admin" element={<AdminPanel />} />
+      <Route path="/reports" element={<ReportsDashboard />} />
+    </Routes>
+  </Suspense>
+);
+```
+
+### Form Handling Excellence
+
+#### Type-Safe Forms
+```typescript
+interface FormData {
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+type FormErrors = Partial<Record<keyof FormData, string>>;
+
+const RegistrationForm: React.FC = () => {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting }
+  } = useForm<FormData>({
+    mode: 'onBlur',
+    defaultValues: {
+      email: '',
+      password: '',
+      confirmPassword: ''
+    }
+  });
+
+  const password = watch('password');
+
+  const onSubmit = useCallback(async (data: FormData) => {
+    try {
+      await registerUser(data);
+      // Handle success
+    } catch (error) {
+      // Handle error
+    }
+  }, []);
+
+  return (
+    <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+      <TextField
+        {...register('email', {
+          required: 'Email is required',
+          pattern: {
+            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+            message: 'Invalid email address'
+          }
+        })}
+        error={!!errors.email}
+        helperText={errors.email?.message}
+        fullWidth
+        margin="normal"
+        label="Email"
+      />
+      
+      <TextField
+        {...register('password', {
+          required: 'Password is required',
+          minLength: {
+            value: 8,
+            message: 'Password must be at least 8 characters'
+          },
+          validate: validatePasswordStrength
+        })}
+        type="password"
+        error={!!errors.password}
+        helperText={errors.password?.message}
+        fullWidth
+        margin="normal"
+        label="Password"
+      />
+      
+      <LoadingButton
+        type="submit"
+        loading={isSubmitting}
+        variant="contained"
+        fullWidth
+        sx={{ mt: 2 }}
+      >
+        Register
+      </LoadingButton>
+    </Box>
+  );
+};
+```
+
+### State Management Patterns
+
+#### Context + Reducer Pattern
+```typescript
+interface AppState {
+  user: User | null;
+  theme: 'light' | 'dark';
+  notifications: Notification[];
+}
+
+type AppAction =
+  | { type: 'SET_USER'; payload: User | null }
+  | { type: 'TOGGLE_THEME' }
+  | { type: 'ADD_NOTIFICATION'; payload: Notification }
+  | { type: 'REMOVE_NOTIFICATION'; payload: string };
+
+const appReducer = (state: AppState, action: AppAction): AppState => {
+  switch (action.type) {
+    case 'SET_USER':
+      return { ...state, user: action.payload };
+    
+    case 'TOGGLE_THEME':
+      return { 
+        ...state, 
+        theme: state.theme === 'light' ? 'dark' : 'light' 
+      };
+    
+    case 'ADD_NOTIFICATION':
+      return { 
+        ...state, 
+        notifications: [...state.notifications, action.payload] 
+      };
+    
+    case 'REMOVE_NOTIFICATION':
+      return { 
+        ...state, 
+        notifications: state.notifications.filter(n => n.id !== action.payload) 
+      };
+    
+    default:
+      return state;
+  }
+};
+
+const AppProvider: React.FC<PropsWithChildren> = ({ children }) => {
+  const [state, dispatch] = useReducer(appReducer, initialState);
+  
+  const value = useMemo(() => ({ state, dispatch }), [state]);
+  
+  return (
+    <AppContext.Provider value={value}>
+      {children}
+    </AppContext.Provider>
+  );
+};
+```
+
+### API Integration Excellence
+
+#### Type-Safe API Calls
+```typescript
+// ✅ Strongly typed API responses
+interface ApiEndpoints {
+  getUsers: {
+    method: 'GET';
+    path: '/users';
+    response: User[];
+  };
+  createUser: {
+    method: 'POST';
+    path: '/users';
+    body: CreateUserRequest;
+    response: User;
+  };
+  updateUser: {
+    method: 'PATCH';
+    path: '/users/:id';
+    body: Partial<User>;
+    response: User;
+  };
+}
+
+type ApiCall<T extends keyof ApiEndpoints> = (
+  endpoint: T,
+  ...args: ApiEndpoints[T] extends { body: infer B }
+    ? [body: B]
+    : []
+) => Promise<ApiEndpoints[T]['response']>;
+
+const apiCall: ApiCall<keyof ApiEndpoints> = async (endpoint, body?) => {
+  const config = API_CONFIGS[endpoint];
+  
+  return makeRequestWithAutoRefresh({
+    pathname: config.path,
+    method: config.method,
+    operationString: `${config.method} ${endpoint}`,
+    body,
+    accessToken: getToken(),
+  }, handleTokenRefresh, handleTokenClear);
+};
+```
+
+### Security Best Practices
+
+#### Input Sanitization
+```typescript
+// ✅ Sanitize user inputs
+const sanitizeInput = (input: string): string => {
+  return input
+    .trim()
+    .replace(/[<>]/g, '') // Remove potential HTML tags
+    .substring(0, 1000); // Limit length
+};
+
+// ✅ Validate file uploads
+const validateFileUpload = (file: File): string | null => {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  const maxSize = 5 * 1024 * 1024; // 5MB
+  
+  if (!allowedTypes.includes(file.type)) {
+    return 'Invalid file type. Please upload JPEG, PNG, or WebP images.';
+  }
+  
+  if (file.size > maxSize) {
+    return 'File size too large. Maximum size is 5MB.';
+  }
+  
+  return null;
+};
+```
+
+### Testing Integration
+
+#### Component Testing Setup
+```typescript
+// ✅ Comprehensive test utilities
+const renderWithProviders = (
+  component: ReactElement,
+  options?: {
+    initialState?: Partial<AppState>;
+    theme?: Theme;
+  }
+) => {
+  const { initialState, theme = defaultTheme } = options || {};
+  
+  const AllProviders: React.FC<PropsWithChildren> = ({ children }) => (
+    <ThemeProvider theme={theme}>
+      <QueryClientProvider client={testQueryClient}>
+        <AppProvider initialState={initialState}>
+          {children}
+        </AppProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
+
+  return {
+    ...render(component, { wrapper: AllProviders }),
+    store: mockStore
+  };
+};
+
+// ✅ Mock API responses consistently
+const mockApiResponse = <T>(data: T, delay = 0) => {
+  return new Promise<T>((resolve) => {
+    setTimeout(() => resolve(data), delay);
+  });
+};
+```
+
+## Code Generation Rules
+
+### Always Include
+1. **Proper TypeScript types** for all parameters, return values, and state
+2. **Error handling** for async operations
+3. **Loading states** for user feedback
+4. **Accessibility attributes** (ARIA labels, roles)
+5. **Performance optimizations** (memo, useMemo, useCallback where appropriate)
+6. **Proper key props** for list items
+7. **Input validation** for forms
+8. **Cleanup functions** for useEffect where needed
+
+### Never Include
+1. **Obvious comments** that just restate what the code does
+2. **console.log** statements in production code
+3. **any types** - always use proper typing
+4. **Inline styles** - use sx prop or styled components
+5. **Magic numbers** - use named constants
+6. **Duplicate code** - extract to reusable functions/components
+7. **Unused imports or variables**
+8. **Default exports** for components (prefer named exports)
+
+### File Structure
+```typescript
+// ✅ File organization pattern
+// 1. External imports
+import React, { useState, useCallback } from 'react';
+import { Button, TextField } from '@mui/material';
+
+// 2. Internal imports  
+import { useAuth } from '../../context/AuthContext';
+import { validateEmail } from '../../utils/validation';
+
+// 3. Types/Interfaces
+interface ComponentProps {
+  onSubmit: (data: FormData) => void;
+}
+
+// 4. Constants
+const VALIDATION_RULES = {
+  EMAIL_REQUIRED: 'Email is required',
+  EMAIL_INVALID: 'Please enter a valid email address'
+} as const;
+
+// 5. Component implementation
+const Component: React.FC<ComponentProps> = ({ onSubmit }) => {
+  // Component code
+};
+
+// 6. Export
+export { Component };
+```
+
+### Naming Conventions
+- **Components**: PascalCase (`UserProfile`, `ProductCard`)
+- **Hooks**: camelCase starting with 'use' (`useAuth`, `useLocalStorage`)
+- **Constants**: SCREAMING_SNAKE_CASE (`API_ENDPOINTS`, `VALIDATION_RULES`)
+- **Functions**: camelCase (`handleSubmit`, `validateInput`)
+- **Interfaces**: PascalCase (`UserProfile`, `ApiResponse`)
+- **Types**: PascalCase (`RequestState`, `EventHandler`)
+
+## Performance Patterns
+
+### Lazy Loading
+```typescript
+// ✅ Route-based code splitting
+const HomePage = lazy(() => import('./pages/HomePage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+
+// ✅ Component-based splitting for heavy components
+const DataVisualization = lazy(() => import('./components/DataVisualization'));
+```
+
+### Virtual Scrolling for Large Lists
+```typescript
+// ✅ Use virtualization for 100+ items
+import { FixedSizeList as List } from 'react-window';
+
+const VirtualizedList: React.FC<{ items: Item[] }> = ({ items }) => (
+  <List
+    height={400}
+    itemCount={items.length}
+    itemSize={50}
+    itemData={items}
+  >
+    {ItemRenderer}
+  </List>
+);
+```
+
+## Final Notes
+- **Assume TypeScript/React expertise** - write advanced patterns
+- **Prioritize maintainability** over cleverness
+- **Use composition over inheritance**
+- **Prefer functional programming patterns**
+- **Always handle edge cases and errors**
+- **Write self-documenting code** with clear naming
+- **Optimize for readability and performance** 

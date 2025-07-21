@@ -1,0 +1,299 @@
+# Playwright MCP Server - Cursor Rules
+
+## Overview
+This rules file is for using the Playwright MCP (Model Context Protocol) server for browser automation, testing, and web interactions. The MCP server provides direct browser control capabilities through various tools.
+
+## Available MCP Tools
+
+### Browser Management
+- `mcp_playwright_browser_navigate` - Navigate to URLs
+- `mcp_playwright_browser_navigate_back/forward` - Browser history navigation
+- `mcp_playwright_browser_close` - Close browser/page
+- `mcp_playwright_browser_resize` - Resize browser window
+- `mcp_playwright_browser_install` - Install browser binaries
+
+### Page Interaction
+- `mcp_playwright_browser_click` - Click elements (supports left/right/middle click, double-click)
+- `mcp_playwright_browser_type` - Type text into elements
+- `mcp_playwright_browser_hover` - Hover over elements
+- `mcp_playwright_browser_press_key` - Press keyboard keys
+- `mcp_playwright_browser_drag` - Drag and drop between elements
+
+### Form Handling
+- `mcp_playwright_browser_select_option` - Select dropdown options
+- `mcp_playwright_browser_file_upload` - Upload files
+
+### Page Analysis
+- `mcp_playwright_browser_snapshot` - Capture accessibility snapshot (preferred for actions)
+- `mcp_playwright_browser_take_screenshot` - Take visual screenshots
+- `mcp_playwright_browser_evaluate` - Execute JavaScript on page
+- `mcp_playwright_browser_console_messages` - Get console logs
+- `mcp_playwright_browser_network_requests` - Get network activity
+
+### Tab Management
+- `mcp_playwright_browser_tab_new` - Open new tabs
+- `mcp_playwright_browser_tab_list` - List all tabs
+- `mcp_playwright_browser_tab_select` - Switch between tabs
+- `mcp_playwright_browser_tab_close` - Close tabs
+
+### Advanced Features
+- `mcp_playwright_browser_wait_for` - Wait for text/conditions or time
+- `mcp_playwright_browser_handle_dialog` - Handle browser dialogs
+
+## Best Practices
+
+### Element Interaction Patterns
+
+#### Always Use Snapshots First
+```typescript
+// ALWAYS start with a snapshot to see the current page state
+await mcp_playwright_browser_snapshot();
+
+// Then interact with specific elements using refs from snapshot
+await mcp_playwright_browser_click({
+  element: "Login button",
+  ref: "button_login_123"
+});
+```
+
+#### Element Selection Strategy
+1. Use `mcp_playwright_browser_snapshot` to get current page state
+2. Identify elements by their `ref` attribute from snapshot
+3. Use descriptive `element` parameter for permission/context
+4. Prefer stable selectors (IDs, data-testid, etc.)
+
+### Form Interactions
+```typescript
+// Type in form fields
+await mcp_playwright_browser_type({
+  element: "Username field",
+  ref: "input_username_456",
+  text: "user@example.com"
+});
+
+// Select dropdown options
+await mcp_playwright_browser_select_option({
+  element: "Country dropdown",
+  ref: "select_country_789",
+  values: ["United States"]
+});
+
+// Submit forms
+await mcp_playwright_browser_press_key({ key: "Enter" });
+// OR
+await mcp_playwright_browser_click({
+  element: "Submit button",
+  ref: "button_submit_101"
+});
+```
+
+### Navigation Patterns
+```typescript
+// Navigate to pages
+await mcp_playwright_browser_navigate({ url: "https://example.com" });
+
+// Wait for page to load
+await mcp_playwright_browser_wait_for({ time: 2 });
+
+// Or wait for specific text
+await mcp_playwright_browser_wait_for({ 
+  text: "Welcome to Dashboard" 
+});
+```
+
+### Testing Workflows
+
+#### E2E Test Pattern
+```typescript
+// 1. Navigate to application
+await mcp_playwright_browser_navigate({ url: "http://localhost:3000" });
+
+// 2. Take snapshot to see current state
+await mcp_playwright_browser_snapshot();
+
+// 3. Interact with elements
+await mcp_playwright_browser_type({
+  element: "Email input",
+  ref: "input_email_ref",
+  text: "test@example.com"
+});
+
+// 4. Submit and wait for results
+await mcp_playwright_browser_click({
+  element: "Login button", 
+  ref: "button_login_ref"
+});
+
+await mcp_playwright_browser_wait_for({ 
+  text: "Dashboard" 
+});
+
+// 5. Verify final state
+await mcp_playwright_browser_snapshot();
+```
+
+#### Error Handling
+```typescript
+// Check for console errors
+const consoleLogs = await mcp_playwright_browser_console_messages();
+// Analyze logs for errors
+
+// Check network requests
+const requests = await mcp_playwright_browser_network_requests();
+// Verify API calls succeeded
+```
+
+### JavaScript Execution
+```typescript
+// Execute JavaScript to get data
+await mcp_playwright_browser_evaluate({
+  function: "() => { return document.title; }"
+});
+
+// Execute JavaScript on specific element
+await mcp_playwright_browser_evaluate({
+  element: "Form container",
+  ref: "form_main_ref",
+  function: "(element) => { return element.checkValidity(); }"
+});
+```
+
+## Common Use Cases
+
+### Login Flow Testing
+```typescript
+// 1. Navigate to login page
+await mcp_playwright_browser_navigate({ url: "/login" });
+await mcp_playwright_browser_snapshot();
+
+// 2. Fill credentials
+await mcp_playwright_browser_type({
+  element: "Username field",
+  ref: "username_input_ref",
+  text: "testuser"
+});
+
+await mcp_playwright_browser_type({
+  element: "Password field", 
+  ref: "password_input_ref",
+  text: "testpass123"
+});
+
+// 3. Submit form
+await mcp_playwright_browser_click({
+  element: "Login button",
+  ref: "login_btn_ref"
+});
+
+// 4. Verify success
+await mcp_playwright_browser_wait_for({ 
+  text: "Welcome" 
+});
+```
+
+### Form Validation Testing
+```typescript
+// Submit empty form to trigger validation
+await mcp_playwright_browser_click({
+  element: "Submit button",
+  ref: "submit_ref"
+});
+
+// Wait for validation messages
+await mcp_playwright_browser_wait_for({ time: 1 });
+
+// Take snapshot to see validation state
+await mcp_playwright_browser_snapshot();
+```
+
+### Multi-tab Testing
+```typescript
+// Open new tab
+await mcp_playwright_browser_tab_new({ 
+  url: "https://example.com/new-page" 
+});
+
+// List all tabs
+await mcp_playwright_browser_tab_list();
+
+// Switch between tabs
+await mcp_playwright_browser_tab_select({ index: 0 });
+```
+
+### File Upload Testing
+```typescript
+await mcp_playwright_browser_file_upload({
+  paths: ["/path/to/test/file.pdf"]
+});
+```
+
+## Debugging Strategies
+
+### Visual Debugging
+```typescript
+// Take screenshots at key points
+await mcp_playwright_browser_take_screenshot({
+  filename: "before_action.png"
+});
+
+// Resize browser for better visibility
+await mcp_playwright_browser_resize({
+  width: 1920,
+  height: 1080
+});
+```
+
+### Console Monitoring
+```typescript
+// Check console for errors after actions
+const logs = await mcp_playwright_browser_console_messages();
+// Filter for error messages
+```
+
+### Network Monitoring
+```typescript
+// Monitor API calls
+const requests = await mcp_playwright_browser_network_requests();
+// Verify expected requests were made
+```
+
+## Error Prevention
+
+### Common Mistakes to Avoid
+1. **Not taking snapshots** - Always snapshot before interactions
+2. **Using invalid refs** - Refs from old snapshots may be stale
+3. **Not waiting for elements** - Use `wait_for` after navigation/actions
+4. **Ignoring console errors** - Check console logs regularly
+5. **Missing element descriptions** - Always provide descriptive element names
+
+### Retry Patterns
+```typescript
+// Wait for element to appear
+await mcp_playwright_browser_wait_for({ 
+  text: "Expected text" 
+});
+
+// Wait for network to be idle
+await mcp_playwright_browser_wait_for({ time: 2 });
+
+// Retry pattern for flaky elements
+// Take fresh snapshot and try again if element not found
+```
+
+## Performance Considerations
+1. **Minimize snapshots** - Only take when necessary for element refs
+2. **Use specific waits** - Wait for specific conditions, not just time
+3. **Close unused tabs** - Clean up tabs to avoid memory issues
+4. **Optimize screenshots** - Only take when needed for debugging
+
+## Security Notes
+- File uploads require absolute paths
+- JavaScript execution has full page access
+- Network monitoring captures all requests
+- Console logs may contain sensitive information
+
+## Integration with Regular Playwright
+- MCP server complements standard Playwright tests
+- Can be used for manual testing and debugging
+- Useful for one-off browser automation tasks
+- Good for prototyping test scenarios before writing formal tests 

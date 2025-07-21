@@ -1,0 +1,118 @@
+services:
+  jewellery-catalogue-minio:
+    image: "minio/minio:RELEASE.2025-04-22T22-12-26Z-cpuv1"
+    container_name: jewellery-catalogue-minio 
+    ports:
+      - "7000:9000"
+      - "7001:9001"
+    command: [ "server", "--console-address", ":9001", "/data/minio" ]
+    env_file:
+    - .env
+    volumes:
+      - jewellery-catalogue-minio-data:/data/minio
+    labels:
+      logging_job: "jewellery-catalogue-minio"
+      logging_stack: "jewellery-catalogue"
+    networks:
+      - internal
+
+  jewellery-catalogue-mongodb:
+    image: mongodb/mongodb-community-server
+    container_name: jewellery-catalogue-mongodb
+    ports:
+      - '27017:27017'
+    volumes:
+      - jewellery-catalogue-mongo-data:/data/db
+    labels:
+      logging_job: "jewellery-catalogue-mongodb"
+      logging_stack: "jewellery-catalogue"
+    networks:
+      - internal
+
+  jewellery-catalogue-auth-mongodb:
+    image: mongodb/mongodb-community-server
+    container_name: jewellery-catalogue-auth-mongodb
+    ports:
+      - '27019:27017'
+    volumes:
+      - jewellery-catalogue-auth-mongo-data:/data/db
+    labels:
+      logging_job: "jewellery-catalogue-auth-mongodb"
+      logging_stack: "jewellery-catalogue"
+    networks:
+      - internal
+
+  jewellery-catalogue-api:
+    container_name: jewellery-catalogue-api
+    build:
+      context: .
+      dockerfile: packages/api/Dockerfile
+    env_file:
+      - .env
+    expose:
+      - '3001'
+    depends_on:
+      - jewellery-catalogue-mongodb
+      - jewellery-catalogue-minio
+    labels:
+      logging_job: "jewellery-catalogue-api"
+      logging_stack: "jewellery-catalogue"
+    volumes:
+      - jewellery-catalogue-api-data:/data
+    networks:
+      - internal
+      - proxy
+
+  jewellery-catalogue-auth:
+    container_name: jewellery-catalogue-auth
+    build:
+      context: .
+      dockerfile: packages/auth/Dockerfile
+    env_file:
+      - .env
+    expose:
+      - '3008'
+    depends_on:
+      - jewellery-catalogue-auth-mongodb
+    labels:
+      logging_job: "jewellery-catalogue-auth"
+      logging_stack: "jewellery-catalogue"
+    volumes:
+      - jewellery-catalogue-auth-data:/data
+    networks:
+      - internal
+      - proxy
+
+  jewellery-catalogue-web:
+    build:
+      context: .
+      dockerfile: packages/web/Dockerfile
+      args:
+         VITE_API_URL: ${VITE_API_URL}
+         VITE_AUTH_URL: ${VITE_AUTH_URL}
+    container_name: jewellery-catalogue-web 
+    env_file:
+    - .env
+    expose:
+      - '80'
+    depends_on:
+      - jewellery-catalogue-api
+      - jewellery-catalogue-auth
+    networks:
+      - proxy
+    labels:
+      logging_job: "jewellery-catalogue-web"
+      logging_stack: "jewellery-catalogue"
+
+networks:
+  internal:
+    driver: bridge
+  proxy:
+    external: true
+
+volumes:
+  jewellery-catalogue-mongo-data:
+  jewellery-catalogue-auth-mongo-data:
+  jewellery-catalogue-minio-data:
+  jewellery-catalogue-api-data:
+  jewellery-catalogue-auth-data:

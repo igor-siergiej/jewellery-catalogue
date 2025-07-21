@@ -1,0 +1,26 @@
+{
+    "name": "@jewellery-catalogue/api",
+    "version": "1.0.0",
+    "type": "commonjs",
+    "scripts": {
+        "start": "tsx watch src/index.ts",
+        "build": "tsup"
+    },
+    "dependencies": {
+        "@koa/cors": "^5.0.0",
+        "koa": "^3.0.0",
+        "koa-body": "^6.0.1",
+        "koa-router": "^13.0.1",
+        "minio": "^8.0.5",
+        "mongodb": "^6.13.1"
+    },
+    "devDependencies": {
+        "@types/koa": "^2.15.0",
+        "@types/koa-cors": "^0.0.6",
+        "@types/koa-router": "^7.4.8",
+        "dotenv": "^16.4.7",
+        "tsup": "^8.5.0",
+        "tsx": "^4.19.2",
+        "typescript": "^5.8.3"
+    }
+}

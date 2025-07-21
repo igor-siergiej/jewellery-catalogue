@@ -1,0 +1,15 @@
+node_modules
+.yarn
+.git
+.github
+build
+.env
+tsconfig.tsbuildinfo
+.vscode
+
+packages/web/test-results/
+packages/web/playwright-report/
+packages/web/blob-report/
+packages/web/playwright/.cache/
+
+packages/web/coverage/

@@ -1,0 +1,177 @@
+# Jewellery Catalogue Monorepo - Cursor Rules
+
+## Project Overview
+This is a TypeScript monorepo for a jewellery catalogue application with the following structure:
+- `packages/web/` - React frontend (Vite + TypeScript)
+- `packages/api/` - Node.js backend API
+- `packages/types/` - Shared TypeScript type definitions
+
+## Tech Stack
+- **Frontend**: React 19, TypeScript, Vite, Material-UI (MUI), React Hook Form, React Router, TanStack Query
+- **Backend**: Node.js, TypeScript, Express (likely)
+- **Database**: MongoDB (based on CONNECTION_URI and DATABASE_NAME env vars)
+- **Storage**: MinIO (S3-compatible object storage)
+- **Testing**: Vitest (unit), Playwright (E2E)
+- **Package Manager**: Yarn 4 with workspaces
+- **CI/CD**: GitHub Actions, Docker
+
+## Code Style & Conventions
+
+### TypeScript
+- Use strict TypeScript configuration
+- Prefer explicit typing over `any`
+- Use interfaces for object shapes, types for unions/primitives
+- Export types and interfaces from `packages/types/src/`
+
+### React Components
+- Use functional components with hooks
+- Prefer named exports over default exports for components
+- Use Material-UI components and styling system
+- Follow the existing component structure in `src/components/`
+
+### File Organization
+```
+packages/web/src/
+├── api/           # API integration layer
+├── components/    # Reusable UI components  
+├── pages/         # Route-based page components
+├── context/       # React context providers
+├── hooks/         # Custom React hooks
+├── utils/         # Utility functions
+├── constants/     # App constants (routes, etc.)
+└── tests/         # Playwright E2E tests
+```
+
+### API Integration
+- Use the `makeRequest` function from `src/api/makeRequest/` for all API calls
+- Handle authentication via `makeRequestWithAutoRefresh` for protected endpoints
+- Store API endpoints in `src/api/endpoints/`
+- Use TanStack Query for data fetching and caching
+
+### Forms
+- Use React Hook Form for form management
+- Implement proper validation with descriptive error messages
+- Use Material-UI form components (`TextField`, `FormControl`, etc.)
+- Follow password validation pattern: 8+ chars, letters + numbers
+
+### Authentication
+- JWT tokens are base64 encoded before sending to API
+- Use `useAuth` context for authentication state
+- Implement proper token refresh logic
+- Redirect unauthenticated users appropriately
+
+### Routing
+- Define route constants in `src/constants/routes.ts`
+- Use React Router v7 with the existing routing structure
+- Implement proper route guards for protected pages
+
+## Testing Guidelines
+
+### Playwright E2E Tests
+- Place tests in `packages/web/tests/`
+- Use descriptive test names and group with `test.describe()`
+- Mock API responses with `page.route()`
+- Use specific selectors (avoid ambiguous `getByLabel` when multiple elements match)
+- Test both success and error scenarios
+- Include accessibility testing
+
+### Test Patterns
+```typescript
+// Good selector usage
+await page.locator('#password').fill('password');
+
+// API mocking pattern
+await page.route('**/api/endpoint', async route => {
+  await route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ data: 'success' })
+  });
+});
+```
+
+## Material-UI Patterns
+
+### Component Usage
+- Use MUI's `sx` prop for styling
+- Prefer MUI components over custom CSS
+- Use `LoadingButton` for async operations
+- Implement proper loading states and error handling
+
+### Form Components
+```typescript
+// Standard form field pattern
+<TextField
+  label="Field Name"
+  variant="outlined"
+  fullWidth
+  error={!!errors.fieldName}
+  {...register('fieldName', { required: 'Field is required' })}
+  helperText={errors.fieldName?.message || ' '}
+/>
+```
+
+## Environment Variables
+- `VITE_API_URL` - Backend API base URL
+- `VITE_AUTH_URL` - Authentication service URL
+- Use `import.meta.env` for Vite environment variables
+
+## Common Tasks
+
+### Adding New API Endpoint
+1. Define endpoint function in `packages/web/src/api/endpoints/`
+2. Use `makeRequest` or `makeRequestWithAutoRefresh`
+3. Add proper TypeScript types
+4. Handle errors appropriately
+
+### Adding New Page
+1. Create component in `packages/web/src/pages/NewPage/`
+2. Add route constant in `constants/routes.ts`
+3. Add route to main router in `index.tsx`
+4. Implement authentication guards if needed
+
+### Adding New Form
+1. Use React Hook Form with proper validation
+2. Create form component following existing patterns
+3. Implement loading states and error handling
+4. Add Playwright tests for form functionality
+
+## Package Scripts
+- `yarn start:web` - Start development server
+- `yarn start:api` - Start API server
+- `yarn start` - Start both web and API
+- `yarn pw:run` - Run Playwright tests
+- `yarn pw:open` - Open Playwright UI
+- `yarn test` - Run unit tests
+
+## Docker & Deployment
+- Application runs in Docker containers
+- Uses docker-compose for local development
+- GitHub Actions handles CI/CD pipeline
+- Self-hosted runner for deployment
+
+## Best Practices
+1. **Type Safety**: Always use proper TypeScript typing
+2. **Error Handling**: Implement comprehensive error boundaries and user feedback
+3. **Loading States**: Show loading indicators for async operations
+4. **Accessibility**: Ensure proper ARIA labels and keyboard navigation
+5. **Security**: Validate inputs, sanitize data, handle authentication properly
+6. **Testing**: Write E2E tests for critical user flows
+7. **Performance**: Use React Query for efficient data fetching and caching
+
+## Common Patterns to Follow
+- Use the existing authentication flow pattern
+- Follow the established component structure
+- Implement proper form validation
+- Use consistent error handling
+- Maintain type safety across packages
+- Write comprehensive tests for new features
+
+## Avoid
+- Direct API calls without using the `makeRequest` abstraction
+- Hardcoded URLs or magic strings
+- Components without proper TypeScript types
+- Forms without validation
+- Missing error handling
+- Tests without proper mocking
+- Breaking changes to shared types without updating dependent packages 
