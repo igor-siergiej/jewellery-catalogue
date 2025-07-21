@@ -4,7 +4,7 @@ name: CI/CD Pipeline
 # - Yarn dependencies & cache (.yarn/cache, node_modules)
 # - TypeScript build outputs (build/, dist/, *.tsbuildinfo)
 # - ESLint cache (.eslintcache)
-# - Playwright browsers (~/.cache/ms-playwright)
+# - Playwright browsers (persistent install at /opt/playwright-browsers)
 # - Docker build layers (/tmp/.buildx-cache)
 
 on:
@@ -181,33 +181,30 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
-      - name: Cache Playwright browsers
-        id: playwright-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('packages/web/package.json', 'packages/web/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-${{ hashFiles('packages/web/package.json') }}
-            ${{ runner.os }}-playwright-
-
-      - name: Install Playwright Browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
+      - name: Setup Playwright browsers (one-time install on runner)
         run: |
-          echo "Cache miss - downloading Playwright browsers..."
-          cd packages/web && yarn playwright install
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
+          # Use persistent location on self-hosted runner
+          export PLAYWRIGHT_BROWSERS_PATH=/opt/playwright-browsers
           
-      - name: Verify Playwright cache
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: echo "✅ Playwright browsers restored from cache!"
+          # Check if browsers are already installed
+          if [ -d "$PLAYWRIGHT_BROWSERS_PATH" ] && [ "$(ls -A $PLAYWRIGHT_BROWSERS_PATH 2>/dev/null)" ]; then
+            echo "✅ Playwright browsers already installed in $PLAYWRIGHT_BROWSERS_PATH"
+            echo "Checking browser versions..."
+            cd packages/web && yarn playwright --version
+          else
+            echo "📦 Installing Playwright browsers (one-time setup)..."
+            sudo mkdir -p $PLAYWRIGHT_BROWSERS_PATH
+            sudo chown $(whoami):$(whoami) $PLAYWRIGHT_BROWSERS_PATH
+            cd packages/web && yarn playwright install
+            echo "✅ Playwright browsers installed to $PLAYWRIGHT_BROWSERS_PATH"
+          fi
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: /opt/playwright-browsers
 
       - name: Run E2E Tests against Staging
         run: cd packages/web && yarn playwright test --config=playwright-e2e.config.ts
         env:
-          PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
+          PLAYWRIGHT_BROWSERS_PATH: /opt/playwright-browsers
           STAGING_BASE_URL: ${{ needs.deploy-staging.outputs.staging-url }}
 
       - name: Upload E2E test results
