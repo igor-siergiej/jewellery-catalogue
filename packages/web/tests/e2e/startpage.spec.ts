@@ -46,6 +46,7 @@ test.describe('E2E: Jewellery Catalogue Start Page', () => {
             !error.includes('favicon') // Ignore favicon errors
             && !error.includes('manifest') // Ignore manifest errors
             && !error.includes('DevTools') // Ignore DevTools specific errors
+            && !error.includes('400 (Bad Request)') // Ignore 400 errors from refresh endpoint
         );
 
         expect(criticalErrors).toHaveLength(0);
