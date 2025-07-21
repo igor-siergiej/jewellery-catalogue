@@ -123,17 +123,17 @@ jobs:
         run: yarn install --immutable
 
       - name: Cache Playwright browsers
+        id: playwright-cache
         uses: actions/cache@v4
         with:
           path: |
             ~/.cache/ms-playwright
-            packages/web/node_modules/@playwright/test
-          key: ${{ runner.os }}-playwright-${{ hashFiles('packages/web/package.json', 'packages/web/yarn.lock') }}-${{ hashFiles('packages/web/playwright-e2e.config.ts') }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('packages/web/package.json') }}
           restore-keys: |
-            ${{ runner.os }}-playwright-${{ hashFiles('packages/web/package.json') }}
             ${{ runner.os }}-playwright-
 
       - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: cd packages/web && yarn playwright install
         env:
           PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
