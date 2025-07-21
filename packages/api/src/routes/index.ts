@@ -9,6 +9,12 @@ import { getImage } from './getImage';
 
 const router = new Router();
 
+// Health check endpoint
+router.get('/health', async (ctx) => {
+    ctx.status = 200;
+    ctx.body = { status: 'healthy', service: 'api', timestamp: new Date().toISOString() };
+});
+
 router.get('/api/catalogue/:id', getCatalogue);
 router.post('/api/catalogue', addCatalogue);
 router.get('/api/materials/:catalogueId', getMaterials);

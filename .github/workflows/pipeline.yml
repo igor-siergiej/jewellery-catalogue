@@ -37,13 +37,101 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
+      - name: Build types package
+        run: yarn workspace @jewellery-catalogue/types build
+
+      - name: Lint and type-check
+        run: yarn workspace @jewellery-catalogue/web run build
+
+  deploy-staging:
+    needs: test
+    runs-on: [self-hosted, linux, x64]
+    if: github.ref == 'refs/heads/main'
+    outputs:
+      staging-url: ${{ steps.staging-info.outputs.url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check staging .env file exists
+        run: |
+          if [ ! -f .env.staging ]; then
+            echo "Error: .env.staging file not found!"
+            echo "Please create .env.staging from env.staging.example"
+            echo "See STAGING_README.md for details"
+            exit 1
+          fi
+
+      - name: Clean staging databases
+        run: |
+          # Stop staging services
+          docker compose -f docker-compose.staging.yml down -v
+          
+          # Remove any existing staging volumes to ensure clean state
+          docker volume rm jewellery-catalogue-staging-mongo-data 2>/dev/null || true
+          docker volume rm jewellery-catalogue-staging-auth-mongo-data 2>/dev/null || true
+          docker volume rm jewellery-catalogue-staging-minio-data 2>/dev/null || true
+          docker volume rm jewellery-catalogue-staging-api-data 2>/dev/null || true
+          docker volume rm jewellery-catalogue-staging-auth-data 2>/dev/null || true
+
+      - name: Build staging Docker images
+        run: |
+          docker compose -f docker-compose.staging.yml build
+
+      - name: Deploy to staging
+        run: |
+          docker compose -f docker-compose.staging.yml up -d
+
+      - name: Wait for staging services to be ready
+        run: |
+          # Wait for services to be healthy
+          timeout 300 bash -c 'until curl -f http://localhost:8080/health 2>/dev/null; do sleep 5; done' || echo "API health check timeout"
+          timeout 300 bash -c 'until curl -f http://localhost:8081/health 2>/dev/null; do sleep 5; done' || echo "Auth health check timeout"
+          timeout 300 bash -c 'until curl -f http://localhost:8082 2>/dev/null; do sleep 5; done' || echo "Web health check timeout"
+          sleep 30  # Additional buffer for services to stabilize
+
+      - name: Set staging info
+        id: staging-info
+        run: |
+          echo "url=http://localhost:8082" >> $GITHUB_OUTPUT
+
+  e2e-tests:
+    needs: deploy-staging
+    runs-on: [self-hosted, linux, x64]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:
           path: |
             ~/.cache/ms-playwright
             packages/web/node_modules/@playwright/test
-          key: ${{ runner.os }}-playwright-${{ hashFiles('packages/web/package.json', 'packages/web/yarn.lock') }}-${{ hashFiles('packages/web/playwright.config.ts') }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('packages/web/package.json', 'packages/web/yarn.lock') }}-${{ hashFiles('packages/web/playwright-e2e.config.ts') }}
           restore-keys: |
             ${{ runner.os }}-playwright-${{ hashFiles('packages/web/package.json') }}
             ${{ runner.os }}-playwright-
@@ -53,45 +141,38 @@ jobs:
         env:
           PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
 
-      - name: Write .env for tests
-        run: |
-          echo "VITE_API_URL=http://localhost:5000" > .env
-          echo "VITE_AUTH_URL=http://localhost:5000/auth" >> .env
-
-      - name: Build web package
-        run: cd packages/web && yarn build
-
-      - name: Run Playwright Tests
-        run: cd packages/web && yarn pw:run --project=chromium
+      - name: Run E2E Tests against Staging
+        run: cd packages/web && yarn playwright test --config=playwright-e2e.config.ts
         env:
           PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
+          STAGING_BASE_URL: ${{ needs.deploy-staging.outputs.staging-url }}
 
-      - name: Upload test results
+      - name: Upload E2E test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report
+          name: e2e-playwright-report
           path: packages/web/playwright-report/
           retention-days: 30
 
-      - name: Upload test screenshots
+      - name: Upload E2E test screenshots
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-test-results
+          name: e2e-playwright-test-results
           path: packages/web/test-results/
           retention-days: 30
 
-  deploy:
-    needs: test
+  deploy-production:
+    needs: [deploy-staging, e2e-tests]
     runs-on: [self-hosted, linux, x64]
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && success()
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Write .env from Secrets
+      - name: Write production .env from Secrets
         run: |
           echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > .env
           echo "VITE_AUTH_URL=${{ secrets.VITE_AUTH_URL }}" >> .env
@@ -114,12 +195,17 @@ jobs:
           echo "MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}" >> .env
           echo "MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}" >> .env
 
-      - name: Build Docker images with Compose
+      - name: Build production Docker images
         run: |
           docker compose build
 
-      - name: Restart services with Compose
+      - name: Deploy to production
         run: |
           docker compose down
           docker compose up -d
+
+      - name: Cleanup staging
+        run: |
+          # Clean up staging environment after successful production deployment
+          docker compose -f docker-compose.staging.yml down -v
 
