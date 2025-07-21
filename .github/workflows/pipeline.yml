@@ -150,7 +150,14 @@ jobs:
           export COMPOSE_DOCKER_CLI_BUILD=1
           export BUILDX_CACHE="$HOME/.persistent-ci/docker-buildx-cache"
           
-          # Build with persistent cache
+          # Load environment variables from .env.staging
+          set -a  # automatically export all variables
+          source .env.staging
+          set +a  # stop automatically exporting
+          
+          echo "Building with VITE_AUTH_URL=$VITE_AUTH_URL"
+          
+          # Build with environment variables properly loaded
           docker compose -f docker-compose.staging.yml build \
             --build-arg BUILDKIT_INLINE_CACHE=1
 
