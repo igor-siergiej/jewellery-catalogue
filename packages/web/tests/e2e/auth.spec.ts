@@ -25,9 +25,13 @@ test.describe('Authentication Flow', () => {
             await page.goto('/register');
             await page.waitForLoadState('networkidle');
 
+            // Wait for React app to render
+            await page.waitForSelector('#root', { state: 'visible' });
+            await page.waitForSelector('h3', { timeout: 10000 });
+
             // Check page elements
-            await expect(page.locator('h1')).toContainText(pageContent.register.title);
-            await expect(page.locator('h2')).toContainText(pageContent.register.subtitle);
+            await expect(page.locator('h3')).toContainText(pageContent.register.title);
+            await expect(page.locator('h5')).toContainText(pageContent.register.subtitle);
 
             // Check form fields
             await expect(page.locator(selectors.usernameInput)).toBeVisible();
@@ -42,6 +46,9 @@ test.describe('Authentication Flow', () => {
             await page.goto('/register');
             await page.waitForLoadState('networkidle');
 
+            // Wait for form to render
+            await page.waitForSelector(selectors.submitButton, { timeout: 10000 });
+
             // Try to submit empty form
             await page.click(selectors.submitButton);
 
@@ -53,6 +60,9 @@ test.describe('Authentication Flow', () => {
         test('should validate password requirements', async ({ page }) => {
             await page.goto('/register');
             await page.waitForLoadState('networkidle');
+
+            // Wait for form to render
+            await page.waitForSelector(selectors.usernameInput, { timeout: 10000 });
 
             const usernameInput = page.locator(selectors.usernameInput);
             const passwordInput = page.locator(selectors.passwordInput);
@@ -98,6 +108,9 @@ test.describe('Authentication Flow', () => {
             await page.goto('/register');
             await page.waitForLoadState('networkidle');
 
+            // Wait for form to render
+            await page.waitForSelector(selectors.usernameInput, { timeout: 10000 });
+
             await page.fill(selectors.usernameInput, username);
             await page.fill(selectors.passwordInput, password);
             await page.click(selectors.submitButton);
@@ -111,15 +124,21 @@ test.describe('Authentication Flow', () => {
             await page.goto('/register');
             await page.waitForLoadState('networkidle');
 
+            // Wait for navigation button to render
+            await page.waitForSelector(selectors.loginButton, { timeout: 10000 });
+
             await page.click(selectors.loginButton);
 
             await page.waitForURL('/', { timeout: 5000 });
-            expect(page.url()).toBe('http://localhost:8082/');
+            expect(page.url()).toBe('http://192.168.68.54:8082/');
         });
 
         test('should toggle password visibility', async ({ page }) => {
             await page.goto('/register');
             await page.waitForLoadState('networkidle');
+
+            // Wait for form to render
+            await page.waitForSelector(selectors.passwordInput, { timeout: 10000 });
 
             const passwordInput = page.locator(selectors.passwordInput);
             const toggleButton = page.locator(selectors.showPasswordButton);
@@ -143,9 +162,13 @@ test.describe('Authentication Flow', () => {
             await page.goto('/');
             await page.waitForLoadState('networkidle');
 
+            // Wait for React app to render
+            await page.waitForSelector('#root', { state: 'visible' });
+            await page.waitForSelector('h3', { timeout: 10000 });
+
             // Check page elements
-            await expect(page.locator('h1')).toContainText(pageContent.login.title);
-            await expect(page.locator('h2')).toContainText(pageContent.login.subtitle);
+            await expect(page.locator('h3')).toContainText(pageContent.login.title);
+            await expect(page.locator('h5')).toContainText(pageContent.login.subtitle);
 
             // Check form fields
             await expect(page.locator(selectors.usernameInput)).toBeVisible();
@@ -160,6 +183,9 @@ test.describe('Authentication Flow', () => {
             await page.goto('/');
             await page.waitForLoadState('networkidle');
 
+            // Wait for form to render
+            await page.waitForSelector(selectors.submitButton, { timeout: 10000 });
+
             // Try to submit empty form
             await page.click(selectors.submitButton);
 
@@ -171,6 +197,9 @@ test.describe('Authentication Flow', () => {
         test('should show error for invalid credentials', async ({ page }) => {
             await page.goto('/');
             await page.waitForLoadState('networkidle');
+
+            // Wait for form to render
+            await page.waitForSelector(selectors.usernameInput, { timeout: 10000 });
 
             await page.fill(selectors.usernameInput, 'nonexistentuser');
             await page.fill(selectors.passwordInput, 'wrongpassword');
@@ -185,6 +214,9 @@ test.describe('Authentication Flow', () => {
             await page.goto('/');
             await page.waitForLoadState('networkidle');
 
+            // Wait for navigation button to render
+            await page.waitForSelector(selectors.registerButton, { timeout: 10000 });
+
             await page.click(selectors.registerButton);
 
             await page.waitForURL('**/register', { timeout: 5000 });
@@ -194,6 +226,9 @@ test.describe('Authentication Flow', () => {
         test('should toggle password visibility', async ({ page }) => {
             await page.goto('/');
             await page.waitForLoadState('networkidle');
+
+            // Wait for form to render
+            await page.waitForSelector(selectors.passwordInput, { timeout: 10000 });
 
             const passwordInput = page.locator(selectors.passwordInput);
             const toggleButton = page.locator(selectors.showPasswordButton);

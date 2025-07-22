@@ -11,6 +11,9 @@ test.describe('Given Start Page', () => {
         const rootElement = page.locator('#root');
         await expect(rootElement).toBeVisible();
 
+        // Wait for React app to load
+        await page.waitForTimeout(2000);
+
         await expect(page.locator('body')).not.toContainText('Error');
         await expect(page.locator('body')).not.toContainText('Something went wrong');
     });
@@ -49,12 +52,12 @@ test.describe('Given Start Page', () => {
     });
 
     test('should verify services are healthy by checking API connectivity', async ({ page, request }) => {
-        const apiResponse = await request.get('http://localhost:5001/health');
+        const apiResponse = await request.get('http://192.168.68.54:5001/health');
         expect(apiResponse.status()).toBe(200);
         const apiBody = await apiResponse.json();
         expect(apiBody.service).toBe('api');
 
-        const authResponse = await request.get('http://localhost:5002/health');
+        const authResponse = await request.get('http://192.168.68.54:5002/health');
         expect(authResponse.status()).toBe(200);
         const authBody = await authResponse.json();
         expect(authBody.service).toBe('auth');

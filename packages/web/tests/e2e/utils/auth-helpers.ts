@@ -5,10 +5,27 @@ import { Page } from '@playwright/test';
  */
 export const clearAuthState = async (page: Page) => {
     await page.context().clearCookies();
-    await page.evaluate(() => {
-        localStorage.clear();
-        sessionStorage.clear();
-    });
+
+    // Clear localStorage and sessionStorage with error handling
+    try {
+        await page.evaluate(() => {
+            try {
+                localStorage.clear();
+            } catch (e) {
+                // localStorage might be disabled or not accessible
+                console.warn('Could not clear localStorage:', e);
+            }
+            try {
+                sessionStorage.clear();
+            } catch (e) {
+                // sessionStorage might be disabled or not accessible
+                console.warn('Could not clear sessionStorage:', e);
+            }
+        });
+    } catch (e) {
+        // Page evaluation might fail in some environments
+        console.warn('Could not evaluate storage clearing:', e);
+    }
 };
 
 /**
@@ -26,7 +43,7 @@ export const waitForAuthServices = async (page: Page) => {
 
     while (retries < maxRetries) {
         try {
-            const response = await page.request.get('http://localhost:5002/health');
+            const response = await page.request.get('http://192.168.68.54:5002/health');
             if (response.status() === 200) break;
         } catch (error) {
             // Service not ready yet
@@ -43,12 +60,15 @@ export const registerUser = async (page: Page, username: string, password: strin
     await page.goto('/register');
     await page.waitForLoadState('networkidle');
 
+    // Wait for form to render
+    await page.waitForSelector('input[name="username"]', { timeout: 10000 });
+
     await page.fill('input[name="username"]', username);
     await page.fill('input[name="password"]', password);
     await page.click('button[type="submit"]');
 
-    // Wait for navigation to home page
-    await page.waitForURL('**/home', { timeout: 10000 });
+    // Wait for navigation to home page (using regex pattern)
+    await page.waitForURL(/\/home$/, { timeout: 15000 });
 };
 
 /**
@@ -58,12 +78,15 @@ export const loginUser = async (page: Page, username: string, password: string) 
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
+    // Wait for form to render
+    await page.waitForSelector('input[name="username"]', { timeout: 10000 });
+
     await page.fill('input[name="username"]', username);
     await page.fill('input[name="password"]', password);
     await page.click('button[type="submit"]');
 
-    // Wait for navigation to home page
-    await page.waitForURL('**/home', { timeout: 10000 });
+    // Wait for navigation to home page (using regex pattern)
+    await page.waitForURL(/\/home$/, { timeout: 15000 });
 };
 
 /**
