@@ -130,7 +130,7 @@ test.describe('Authentication Flow', () => {
             await page.click(selectors.loginButton);
 
             await page.waitForURL('/', { timeout: 5000 });
-            expect(page.url()).toBe('http://192.168.68.54:8082/');
+            expect(page.url()).toMatch(/\/$/);
         });
 
         test('should toggle password visibility', async ({ page }) => {
