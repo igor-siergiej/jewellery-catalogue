@@ -266,6 +266,18 @@ jobs:
         env:
           PLAYWRIGHT_BROWSERS_PATH: $HOME/.playwright-browsers-persistent
 
+      - name: Wait for services to stabilize
+        run: |
+          echo "⏳ Allowing services to stabilize after health checks..."
+          sleep 10
+          
+          echo "🔍 Final service status check before E2E tests:"
+          echo "API Health:" && (curl -s http://localhost:5001/health | head -5 || echo "API not responding")
+          echo "Auth Health:" && (curl -s http://localhost:5002/health | head -5 || echo "Auth not responding") 
+          echo "Web Status:" && (curl -s -I http://localhost:8082 | head -3 || echo "Web not responding")
+          
+          echo "🏃 Ready to run E2E tests!"
+
       - name: Run E2E Tests against Staging
         run: |
           export PLAYWRIGHT_BROWSERS_PATH="$HOME/.playwright-browsers-persistent"

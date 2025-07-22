@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 
+import { waitForAuthServices } from './utils/auth-helpers';
+
 test.describe('Given Start Page', () => {
     test('When the start page is loaded', async ({ page }) => {
         await page.goto('/');
@@ -52,6 +54,9 @@ test.describe('Given Start Page', () => {
     });
 
     test('should verify services are healthy by checking API connectivity', async ({ page, request }) => {
+        // Wait for services to be ready before testing connectivity
+        await waitForAuthServices(page);
+
         // Use environment variables for service URLs, with fallbacks for local development
         const apiServiceUrl = process.env.E2E_API_SERVICE_URL || 'http://192.168.68.54:5001';
         const authServiceUrl = process.env.E2E_AUTH_SERVICE_URL || 'http://192.168.68.54:5002';

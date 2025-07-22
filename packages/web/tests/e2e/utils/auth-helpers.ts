@@ -35,25 +35,57 @@ export const generateUniqueUsername = () =>
     `testuser_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
 /**
- * Waits for authentication services to be ready before running tests
+ * Waits for both API and authentication services to be ready before running tests
  */
 export const waitForAuthServices = async (page: Page) => {
-    let retries = 0;
-    const maxRetries = 10;
+    const maxRetries = process.env.CI ? 20 : 10; // More retries in CI
+    const retryDelay = process.env.CI ? 2000 : 1000; // Longer delays in CI
 
-    // Use environment variable for auth service URL, with fallback for local development
+    // Use environment variables for service URLs, with fallback for local development
+    const apiServiceUrl = process.env.E2E_API_SERVICE_URL || 'http://192.168.68.54:5001';
     const authServiceUrl = process.env.E2E_AUTH_SERVICE_URL || 'http://192.168.68.54:5002';
 
+    console.log(`Waiting for services: API=${apiServiceUrl}, Auth=${authServiceUrl}`);
+
+    // Wait for API service
+    let retries = 0;
     while (retries < maxRetries) {
         try {
-            const response = await page.request.get(`${authServiceUrl}/health`);
-            if (response.status() === 200) break;
+            const response = await page.request.get(`${apiServiceUrl}/health`);
+            if (response.status() === 200) {
+                console.log('✅ API service is ready');
+                break;
+            }
         } catch (error) {
             // Service not ready yet
         }
         retries++;
-        await page.waitForTimeout(1000);
+        if (retries >= maxRetries) {
+            throw new Error(`API service not ready after ${maxRetries} attempts at ${apiServiceUrl}/health`);
+        }
+        await page.waitForTimeout(retryDelay);
     }
+
+    // Wait for Auth service
+    retries = 0;
+    while (retries < maxRetries) {
+        try {
+            const response = await page.request.get(`${authServiceUrl}/health`);
+            if (response.status() === 200) {
+                console.log('✅ Auth service is ready');
+                break;
+            }
+        } catch (error) {
+            // Service not ready yet
+        }
+        retries++;
+        if (retries >= maxRetries) {
+            throw new Error(`Auth service not ready after ${maxRetries} attempts at ${authServiceUrl}/health`);
+        }
+        await page.waitForTimeout(retryDelay);
+    }
+
+    console.log('✅ All services are ready');
 };
 
 /**
