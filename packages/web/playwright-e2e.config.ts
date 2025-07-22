@@ -8,7 +8,10 @@ export default defineConfig({
     workers: 3,
     reporter: 'html',
     use: {
-        baseURL: process.env.STAGING_BASE_URL || 'http://192.168.68.54:8082',
+        // Prioritize STAGING_BASE_URL from CI, then localhost for CI environments,
+        // finally fall back to local development IP
+        baseURL: process.env.STAGING_BASE_URL
+            || (process.env.CI ? 'http://localhost:8082' : 'http://192.168.68.54:8082'),
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',

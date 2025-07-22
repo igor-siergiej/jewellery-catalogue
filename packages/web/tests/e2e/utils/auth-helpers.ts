@@ -41,9 +41,12 @@ export const waitForAuthServices = async (page: Page) => {
     let retries = 0;
     const maxRetries = 10;
 
+    // Use environment variable for auth service URL, with fallback for local development
+    const authServiceUrl = process.env.E2E_AUTH_SERVICE_URL || 'http://192.168.68.54:5002';
+
     while (retries < maxRetries) {
         try {
-            const response = await page.request.get('http://192.168.68.54:5002/health');
+            const response = await page.request.get(`${authServiceUrl}/health`);
             if (response.status() === 200) break;
         } catch (error) {
             // Service not ready yet

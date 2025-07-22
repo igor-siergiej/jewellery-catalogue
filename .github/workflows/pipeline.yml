@@ -274,6 +274,8 @@ jobs:
         env:
           PLAYWRIGHT_BROWSERS_PATH: $HOME/.playwright-browsers-persistent
           STAGING_BASE_URL: ${{ needs.deploy-staging.outputs.staging-url }}
+          E2E_API_SERVICE_URL: http://localhost:5001
+          E2E_AUTH_SERVICE_URL: http://localhost:5002
 
       - name: Upload E2E test results
         uses: actions/upload-artifact@v4
