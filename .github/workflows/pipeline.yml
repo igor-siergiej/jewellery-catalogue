@@ -1,12 +1,5 @@
 name: CI/CD Pipeline 
 
-# Comprehensive LOCAL PERSISTENCE strategy for self-hosted runner:
-# - Yarn dependencies (persistent node_modules with smart sync)
-# - TypeScript build outputs (persistent builds with incremental updates)
-# - ESLint cache (persistent local cache)
-# - Playwright browsers (persistent install at $HOME/.playwright-browsers-persistent)
-# - Docker build layers (local buildx cache)
-
 on:
   push:
     branches:
@@ -230,9 +223,8 @@ jobs:
           # Link yarn cache
           ln -sf "$PERSISTENT_YARN_CACHE" ./.yarn
 
-      - name: Setup Playwright browsers (one-time install on runner)
+      - name: Setup Playwright browsers
         run: |
-          # Use persistent location on self-hosted runner (no sudo needed)
           export PLAYWRIGHT_BROWSERS_PATH="$HOME/.playwright-browsers-persistent"
           
           echo "Using Playwright browsers path: $PLAYWRIGHT_BROWSERS_PATH"
