@@ -8,6 +8,11 @@
         "test": "vitest --coverage",
         "pw:install": "PLAYWRIGHT_BROWSERS_PATH=~/.cache/ms-playwright playwright install --with-deps",
         "pw:run": "playwright test",
+        "pw:e2e": "PLAYWRIGHT_TEST_TYPE=e2e playwright test",
+        "pw:e2e:local": "PLAYWRIGHT_TEST_TYPE=e2e playwright test",
+        "pw:e2e:staging": "PLAYWRIGHT_TEST_TYPE=e2e NODE_ENV=staging playwright test",
+        "pw:e2e:headed": "PLAYWRIGHT_TEST_TYPE=e2e playwright test --headed",
+        "pw:e2e:debug": "PLAYWRIGHT_TEST_TYPE=e2e playwright test --debug",
         "pw:open": "playwright test --ui",
         "preview": "vite preview"
     },
