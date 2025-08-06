@@ -285,7 +285,6 @@ jobs:
           cd packages/web && PLAYWRIGHT_BROWSERS_PATH="$PLAYWRIGHT_BROWSERS_PATH" yarn pw:e2e
         env:
           PLAYWRIGHT_BROWSERS_PATH: $HOME/.playwright-browsers-persistent
-          PLAYWRIGHT_TEST_TYPE: e2e
           STAGING_BASE_URL: ${{ needs.deploy-staging.outputs.staging-url }}
           E2E_API_SERVICE_URL: http://localhost:5001
           E2E_AUTH_SERVICE_URL: http://localhost:5002
