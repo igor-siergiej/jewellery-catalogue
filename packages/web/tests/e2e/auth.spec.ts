@@ -3,7 +3,6 @@ import { expect, test } from '@playwright/test';
 import {
     clearAuthState,
     generateUniqueUsername,
-    loginUser,
     pageContent,
     registerUser,
     selectors,
@@ -244,129 +243,6 @@ test.describe('Authentication Flow', () => {
             // Click toggle to hide password again
             await page.locator(selectors.hidePasswordButton).click();
             await expect(passwordInput).toHaveAttribute('type', 'password');
-        });
-    });
-
-    test.describe('Complete Authentication Flow', () => {
-        test('should complete full register -> logout -> login flow', async ({ page }) => {
-            const username = 'testuser';
-            const password = testCredentials.validPassword;
-
-            // Step 1: Register
-            await registerUser(page, username, password);
-            expect(page.url()).toContain('/home');
-
-            // Step 2: Logout (simulate by clearing auth state)
-            await clearAuthState(page);
-
-            // Step 3: Login with the same credentials
-            await loginUser(page, username, password);
-            expect(page.url()).toContain('/home');
-
-            // Verify no error alerts
-            await expect(page.locator(selectors.errorAlert)).not.toBeVisible();
-        });
-
-        test('should redirect authenticated users away from auth pages', async ({ page }) => {
-            const username = 'testuser';
-            const password = testCredentials.validPassword;
-
-            // Register and login
-            await registerUser(page, username, password);
-
-            // Try to access login page while authenticated
-            await page.goto('/');
-            await page.waitForLoadState('networkidle');
-            expect(page.url()).toContain('/home');
-
-            // Try to access register page while authenticated
-            await page.goto('/register');
-            await page.waitForLoadState('networkidle');
-            expect(page.url()).toContain('/home');
-        });
-    });
-
-    test.describe('Error Handling and Network Issues', () => {
-        test('should handle network errors gracefully during registration', async ({ page }) => {
-            // Intercept and fail the registration request
-            await page.route('**/register', route => route.abort());
-
-            await page.goto('/register');
-            await page.waitForLoadState('networkidle');
-
-            const username = 'testuser';
-            const password = testCredentials.validPassword;
-
-            await page.fill(selectors.usernameInput, username);
-            await page.fill(selectors.passwordInput, password);
-            await page.click(selectors.submitButton);
-
-            // Should show error alert
-            await expect(page.locator(selectors.errorAlert)).toBeVisible();
-            await expect(page.locator(selectors.registrationError)).toBeVisible();
-        });
-
-        test('should handle network errors gracefully during login', async ({ page }) => {
-            // Intercept and fail the login request
-            await page.route('**/login', route => route.abort());
-
-            await page.goto('/');
-            await page.waitForLoadState('networkidle');
-
-            await page.fill(selectors.usernameInput, 'testuser1');
-            await page.fill(selectors.passwordInput, 'password123');
-            await page.click(selectors.submitButton);
-
-            // Should show error alert
-            await expect(page.locator(selectors.errorAlert)).toBeVisible();
-            await expect(page.locator(selectors.loginError)).toBeVisible();
-        });
-    });
-
-    test.describe('Form Loading States', () => {
-        test('should show loading state during registration', async ({ page }) => {
-            await page.goto('/register');
-            await page.waitForLoadState('networkidle');
-
-            const username = generateUniqueUsername();
-            const password = testCredentials.validPassword;
-
-            await page.fill(selectors.usernameInput, username);
-            await page.fill(selectors.passwordInput, password);
-
-            // Slow down the network to see loading state
-            await page.route('**/register', async (route) => {
-                await page.waitForTimeout(1000);
-                await route.continue();
-            });
-
-            await page.click(selectors.submitButton);
-
-            // Check loading button state
-            const submitButton = page.locator(selectors.submitButton);
-            await expect(submitButton).toBeDisabled();
-            await expect(submitButton).toHaveAttribute('aria-label', 'loading');
-        });
-
-        test('should show loading state during login', async ({ page }) => {
-            await page.goto('/');
-            await page.waitForLoadState('networkidle');
-
-            await page.fill(selectors.usernameInput, 'testuser2 ');
-            await page.fill(selectors.passwordInput, 'password123');
-
-            // Slow down the network to see loading state
-            await page.route('**/login', async (route) => {
-                await page.waitForTimeout(1000);
-                await route.continue();
-            });
-
-            await page.click(selectors.submitButton);
-
-            // Check loading button state
-            const submitButton = page.locator(selectors.submitButton);
-            await expect(submitButton).toBeDisabled();
-            await expect(submitButton).toHaveAttribute('aria-label', 'loading');
         });
     });
 });

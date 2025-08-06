@@ -8,10 +8,7 @@
         "test": "vitest --coverage",
         "pw:install": "PLAYWRIGHT_BROWSERS_PATH=~/.cache/ms-playwright playwright install --with-deps",
         "pw:run": "playwright test",
-        "pw:e2e": "playwright test --config=playwright-e2e.config.ts",
         "pw:open": "playwright test --ui",
-        "pw:headed": "playwright test --headed",
-        "pw:debug": "playwright test --debug",
         "preview": "vite preview"
     },
     "dependencies": {
