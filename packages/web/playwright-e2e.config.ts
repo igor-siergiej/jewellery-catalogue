@@ -1,5 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 
+// Simple config - set E2E service URLs directly
+process.env.E2E_API_SERVICE_URL = process.env.E2E_API_SERVICE_URL || 'http://localhost:5001';
+process.env.E2E_AUTH_SERVICE_URL = process.env.E2E_AUTH_SERVICE_URL || 'http://localhost:5002';
+
 export default defineConfig({
     testDir: './tests/e2e',
     fullyParallel: true,
@@ -8,10 +12,7 @@ export default defineConfig({
     workers: 3,
     reporter: 'html',
     use: {
-        // Prioritize STAGING_BASE_URL from CI, then localhost for CI environments,
-        // finally fall back to local development IP
-        baseURL: process.env.STAGING_BASE_URL
-            || (process.env.CI ? 'http://localhost:8082' : 'http://192.168.68.54:8082'),
+        baseURL: process.env.STAGING_BASE_URL || 'http://localhost:8082',
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
@@ -27,6 +28,4 @@ export default defineConfig({
             use: { ...devices['Desktop Chrome'] },
         },
     ],
-
-    // No webServer - we'll test against the deployed staging environment
 });

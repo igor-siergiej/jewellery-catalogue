@@ -249,7 +249,7 @@ test.describe('Authentication Flow', () => {
 
     test.describe('Complete Authentication Flow', () => {
         test('should complete full register -> logout -> login flow', async ({ page }) => {
-            const username = generateUniqueUsername();
+            const username = 'testuser';
             const password = testCredentials.validPassword;
 
             // Step 1: Register
@@ -268,7 +268,7 @@ test.describe('Authentication Flow', () => {
         });
 
         test('should redirect authenticated users away from auth pages', async ({ page }) => {
-            const username = generateUniqueUsername();
+            const username = 'testuser';
             const password = testCredentials.validPassword;
 
             // Register and login
@@ -294,7 +294,7 @@ test.describe('Authentication Flow', () => {
             await page.goto('/register');
             await page.waitForLoadState('networkidle');
 
-            const username = generateUniqueUsername();
+            const username = 'testuser';
             const password = testCredentials.validPassword;
 
             await page.fill(selectors.usernameInput, username);
@@ -313,7 +313,7 @@ test.describe('Authentication Flow', () => {
             await page.goto('/');
             await page.waitForLoadState('networkidle');
 
-            await page.fill(selectors.usernameInput, 'testuser');
+            await page.fill(selectors.usernameInput, 'testuser1');
             await page.fill(selectors.passwordInput, 'password123');
             await page.click(selectors.submitButton);
 
@@ -352,7 +352,7 @@ test.describe('Authentication Flow', () => {
             await page.goto('/');
             await page.waitForLoadState('networkidle');
 
-            await page.fill(selectors.usernameInput, 'testuser');
+            await page.fill(selectors.usernameInput, 'testuser2 ');
             await page.fill(selectors.passwordInput, 'password123');
 
             // Slow down the network to see loading state

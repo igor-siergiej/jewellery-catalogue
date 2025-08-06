@@ -98,8 +98,8 @@ services:
       context: .
       dockerfile: packages/web/Dockerfile
       args:
-         VITE_API_URL: ${VITE_API_URL}
-         VITE_AUTH_URL: ${VITE_AUTH_URL}
+        VITE_API_URL: http://localhost:5001
+        VITE_AUTH_URL: http://localhost:5002
     container_name: jewellery-catalogue-staging-web 
     env_file:
     - config.env
