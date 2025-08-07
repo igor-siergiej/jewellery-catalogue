@@ -13,6 +13,9 @@ test.describe('Given Start Page', () => {
         const rootElement = page.locator('#root');
         await expect(rootElement).toBeVisible();
 
+        // Wait for React app to load
+        await page.waitForTimeout(2000);
+
         await expect(page.locator('body')).not.toContainText('Error');
         await expect(page.locator('body')).not.toContainText('Something went wrong');
     });
@@ -36,10 +39,42 @@ test.describe('Given Start Page', () => {
         await page.goto('/');
         await page.waitForLoadState('networkidle');
 
+        const criticalErrors = consoleErrors.filter(error =>
+            !error.includes('favicon')
+            && !error.includes('manifest')
+            && !error.includes('DevTools')
+            && !error.includes('400 (Bad Request)')
+        );
+
+        expect(criticalErrors).toHaveLength(0);
 
         const criticalNetworkErrors = networkErrors.filter(error => !error.includes('/refresh'));
 
         expect(criticalNetworkErrors).toHaveLength(0);
+    });
+
+    test('should verify services are healthy by checking API connectivity', async ({ page, request }) => {
+        // Wait for services to be ready before testing connectivity
+        await waitForAuthServices(page);
+
+        // Use environment variables for service URLs, with fallbacks for local development
+        const apiServiceUrl = process.env.E2E_API_SERVICE_URL || 'http://192.168.68.54:5001';
+        const authServiceUrl = process.env.E2E_AUTH_SERVICE_URL || 'http://192.168.68.54:5002';
+
+        const apiResponse = await request.get(`${apiServiceUrl}/health`);
+        expect(apiResponse.status()).toBe(200);
+        const apiBody = await apiResponse.json();
+        expect(apiBody.service).toBe('api');
+
+        const authResponse = await request.get(`${authServiceUrl}/health`);
+        expect(authResponse.status()).toBe(200);
+        const authBody = await authResponse.json();
+        expect(authBody.service).toBe('auth');
+
+        await page.goto('/');
+        await page.waitForLoadState('networkidle');
+
+        await expect(page.locator('#root')).toBeVisible();
     });
 
     test('should verify basic styling is applied correctly', async ({ page }) => {
@@ -60,6 +95,8 @@ test.describe('Given Start Page', () => {
         await page.waitForLoadState('networkidle');
 
         await expect(page.locator('#root')).toBeVisible();
+
+        await page.waitForTimeout(2000);
 
         await expect(page.locator('body')).not.toContainText('Error');
     });
