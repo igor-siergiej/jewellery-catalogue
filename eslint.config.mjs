@@ -135,9 +135,9 @@ export default tseslint.config(
         },
     },
 
-    // Node.js specific configuration for API and Auth packages
+    // Node.js specific configuration for API
     {
-        files: ['packages/{api,auth}/**/*.ts'],
+        files: ['packages/{api}/**/*.ts'],
         rules: {
             // Node.js specific rules can go here
             '@typescript-eslint/no-require-imports': 'off',

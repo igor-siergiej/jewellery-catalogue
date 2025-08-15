@@ -7,7 +7,6 @@ COPY package.json yarn.lock .yarnrc.yml ./
 COPY packages/types/package.json packages/types/package.json
 COPY packages/api/package.json packages/api/package.json
 COPY packages/web/package.json packages/web/package.json
-COPY packages/auth/package.json packages/auth/package.json
 
 RUN corepack enable && corepack prepare yarn@stable --activate
 

@@ -6,8 +6,7 @@
     "scripts": {
         "start:web": "dotenv -e .env -- yarn workspace @jewellery-catalogue/web start",
         "start:api": "dotenv -e .env -- yarn workspace @jewellery-catalogue/api start",
-        "start:auth": "dotenv -e .env -- yarn workspace @jewellery-catalogue/auth start",
-        "start": "yarn start:web & yarn start:api & yarn start:auth"
+        "start": "yarn start:web & yarn start:api"
     },
     "workspaces": [
         "packages/*"
