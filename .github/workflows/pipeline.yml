@@ -1,4 +1,4 @@
-name: CI/CD Pipeline 
+name: CI/CD Pipeline
 
 on:
   push:
@@ -9,386 +9,147 @@ on:
       - main
 
 jobs:
-  test:
+  setup:
     runs-on: [self-hosted, linux, x64]
-    
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set semantic version
+        id: version
+        run: |
+          # Get the latest version from git tags
+          LATEST_VERSION=$(git tag --sort=-version:refname | head -n1)
+          
+          # If no tags exist, start with 0.1.0
+          if [ -z "$LATEST_VERSION" ]; then
+            LATEST_VERSION="0.1.0"
+          fi
+          
+          # Parse major, minor, patch
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST_VERSION"
+          
+          # Check commit message for version bump indicators
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          
+          if [[ "$COMMIT_MSG" == *"[major]"* ]]; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+          elif [[ "$COMMIT_MSG" == *"[minor]"* ]]; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          elif [[ "$COMMIT_MSG" == *"[patch]"* ]] || [[ "$COMMIT_MSG" == *"[fix]"* ]]; then
+            PATCH=$((PATCH + 1))
+          else
+            # Default to patch increment
+            PATCH=$((PATCH + 1))
+          fi
+          
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "Previous version: $LATEST_VERSION"
+          echo "New version: $NEW_VERSION"
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+  lint:
+    runs-on: [self-hosted, linux, x64]
+    needs: setup
+    steps:
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Setup persistent dependencies
-        run: |
-          # Use persistent location for node_modules
-          PERSISTENT_ROOT="$HOME/.persistent-ci"
-          PERSISTENT_NODE_MODULES="$PERSISTENT_ROOT/node_modules"
-          PERSISTENT_YARN_CACHE="$PERSISTENT_ROOT/.yarn"
-          
-          # Create persistent directories
-          mkdir -p "$PERSISTENT_ROOT"
-          mkdir -p "$PERSISTENT_YARN_CACHE"
-          
-          # Check if dependencies need updating
-          LOCK_HASH=$(sha256sum yarn.lock package.json packages/*/package.json 2>/dev/null | sha256sum | cut -d' ' -f1)
-          STORED_HASH_FILE="$PERSISTENT_ROOT/.dependency-hash"
-          
-          if [ -f "$STORED_HASH_FILE" ] && [ "$(cat $STORED_HASH_FILE)" = "$LOCK_HASH" ] && [ -d "$PERSISTENT_NODE_MODULES" ]; then
-            echo "✅ Dependencies unchanged - linking persistent node_modules"
-            ln -sf "$PERSISTENT_NODE_MODULES" ./node_modules
-            # Link package node_modules
-            for pkg in packages/*; do
-              if [ -d "$PERSISTENT_ROOT/$pkg/node_modules" ]; then
-                ln -sf "$PERSISTENT_ROOT/$pkg/node_modules" "./$pkg/node_modules"
-              fi
-            done
-          else
-            echo "📦 Dependencies changed - installing to persistent location"
-            # Install to workspace first
-            yarn install --immutable
-            # Copy to persistent location
-            cp -r node_modules "$PERSISTENT_NODE_MODULES"
-            for pkg in packages/*; do
-              if [ -d "$pkg/node_modules" ]; then
-                mkdir -p "$PERSISTENT_ROOT/$pkg"
-                cp -r "$pkg/node_modules" "$PERSISTENT_ROOT/$pkg/node_modules"
-              fi
-            done
-            # Store hash
-            echo "$LOCK_HASH" > "$STORED_HASH_FILE"
-          fi
-          
-          # Link yarn cache
-          ln -sf "$PERSISTENT_YARN_CACHE" ./.yarn
-
-      - name: Setup persistent TypeScript builds
-        run: |
-          PERSISTENT_BUILDS="$HOME/.persistent-ci/builds"
-          mkdir -p "$PERSISTENT_BUILDS"
-          
-          # Link build directories
-          for pkg in packages/*; do
-            if [ -d "$pkg" ]; then
-              mkdir -p "$PERSISTENT_BUILDS/${pkg##*/}"
-              ln -sf "$PERSISTENT_BUILDS/${pkg##*/}" "$pkg/build"
-              ln -sf "$PERSISTENT_BUILDS/${pkg##*/}" "$pkg/dist"
-            fi
-          done
-
-      - name: Setup persistent ESLint cache
-        run: |
-          PERSISTENT_ESLINT="$HOME/.persistent-ci/eslint"
-          mkdir -p "$PERSISTENT_ESLINT"
-          ln -sf "$PERSISTENT_ESLINT/eslintcache" .eslintcache
+      - name: Install dependencies
+        run: yarn install --immutable
 
       - name: Lint code
-        run: yarn eslint . --cache --cache-location .eslintcache
+        run: yarn eslint . 
 
       - name: Type check
-        run: yarn tsc --noEmit --composite false
+        run: yarn tsc --noEmit
 
-      - name: Build API package
-        run: yarn workspace @jewellery-catalogue/api build
-
-      - name: Build Auth package
-        run: yarn workspace @jewellery-catalogue/auth build
-
-      - name: Build Web package
-        run: yarn workspace @jewellery-catalogue/web build
-
-  deploy-staging:
-    needs: test
+  build-api:
     runs-on: [self-hosted, linux, x64]
-    if: github.ref == 'refs/heads/main'
-    outputs:
-      staging-url: ${{ steps.staging-info.outputs.url }}
-
+    needs: [setup, lint]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Check config file exists
-        run: |
-          if [ ! -f config.env ]; then
-            echo "Error: config.env file not found!"
-            echo "Please ensure config.env exists in the project root"
-            exit 1
-          fi
-          echo "✅ Found config.env file"
-
-      - name: Clean staging databases
-        run: |
-          # Stop staging services
-          docker compose -f docker-compose.staging.yml --env-file config.env down -v
-          
-          # Remove any existing staging volumes to ensure clean state
-          docker volume rm jewellery-catalogue-staging-mongo-data 2>/dev/null || true
-          docker volume rm jewellery-catalogue-staging-auth-mongo-data 2>/dev/null || true
-          docker volume rm jewellery-catalogue-staging-minio-data 2>/dev/null || true
-          docker volume rm jewellery-catalogue-staging-api-data 2>/dev/null || true
-          docker volume rm jewellery-catalogue-staging-auth-data 2>/dev/null || true
-
-      - name: Setup persistent Docker buildx cache
-        run: |
-          # Create persistent buildx cache directory
-          BUILDX_CACHE="$HOME/.persistent-ci/docker-buildx-cache"
-          mkdir -p "$BUILDX_CACHE"
-          echo "Using persistent Docker buildx cache at $BUILDX_CACHE"
-
-      - name: Build staging Docker images
-        run: |
-          # Enable buildkit for better caching with persistent cache
-          export DOCKER_BUILDKIT=1
-          export COMPOSE_DOCKER_CLI_BUILD=1
-          export BUILDX_CACHE="$HOME/.persistent-ci/docker-buildx-cache"
-          
-          # Load environment variables from config.env
-          set -a  # automatically export all variables
-          source config.env
-          set +a  # stop automatically exporting
-          
-          echo "Building with VITE_AUTH_URL=$VITE_AUTH_URL"
-          
-          # Build with environment variables properly loaded
-          docker compose -f docker-compose.staging.yml --env-file config.env build \
-            --build-arg BUILDKIT_INLINE_CACHE=1
-
-      - name: Deploy to staging
-        run: |
-          docker compose -f docker-compose.staging.yml --env-file config.env up -d
-
-      - name: Wait for staging services to be ready
-        run: |
-          timeout 60 bash -c 'until curl -f http://localhost:5001/health 2>/dev/null; do sleep 5; done' || echo "API health check timeout"
-          timeout 60 bash -c 'until curl -f http://localhost:5002/health 2>/dev/null; do sleep 5; done' || echo "Auth health check timeout"
-          timeout 60 bash -c 'until curl -f http://localhost:8082 2>/dev/null; do sleep 5; done' || echo "Web health check timeout"
-
-      - name: Set staging info
-        id: staging-info
-        run: |
-          echo "url=http://localhost:8082" >> $GITHUB_OUTPUT
-
-  e2e-tests:
-    needs: deploy-staging
-    runs-on: [self-hosted, linux, x64]
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Setup persistent dependencies
-        run: |
-          # Use persistent location for node_modules
-          PERSISTENT_ROOT="$HOME/.persistent-ci"
-          PERSISTENT_NODE_MODULES="$PERSISTENT_ROOT/node_modules"
-          PERSISTENT_YARN_CACHE="$PERSISTENT_ROOT/.yarn"
-          
-          # Create persistent directories
-          mkdir -p "$PERSISTENT_ROOT"
-          mkdir -p "$PERSISTENT_YARN_CACHE"
-          
-          # Check if dependencies need updating
-          LOCK_HASH=$(sha256sum yarn.lock package.json packages/*/package.json 2>/dev/null | sha256sum | cut -d' ' -f1)
-          STORED_HASH_FILE="$PERSISTENT_ROOT/.dependency-hash"
-          
-          if [ -f "$STORED_HASH_FILE" ] && [ "$(cat $STORED_HASH_FILE)" = "$LOCK_HASH" ] && [ -d "$PERSISTENT_NODE_MODULES" ]; then
-            echo "✅ Dependencies unchanged - linking persistent node_modules"
-            ln -sf "$PERSISTENT_NODE_MODULES" ./node_modules
-            # Link package node_modules
-            for pkg in packages/*; do
-              if [ -d "$PERSISTENT_ROOT/$pkg/node_modules" ]; then
-                ln -sf "$PERSISTENT_ROOT/$pkg/node_modules" "./$pkg/node_modules"
-              fi
-            done
-          else
-            echo "📦 Dependencies changed - installing to persistent location"
-            # Install to workspace first
-            yarn install --immutable
-            # Copy to persistent location
-            cp -r node_modules "$PERSISTENT_NODE_MODULES"
-            for pkg in packages/*; do
-              if [ -d "$pkg/node_modules" ]; then
-                mkdir -p "$PERSISTENT_ROOT/$pkg"
-                cp -r "$pkg/node_modules" "$PERSISTENT_ROOT/$pkg/node_modules"
-              fi
-            done
-            # Store hash
-            echo "$LOCK_HASH" > "$STORED_HASH_FILE"
-          fi
-          
-          # Link yarn cache
-          ln -sf "$PERSISTENT_YARN_CACHE" ./.yarn
-
-      - name: Setup Playwright browsers
-        run: |
-          export PLAYWRIGHT_BROWSERS_PATH="$HOME/.playwright-browsers-persistent"
-          
-          echo "Using Playwright browsers path: $PLAYWRIGHT_BROWSERS_PATH"
-          
-          # Clear any old default browser installations that might conflict
-          if [ -d "$HOME/.cache/ms-playwright" ] && [ "$HOME/.cache/ms-playwright" != "$PLAYWRIGHT_BROWSERS_PATH" ]; then
-            echo "🧹 Clearing old default browser cache at ~/.cache/ms-playwright"
-            rm -rf "$HOME/.cache/ms-playwright"
-          fi
-          
-          # Check if browsers are already installed
-          if [ -d "$PLAYWRIGHT_BROWSERS_PATH" ] && [ "$(ls -A $PLAYWRIGHT_BROWSERS_PATH 2>/dev/null)" ]; then
-            echo "✅ Playwright browsers already installed in $PLAYWRIGHT_BROWSERS_PATH"
-            echo "Contents:" && ls -la "$PLAYWRIGHT_BROWSERS_PATH" | head -5
-            echo "Checking browser versions..."
-            cd packages/web && PLAYWRIGHT_BROWSERS_PATH="$PLAYWRIGHT_BROWSERS_PATH" yarn playwright --version
-          else
-            echo "📦 Installing Playwright browsers (one-time setup)..."
-            mkdir -p "$PLAYWRIGHT_BROWSERS_PATH"
-            cd packages/web && PLAYWRIGHT_BROWSERS_PATH="$PLAYWRIGHT_BROWSERS_PATH" yarn playwright install
-            echo "✅ Playwright browsers installed to $PLAYWRIGHT_BROWSERS_PATH"
-            echo "Installed browsers:" && ls -la "$PLAYWRIGHT_BROWSERS_PATH"
-          fi
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: $HOME/.playwright-browsers-persistent
-
-
-      - name: Validate Playwright browsers before testing
-        run: |
-          export PLAYWRIGHT_BROWSERS_PATH="$HOME/.playwright-browsers-persistent"
-          echo "Validating Playwright browsers at: $PLAYWRIGHT_BROWSERS_PATH"
-          if [ -d "$PLAYWRIGHT_BROWSERS_PATH" ] && [ "$(ls -A $PLAYWRIGHT_BROWSERS_PATH 2>/dev/null)" ]; then
-            echo "✅ Browser directory exists and contains:" && ls "$PLAYWRIGHT_BROWSERS_PATH"
-            cd packages/web && PLAYWRIGHT_BROWSERS_PATH="$PLAYWRIGHT_BROWSERS_PATH" yarn playwright install --dry-run || echo "Browsers need installation"
-          else
-            echo "❌ No browsers found at $PLAYWRIGHT_BROWSERS_PATH"
-            exit 1
-          fi
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: $HOME/.playwright-browsers-persistent
-
-      - name: Wait for services to stabilize
-        run: |
-          echo "⏳ Allowing services to stabilize after health checks..."
-          sleep 10
-          
-          echo "🔍 Final service status check before E2E tests:"
-          echo "API Health:" && (curl -s http://localhost:5001/health | head -5 || echo "API not responding")
-          echo "Auth Health:" && (curl -s http://localhost:5002/health | head -5 || echo "Auth not responding") 
-          echo "Web Status:" && (curl -s -I http://localhost:8082 | head -3 || echo "Web not responding")
-          
-          echo "🏃 Ready to run E2E tests!"
-
-      - name: Verify Playwright Configuration
-        run: |
-          cd packages/web
-          echo "🔍 Verifying Playwright configuration..."
-          echo "Current directory: $(pwd)"
-          echo "Config file exists: $(test -f playwright.config.ts && echo 'YES' || echo 'NO')"
-          echo "Test files exist: $(test -d tests/e2e && echo 'YES' || echo 'NO')"
-          echo "Listing test files: $(find tests/e2e -name '*.spec.ts' -type f | wc -l) files found"
-          
-          # Test configuration loading
-          yarn playwright test --config=playwright.config.ts --list --reporter=line || {
-            echo "❌ Failed to load Playwright configuration"
-            echo "Trying to diagnose the issue..."
-            yarn playwright --version
-            node --version
-            yarn --version
-            exit 1
-          }
-          echo "✅ Playwright configuration verified successfully"
-
-      - name: Run E2E Tests against Staging
-        run: |
-          export PLAYWRIGHT_BROWSERS_PATH="$HOME/.playwright-browsers-persistent"
-          echo "Running tests with Playwright browsers at: $PLAYWRIGHT_BROWSERS_PATH"
-          echo "Current working directory: $(pwd)"
-          echo "Directory contents: $(ls -la)"
-          cd packages/web
-          echo "Changed to packages/web directory: $(pwd)"
-          echo "Web directory contents: $(ls -la)"
-          echo "Playwright config exists: $(ls -la playwright.config.ts)"
-          echo "Test directory contents: $(ls -la tests/e2e/)"
-          PLAYWRIGHT_BROWSERS_PATH="$PLAYWRIGHT_BROWSERS_PATH" yarn playwright test --config=playwright.config.ts
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: $HOME/.playwright-browsers-persistent
-          STAGING_BASE_URL: ${{ needs.deploy-staging.outputs.staging-url }}
-          E2E_API_SERVICE_URL: http://localhost:5001
-          E2E_AUTH_SERVICE_URL: http://localhost:5002
-
-      - name: Upload E2E test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: e2e-playwright-report
-          path: packages/web/playwright-report/
-          retention-days: 30
-
-      - name: Upload E2E test screenshots
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: e2e-playwright-test-results
-          path: packages/web/test-results/
-          retention-days: 30
-
-  deploy-production:
-    needs: [deploy-staging, e2e-tests]
-    runs-on: [self-hosted, linux, x64]
-    if: github.ref == 'refs/heads/main' && success()
-
-    steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Write production .env from Secrets
+      - name: Build and push jewellery-catalogue-api
         run: |
-          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > .env
-          echo "VITE_AUTH_URL=${{ secrets.VITE_AUTH_URL }}" >> .env
-          echo "API_CONNECTION_URI=${{ secrets.API_CONNECTION_URI }}" >> .env
-          echo "API_DATABASE_NAME=${{ secrets.API_DATABASE_NAME }}" >> .env
-          echo "API_PORT=${{ secrets.API_PORT }}" >> .env
-          echo "AUTH_CONNECTION_URI=${{ secrets.AUTH_CONNECTION_URI }}" >> .env
-          echo "AUTH_DATABASE_NAME=${{ secrets.AUTH_DATABASE_NAME }}" >> .env
-          echo "AUTH_PORT=${{ secrets.AUTH_PORT }}" >> .env
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-          echo "ACCESS_TOKEN_EXPIRY=${{ secrets.ACCESS_TOKEN_EXPIRY }}" >> .env
-          echo "REFRESH_TOKEN_EXPIRY=${{ secrets.REFRESH_TOKEN_EXPIRY }}" >> .env
-          echo "SECURE=${{ secrets.SECURE }}" >> .env
-          echo "SAME_SITE=${{ secrets.SAME_SITE }}" >> .env
-          echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> .env
-          echo "BUCKET_ACCESS_KEY=${{ secrets.BUCKET_ACCESS_KEY }}" >> .env
-          echo "BUCKET_SECRET_KEY=${{ secrets.BUCKET_SECRET_KEY }}" >> .env
-          echo "BUCKET_PORT=${{ secrets.BUCKET_PORT }}" >> .env
-          echo "BUCKET_ENDPOINT=${{ secrets.BUCKET_ENDPOINT }}" >> .env
-          echo "MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}" >> .env
-          echo "MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}" >> .env
+          docker build -f packages/api/Dockerfile -t 192.168.68.54:31834/jewellery-catalogue-api:${{ needs.setup.outputs.version }} -t 192.168.68.54:31834/jewellery-catalogue-api:latest .
+          docker push 192.168.68.54:31834/jewellery-catalogue-api:${{ needs.setup.outputs.version }}
+          docker push 192.168.68.54:31834/jewellery-catalogue-api:latest
 
-      - name: Setup persistent Docker buildx cache
-        run: |
-          # Use same persistent buildx cache directory
-          BUILDX_CACHE="$HOME/.persistent-ci/docker-buildx-cache"
-          mkdir -p "$BUILDX_CACHE"
-          echo "Using persistent Docker buildx cache at $BUILDX_CACHE"
+  build-web:
+    runs-on: [self-hosted, linux, x64]
+    needs: [setup, lint]
+    steps:
+      - name: Enable Corepack
+        run: corepack enable
 
-      - name: Build production Docker images
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build and push jewellery-catalogue-web
         run: |
-          # Enable buildkit for better caching with persistent cache
-          export DOCKER_BUILDKIT=1
-          export COMPOSE_DOCKER_CLI_BUILD=1
-          export BUILDX_CACHE="$HOME/.persistent-ci/docker-buildx-cache"
+          docker build -f packages/web/Dockerfile -t 192.168.68.54:31834/jewellery-catalogue-web:${{ needs.setup.outputs.version }} -t 192.168.68.54:31834/jewellery-catalogue-web:latest .
+          docker push 192.168.68.54:31834/jewellery-catalogue-web:${{ needs.setup.outputs.version }}
+          docker push 192.168.68.54:31834/jewellery-catalogue-web:latest
+
+  push-tag:
+    runs-on: [self-hosted, linux, x64]
+    needs: [setup, build-api, build-web]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Create git tag
+        run: |
+          git config --global user.email "jewellery-catalogue-bot@users.noreply.github.com"
+          git config --global user.name "jewellery-catalogue-bot"
+          git tag ${{ needs.setup.outputs.version }}
+          git push origin ${{ needs.setup.outputs.version }}
+
+      - name: Update ArgoCD GitOps
+        run: |
+          # Clone the argonaut repository
+          git clone https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/igor-siergiej/argonaut.git argonaut-repo
+          cd argonaut-repo
           
-          # Build with persistent cache (reuse from staging builds)
-          docker compose build \
-            --build-arg BUILDKIT_INLINE_CACHE=1
+          # Configure git
+          git config user.email "argonaut-bot@users.noreply.github.com"
+          git config user.name "argonaut-bot"
+          
+          # Update the staging deployment with new image versions
+          sed -i "s|192.168.68.54:31834/jewellery-catalogue-api:.*|192.168.68.54:31834/jewellery-catalogue-api:${{ needs.setup.outputs.version }}|g" apps/jewellery-catalogue/overlays/staging/patch-deployment.yaml
+          sed -i "s|192.168.68.54:31834/jewellery-catalogue-web:.*|192.168.68.54:31834/jewellery-catalogue-web:${{ needs.setup.outputs.version }}|g" apps/jewellery-catalogue/overlays/staging/patch-deployment.yaml
+          
+          # Commit and push changes
+          git add apps/jewellery-catalogue/overlays/staging/patch-deployment.yaml
+          git commit -m "Update jewellery-catalogue staging to version ${{ needs.setup.outputs.version }}"
+          git push origin main
 
-      - name: Deploy to production
-        run: |
-          docker compose down
-          docker compose up -d
-
-      - name: Cleanup staging
-        run: |
-          # Clean up staging environment after successful production deployment
-          docker compose -f docker-compose.staging.yml --env-file config.env down -v
 
