@@ -10,7 +10,7 @@ import { DependencyToken } from './lib/dependencyContainer/types';
 import routes from './routes';
 import { HttpErrorCode } from './types';
 
-const port = process.env.API_PORT;
+const port = process.env.PORT;
 
 const allowedOrigins = [
     'http://localhost:3000', // Development

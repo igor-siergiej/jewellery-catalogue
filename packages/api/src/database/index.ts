@@ -12,7 +12,7 @@ export class Database implements IDatabase {
     private logger: ILogger;
 
     constructor() {
-        const connectionString = process.env.API_CONNECTION_URI;
+        const connectionString = process.env.CONNECTION_URI;
 
         if (!connectionString) {
             throw new Error('Database connection string missing in environment variables');
@@ -30,7 +30,7 @@ export class Database implements IDatabase {
     };
 
     public connect = async () => {
-        const databaseName = process.env.API_DATABASE_NAME;
+        const databaseName = process.env.DATABASE_NAME;
 
         if (!databaseName) {
             this.logger.error('Database name missing in environment variables');

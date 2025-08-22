@@ -15,10 +15,9 @@ export class Bucket implements IBucket {
         const bucketName = process.env.BUCKET_NAME;
         const accessKey = process.env.BUCKET_ACCESS_KEY;
         const secretKey = process.env.BUCKET_SECRET_KEY;
-        const port = process.env.BUCKET_PORT;
         const endPoint = process.env.BUCKET_ENDPOINT;
 
-        if (!accessKey || !secretKey || !port || !endPoint || !bucketName) {
+        if (!accessKey || !secretKey || !endPoint || !bucketName) {
             this.logger.error('Missing env vars to create bucket client');
             return;
         }
@@ -28,7 +27,6 @@ export class Bucket implements IBucket {
         this.client = new Client({
             useSSL: false,
             endPoint,
-            port: Number.parseInt(port),
             accessKey,
             secretKey
         });
