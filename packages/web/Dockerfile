@@ -1,8 +1,5 @@
 FROM node:22 AS builder
 
-ARG VITE_AUTH_URL
-ENV VITE_AUTH_URL=$VITE_AUTH_URL
-
 WORKDIR /app
 
 COPY package.json yarn.lock .yarnrc.yml ./
