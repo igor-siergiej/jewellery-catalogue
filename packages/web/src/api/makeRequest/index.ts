@@ -13,12 +13,19 @@ export const makeRequest = async <T>({
     const parsedBody = (body instanceof FormData) ? body : JSON.stringify(body);
     const encodedAccessToken = btoa(accessToken);
 
+    // When using FormData, don't set Content-Type header - let browser set it automatically
+    const requestHeaders: Record<string, string> = {
+        Authorization: `Bearer ${encodedAccessToken}`,
+    };
+
+    // Only add other headers if not using FormData (to avoid Content-Type conflicts)
+    if (!(body instanceof FormData)) {
+        Object.assign(requestHeaders, headers);
+    }
+
     const response = await fetch(pathname, {
         method: method,
-        headers: {
-            ...headers,
-            Authorization: `Bearer ${encodedAccessToken}`,
-        },
+        headers: requestHeaders,
         body: body ? parsedBody : undefined
     });
 
