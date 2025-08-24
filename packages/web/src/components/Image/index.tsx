@@ -1,7 +1,6 @@
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { useState } from 'react';
 
-import { origin } from '../../api/makeRequest';
 import useStyles from './index.styles';
 
 export interface ImageProps {
@@ -11,7 +10,7 @@ export interface ImageProps {
 export const Image: React.FC<ImageProps> = ({ imageId }) => {
     const { classes } = useStyles();
     const [error, setError] = useState(false);
-    const imgSrc = `${origin}/api/image/${imageId}`;
+    const imgSrc = `/api/image/${imageId}`;
 
     if (error) {
         return (<ErrorOutlineIcon />);
