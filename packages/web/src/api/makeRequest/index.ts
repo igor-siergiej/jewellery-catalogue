@@ -2,9 +2,6 @@ import { MakeRequestProps } from '@jewellery-catalogue/types';
 
 import { withTokenRefresh } from '../../utils/tokenUtils';
 
-export const origin = import.meta.env.VITE_API_URL;
-
-// Base makeRequest function without token refresh logic
 export const makeRequest = async <T>({
     pathname,
     method,
@@ -13,11 +10,10 @@ export const makeRequest = async <T>({
     body,
     accessToken,
 }: MakeRequestProps) => {
-    const url = origin + pathname;
     const parsedBody = (body instanceof FormData) ? body : JSON.stringify(body);
     const encodedAccessToken = btoa(accessToken);
 
-    const response = await fetch(url, {
+    const response = await fetch(pathname, {
         method: method,
         headers: {
             ...headers,

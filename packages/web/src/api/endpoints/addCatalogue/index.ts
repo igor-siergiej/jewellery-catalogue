@@ -1,5 +1,5 @@
 export const addCatalogue = async (userId: string) => {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/catalogue`, {
+    const response = await fetch('/api/catalogue', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
