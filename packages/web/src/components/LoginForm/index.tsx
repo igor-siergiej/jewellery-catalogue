@@ -10,6 +10,7 @@ import { HOME_PAGE } from '../../constants/routes';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
 import { useAuth } from '../../context/AuthContext';
+import { getAuthUrl } from '../../utils/loadConfig';
 import { LoginParams } from './types';
 
 export const LoginForm: React.FC = () => {
@@ -27,7 +28,7 @@ export const LoginForm: React.FC = () => {
     const onSubmit = async (data: LoginParams) => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${import.meta.env.VITE_AUTH_URL}/login`, {
+            const response = await fetch(`${getAuthUrl()}/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

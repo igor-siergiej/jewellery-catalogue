@@ -1,5 +1,6 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
+import { getAuthUrl } from '../utils/loadConfig';
 import { useUser } from './UserContext';
 
 interface AuthContextType {
@@ -30,7 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const logout = useCallback(async () => {
         try {
             // Make request to logout endpoint to invalidate session
-            await fetch(`${import.meta.env.VITE_AUTH_URL}/logout`, {
+            await fetch(`${getAuthUrl()}/logout`, {
                 method: 'POST',
                 credentials: 'include',
             });

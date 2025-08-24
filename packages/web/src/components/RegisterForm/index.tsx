@@ -12,6 +12,7 @@ import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
 import { useAuth } from '../../context/AuthContext';
 import { extractUserFromToken } from '../../utils/jwtUtils';
+import { getAuthUrl } from '../../utils/loadConfig';
 import { RegisterParams } from './types';
 
 export const RegisterForm: React.FC = () => {
@@ -36,7 +37,7 @@ export const RegisterForm: React.FC = () => {
     const onSubmit = async (data: RegisterParams) => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${import.meta.env.VITE_AUTH_URL}/register`, {
+            const response = await fetch(`${getAuthUrl()}/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -110,12 +110,6 @@ await page.route('**/api/endpoint', async route => {
   helperText={errors.fieldName?.message || ' '}
 />
 ```
-
-## Environment Variables
-- `VITE_API_URL` - Backend API base URL
-- `VITE_AUTH_URL` - Authentication service URL
-- Use `import.meta.env` for Vite environment variables
-
 ## Common Tasks
 
 ### Adding New API Endpoint
