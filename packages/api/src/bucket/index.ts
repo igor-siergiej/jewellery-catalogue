@@ -24,9 +24,13 @@ export class Bucket implements IBucket {
 
         this.bucketName = bucketName;
 
+        const [hostname, portStr] = endPoint.split(':');
+        const port = portStr ? parseInt(portStr) : 7000;
+
         this.client = new Client({
             useSSL: false,
-            endPoint,
+            endPoint: hostname,
+            port: port,
             accessKey,
             secretKey
         });
