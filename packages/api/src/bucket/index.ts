@@ -12,6 +12,14 @@ export class Bucket implements IBucket {
     private logger: ILogger;
 
     constructor() {
+        const appLogger = DependencyContainer.getInstance().resolve(DependencyToken.Logger);
+
+        if (!appLogger) {
+            throw new Error('Logger dependency not resolved');
+        }
+
+        this.logger = appLogger;
+
         const bucketName = process.env.BUCKET_NAME;
         const accessKey = process.env.BUCKET_ACCESS_KEY;
         const secretKey = process.env.BUCKET_SECRET_KEY;
@@ -19,7 +27,7 @@ export class Bucket implements IBucket {
 
         if (!accessKey || !secretKey || !endPoint || !bucketName) {
             this.logger.error('Missing env vars to create bucket client');
-            return;
+            throw new Error('Missing required environment variables for bucket configuration');
         }
 
         this.bucketName = bucketName;
@@ -34,14 +42,6 @@ export class Bucket implements IBucket {
             accessKey,
             secretKey
         });
-
-        const logger = DependencyContainer.getInstance().resolve(DependencyToken.Logger);
-
-        if (!logger) {
-            throw new Error('Logger dependency not resolved');
-        }
-
-        this.logger = logger;
 
         this.logger.info('Created Bucket client');
     }
