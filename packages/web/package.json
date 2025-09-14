@@ -1,9 +1,10 @@
 {
     "name": "@jewellery-catalogue/web",
     "version": "1.0.0",
-    "type": "module",
     "scripts": {
         "start": "vite --port 3000",
+        "start:mock-auth": "node mock-auth-server.js",
+        "start:with-mock": "concurrently \"npm run start:mock-auth\" \"npm run start\"",
         "build": "vite build --emptyOutDir",
         "test": "vitest --coverage",
         "pw:install": "PLAYWRIGHT_BROWSERS_PATH=~/.cache/ms-playwright playwright install --with-deps",
@@ -31,8 +32,13 @@
         "@testing-library/jest-dom": "^6.6.3",
         "@testing-library/react": "^16.3.0",
         "@testing-library/user-event": "^14.6.1",
+        "body-parser": "^1.20.2",
+        "concurrently": "^8.2.2",
+        "cookie-parser": "^1.4.7",
+        "cors": "^2.8.5",
         "datejs": "^1.0.0-rc3",
         "dayjs": "^1.11.13",
+        "express": "^4.18.2",
         "jsdom": "^26.1.0",
         "prettier": "^3.6.2",
         "react": "^19.1.0",
@@ -47,6 +53,7 @@
     },
     "devDependencies": {
         "@playwright/test": "^1.54.1",
+        "@types/cookie-parser": "^1",
         "@types/jest": "^30.0.0",
         "@types/node": "^24.0.13",
         "@types/react": "^19.1.8",
