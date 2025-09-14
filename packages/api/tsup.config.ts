@@ -9,5 +9,6 @@ export default defineConfig({
     shims: false,
     sourcemap: true,
     clean: true,
-    dts: false
+    dts: false,
+    noExternal: ['koa', '@koa/cors', '@koa/bodyparser', 'koa-router', 'dotenv', 'mongodb', 'minio', '@igor-siergiej/api-utils']
 });
