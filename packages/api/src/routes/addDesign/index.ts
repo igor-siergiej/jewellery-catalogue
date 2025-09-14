@@ -1,10 +1,10 @@
-import { Catalogue, Design, PersistentFile, UploadDesign } from '@jewellery-catalogue/types';
+import { Design, PersistentFile, UploadDesign } from '@jewellery-catalogue/types';
+import fs from 'fs';
 import { Context } from 'koa';
 import { ObjectId } from 'mongodb';
 
-import { CollectionName } from '../../database/types';
-import { DependencyContainer } from '../../lib/dependencyContainer';
-import { DependencyToken } from '../../lib/dependencyContainer/types';
+import { dependencyContainer } from '../../dependencies';
+import { CollectionNames, DependencyToken } from '../../dependencies/types';
 
 export const addDesign = async (ctx: Context) => {
     const { catalogueId } = ctx.params;
@@ -19,9 +19,15 @@ export const addDesign = async (ctx: Context) => {
         return;
     }
 
-    const bucket = DependencyContainer.getInstance().resolve(DependencyToken.Bucket);
+    const bucket = dependencyContainer.resolve(DependencyToken.Bucket);
 
-    await bucket.addImage(imageId.toString(), file);
+    // Read the file from filesystem and convert to Buffer
+    const fileBuffer = fs.readFileSync(file.filepath);
+
+    // Upload to bucket with proper metadata
+    await bucket.putObject(imageId.toString(), fileBuffer, {
+        contentType: file.mimetype || 'application/octet-stream'
+    });
 
     const design: Design = {
         id: new ObjectId().toString(),
@@ -34,7 +40,7 @@ export const addDesign = async (ctx: Context) => {
         materials: JSON.parse(materials)
     };
 
-    const database = DependencyContainer.getInstance().resolve(DependencyToken.Database);
+    const database = dependencyContainer.resolve(DependencyToken.Database);
 
     if (!database) {
         ctx.status = 500;
@@ -42,7 +48,7 @@ export const addDesign = async (ctx: Context) => {
         return;
     }
 
-    const collection = database.getCollection<Catalogue>(CollectionName.Catalogues);
+    const collection = database.getCollection(CollectionNames.Catalogues);
 
     const updated = await collection.findOneAndUpdate({ _id: new ObjectId(catalogueId) }, { $push: { designs: design } }, { returnDocument: 'after' });
 

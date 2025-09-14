@@ -2,9 +2,8 @@ import { Catalogue } from '@jewellery-catalogue/types';
 import { Context } from 'koa';
 import { ObjectId } from 'mongodb';
 
-import { CollectionName } from '../../database/types';
-import { DependencyContainer } from '../../lib/dependencyContainer';
-import { DependencyToken } from '../../lib/dependencyContainer/types';
+import { dependencyContainer } from '../../dependencies';
+import { CollectionNames, DependencyToken } from '../../dependencies/types';
 
 export const getMaterials = async (ctx: Context) => {
     const { catalogueId } = ctx.params;
@@ -15,7 +14,7 @@ export const getMaterials = async (ctx: Context) => {
         return;
     }
 
-    const database = DependencyContainer.getInstance().resolve(DependencyToken.Database);
+    const database = dependencyContainer.resolve(DependencyToken.Database);
 
     if (!database) {
         ctx.status = 500;
@@ -23,7 +22,7 @@ export const getMaterials = async (ctx: Context) => {
         return;
     }
 
-    const collection = database.getCollection<Catalogue>(CollectionName.Catalogues);
+    const collection = database.getCollection(CollectionNames.Catalogues);
 
     const catalogue = await collection.findOne({ _id: new ObjectId(catalogueId) });
 

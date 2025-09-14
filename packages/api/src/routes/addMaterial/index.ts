@@ -2,9 +2,8 @@ import { Catalogue, FormMaterial, FormMaterialKeysMap, Material, MaterialType } 
 import { Context } from 'koa';
 import { ObjectId } from 'mongodb';
 
-import { CollectionName } from '../../database/types';
-import { DependencyContainer } from '../../lib/dependencyContainer';
-import { DependencyToken } from '../../lib/dependencyContainer/types';
+import { dependencyContainer } from '../../dependencies';
+import { CollectionNames, DependencyToken } from '../../dependencies/types';
 import { convertFormDataToMaterial } from './util';
 
 export const addMaterial = async (ctx: Context) => {
@@ -17,7 +16,7 @@ export const addMaterial = async (ctx: Context) => {
         return;
     }
 
-    const logger = DependencyContainer.getInstance().resolve(DependencyToken.Logger);
+    const logger = dependencyContainer.resolve(DependencyToken.Logger);
 
     if (!logger) {
         throw new Error('Logger dependency not resolved');
@@ -25,7 +24,7 @@ export const addMaterial = async (ctx: Context) => {
 
     const material = getMaterial(materialData);
 
-    const database = DependencyContainer.getInstance().resolve(DependencyToken.Database);
+    const database = dependencyContainer.resolve(DependencyToken.Database);
 
     if (!database) {
         ctx.status = 500;
@@ -33,7 +32,7 @@ export const addMaterial = async (ctx: Context) => {
         return;
     }
 
-    const collection = database.getCollection<Catalogue>(CollectionName.Catalogues);
+    const collection = database.getCollection(CollectionNames.Catalogues);
     const updated = await collection.findOneAndUpdate({ _id: new ObjectId(catalogueId) }, { $push: { materials: material } }, { returnDocument: 'after' });
 
     if (!updated) {

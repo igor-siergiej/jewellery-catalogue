@@ -1,7 +1,7 @@
 import { Context } from 'koa';
 
-import { DependencyContainer } from '../../lib/dependencyContainer';
-import { DependencyToken } from '../../lib/dependencyContainer/types';
+import { dependencyContainer } from '../../dependencies';
+import { DependencyToken } from '../../dependencies/types';
 
 export const getImage = async (ctx: Context) => {
     const { id } = ctx.params;
@@ -10,7 +10,7 @@ export const getImage = async (ctx: Context) => {
         throw new Error('Inalid path params');
     }
 
-    const bucket = DependencyContainer.getInstance().resolve(DependencyToken.Bucket);
+    const bucket = dependencyContainer.resolve(DependencyToken.Bucket);
 
     const objectStream = await bucket.getObjectStream(id);
     const imageStats = await bucket.getHeadObject(id);

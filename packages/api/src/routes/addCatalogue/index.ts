@@ -2,9 +2,8 @@ import { Catalogue } from '@jewellery-catalogue/types';
 import { Context } from 'koa';
 import { ObjectId } from 'mongodb';
 
-import { CollectionName } from '../../database/types';
-import { DependencyContainer } from '../../lib/dependencyContainer';
-import { DependencyToken } from '../../lib/dependencyContainer/types';
+import { dependencyContainer } from '../../dependencies';
+import { CollectionNames, DependencyToken } from '../../dependencies/types';
 
 export const addCatalogue = async (ctx: Context) => {
     const { id } = ctx.request.body as { id: string };
@@ -15,8 +14,8 @@ export const addCatalogue = async (ctx: Context) => {
         return;
     }
 
-    const database = DependencyContainer.getInstance().resolve(DependencyToken.Database);
-    const collection = database.getCollection<Catalogue>(CollectionName.Catalogues);
+    const database = dependencyContainer.resolve(DependencyToken.Database);
+    const collection = database.getCollection(CollectionNames.Catalogues);
 
     // Check if catalogue with this ID already exists
     const existingCatalogue = await collection.findOne({ _id: new ObjectId(id) });
