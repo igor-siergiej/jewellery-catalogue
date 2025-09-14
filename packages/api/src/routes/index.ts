@@ -11,7 +11,7 @@ import { getMaterials } from './getMaterials';
 const router = new Router();
 
 // Health check endpoint
-router.get('/health', async (ctx) => {
+router.get('/api/health', async (ctx) => {
     ctx.status = 200;
     ctx.body = { status: 'healthy', service: 'api', timestamp: new Date().toISOString() };
 });
