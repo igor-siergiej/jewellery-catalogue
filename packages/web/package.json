@@ -1,6 +1,6 @@
 {
     "name": "@jewellery-catalogue/web",
-    "version": "0.1.9",
+    "version": "0.1.10",
     "scripts": {
         "start": "vite --port 3000",
         "start:mock-auth": "node mock-auth-server.js",
