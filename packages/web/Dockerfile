@@ -1,20 +1,31 @@
 FROM node:22 AS builder
 
+ARG APP_VERSION
+ENV APP_VERSION=$APP_VERSION
+
 WORKDIR /app
 
-COPY package.json yarn.lock .yarnrc.yml ./
+COPY package.json yarn.lock ./
+COPY .yarnrc.yml ./.yarnrc.yml
 
 COPY packages/types/package.json packages/types/package.json
 COPY packages/web/package.json packages/web/package.json
 COPY packages/api/package.json packages/api/package.json
 
-RUN corepack enable && corepack prepare yarn@stable --activate
+ENV YARN_NODE_LINKER=node-modules
 
-RUN yarn install --immutable 
+RUN corepack enable && corepack prepare yarn@4.9.2 --activate
+
+RUN --mount=type=secret,id=PAT_TOKEN,required \
+  sh -c 'export PAT_TOKEN="$(cat /run/secrets/PAT_TOKEN)" && yarn install --immutable'
 
 COPY . .
 
-RUN yarn workspace @jewellery-catalogue/web build
+RUN --mount=type=secret,id=PAT_TOKEN,required \
+  sh -c 'export PAT_TOKEN="$(cat /run/secrets/PAT_TOKEN)" && yarn install --immutable'
+
+RUN --mount=type=secret,id=PAT_TOKEN,required \
+  sh -c 'export PAT_TOKEN="$(cat /run/secrets/PAT_TOKEN)" APP_VERSION="$APP_VERSION" && yarn workspace @jewellery-catalogue/web build'
 
 FROM nginx:alpine
 

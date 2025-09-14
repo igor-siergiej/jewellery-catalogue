@@ -1,33 +1,34 @@
-FROM node:22-slim AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json yarn.lock .yarnrc.yml ./
+COPY package.json yarn.lock ./
+COPY .yarnrc.yml ./.yarnrc.yml
 
 COPY packages/types/package.json packages/types/package.json
 COPY packages/api/package.json packages/api/package.json
 COPY packages/web/package.json packages/web/package.json
 
-RUN corepack enable && corepack prepare yarn@stable --activate
+ENV YARN_NODE_LINKER=node-modules
 
-RUN yarn install --immutable
+RUN corepack enable && corepack prepare yarn@4.9.2 --activate
+
+RUN --mount=type=secret,id=PAT_TOKEN,required \
+  sh -c 'export PAT_TOKEN="$(cat /run/secrets/PAT_TOKEN)" && yarn install --immutable'
 
 COPY . .
 
-RUN yarn workspace @jewellery-catalogue/api build
+RUN --mount=type=secret,id=PAT_TOKEN,required \
+  sh -c 'export PAT_TOKEN="$(cat /run/secrets/PAT_TOKEN)" && yarn install --immutable'
+
+RUN --mount=type=secret,id=PAT_TOKEN,required \
+  sh -c 'export PAT_TOKEN="$(cat /run/secrets/PAT_TOKEN)" && yarn workspace @jewellery-catalogue/api build'
 
 FROM node:22-alpine AS runner
 
 WORKDIR /app
 
-COPY package.json yarn.lock .yarnrc.yml ./
-
-RUN corepack enable && corepack prepare yarn@stable --activate
-
-COPY packages/api/package.json packages/api/package.json
-
-RUN yarn workspaces focus @jewellery-catalogue/api --production
-
+# Copy only the built application
 COPY --from=builder /app/packages/api/build ./build
 
 EXPOSE 4001
