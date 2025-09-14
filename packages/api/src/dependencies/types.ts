@@ -22,4 +22,3 @@ export type Dependencies = {
 export enum CollectionNames {
     Catalogues = 'catalogues'
 }
-

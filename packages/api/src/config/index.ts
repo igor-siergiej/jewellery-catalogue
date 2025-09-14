@@ -11,4 +11,3 @@ const schema = {
 } as const;
 
 export const config = new ConfigService(schema);
-

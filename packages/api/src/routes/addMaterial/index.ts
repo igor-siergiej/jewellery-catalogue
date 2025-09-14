@@ -1,4 +1,4 @@
-import { Catalogue, FormMaterial, FormMaterialKeysMap, Material, MaterialType } from '@jewellery-catalogue/types';
+import { FormMaterial, FormMaterialKeysMap, Material, MaterialType } from '@jewellery-catalogue/types';
 import { Context } from 'koa';
 import { ObjectId } from 'mongodb';
 

@@ -1,4 +1,3 @@
-import { Catalogue } from '@jewellery-catalogue/types';
 import { Context } from 'koa';
 import { ObjectId } from 'mongodb';
 

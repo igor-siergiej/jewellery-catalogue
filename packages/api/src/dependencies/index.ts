@@ -9,4 +9,3 @@ export const registerDepdendencies = () => {
     dependencyContainer.registerSingleton(DependencyToken.Logger, Logger);
     dependencyContainer.registerSingleton(DependencyToken.Bucket, ObjectStoreConnection);
 };
-
