@@ -1,6 +1,7 @@
+import { withTokenRefresh } from '@igor-siergiej/web-utils';
 import { MakeRequestProps } from '@jewellery-catalogue/types';
 
-import { withTokenRefresh } from '../../utils/tokenUtils';
+import { getAuthConfig } from '../../utils/authConfig';
 
 export const makeRequest = async <T>({
     pathname,
@@ -49,9 +50,11 @@ export const makeRequestWithAutoRefresh = async <T>(
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
 ) => {
+    const config = getAuthConfig();
     return withTokenRefresh(
         () => makeRequest<T>(requestProps),
         onTokenRefresh,
-        onTokenClear
+        onTokenClear,
+        config
     );
 };

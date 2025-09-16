@@ -1,3 +1,4 @@
+import { useAuth, useAuthConfig } from '@igor-siergiej/web-utils';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -9,8 +10,6 @@ import { useNavigate } from 'react-router-dom';
 import { HOME_PAGE } from '../../constants/routes';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-import { useAuth } from '../../context/AuthContext';
-import { getAuthUrl } from '../../utils/loadConfig';
 import { LoginParams } from './types';
 
 export const LoginForm: React.FC = () => {
@@ -24,11 +23,12 @@ export const LoginForm: React.FC = () => {
     const { dispatch } = useAlert();
     const navigate = useNavigate();
     const { login } = useAuth();
+    const config = useAuthConfig();
 
     const onSubmit = async (data: LoginParams) => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${getAuthUrl()}/login`, {
+            const response = await fetch(`${config.authUrl}/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

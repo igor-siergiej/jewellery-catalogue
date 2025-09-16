@@ -1,8 +1,8 @@
+import { useAuth } from '@igor-siergiej/web-utils';
 import { MakeRequestProps } from '@jewellery-catalogue/types';
 import { useCallback } from 'react';
 
 import { makeRequestWithAutoRefresh } from '../api/makeRequest';
-import { useAuth } from '../context/AuthContext';
 
 export const useApiRequest = () => {
     const { login, logout, accessToken } = useAuth();

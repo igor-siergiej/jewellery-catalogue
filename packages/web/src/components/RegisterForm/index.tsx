@@ -1,3 +1,4 @@
+import { extractUserFromToken, useAuth, useAuthConfig } from '@igor-siergiej/web-utils';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -10,9 +11,6 @@ import { addCatalogue } from '../../api/endpoints/addCatalogue';
 import { HOME_PAGE } from '../../constants/routes';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-import { useAuth } from '../../context/AuthContext';
-import { extractUserFromToken } from '../../utils/jwtUtils';
-import { getAuthUrl } from '../../utils/loadConfig';
 import { RegisterParams } from './types';
 
 export const RegisterForm: React.FC = () => {
@@ -26,6 +24,7 @@ export const RegisterForm: React.FC = () => {
     const { dispatch } = useAlert();
     const navigate = useNavigate();
     const { login } = useAuth();
+    const config = useAuthConfig();
 
     const validatePassword = (password: string) => {
         if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)) {
@@ -37,7 +36,7 @@ export const RegisterForm: React.FC = () => {
     const onSubmit = async (data: RegisterParams) => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${getAuthUrl()}/register`, {
+            const response = await fetch(`${config.authUrl}/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

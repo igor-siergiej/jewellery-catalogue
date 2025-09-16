@@ -1,10 +1,9 @@
+import { useAuth, useUser } from '@igor-siergiej/web-utils';
 import { useQuery } from '@tanstack/react-query';
 
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
 import LoadingScreen from '../../components/Loading';
 import MaterialsTable from '../../components/MaterialsTable';
-import { useAuth } from '../../context/AuthContext';
-import { useUser } from '../../context/UserContext';
 
 const Materials = () => {
     const { accessToken, login, logout } = useAuth();

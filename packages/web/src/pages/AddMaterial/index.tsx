@@ -1,3 +1,4 @@
+import { useAuth, useUser } from '@igor-siergiej/web-utils';
 import { FormMaterial, MaterialType } from '@jewellery-catalogue/types';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { Card, Divider, Grid, TextField, Typography } from '@mui/material';
@@ -9,8 +10,6 @@ import DropDown from '../../components/DropDown';
 import MaterialFormResolver from '../../components/MaterialFormResolver';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-import { useAuth } from '../../context/AuthContext';
-import { useUser } from '../../context/UserContext';
 
 const URL_REGEX
     = /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/g;

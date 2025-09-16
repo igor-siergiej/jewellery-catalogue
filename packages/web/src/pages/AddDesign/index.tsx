@@ -1,3 +1,4 @@
+import { useAuth, useUser } from '@igor-siergiej/web-utils';
 import { FormDesign } from '@jewellery-catalogue/types';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { Box, Card, Divider, Grid, InputAdornment } from '@mui/material';
@@ -15,8 +16,6 @@ import ImageUpload from '../../components/ImageUpload';
 import TimeInput from '../../components/TimeInput';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-import { useAuth } from '../../context/AuthContext';
-import { useUser } from '../../context/UserContext';
 import { getTotalMaterialCosts } from '../../utils/getPriceOfMaterials';
 import { getWageCosts } from '../../utils/getWageCost';
 

@@ -1,14 +1,15 @@
+import { useRedirectIfAuthenticated } from '@igor-siergiej/web-utils';
 import { Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 import { AuthLayout } from '../../components/AuthLayout';
 import { RegisterForm } from '../../components/RegisterForm';
-import { useRedirectIfAuthenticated } from '../../hooks/useAuthRedirect';
+import { HOME_PAGE } from '../../constants/routes';
 
 const Register = () => {
     const navigate = useNavigate();
 
-    useRedirectIfAuthenticated();
+    useRedirectIfAuthenticated(HOME_PAGE.route);
 
     return (
         <AuthLayout

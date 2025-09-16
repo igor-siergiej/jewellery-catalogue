@@ -1,7 +1,6 @@
+import { useTokenInitialization } from '@igor-siergiej/web-utils';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import React from 'react';
-
-import { useTokenInitialization } from '../../hooks/useTokenInitialization';
 
 interface AppInitializerProps {
     children: React.ReactNode;

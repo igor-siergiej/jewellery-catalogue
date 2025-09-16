@@ -1,8 +1,6 @@
+import { useAuth, useUser } from '@igor-siergiej/web-utils';
 import { Logout } from '@mui/icons-material';
 import { Box, Chip, IconButton, Typography } from '@mui/material';
-
-import { useAuth } from '../../context/AuthContext';
-import { useUser } from '../../context/UserContext';
 
 const UserInfo = () => {
     const { user } = useUser();

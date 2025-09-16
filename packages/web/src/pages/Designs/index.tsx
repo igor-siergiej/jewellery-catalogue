@@ -1,10 +1,9 @@
+import { useAuth, useUser } from '@igor-siergiej/web-utils';
 import { useQuery } from '@tanstack/react-query';
 
 import { getDesignsQuery } from '../../api/endpoints/getDesigns';
 import { DesignCard } from '../../components/DesignCard';
 import LoadingScreen from '../../components/Loading';
-import { useAuth } from '../../context/AuthContext';
-import { useUser } from '../../context/UserContext';
 import { EmptyStateContainer, EmptyStateSubtitle, EmptyStateTitle } from './index.styles';
 
 const Designs = () => {

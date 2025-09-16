@@ -1,5 +1,10 @@
 import 'react-quill/dist/quill.snow.css';
 
+import {
+    AuthConfigProvider,
+    AuthProvider,
+    ProtectedRoute,
+    UserProvider } from '@igor-siergiej/web-utils';
 import { ThemeProvider } from '@mui/material/styles';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -10,7 +15,6 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { GlobalAlert } from './components/Alert';
 import AppInitializer from './components/AppInitializer';
 import MainLayout from './components/MainLayout';
-import ProtectedRoute from './components/ProtectedRoute';
 import {
     ADD_DESIGN_PAGE,
     ADD_MATERIAL_PAGE,
@@ -21,8 +25,6 @@ import {
     START_PAGE,
 } from './constants/routes';
 import { AlertProvider } from './context/Alert';
-import { AuthProvider } from './context/AuthContext';
-import { UserProvider } from './context/UserContext';
 import AddDesign from './pages/AddDesign';
 import AddMaterial from './pages/AddMaterial';
 import Designs from './pages/Designs';
@@ -31,6 +33,7 @@ import Materials from './pages/Materials';
 import Register from './pages/Register';
 import Start from './pages/Start';
 import theme from './style/theme';
+import { getAuthConfig } from './utils/authConfig';
 import { loadConfig } from './utils/loadConfig';
 
 const queryClient = new QueryClient({
@@ -53,31 +56,60 @@ function App() {
                 <Route path={START_PAGE.route} element={<Start />} />
                 <Route path={REGISTER_PAGE.route} element={<Register />} />
 
-                <Route element={<ProtectedRoute />}>
-                    <Route element={<MainLayout />}>
-                        <Route
-                            index
-                            path={HOME_PAGE.route}
-                            element={<Home />}
-                        />
-                        <Route
-                            path={DESIGNS_PAGE.route}
-                            element={<Designs />}
-                        />
-                        <Route
-                            path={ADD_DESIGN_PAGE.route}
-                            element={<AddDesign />}
-                        />
-                        <Route
-                            path={MATERIALS_PAGE.route}
-                            element={<Materials />}
-                        />
-                        <Route
-                            path={ADD_MATERIAL_PAGE.route}
-                            element={<AddMaterial />}
-                        />
-                    </Route>
-                </Route>
+                <Route
+                    path={HOME_PAGE.route}
+                    element={(
+                        <ProtectedRoute fallbackPath={START_PAGE.route}>
+                            <MainLayout>
+                                <Home />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    )}
+                />
+
+                <Route
+                    path={DESIGNS_PAGE.route}
+                    element={(
+                        <ProtectedRoute fallbackPath={START_PAGE.route}>
+                            <MainLayout>
+                                <Designs />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    )}
+                />
+
+                <Route
+                    path={ADD_DESIGN_PAGE.route}
+                    element={(
+                        <ProtectedRoute fallbackPath={START_PAGE.route}>
+                            <MainLayout>
+                                <AddDesign />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    )}
+                />
+
+                <Route
+                    path={MATERIALS_PAGE.route}
+                    element={(
+                        <ProtectedRoute fallbackPath={START_PAGE.route}>
+                            <MainLayout>
+                                <Materials />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    )}
+                />
+
+                <Route
+                    path={ADD_MATERIAL_PAGE.route}
+                    element={(
+                        <ProtectedRoute fallbackPath={START_PAGE.route}>
+                            <MainLayout>
+                                <AddMaterial />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    )}
+                />
             </Routes>
         </LocalizationProvider>
     );
@@ -91,16 +123,18 @@ const initializeApp = async () => {
             <ThemeProvider theme={theme}>
                 <QueryClientProvider client={queryClient}>
                     <BrowserRouter>
-                        <UserProvider>
-                            <AuthProvider>
-                                <AppInitializer>
-                                    <AlertProvider>
-                                        <GlobalAlert />
-                                        <App />
-                                    </AlertProvider>
-                                </AppInitializer>
-                            </AuthProvider>
-                        </UserProvider>
+                        <AuthConfigProvider config={getAuthConfig()}>
+                            <UserProvider>
+                                <AuthProvider>
+                                    <AppInitializer>
+                                        <AlertProvider>
+                                            <GlobalAlert />
+                                            <App />
+                                        </AlertProvider>
+                                    </AppInitializer>
+                                </AuthProvider>
+                            </UserProvider>
+                        </AuthConfigProvider>
                     </BrowserRouter>
                 </QueryClientProvider>
             </ThemeProvider>
