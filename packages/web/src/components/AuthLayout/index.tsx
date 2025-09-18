@@ -1,7 +1,7 @@
-import { Box, Card, Grid, Typography } from '@mui/material';
 import React from 'react';
 
 import IMAGES from '../../img';
+import { Card } from '../ui/card';
 
 interface AuthLayoutProps {
     title: string;
@@ -11,53 +11,33 @@ interface AuthLayoutProps {
 
 export const AuthLayout: React.FC<AuthLayoutProps> = ({ title, subtitle, children }) => {
     return (
-        <Box
-            sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                userSelect: 'none',
-                height: '100vh',
-                width: '100vw',
-            }}
-        >
-            <Card
-                raised
-                sx={{
-                    backgroundColor: '#fff',
-                    width: '1000px',
-                    height: '800px',
-                }}
-            >
-                <Grid container spacing={0} sx={{ height: '100%', width: '100%' }}>
-                    <Grid size={7}>
-                        <Grid container sx={{ display: 'flex', height: '100%', padding: '3em 1em 1em 1em', alignItems: 'center', flexDirection: 'column' }}>
-                            <Typography variant="h3">
+        <div className="flex items-center justify-center select-none h-screen w-screen">
+            <Card className="bg-white w-[1000px] h-[800px] shadow-lg">
+                <div className="grid grid-cols-12 h-full w-full">
+                    <div className="col-span-7">
+                        <div className="flex h-full p-12 pt-12 pb-4 px-4 items-center flex-col">
+                            <h1 className="text-3xl font-bold">
                                 {title}
-                            </Typography>
+                            </h1>
 
-                            <Typography
-                                variant="h5"
-                                sx={{ padding: '2em 0 1em 0' }}
-                            >
+                            <h2 className="text-xl py-8 pt-8 pb-4">
                                 {subtitle}
-                            </Typography>
+                            </h2>
 
-                            <Box sx={{ width: '60%', gap: '1em', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div className="w-3/5 gap-4 flex flex-col items-center">
                                 {children}
-                            </Box>
-                        </Grid>
-                    </Grid>
-                    <Grid size={5} sx={{ overflow: 'hidden' }}>
-                        <Box
-                            component="img"
-                            sx={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-span-5 overflow-hidden">
+                        <img
+                            className="object-cover w-full h-full"
                             src={IMAGES.startImage}
                             alt="jewellery"
                         />
-                    </Grid>
-                </Grid>
+                    </div>
+                </div>
             </Card>
-        </Box>
+        </div>
     );
 };

@@ -1,10 +1,9 @@
 import { Design } from '@jewellery-catalogue/types';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import { Button, Card, CardActions, Divider, Grid, IconButton, Typography } from '@mui/material';
+import { ChevronDown, Heart } from 'lucide-react';
 
 import { Image } from '../Image';
-import useStyles from './index.styles';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardFooter } from '../ui/card';
 
 export interface DesignCardProps {
     design: Design;
@@ -12,74 +11,71 @@ export interface DesignCardProps {
 
 export const DesignCard: React.FC<DesignCardProps> = ({ design }) => {
     const { name, timeRequired, id, imageId, materials } = design;
-    const { classes } = useStyles();
 
     const materialsLabels = materials.map(({ id }) => {
         return (
-            <Grid direction="row" container sx={{ width: '100%', justifyContent: 'space-around', alignItems: 'center' }}>
-                <Typography variant="subtitle2">
+            <div key={id} className="flex w-full justify-between items-center">
+                <span className="text-sm font-medium">
                     id:
                     {' '}
                     {id}
-                </Typography>
-
-                <Button>Go To Material</Button>
-            </Grid>
+                </span>
+                <Button variant="outline" size="sm">Go To Material</Button>
+            </div>
         );
     });
 
     return (
-        <Card key={id} elevation={3} className={classes.container}>
-            <Grid container direction="row" gap={2} wrap="nowrap" className={classes.topRowContainer}>
-                <Grid className={classes.imageContainer} size={2}>
-                    <Image imageId={imageId} />
-                </Grid>
+        <Card key={id} className="w-full p-2 mb-6 max-h-96 overflow-hidden">
+            <CardContent className="p-4">
+                <div className="flex gap-4 flex-nowrap w-full">
+                    <div className="h-48 w-48 flex-shrink-0">
+                        <Image imageId={imageId} />
+                    </div>
 
-                <Grid size={5} container direction="column" gap={1}>
-                    <Typography variant="h5">
-                        Name:
-                        {' '}
-                        {name}
-                    </Typography>
-                    <Divider />
-                    <Typography variant="subtitle1">
-                        Price:
-                        {' '}
-                        $15.00
-                    </Typography>
+                    <div className="flex flex-col gap-2 flex-1">
+                        <h2 className="text-xl font-semibold">
+                            Name:
+                            {' '}
+                            {name}
+                        </h2>
+                        <div className="border-b border-border"></div>
+                        <p className="text-base">
+                            Price: $15.00
+                        </p>
 
-                    <Typography variant="subtitle1">
-                        Time to make:
-                        {' '}
-                        {timeRequired}
-                    </Typography>
+                        <p className="text-base">
+                            Time to make:
+                            {' '}
+                            {timeRequired}
+                        </p>
 
-                    <Typography variant="subtitle1">
-                        Material Costs:
-                        {' '}
-                        $10.00
-                    </Typography>
-                </Grid>
+                        <p className="text-base">
+                            Material Costs: $10.00
+                        </p>
+                    </div>
 
-                <Grid size={5} container direction="column" gap={1}>
-                    <Typography variant="h5">
-                        Materials
-                    </Typography>
+                    <div className="flex flex-col gap-2 flex-1">
+                        <h2 className="text-xl font-semibold">
+                            Materials
+                        </h2>
+                        <div className="border-b border-border"></div>
+                        <div className="space-y-2">
+                            {materialsLabels}
+                        </div>
+                    </div>
+                </div>
+            </CardContent>
 
-                    <Divider />
-                    {materialsLabels}
-                </Grid>
-            </Grid>
+            <CardFooter className="flex w-full gap-2">
+                <Button variant="ghost" size="icon">
+                    <Heart className="h-4 w-4" />
+                </Button>
 
-            <CardActions disableSpacing sx={{ display: 'flex', width: '100%' }}>
-                <IconButton>
-                    <FavoriteIcon />
-                </IconButton>
-
-                <IconButton>
-                    <ExpandMoreIcon />
-                </IconButton>
-            </CardActions>
+                <Button variant="ghost" size="icon">
+                    <ChevronDown className="h-4 w-4" />
+                </Button>
+            </CardFooter>
         </Card>
     );
 };

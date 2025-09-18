@@ -1,11 +1,9 @@
 import { BeadKeysEnum, ChainKeysEnum, EarHookKeysEnum, WireKeysEnum } from '@jewellery-catalogue/types';
-import Box from '@mui/material/Box';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
 import { Controller } from 'react-hook-form';
 import { type Control } from 'react-hook-form';
+
+import { Label } from '../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 export interface IProps {
     options: Array<string>;
@@ -17,39 +15,34 @@ export interface IProps {
 
 const DropDown: React.FC<IProps> = ({ control, options, label, name }) => {
     return (
-        <Box
-            sx={{
-                marginBottom: 2,
-            }}
-        >
+        <div className="mb-4 space-y-2">
             <Controller
                 name={name}
                 control={control}
                 defaultValue=""
                 render={({ field }) => (
-                    <FormControl variant="filled" fullWidth>
-                        <InputLabel id={name}>{label}</InputLabel>
+                    <div className="w-48">
+                        <Label htmlFor={name}>{label}</Label>
                         <Select
-                            labelId={name}
-                            sx={{
-                                width: '200px',
-                            }}
-                            defaultValue=""
-                            variant="filled"
-                            color="secondary"
+                            value={field.value}
+                            onValueChange={field.onChange}
                             required
-                            {...field}
                         >
-                            {options.map(type => (
-                                <MenuItem key={type} value={type}>
-                                    {type}
-                                </MenuItem>
-                            ))}
+                            <SelectTrigger id={name}>
+                                <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {options.map(type => (
+                                    <SelectItem key={type} value={type}>
+                                        {type}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
                         </Select>
-                    </FormControl>
+                    </div>
                 )}
             />
-        </Box>
+        </div>
     );
 };
 

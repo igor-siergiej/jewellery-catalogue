@@ -1,60 +1,71 @@
 import { RequiredMaterial } from '@jewellery-catalogue/types';
-import AddIcon from '@mui/icons-material/Add';
-import CancelIcon from '@mui/icons-material/Close';
-import DeleteIcon from '@mui/icons-material/DeleteOutlined';
-import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import {
-    DataGrid,
-    GridActionsCellItem,
-    GridColDef,
-    GridEventListener,
-    GridRowEditStopReasons,
-    GridRowId,
-    GridRowModes,
-    GridRowModesModel,
-    GridRowsProp,
-} from '@mui/x-data-grid';
+import { Edit3, Plus, Save, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { AddMaterialsTableProps, TableMaterial } from './types';
 import { getRequiredMaterial } from './util';
 
 export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, availableMaterials }) => {
-    const [rows, setRows] = useState<GridRowsProp<TableMaterial>>([]);
-    const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+    const [rows, setRows] = useState<Array<TableMaterial>>([]);
     const [selectedMaterials, setSelectedMaterials] = useState<Array<TableMaterial>>([]);
 
-    const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
-        if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-            event.defaultMuiPrevented = true;
+    const handleEditClick = (id: string) => {
+        setRows(prevRows =>
+            prevRows.map(row =>
+                row.id === id ? { ...row, isEditing: true } : row
+            )
+        );
+    };
+
+    const handleSaveClick = (id: string) => {
+        const rowToSave = rows.find(row => row.id === id);
+        if (!rowToSave) return;
+
+        if (rowToSave.isNew) {
+            const actualId = availableMaterials.find(material => material.name === rowToSave.name)?.id;
+            if (!actualId) {
+                alert('Could not find a matching material name from availableMaterials');
+                return;
+            }
+
+            const updatedRow = { ...rowToSave, isNew: false, isEditing: false, id: actualId };
+            const newRows = rows.map(row => (row.id === id ? updatedRow : row));
+
+            setSelectedMaterials(newRows);
+            setRows(newRows);
+            setMaterials(newRows);
+        } else {
+            setRows(prevRows =>
+                prevRows.map(row =>
+                    row.id === id ? { ...row, isEditing: false } : row
+                )
+            );
+            setMaterials(rows.map(row => row.id === id ? { ...row, isEditing: false } : row));
         }
     };
 
-    const handleEditClick = (id: GridRowId) => () => {
-        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+    const handleDeleteClick = (id: string) => {
+        const newRows = rows.filter(row => row.id !== id);
+        setRows(newRows);
+        setSelectedMaterials(newRows);
+        setMaterials(newRows);
     };
 
-    const handleSaveClick = (id: GridRowId) => () => {
-        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
-    };
-
-    const handleDeleteClick = (id: GridRowId) => () => {
-        setRows(rows.filter(row => row.id !== id));
-    };
-
-    const handleCancelClick = (id: GridRowId) => () => {
-        setRowModesModel({
-            ...rowModesModel,
-            [id]: { mode: GridRowModes.View, ignoreModifications: true },
-        });
-
+    const handleCancelClick = (id: string) => {
         const editedRow = rows.find(row => row.id === id);
 
-        if (editedRow !== undefined && editedRow.isNew) {
+        if (editedRow?.isNew) {
             setRows(rows.filter(row => row.id !== id));
+        } else {
+            setRows(prevRows =>
+                prevRows.map(row =>
+                    row.id === id ? { ...row, isEditing: false } : row
+                )
+            );
         }
     };
 
@@ -72,113 +83,44 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
         setValue('materials', actualMaterials);
     };
 
-    const processRowUpdate = (newRow: TableMaterial) => {
-        const actualId = availableMaterials.find(material => material.name === newRow.name)?.id;
+    const handleMaterialChange = (id: string, name: string) => {
+        setRows(prevRows =>
+            prevRows.map(row =>
+                row.id === id ? { ...row, name } : row
+            )
+        );
+    };
 
-        if (!actualId) {
-            throw new Error('Could not find a matching material name from availableMaterials');
+    const handleRequiredChange = (id: string, required: number) => {
+        setRows(prevRows =>
+            prevRows.map(row =>
+                row.id === id ? { ...row, required } : row
+            )
+        );
+    };
+
+    const getUnitLabel = (materialName: string) => {
+        const material = availableMaterials.find(m => m.name === materialName);
+        if (material?.type === 'WIRE' || material?.type === 'CHAIN') {
+            return 'cm';
         }
-
-        const updatedRow = { ...newRow, isNew: false, id: actualId };
-
-        const newRows = rows.map(row => (row.id === newRow.id || row.id === actualId ? updatedRow : row));
-
-        setSelectedMaterials(newRows);
-
-        setRows(newRows);
-        setMaterials(newRows);
-
-        return updatedRow;
+        if (material?.type === 'BEAD' || material?.type === 'EAR_HOOK') {
+            return 'pcs';
+        }
+        return '';
     };
 
-    const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-        setRowModesModel(newRowModesModel);
+    const formatValue = (value: number, materialName: string) => {
+        const unit = getUnitLabel(materialName);
+        return unit ? `${value} ${unit}` : value.toString();
     };
 
-    const columns: Array<GridColDef<TableMaterial>> = [
-        {
-            field: 'name',
-            headerName: 'Material',
-            editable: true,
-            flex: 0.40,
-            sortable: false,
-            filterable: false,
-            type: 'singleSelect',
-            valueOptions: availableMaterials.filter((material) => {
-                const materialHasAlreadyBeenSelected = selectedMaterials.some(selectedMaterial => selectedMaterial.name === material.name);
-                return !materialHasAlreadyBeenSelected;
-            }).map(material => material.name)
-        },
-        {
-            field: 'required',
-            headerName: 'Required Amount',
-            flex: 0.40,
-            type: 'number',
-            align: 'left',
-            headerAlign: 'left',
-            editable: true,
-            sortable: false,
-            filterable: false,
-            valueFormatter: (value, row) => {
-                if (!availableMaterials.length) return value;
-
-                // TODO: move this into a util function
-                const material = availableMaterials.find(m => m.name === row.name);
-                if (material?.type === 'WIRE' || material?.type === 'CHAIN') {
-                    return `${value} cm`;
-                }
-                if (material?.type === 'BEAD' || material?.type === 'EAR_HOOK') {
-                    return `${value} pcs`;
-                }
-                return value;
-            }
-        },
-        {
-            field: 'actions',
-            type: 'actions',
-            flex: 0.2,
-            headerName: 'Actions',
-            sortable: false,
-            filterable: false,
-            cellClassName: 'actions',
-            getActions: ({ id }) => {
-                const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-
-                if (isInEditMode) {
-                    return [
-                        <GridActionsCellItem
-                            icon={<SaveIcon />}
-                            label="Save"
-                            onClick={handleSaveClick(id)}
-                        />,
-                        <GridActionsCellItem
-                            icon={<CancelIcon />}
-                            label="Cancel"
-                            className="textPrimary"
-                            onClick={handleCancelClick(id)}
-                            color="inherit"
-                        />,
-                    ];
-                }
-
-                return [
-                    <GridActionsCellItem
-                        icon={<EditIcon />}
-                        label="Edit"
-                        className="textPrimary"
-                        onClick={handleEditClick(id)}
-                        color="inherit"
-                    />,
-                    <GridActionsCellItem
-                        icon={<DeleteIcon />}
-                        label="Delete"
-                        onClick={handleDeleteClick(id)}
-                        color="inherit"
-                    />,
-                ];
-            },
-        },
-    ];
+    const getAvailableMaterials = () => {
+        return availableMaterials.filter((material) => {
+            const materialHasAlreadyBeenSelected = selectedMaterials.some(selectedMaterial => selectedMaterial.name === material.name);
+            return !materialHasAlreadyBeenSelected;
+        });
+    };
 
     const handleAddMaterial = () => {
         const hasNewRow = rows.some(row => row.isNew);
@@ -187,85 +129,154 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
         const newId = `new-${Date.now()}`;
         setRows(oldRows => [
             ...oldRows,
-            { id: newId, name: '', required: 0, isNew: true },
+            { id: newId, name: '', required: 0, isNew: true, isEditing: true },
         ]);
-        setRowModesModel(oldModel => ({
-            ...oldModel,
-            [newId]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
-        }));
     };
 
-    const CustomNoRowsOverlay = () => (
-        <Box
-            sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100%',
-                gap: 2,
-            }}
-        >
-            <Box>No materials added yet</Box>
-            <Button
-                variant="contained"
-                color="primary"
-                startIcon={<AddIcon />}
-                onClick={handleAddMaterial}
-                size="small"
-            >
+    const EmptyState = () => (
+        <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
+            <p className="text-muted-foreground">No materials added yet</p>
+            <Button onClick={handleAddMaterial} className="gap-2">
+                <Plus className="h-4 w-4" />
                 Add Material
             </Button>
-        </Box>
+        </div>
     );
 
-    const CustomFooter = () => {
+    const TableHeader = () => (
+        <div className="grid grid-cols-12 gap-4 p-4 bg-muted/50 border-b font-medium text-sm">
+            <div className="col-span-5">Material</div>
+            <div className="col-span-5">Required Amount</div>
+            <div className="col-span-2">Actions</div>
+        </div>
+    );
+
+    const TableRow = ({ row }: { row: TableMaterial }) => (
+        <div className="grid grid-cols-12 gap-4 p-4 border-b hover:bg-muted/30 transition-colors">
+            <div className="col-span-5 flex items-center">
+                {row.isEditing
+                    ? (
+                            <Select
+                                value={row.name}
+                                onValueChange={value => handleMaterialChange(row.id, value)}
+                            >
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select material" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {getAvailableMaterials().map(material => (
+                                        <SelectItem key={material.id} value={material.name}>
+                                            {material.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )
+                    : (
+                            <span>{row.name}</span>
+                        )}
+            </div>
+            <div className="col-span-5 flex items-center">
+                {row.isEditing
+                    ? (
+                            <div className="flex items-center gap-2 w-full">
+                                <Input
+                                    type="number"
+                                    value={row.required}
+                                    onChange={e => handleRequiredChange(row.id, Number(e.target.value))}
+                                    className="flex-1"
+                                    min="0"
+                                    step="0.1"
+                                />
+                                <span className="text-sm text-muted-foreground min-w-[3ch]">
+                                    {getUnitLabel(row.name)}
+                                </span>
+                            </div>
+                        )
+                    : (
+                            <span>{formatValue(row.required, row.name)}</span>
+                        )}
+            </div>
+            <div className="col-span-2 flex items-center gap-2">
+                {row.isEditing
+                    ? (
+                            <>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleSaveClick(row.id)}
+                                    className="h-8 w-8 p-0"
+                                >
+                                    <Save className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleCancelClick(row.id)}
+                                    className="h-8 w-8 p-0"
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </>
+                        )
+                    : (
+                            <>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleEditClick(row.id)}
+                                    className="h-8 w-8 p-0"
+                                >
+                                    <Edit3 className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleDeleteClick(row.id)}
+                                    className="h-8 w-8 p-0"
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </>
+                        )}
+            </div>
+        </div>
+    );
+
+    const TableFooter = () => {
         const hasNewRow = rows.some(row => row.isNew);
 
         if (rows.length === 0 || hasNewRow) return null;
 
         return (
-            <Box sx={{ p: 1, borderTop: '1px solid', borderColor: 'divider' }}>
+            <div className="p-4 border-t bg-muted/20">
                 <Button
-                    variant="outlined"
-                    color="primary"
-                    startIcon={<AddIcon />}
+                    variant="outline"
                     onClick={handleAddMaterial}
-                    size="small"
+                    className="gap-2"
                 >
+                    <Plus className="h-4 w-4" />
                     Add Material
                 </Button>
-            </Box>
+            </div>
         );
     };
 
     return (
-        <Box
-            sx={{
-                height: 400,
-                width: '100%',
-            }}
-        >
-            <DataGrid<TableMaterial>
-                rows={rows}
-                columns={columns}
-                disableColumnMenu
-                hideFooterPagination
-                editMode="row"
-                rowModesModel={rowModesModel}
-                onRowModesModelChange={handleRowModesModelChange}
-                onRowEditStop={handleRowEditStop}
-                processRowUpdate={processRowUpdate}
-                slots={{
-                    noRowsOverlay: CustomNoRowsOverlay,
-                    footer: CustomFooter,
-                }}
-                sx={{
-                    '& .MuiDataGrid-overlay': {
-                        height: '300px',
-                    },
-                }}
-            />
-        </Box>
+        <div className="border rounded-lg overflow-hidden">
+            {rows.length === 0
+                ? (
+                        <EmptyState />
+                    )
+                : (
+                        <>
+                            <TableHeader />
+                            {rows.map(row => (
+                                <TableRow key={row.id} row={row} />
+                            ))}
+                            <TableFooter />
+                        </>
+                    )}
+        </div>
     );
 };

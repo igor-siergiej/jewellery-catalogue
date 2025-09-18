@@ -1,11 +1,12 @@
 import { useAuth, useAuthConfig } from '@igor-siergiej/web-utils';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import LoadingButton from '@mui/lab/LoadingButton';
-import { Box, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
+import { Eye, EyeOff } from 'lucide-react';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 import { HOME_PAGE } from '../../constants/routes';
 import { useAlert } from '../../context/Alert';
@@ -61,51 +62,58 @@ export const LoginForm: React.FC = () => {
     };
 
     return (
-        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: '1em', width: '100%' }}>
-            <TextField
-                label="Username"
-                variant="outlined"
-                fullWidth
-                autoComplete="username"
-                error={!!errors.username}
-                {...register('username', { required: 'Username is required' })}
-                FormHelperTextProps={{ sx: { minHeight: 24 } }}
-                helperText={errors.username?.message || ' '}
-            />
-            <FormControl variant="outlined" fullWidth error={!!errors.password}>
-                <InputLabel htmlFor="password">Password</InputLabel>
-                <OutlinedInput
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    autoComplete="current-password"
-                    label="Password"
-                    {...register('password', { required: 'Password is required' })}
-                    endAdornment={(
-                        <InputAdornment position="end">
-                            <IconButton
-                                aria-label={showPassword ? 'Hide password' : 'Show password'}
-                                onClick={() => setShowPassword(show => !show)}
-                                edge="end"
-                            >
-                                {showPassword ? <Visibility /> : <VisibilityOff />}
-                            </IconButton>
-                        </InputAdornment>
-                    )}
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full">
+            <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                    id="username"
+                    type="text"
+                    autoComplete="username"
+                    {...register('username', { required: 'Username is required' })}
+                    className={errors.username ? 'border-destructive' : ''}
                 />
-                <FormHelperText sx={{ minHeight: 24 }}>
-                    {errors.password?.message || ' '}
-                </FormHelperText>
-            </FormControl>
-            <LoadingButton
+                <p className="text-sm text-destructive min-h-[20px]">
+                    {errors.username?.message || ''}
+                </p>
+            </div>
+
+            <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                    <Input
+                        id="password"
+                        type={showPassword ? 'text' : 'password'}
+                        autoComplete="current-password"
+                        {...register('password', { required: 'Password is required' })}
+                        className={`pr-10 ${errors.password ? 'border-destructive' : ''}`}
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword(show => !show)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                        {showPassword
+                            ? (
+                                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                )
+                            : (
+                                    <Eye className="h-4 w-4 text-muted-foreground" />
+                                )}
+                    </button>
+                </div>
+                <p className="text-sm text-destructive min-h-[20px]">
+                    {errors.password?.message || ''}
+                </p>
+            </div>
+
+            <Button
                 type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-                loading={isLoading}
                 disabled={isLoading}
+                className="w-full"
             >
-                Login
-            </LoadingButton>
-        </Box>
+                {isLoading ? 'Logging in...' : 'Login'}
+            </Button>
+        </form>
     );
 };

@@ -12,27 +12,27 @@ export const REGISTER_PAGE: NavRoute = {
 
 export const HOME_PAGE: NavRoute = {
     name: 'Home',
-    route: 'home',
+    route: '/home',
 };
 
 export const DESIGNS_PAGE: NavRoute = {
     name: 'Designs',
-    route: 'designs',
+    route: '/designs',
 };
 
 export const ADD_DESIGN_PAGE: NavRoute = {
     name: 'Add Design',
-    route: 'addDesign',
+    route: '/addDesign',
 };
 
 export const MATERIALS_PAGE: NavRoute = {
     name: 'Materials',
-    route: 'materials',
+    route: '/materials',
 };
 
 export const ADD_MATERIAL_PAGE: NavRoute = {
     name: 'Add Material',
-    route: 'addMaterial',
+    route: '/addMaterial',
 };
 
 export const ROUTES = [

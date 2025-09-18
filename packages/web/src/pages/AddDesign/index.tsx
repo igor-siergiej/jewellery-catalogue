@@ -1,13 +1,14 @@
 import { useAuth, useUser } from '@igor-siergiej/web-utils';
 import { FormDesign } from '@jewellery-catalogue/types';
-import LoadingButton from '@mui/lab/LoadingButton';
-import { Box, Card, Divider, Grid, InputAdornment } from '@mui/material';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
 import { useQuery } from '@tanstack/react-query';
-// import TextEditor from '../../components/Editor';
+import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 import makeAddDesignRequest from '../../api/endpoints/addDesign';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
@@ -93,162 +94,139 @@ const AddDesign: React.FC = () => {
     }
 
     return (
-        <Card sx={{ padding: 2 }}>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <Grid gap={4} container direction="column">
-                    <Grid>
-                        <Typography
-                            variant="h5"
-                            sx={{ paddingLeft: 2, lineHeight: '50px' }}
-                            noWrap
-                            component="div"
-                        >
-                            Adding New Design
-                        </Typography>
+        <Card className="p-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+                {/* Header */}
+                <div className="space-y-4">
+                    <h1 className="text-2xl font-semibold text-left pl-2 leading-[50px]">
+                        Adding New Design
+                    </h1>
+                    <hr className="border-t border-border" />
+                </div>
 
-                        <Divider variant="fullWidth" />
-                    </Grid>
-
-                    <Grid container direction="row">
-                        <Grid size={4}>
-                            <Typography
-                                align="center"
-                                variant="h6"
-                                sx={{ paddingTop: 1.5 }}
-                            >
-                                Design Details
-                            </Typography>
-                        </Grid>
-
-                        <Grid size={8}>
-                            <Grid gap={2} container direction="column">
-                                <Box sx={{ display: 'flex', gap: 2 }}>
-                                    <TextField
-                                        {...register('name', {
-                                            required: {
-                                                value: true,
-                                                message: 'Please enter the design name.',
-                                            },
-                                        })}
-                                        sx={{ width: '50%' }}
-                                        color="secondary"
-                                        label="Name"
-                                        error={Boolean(errors.name)}
-                                        helperText={errors.name?.message}
-                                    />
-                                    <Box sx={{ width: '50%', display: 'flex' }}>
-                                        <TimeInput setValue={setValue} />
-                                    </Box>
-                                </Box>
-                            </Grid>
-                        </Grid>
-                    </Grid>
-
-                    <Divider variant="fullWidth" />
-
-                    <Grid container direction="row">
-                        <Grid size={4}>
-                            <Typography
-                                align="center"
-                                variant="h6"
-                                height={30}
-                            >
-                                Upload Image
-                            </Typography>
-                        </Grid>
-
-                        <Grid size={8}>
-                            <ImageUpload setImage={setValue} />
-                        </Grid>
-                    </Grid>
-
-                    <Divider variant="fullWidth" />
-
-                    <Grid container direction="row">
-                        <Grid size={4}>
-                            <Typography
-                                align="center"
-                                variant="h6"
-                            >
-                                Add Materials
-                            </Typography>
-                        </Grid>
-
-                        <Grid size={8}>
-                            <AddMaterialsTable availableMaterials={data} setValue={setValue} />
-                        </Grid>
-                    </Grid>
-
-                    <Divider variant="fullWidth" />
-
-                    <Grid container direction="row">
-                        <Grid size={4}>
-                            <Typography
-                                align="center"
-                                variant="h6"
-                            >
-                                Set Price
-                            </Typography>
-                        </Grid>
-
-                        <Grid size={8}>
-                            <TextField
-                                {...register('price', {
-                                    required: {
-                                        value: true,
-                                        message: 'Please enter the desired price.',
-                                    },
-                                })}
-                                sx={{ width: 300 }}
-                                color="secondary"
-                                label="Price"
-                                error={Boolean(errors.price)}
-                                helperText={errors.price?.message}
-                                slotProps={{
-                                    input: {
-                                        startAdornment: <InputAdornment position="start">£</InputAdornment>
-                                    }
-                                }}
-                            />
-                        </Grid>
-                    </Grid>
-
-                    <Divider variant="fullWidth" />
-
-                    <Grid container direction="row">
-                        <Grid size={4}>
-                            <Typography
-                                align="center"
-                                variant="h6"
-                            >
-                                Add Description
-                            </Typography>
-                        </Grid>
-
-                        {/* <Grid size={8}>
-                            <Controller
-                                name="description"
-                                control={control}
-                                render={({ field }) => (
-                                    <TextEditor value={field.value} onChange={field.onChange} />
+                {/* Design Details Section */}
+                <div className="grid grid-cols-12 gap-4">
+                    <div className="col-span-4">
+                        <h2 className="text-lg font-medium text-center pt-1.5">
+                            Design Details
+                        </h2>
+                    </div>
+                    <div className="col-span-8">
+                        <div className="flex gap-4">
+                            <div className="flex-1">
+                                <Label htmlFor="name">Name</Label>
+                                <Input
+                                    id="name"
+                                    {...register('name', {
+                                        required: {
+                                            value: true,
+                                            message: 'Please enter the design name.',
+                                        },
+                                    })}
+                                    className={errors.name ? 'border-red-500' : ''}
+                                    placeholder="Enter design name"
+                                />
+                                {errors.name && (
+                                    <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
                                 )}
-                            />
-                        </Grid> */}
-                    </Grid>
+                            </div>
+                            <div className="flex-1">
+                                <TimeInput setValue={setValue} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                    <Divider variant="fullWidth" />
+                <hr className="border-t border-border" />
 
-                    <Grid container justifyContent="end">
-                        <LoadingButton
-                            variant="contained"
-                            color="secondary"
-                            type="submit"
-                            loading={isMakingRequest}
-                        >
-                            Create Design
-                        </LoadingButton>
-                    </Grid>
-                </Grid>
+                {/* Upload Image Section */}
+                <div className="grid grid-cols-12 gap-4">
+                    <div className="col-span-4">
+                        <h2 className="text-lg font-medium text-center h-[30px] leading-[30px]">
+                            Upload Image
+                        </h2>
+                    </div>
+                    <div className="col-span-8">
+                        <ImageUpload setImage={setValue} />
+                    </div>
+                </div>
+
+                <hr className="border-t border-border" />
+
+                {/* Add Materials Section */}
+                <div className="grid grid-cols-12 gap-4">
+                    <div className="col-span-4">
+                        <h2 className="text-lg font-medium text-center">
+                            Add Materials
+                        </h2>
+                    </div>
+                    <div className="col-span-8">
+                        <AddMaterialsTable availableMaterials={data} setValue={setValue} />
+                    </div>
+                </div>
+
+                <hr className="border-t border-border" />
+
+                {/* Set Price Section */}
+                <div className="grid grid-cols-12 gap-4">
+                    <div className="col-span-4">
+                        <h2 className="text-lg font-medium text-center">
+                            Set Price
+                        </h2>
+                    </div>
+                    <div className="col-span-8">
+                        <div className="w-[300px]">
+                            <Label htmlFor="price">Price</Label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">£</span>
+                                <Input
+                                    id="price"
+                                    type="number"
+                                    step="0.01"
+                                    {...register('price', {
+                                        required: {
+                                            value: true,
+                                            message: 'Please enter the desired price.',
+                                        },
+                                    })}
+                                    className={`pl-8 ${errors.price ? 'border-red-500' : ''}`}
+                                    placeholder="0.00"
+                                />
+                            </div>
+                            {errors.price && (
+                                <p className="text-sm text-red-500 mt-1">{errors.price.message}</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                <hr className="border-t border-border" />
+
+                {/* Add Description Section */}
+                <div className="grid grid-cols-12 gap-4">
+                    <div className="col-span-4">
+                        <h2 className="text-lg font-medium text-center">
+                            Add Description
+                        </h2>
+                    </div>
+                    <div className="col-span-8">
+                        {/* TODO: Add description editor here */}
+                    </div>
+                </div>
+
+                <hr className="border-t border-border" />
+
+                {/* Submit Button */}
+                <div className="flex justify-end">
+                    <Button
+                        type="submit"
+                        disabled={isMakingRequest}
+                        className="min-w-[140px]"
+                    >
+                        {isMakingRequest && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Create Design
+                    </Button>
+                </div>
             </form>
         </Card>
     );

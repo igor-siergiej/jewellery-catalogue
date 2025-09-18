@@ -1,7 +1,9 @@
-import { Alert, AlertTitle, Box, Collapse } from '@mui/material';
+import { X } from 'lucide-react';
 
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { Button } from '../ui/button';
 
 export const GlobalAlert: React.FC = () => {
     const { state, dispatch } = useAlert();
@@ -16,29 +18,26 @@ export const GlobalAlert: React.FC = () => {
             }
         });
     };
+    if (!state.open) return null;
+
     return (
-        <Box sx={{
-            position: 'fixed',
-            bottom: 24,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 1300,
-            minWidth: 500,
-            boxShadow: 3,
-        }}
-        >
-            <Collapse sx={{ zIndex: 10 }} in={state.open}>
-                <Alert
-                    variant={state.variant}
-                    severity={state.severity}
-                    onClose={onClose}
-                >
-                    <AlertTitle>
-                        {state.title}
-                    </AlertTitle>
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 min-w-[500px] shadow-lg">
+            <Alert className={`relative ${state.severity === 'error' ? 'border-destructive bg-destructive/10' : 'border-primary bg-primary/10'}`}>
+                <AlertTitle className="flex items-center justify-between">
+                    <span>{state.title}</span>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={onClose}
+                        className="h-6 w-6 p-0 hover:bg-transparent"
+                    >
+                        <X className="h-4 w-4" />
+                    </Button>
+                </AlertTitle>
+                <AlertDescription>
                     {state.message}
-                </Alert>
-            </Collapse>
-        </Box>
+                </AlertDescription>
+            </Alert>
+        </div>
     );
 };

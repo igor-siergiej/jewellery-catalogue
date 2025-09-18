@@ -1,5 +1,5 @@
 import { useTokenInitialization } from '@igor-siergiej/web-utils';
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Loader2 } from 'lucide-react';
 import React from 'react';
 
 interface AppInitializerProps {
@@ -11,21 +11,12 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ children }) => {
 
     if (isInitializing) {
         return (
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100vh',
-                    gap: 2,
-                }}
-            >
-                <CircularProgress size={40} />
-                <Typography variant="body1" color="text.secondary">
-                    Loading...
-                </Typography>
-            </Box>
+            <div className="flex flex-col items-center justify-center h-screen gap-4">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                <p className="text-muted-foreground">
+                    Loading Shoppingo...
+                </p>
+            </div>
         );
     }
 

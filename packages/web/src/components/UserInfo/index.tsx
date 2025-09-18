@@ -1,6 +1,9 @@
 import { useAuth, useUser } from '@igor-siergiej/web-utils';
-import { Logout } from '@mui/icons-material';
-import { Box, Chip, IconButton, Typography } from '@mui/material';
+import { LogOut } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+
+import { Badge } from '../ui/badge';
 
 const UserInfo = () => {
     const { user } = useUser();
@@ -11,31 +14,22 @@ const UserInfo = () => {
     }
 
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="body2" color="text.secondary">
+        <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">
                 Welcome back,
-            </Typography>
-            <Chip
-                label={user?.username}
-                color="primary"
-                variant="outlined"
-                size="small"
-            />
-            <Chip
-                label={user?.id}
-                color="secondary"
-                variant="outlined"
-                size="small"
-            />
-            <IconButton
-                size="small"
+            </span>
+            <Badge variant="default">{user?.username}</Badge>
+            <Badge variant="outline">{user?.id}</Badge>
+            <Button
+                size="sm"
+                variant="ghost"
                 onClick={logout}
                 title="Logout"
-                sx={{ ml: 1 }}
+                className="ml-1"
             >
-                <Logout fontSize="small" />
-            </IconButton>
-        </Box>
+                <LogOut className="w-4 h-4" />
+            </Button>
+        </div>
     );
 };
 

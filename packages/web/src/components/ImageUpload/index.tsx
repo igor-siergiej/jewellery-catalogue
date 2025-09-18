@@ -1,10 +1,10 @@
 import { FormDesign } from '@jewellery-catalogue/types';
-import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
-import ClearIcon from '@mui/icons-material/Clear';
-import { Button, Grid } from '@mui/material';
-import Box from '@mui/material/Box';
+import { ImagePlus, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { UseFormSetValue } from 'react-hook-form';
+
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface ImageUploadProps {
     setImage: UseFormSetValue<FormDesign>;
@@ -63,30 +63,23 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ setImage }) => {
     };
 
     return (
-        <Box
+        <div
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onClick={handleClick}
-            sx={{
-                border: isDragging ? '2px dashed #0070f3' : '2px dashed #ccc',
-                borderRadius: '8px',
-                width: '300px',
-                height: '300px',
-                cursor: 'pointer',
-                backgroundColor: isDragging ? '#f0f8ff' : '#e6efff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                overflow: 'hidden',
-                position: 'relative',
-            }}
+            className={cn(
+                'border-2 border-dashed rounded-lg w-[300px] h-[300px] cursor-pointer flex items-center justify-center overflow-hidden relative transition-colors',
+                isDragging
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-300 bg-blue-50'
+            )}
         >
             <input
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
-                style={{ display: 'none' }}
+                className="hidden"
                 onChange={handleChange}
             />
             {preview
@@ -94,46 +87,29 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ setImage }) => {
                         <img
                             src={preview}
                             alt="Preview"
-                            style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover',
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                            }}
+                            className="w-full h-full object-cover absolute top-0 left-0"
                         />
                     )
                 : (
-                        <Grid container direction="column" display="flex" justifyContent="center" alignItems="center" sx={{ width: '100%' }}>
-                            <AddPhotoAlternateIcon sx={{ width: 32, height: 32, color: '#666' }} />
-                            <span style={{ color: '#666', textAlign: 'center' }}>
+                        <div className="flex flex-col items-center justify-center w-full">
+                            <ImagePlus className="w-8 h-8 text-gray-600 mb-2" />
+                            <span className="text-gray-600 text-center">
                                 Drag & Drop or Click to Upload
                             </span>
-                        </Grid>
+                        </div>
                     )}
 
             {preview && (
                 <Button
-                    variant="contained"
-                    color="error"
+                    variant="destructive"
+                    size="icon"
                     onClick={clearImage}
-                    style={{
-                        width: 36,
-                        minWidth: 36,
-                        zIndex: 2,
-                        borderRadius: '4px',
-                        border: 'none',
-                        position: 'absolute',
-                        cursor: 'pointer',
-                        top: 0,
-                        right: 0
-                    }}
+                    className="w-9 h-9 z-10 absolute top-0 right-0"
                 >
-                    <ClearIcon />
+                    <X className="w-4 h-4" />
                 </Button>
             )}
-        </Box>
+        </div>
     );
 };
 

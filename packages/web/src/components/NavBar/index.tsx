@@ -1,16 +1,7 @@
-import {
-    AppBar,
-    Box,
-    CssBaseline,
-    Drawer,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemText,
-    Toolbar,
-    Typography,
-} from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
+
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 import { HOME_PAGE, ROUTES } from '../../constants/routes';
 import IMAGES from '../../img';
@@ -20,79 +11,43 @@ const NavBar = () => {
     const location = useLocation();
 
     const navBarButtons = ROUTES.map((route) => {
+        const isActive = location.pathname === route.route;
         return (
-            <ListItem
-                disablePadding
-                sx={{
-                    backgroundColor: theme =>
-                        location.pathname.replace('/', '') === route.route
-                            ? theme.palette.background.default
-                            : 'white',
-                }}
+            <Button
                 key={route.route}
+                variant={isActive ? 'secondary' : 'ghost'}
+                className={cn(
+                    'w-full justify-start border-b border-gray-200 rounded-none',
+                    isActive && 'bg-gray-100'
+                )}
+                onClick={() => navigate(route.route)}
             >
-                <ListItemButton
-                    onClick={() => {
-                        navigate(route.route);
-                    }}
-                    sx={{ borderBottom: '1px solid #e0e0e0' }}
-                >
-                    <ListItemText>{route.name}</ListItemText>
-                </ListItemButton>
-            </ListItem>
+                {route.name}
+            </Button>
         );
     });
 
     return (
         <>
-            <CssBaseline />
-            <AppBar
-                position="fixed"
-                sx={{
-                    color: theme => theme.palette.common.black,
-                    backgroundColor: theme =>
-                        theme.palette.background.default,
-                    zIndex: theme => theme.zIndex.drawer + 1,
-                }}
-            >
-                <Toolbar
-                    sx={{
-                        minHeight: '80px !important',
-                        gap: 4
-                    }}
-                >
-                    <Box
-                        component="img"
-                        sx={{ objectFit: 'scale-down', width: 64, height: 64 }}
+            <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
+                <div className="flex items-center min-h-[80px] px-4 gap-4">
+                    <img
                         src={IMAGES.logo}
                         alt="jewellery"
+                        className="w-16 h-16 object-scale-down cursor-pointer"
                         onClick={() => navigate(HOME_PAGE.route)}
                     />
-                    <Typography
-                        variant="h4"
-                        sx={{ lineHeight: '80px' }}
-                        noWrap
-                        component="div"
-                    >
+                    <h1 className="text-3xl font-bold leading-[80px] truncate">
                         Jewellery Catalogue
-                    </Typography>
+                    </h1>
+                </div>
+            </header>
 
-                </Toolbar>
-            </AppBar>
-            <Drawer
-                variant="permanent"
-                sx={{
-                    'width': '150px',
-                    '& .MuiDrawer-paper': {
-                        width: '150px',
-                    },
-                }}
-            >
-                <Toolbar sx={{ minHeight: '80px !important' }} />
-                <Box>
-                    <List>{navBarButtons}</List>
-                </Box>
-            </Drawer>
+            <aside className="fixed left-0 top-[80px] bottom-0 w-[150px] bg-background border-r border-border">
+                <nav className="flex flex-col">
+                    {navBarButtons}
+                </nav>
+            </aside>
         </>
     );
 };

@@ -1,24 +1,19 @@
-import { CircularProgress, Grid } from '@mui/material';
+import { Loader2 } from 'lucide-react';
 
 const LoadingScreen = () => {
     return (
-        <Grid
-            container
-            alignItems="center"
-            justifyContent="center"
-            sx={{ minHeight: '50vh' }}
-        >
-            {GradientCircularProgress()}
-        </Grid>
+        <div className="flex items-center justify-center min-h-[50vh]">
+            <GradientSpinner />
+        </div>
     );
 };
 
-const GradientCircularProgress = () => (
-    <>
-        <svg width={0} height={0}>
+const GradientSpinner = () => (
+    <div className="relative">
+        <svg width={0} height={0} className="absolute">
             <defs>
                 <linearGradient
-                    id="my_gradient"
+                    id="spinner_gradient"
                     x1="0%"
                     y1="0%"
                     x2="0%"
@@ -29,14 +24,11 @@ const GradientCircularProgress = () => (
                 </linearGradient>
             </defs>
         </svg>
-        <CircularProgress
-            sx={{
-                'width': '20% !important',
-                'height': '0% !important',
-                'svg circle': { stroke: 'url(#my_gradient)' },
-            }}
+        <Loader2
+            className="w-8 h-8 animate-spin"
+            style={{ stroke: 'url(#spinner_gradient)' }}
         />
-    </>
+    </div>
 );
 
 export default LoadingScreen;

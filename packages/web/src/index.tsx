@@ -1,13 +1,10 @@
-import 'react-quill/dist/quill.snow.css';
+import './index.css';
 
 import {
     AuthConfigProvider,
     AuthProvider,
     ProtectedRoute,
     UserProvider } from '@igor-siergiej/web-utils';
-import { ThemeProvider } from '@mui/material/styles';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
@@ -32,7 +29,6 @@ import Home from './pages/Home';
 import Materials from './pages/Materials';
 import Register from './pages/Register';
 import Start from './pages/Start';
-import theme from './style/theme';
 import { getAuthConfig } from './utils/authConfig';
 import { loadConfig } from './utils/loadConfig';
 
@@ -51,67 +47,65 @@ const root = ReactDOM.createRoot(
 
 function App() {
     return (
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <Routes>
-                <Route path={START_PAGE.route} element={<Start />} />
-                <Route path={REGISTER_PAGE.route} element={<Register />} />
+        <Routes>
+            <Route path={START_PAGE.route} element={<Start />} />
+            <Route path={REGISTER_PAGE.route} element={<Register />} />
 
-                <Route
-                    path={HOME_PAGE.route}
-                    element={(
-                        <ProtectedRoute fallbackPath={START_PAGE.route}>
-                            <MainLayout>
-                                <Home />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    )}
-                />
+            <Route
+                path={HOME_PAGE.route}
+                element={(
+                    <ProtectedRoute fallbackPath={START_PAGE.route}>
+                        <MainLayout>
+                            <Home />
+                        </MainLayout>
+                    </ProtectedRoute>
+                )}
+            />
 
-                <Route
-                    path={DESIGNS_PAGE.route}
-                    element={(
-                        <ProtectedRoute fallbackPath={START_PAGE.route}>
-                            <MainLayout>
-                                <Designs />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    )}
-                />
+            <Route
+                path={DESIGNS_PAGE.route}
+                element={(
+                    <ProtectedRoute fallbackPath={START_PAGE.route}>
+                        <MainLayout>
+                            <Designs />
+                        </MainLayout>
+                    </ProtectedRoute>
+                )}
+            />
 
-                <Route
-                    path={ADD_DESIGN_PAGE.route}
-                    element={(
-                        <ProtectedRoute fallbackPath={START_PAGE.route}>
-                            <MainLayout>
-                                <AddDesign />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    )}
-                />
+            <Route
+                path={ADD_DESIGN_PAGE.route}
+                element={(
+                    <ProtectedRoute fallbackPath={START_PAGE.route}>
+                        <MainLayout>
+                            <AddDesign />
+                        </MainLayout>
+                    </ProtectedRoute>
+                )}
+            />
 
-                <Route
-                    path={MATERIALS_PAGE.route}
-                    element={(
-                        <ProtectedRoute fallbackPath={START_PAGE.route}>
-                            <MainLayout>
-                                <Materials />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    )}
-                />
+            <Route
+                path={MATERIALS_PAGE.route}
+                element={(
+                    <ProtectedRoute fallbackPath={START_PAGE.route}>
+                        <MainLayout>
+                            <Materials />
+                        </MainLayout>
+                    </ProtectedRoute>
+                )}
+            />
 
-                <Route
-                    path={ADD_MATERIAL_PAGE.route}
-                    element={(
-                        <ProtectedRoute fallbackPath={START_PAGE.route}>
-                            <MainLayout>
-                                <AddMaterial />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    )}
-                />
-            </Routes>
-        </LocalizationProvider>
+            <Route
+                path={ADD_MATERIAL_PAGE.route}
+                element={(
+                    <ProtectedRoute fallbackPath={START_PAGE.route}>
+                        <MainLayout>
+                            <AddMaterial />
+                        </MainLayout>
+                    </ProtectedRoute>
+                )}
+            />
+        </Routes>
     );
 }
 
@@ -120,24 +114,22 @@ const initializeApp = async () => {
         await loadConfig();
 
         root.render(
-            <ThemeProvider theme={theme}>
-                <QueryClientProvider client={queryClient}>
-                    <BrowserRouter>
-                        <AuthConfigProvider config={getAuthConfig()}>
-                            <UserProvider>
-                                <AuthProvider>
-                                    <AppInitializer>
-                                        <AlertProvider>
-                                            <GlobalAlert />
-                                            <App />
-                                        </AlertProvider>
-                                    </AppInitializer>
-                                </AuthProvider>
-                            </UserProvider>
-                        </AuthConfigProvider>
-                    </BrowserRouter>
-                </QueryClientProvider>
-            </ThemeProvider>
+            <QueryClientProvider client={queryClient}>
+                <BrowserRouter>
+                    <AuthConfigProvider config={getAuthConfig()}>
+                        <UserProvider>
+                            <AuthProvider>
+                                <AppInitializer>
+                                    <AlertProvider>
+                                        <GlobalAlert />
+                                        <App />
+                                    </AlertProvider>
+                                </AppInitializer>
+                            </AuthProvider>
+                        </UserProvider>
+                    </AuthConfigProvider>
+                </BrowserRouter>
+            </QueryClientProvider>
         );
     } catch (error) {
         root.render(

@@ -1,4 +1,5 @@
-import { AlertColor } from '@mui/material';
+// Using string literals instead of MUI AlertColor
+type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 export interface AlertState {
     open?: boolean;

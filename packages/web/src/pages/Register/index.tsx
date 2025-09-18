@@ -1,6 +1,7 @@
 import { useRedirectIfAuthenticated } from '@igor-siergiej/web-utils';
-import { Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+
+import { Button } from '@/components/ui/button';
 
 import { AuthLayout } from '../../components/AuthLayout';
 import { RegisterForm } from '../../components/RegisterForm';
@@ -18,17 +19,13 @@ const Register = () => {
         >
             <RegisterForm />
 
-            <Typography
-                variant="body2"
-                paddingTop={8}
-            >
+            <p className="text-sm pt-8">
                 Already part of the goldsmith empire?
-            </Typography>
+            </p>
 
             <Button
-                fullWidth
-                color="secondary"
-                variant="contained"
+                className="w-full"
+                variant="secondary"
                 onClick={() => {
                     navigate('/');
                 }}

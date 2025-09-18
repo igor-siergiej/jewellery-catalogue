@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { getDesignsQuery } from '../../api/endpoints/getDesigns';
 import { DesignCard } from '../../components/DesignCard';
 import LoadingScreen from '../../components/Loading';
-import { EmptyStateContainer, EmptyStateSubtitle, EmptyStateTitle } from './index.styles';
 
 const Designs = () => {
     const { accessToken, login, logout } = useAuth();
@@ -30,14 +29,14 @@ const Designs = () => {
         <div>
             {data.length === 0
                 ? (
-                        <EmptyStateContainer>
-                            <EmptyStateTitle>
+                        <div>
+                            <div>
                                 No Designs Yet...
-                            </EmptyStateTitle>
-                            <EmptyStateSubtitle>
+                            </div>
+                            <div>
                                 Start creating beautiful jewellery designs to see them here!
-                            </EmptyStateSubtitle>
-                        </EmptyStateContainer>
+                            </div>
+                        </div>
                     )
                 : (
                         designs

@@ -1,5 +1,3 @@
-import { Toolbar } from '@mui/material';
-import Box from '@mui/material/Box';
 import { ReactNode } from 'react';
 import { Outlet } from 'react-router-dom';
 
@@ -11,13 +9,13 @@ export interface MainLayoutProps {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
     return (
-        <Box sx={{ display: 'flex' }}>
+        <div className="flex">
             <NavBar />
-            <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-                <Toolbar sx={{ minHeight: '80px !important' }} />
+            <main className="flex-1 p-6">
+                <div className="h-20" />
                 {children ?? <Outlet />}
-            </Box>
-        </Box>
+            </main>
+        </div>
     );
 };
 
