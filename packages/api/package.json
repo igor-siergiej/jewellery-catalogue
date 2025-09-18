@@ -1,6 +1,6 @@
 {
     "name": "@jewellery-catalogue/api",
-    "version": "0.1.13",
+    "version": "0.1.14",
     "type": "commonjs",
     "scripts": {
         "start": "tsx watch src/index.ts",
