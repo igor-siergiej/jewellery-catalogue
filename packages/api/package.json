@@ -4,7 +4,11 @@
     "type": "commonjs",
     "scripts": {
         "start": "tsx watch src/index.ts",
-        "build": "tsup"
+        "build": "tsup",
+        "test": "vitest",
+        "test:ui": "vitest --ui",
+        "test:coverage": "vitest --coverage",
+        "test:run": "vitest run"
     },
     "dependencies": {
         "@igor-siergiej/api-utils": "0.0.7",
@@ -19,9 +23,12 @@
         "@types/koa": "^2.15.0",
         "@types/koa-cors": "^0.0.6",
         "@types/koa-router": "^7.4.8",
+        "@vitest/coverage-v8": "^3.2.4",
+        "@vitest/ui": "^3.2.4",
         "dotenv": "^16.4.7",
         "tsup": "^8.5.0",
         "tsx": "^4.19.2",
-        "typescript": "^5.8.3"
+        "typescript": "^5.8.3",
+        "vitest": "^3.2.4"
     }
 }

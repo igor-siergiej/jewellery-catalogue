@@ -17,10 +17,10 @@ export const getDesigns = async (ctx: Context) => {
 
         ctx.body = designs;
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string };
+        const err = error as { status?: number; message?: string } | null;
 
-        ctx.status = err.status ?? 500;
-        ctx.body = { error: err.message ?? 'Internal Server Error' };
+        ctx.status = err?.status ?? 500;
+        ctx.body = { error: err?.message ?? 'Internal Server Error' };
     }
 };
 
@@ -32,10 +32,10 @@ export const getDesign = async (ctx: Context) => {
 
         ctx.body = design;
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string };
+        const err = error as { status?: number; message?: string } | null;
 
-        ctx.status = err.status ?? 500;
-        ctx.body = { error: err.message ?? 'Internal Server Error' };
+        ctx.status = err?.status ?? 500;
+        ctx.body = { error: err?.message ?? 'Internal Server Error' };
     }
 };
 
@@ -72,10 +72,10 @@ export const addDesign = async (ctx: Context) => {
         ctx.status = 200;
         ctx.body = design;
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string };
+        const err = error as { status?: number; message?: string } | null;
 
-        ctx.status = err.status ?? 500;
-        ctx.body = { error: err.message ?? 'Internal Server Error' };
+        ctx.status = err?.status ?? 500;
+        ctx.body = { error: err?.message ?? 'Internal Server Error' };
     }
 };
 
@@ -88,10 +88,10 @@ export const updateDesign = async (ctx: Context) => {
 
         ctx.body = design;
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string };
+        const err = error as { status?: number; message?: string } | null;
 
-        ctx.status = err.status ?? 500;
-        ctx.body = { error: err.message ?? 'Internal Server Error' };
+        ctx.status = err?.status ?? 500;
+        ctx.body = { error: err?.message ?? 'Internal Server Error' };
     }
 };
 
@@ -104,9 +104,9 @@ export const deleteDesign = async (ctx: Context) => {
         ctx.status = 200;
         ctx.body = { message: 'Design deleted successfully' };
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string };
+        const err = error as { status?: number; message?: string } | null;
 
-        ctx.status = err.status ?? 500;
-        ctx.body = { error: err.message ?? 'Internal Server Error' };
+        ctx.status = err?.status ?? 500;
+        ctx.body = { error: err?.message ?? 'Internal Server Error' };
     }
 };

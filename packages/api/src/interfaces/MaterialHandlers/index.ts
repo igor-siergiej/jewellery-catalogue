@@ -16,10 +16,10 @@ export const getMaterials = async (ctx: Context) => {
 
         ctx.body = materials;
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string };
+        const err = error as { status?: number; message?: string } | null;
 
-        ctx.status = err.status ?? 500;
-        ctx.body = { error: err.message ?? 'Internal Server Error' };
+        ctx.status = err?.status ?? 500;
+        ctx.body = { error: err?.message ?? 'Internal Server Error' };
     }
 };
 
@@ -31,10 +31,10 @@ export const getMaterial = async (ctx: Context) => {
 
         ctx.body = material;
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string };
+        const err = error as { status?: number; message?: string } | null;
 
-        ctx.status = err.status ?? 500;
-        ctx.body = { error: err.message ?? 'Internal Server Error' };
+        ctx.status = err?.status ?? 500;
+        ctx.body = { error: err?.message ?? 'Internal Server Error' };
     }
 };
 
@@ -48,10 +48,10 @@ export const addMaterial = async (ctx: Context) => {
         ctx.status = 200;
         ctx.body = material;
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string };
+        const err = error as { status?: number; message?: string } | null;
 
-        ctx.status = err.status ?? 500;
-        ctx.body = { error: err.message ?? 'Internal Server Error' };
+        ctx.status = err?.status ?? 500;
+        ctx.body = { error: err?.message ?? 'Internal Server Error' };
     }
 };
 
@@ -64,10 +64,10 @@ export const updateMaterial = async (ctx: Context) => {
 
         ctx.body = material;
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string };
+        const err = error as { status?: number; message?: string } | null;
 
-        ctx.status = err.status ?? 500;
-        ctx.body = { error: err.message ?? 'Internal Server Error' };
+        ctx.status = err?.status ?? 500;
+        ctx.body = { error: err?.message ?? 'Internal Server Error' };
     }
 };
 
@@ -80,9 +80,9 @@ export const deleteMaterial = async (ctx: Context) => {
         ctx.status = 200;
         ctx.body = { message: 'Material deleted successfully' };
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string };
+        const err = error as { status?: number; message?: string } | null;
 
-        ctx.status = err.status ?? 500;
-        ctx.body = { error: err.message ?? 'Internal Server Error' };
+        ctx.status = err?.status ?? 500;
+        ctx.body = { error: err?.message ?? 'Internal Server Error' };
     }
 };

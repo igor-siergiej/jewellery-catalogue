@@ -19,10 +19,10 @@ export const getCatalogue = async (ctx: Context) => {
             materials: catalogue.materials
         };
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string };
+        const err = error as { status?: number; message?: string } | null;
 
-        ctx.status = err.status ?? 500;
-        ctx.body = { error: err.message ?? 'Internal Server Error' };
+        ctx.status = err?.status ?? 500;
+        ctx.body = { error: err?.message ?? 'Internal Server Error' };
     }
 };
 
@@ -39,10 +39,10 @@ export const addCatalogue = async (ctx: Context) => {
             materials: catalogue.materials
         };
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string };
+        const err = error as { status?: number; message?: string } | null;
 
-        ctx.status = err.status ?? 500;
-        ctx.body = { error: err.message ?? 'Internal Server Error' };
+        ctx.status = err?.status ?? 500;
+        ctx.body = { error: err?.message ?? 'Internal Server Error' };
     }
 };
 
@@ -56,10 +56,10 @@ export const getAllCatalogues = async (ctx: Context) => {
             materials: catalogue.materials
         }));
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string };
+        const err = error as { status?: number; message?: string } | null;
 
-        ctx.status = err.status ?? 500;
-        ctx.body = { error: err.message ?? 'Internal Server Error' };
+        ctx.status = err?.status ?? 500;
+        ctx.body = { error: err?.message ?? 'Internal Server Error' };
     }
 };
 
@@ -72,9 +72,9 @@ export const deleteCatalogue = async (ctx: Context) => {
         ctx.status = 200;
         ctx.body = { message: 'Catalogue deleted successfully' };
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string };
+        const err = error as { status?: number; message?: string } | null;
 
-        ctx.status = err.status ?? 500;
-        ctx.body = { error: err.message ?? 'Internal Server Error' };
+        ctx.status = err?.status ?? 500;
+        ctx.body = { error: err?.message ?? 'Internal Server Error' };
     }
 };
