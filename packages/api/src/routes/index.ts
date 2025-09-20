@@ -1,5 +1,7 @@
 import Router from 'koa-router';
 
+import { dependencyContainer } from '../dependencies';
+import { DependencyToken } from '../dependencies/types';
 import { addCatalogue, deleteCatalogue, getAllCatalogues, getCatalogue } from '../interfaces/CatalogueHandlers';
 import { addDesign, deleteDesign, getDesign, getDesigns, updateDesign } from '../interfaces/DesignHandlers';
 import { getImage } from '../interfaces/ImageHandlers';
@@ -7,10 +9,16 @@ import { addMaterial, deleteMaterial, getMaterial, getMaterials, updateMaterial 
 
 const router = new Router();
 
-// Health check endpoint
 router.get('/api/health', async (ctx) => {
     ctx.status = 200;
-    ctx.body = { status: 'healthy', service: 'api', timestamp: new Date().toISOString() };
+    const databaseConnectionExists = dependencyContainer.resolve(DependencyToken.Database).ping();
+    const bucketConnectionExists = dependencyContainer.resolve(DependencyToken.Bucket).ping();
+
+    if (!databaseConnectionExists || !bucketConnectionExists) {
+        ctx.status = 500;
+    }
+
+    ctx.status = 200;
 });
 
 // Catalogue routes
