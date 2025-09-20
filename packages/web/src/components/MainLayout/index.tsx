@@ -1,7 +1,10 @@
 import { ReactNode } from 'react';
 import { Outlet } from 'react-router-dom';
 
-import NavBar from '../NavBar';
+import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+
+import CollapsibleSidebar from '../CollapsibleSidebar';
+import { Separator } from '../ui/separator';
 
 export interface MainLayoutProps {
     children?: ReactNode;
@@ -9,13 +12,23 @@ export interface MainLayoutProps {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
     return (
-        <div className="flex">
-            <NavBar />
-            <main className="flex-1 p-6">
-                <div className="h-20" />
-                {children ?? <Outlet />}
-            </main>
-        </div>
+        <SidebarProvider>
+            <CollapsibleSidebar />
+            <SidebarInset>
+                <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+                    <SidebarTrigger className="-ml-1" />
+                    <Separator
+                        orientation="vertical"
+                        className="mr-2 data-[orientation=vertical]:h-4"
+                    />
+                </header>
+                <div className="flex flex-1 flex-col gap-4 p-4">
+                    <main>
+                        {children ?? <Outlet />}
+                    </main>
+                </div>
+            </SidebarInset>
+        </SidebarProvider>
     );
 };
 
