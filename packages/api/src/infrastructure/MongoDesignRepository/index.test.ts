@@ -122,7 +122,7 @@ describe('MongoDesignRepository', () => {
     describe('getByCatalogueId', () => {
         it('should return designs from catalogue', async () => {
             const catalogueId = '507f1f77bcf86cd799439011';
-            const designs: Design[] = [
+            const designs: Array<Design> = [
                 {
                     id: 'design-1',
                     title: 'Earrings Design',
@@ -218,7 +218,7 @@ describe('MongoDesignRepository', () => {
 
         it('should handle designs with different structures', async () => {
             const catalogueId = '507f1f77bcf86cd799439016';
-            const designs: Design[] = [
+            const designs: Array<Design> = [
                 {
                     id: 'minimal-design',
                     title: 'Minimal Design',

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 // Mock the ConfigService and parsers
 const mockConfigService = vi.fn();
@@ -13,7 +13,6 @@ vi.mock('@igor-siergiej/api-utils', () => ({
 }));
 
 describe('Config', () => {
-
     describe('schema definition', () => {
         it('should create ConfigService with correct schema', async () => {
             // Import the config to trigger the constructor
@@ -50,7 +49,7 @@ describe('Config', () => {
                 'bucketEndpoint'
             ];
 
-            stringFields.forEach(field => {
+            stringFields.forEach((field) => {
                 expect(callArgs[field].parser).toBe(mockParsers.string);
             });
         });
@@ -96,7 +95,7 @@ describe('Config', () => {
                 'bucketEndpoint'
             ];
 
-            expectedFields.forEach(field => {
+            expectedFields.forEach((field) => {
                 expect(callArgs).toHaveProperty(field);
                 expect(callArgs[field]).toHaveProperty('parser');
                 expect(callArgs[field]).toHaveProperty('from');
@@ -116,7 +115,7 @@ describe('Config', () => {
             const callArgs = mockConfigService.mock.calls[0][0];
 
             // All values should be objects with parser and from properties
-            Object.values(callArgs).forEach(config => {
+            Object.values(callArgs).forEach((config) => {
                 expect(config).toHaveProperty('parser');
                 expect(config).toHaveProperty('from');
                 expect(typeof config.from).toBe('string');
@@ -162,7 +161,7 @@ describe('Config', () => {
                 'bucketAccessKey', 'bucketSecretKey', 'bucketEndpoint'
             ];
 
-            stringFields.forEach(field => {
+            stringFields.forEach((field) => {
                 expect(callArgs[field].parser).toBe(mockParsers.string);
             });
         });

@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import * as catalogueHandlers from './index';
+
 const mockCatalogueService = vi.hoisted(() => ({
     getCatalogue: vi.fn(),
     createCatalogue: vi.fn(),
@@ -18,8 +20,6 @@ vi.mock('../../dependencies', () => ({
 vi.mock('../../domain/CatalogueService', () => ({
     CatalogueService: vi.fn()
 }));
-
-import * as catalogueHandlers from './index';
 
 const createMockContext = (overrides: any = {}) => ({
     params: {},

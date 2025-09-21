@@ -123,7 +123,7 @@ describe('MongoMaterialRepository', () => {
     describe('getByCatalogueId', () => {
         it('should return materials from catalogue', async () => {
             const catalogueId = '507f1f77bcf86cd799439011';
-            const materials: Material[] = [
+            const materials: Array<Material> = [
                 {
                     id: 'material-1',
                     type: MaterialType.BEAD,
@@ -219,7 +219,7 @@ describe('MongoMaterialRepository', () => {
 
         it('should handle different material types in catalogue', async () => {
             const catalogueId = '507f1f77bcf86cd799439016';
-            const materials: Material[] = [
+            const materials: Array<Material> = [
                 {
                     id: 'wire-1',
                     type: MaterialType.WIRE,

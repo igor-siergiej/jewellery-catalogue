@@ -50,7 +50,7 @@ describe('DesignService', () => {
     describe('getDesignsByCatalogue', () => {
         it('should return designs for valid catalogue ID', async () => {
             const catalogueId = 'catalogue-123';
-            const mockDesigns: Design[] = [
+            const mockDesigns: Array<Design> = [
                 {
                     id: 'design-1',
                     name: 'Ring Design',
@@ -221,7 +221,7 @@ describe('DesignService', () => {
         });
 
         it('should parse materials from string', async () => {
-            const materials: RequiredMaterial[] = [
+            const materials: Array<RequiredMaterial> = [
                 { materialId: 'material-1', quantity: 2 },
                 { materialId: 'material-2', quantity: 1 }
             ];
@@ -242,7 +242,7 @@ describe('DesignService', () => {
         });
 
         it('should handle materials as array directly', async () => {
-            const materials: RequiredMaterial[] = [
+            const materials: Array<RequiredMaterial> = [
                 { materialId: 'material-3', quantity: 3 }
             ];
 

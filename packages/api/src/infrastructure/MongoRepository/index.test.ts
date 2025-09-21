@@ -2,7 +2,7 @@ import { MongoDbConnection } from '@igor-siergiej/api-utils';
 import { ObjectId } from 'mongodb';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { Collections, CollectionNames } from '../../dependencies/types';
+import { CollectionNames, Collections } from '../../dependencies/types';
 import { MongoRepository } from './index';
 
 const mockCollection = {

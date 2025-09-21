@@ -296,7 +296,7 @@ describe('material-conversion', () => {
                 packs: 1
             };
 
-            Object.values(METAL_TYPE).forEach(metalType => {
+            Object.values(METAL_TYPE).forEach((metalType) => {
                 const formChain: FormChain = {
                     ...baseFormChain,
                     metalType
@@ -322,7 +322,7 @@ describe('material-conversion', () => {
                 packs: 1
             };
 
-            Object.values(WIRE_TYPE).forEach(wireType => {
+            Object.values(WIRE_TYPE).forEach((wireType) => {
                 const formChain: FormChain = {
                     ...baseFormChain,
                     wireType

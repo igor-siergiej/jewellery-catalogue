@@ -58,7 +58,7 @@ describe('MaterialHandlers', () => {
     describe('getMaterials', () => {
         it('should return materials for valid catalogue ID', async () => {
             const catalogueId = 'catalogue-123';
-            const mockMaterials: Material[] = [
+            const mockMaterials: Array<Material> = [
                 {
                     id: 'material-1',
                     type: MaterialType.WIRE,

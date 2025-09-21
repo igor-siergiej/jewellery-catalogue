@@ -1,4 +1,7 @@
+import fs from 'fs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import * as designHandlers from './index';
 
 const mockDesignService = vi.hoisted(() => ({
     getDesignsByCatalogue: vi.fn(),
@@ -25,9 +28,6 @@ vi.mock('fs', () => ({
         readFileSync: vi.fn()
     }
 }));
-
-import fs from 'fs';
-import * as designHandlers from './index';
 
 const createMockContext = (overrides: any = {}) => ({
     params: {},

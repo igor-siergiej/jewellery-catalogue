@@ -1,4 +1,17 @@
+import { Logger, MongoDbConnection, ObjectStoreConnection } from '@igor-siergiej/api-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { CatalogueService } from '../domain/CatalogueService';
+import { DesignService } from '../domain/DesignService';
+import { ImageService } from '../domain/ImageService';
+import { MaterialService } from '../domain/MaterialService';
+import { BucketStore } from '../infrastructure/BucketStore';
+import { MongoCatalogueRepository } from '../infrastructure/MongoCatalogueRepository';
+import { MongoDesignRepository } from '../infrastructure/MongoDesignRepository';
+import { MongoMaterialRepository } from '../infrastructure/MongoMaterialRepository';
+import { UuidGenerator } from '../infrastructure/UuidGenerator';
+import { dependencyContainer, registerDepdendencies } from './index';
+import { DependencyToken } from './types';
 
 const mockDependencyContainer = vi.hoisted(() => ({
     registerSingleton: vi.fn(),
@@ -50,19 +63,6 @@ vi.mock('../infrastructure/MongoMaterialRepository', () => ({
 vi.mock('../infrastructure/UuidGenerator', () => ({
     UuidGenerator: vi.fn()
 }));
-
-import { DependencyContainer, Logger, MongoDbConnection, ObjectStoreConnection } from '@igor-siergiej/api-utils';
-import { CatalogueService } from '../domain/CatalogueService';
-import { DesignService } from '../domain/DesignService';
-import { ImageService } from '../domain/ImageService';
-import { MaterialService } from '../domain/MaterialService';
-import { BucketStore } from '../infrastructure/BucketStore';
-import { MongoCatalogueRepository } from '../infrastructure/MongoCatalogueRepository';
-import { MongoDesignRepository } from '../infrastructure/MongoDesignRepository';
-import { MongoMaterialRepository } from '../infrastructure/MongoMaterialRepository';
-import { UuidGenerator } from '../infrastructure/UuidGenerator';
-import { dependencyContainer, registerDepdendencies } from './index';
-import { DependencyToken } from './types';
 
 describe('Dependencies', () => {
     describe('dependencyContainer', () => {
@@ -268,7 +268,7 @@ describe('Dependencies', () => {
                     DependencyToken.DesignService
                 ];
 
-                expectedTokens.forEach(token => {
+                expectedTokens.forEach((token) => {
                     expect(registeredTokens).toContain(token);
                 });
             });
