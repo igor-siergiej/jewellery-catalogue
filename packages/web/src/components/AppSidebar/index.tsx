@@ -9,6 +9,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
     Sidebar,
     SidebarContent,
+    SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
     SidebarHeader,
@@ -19,6 +20,7 @@ import {
 } from '@/components/ui/sidebar';
 
 import { ROUTES } from '../../constants/routes';
+import UserInfo from '../UserInfo';
 import { Header } from './Header';
 
 const routeIcons = {
@@ -69,6 +71,11 @@ const AppSidebar = () => {
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
+            {!isCollapsed && (
+                <SidebarFooter>
+                    <UserInfo />
+                </SidebarFooter>
+            )}
         </Sidebar>
     );
 };
