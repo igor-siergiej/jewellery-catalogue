@@ -18,8 +18,8 @@ import {
     useSidebar,
 } from '@/components/ui/sidebar';
 
-import { HOME_PAGE, ROUTES } from '../../constants/routes';
-import IMAGES from '../../img';
+import { ROUTES } from '../../constants/routes';
+import { Header } from './Header';
 
 const routeIcons = {
     '/home': Home,
@@ -29,7 +29,7 @@ const routeIcons = {
     '/addMaterial': PlusCircle,
 };
 
-const CollapsibleSidebar = () => {
+const AppSidebar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { state } = useSidebar();
@@ -38,42 +38,8 @@ const CollapsibleSidebar = () => {
     return (
         <Sidebar collapsible="icon" className="relative h-full border-r border-sidebar-border">
             <SidebarHeader>
-                {isCollapsed
-                    ? (
-                            <div className="flex flex-col items-center gap-2 py-2">
-                                <div
-                                    className="cursor-pointer"
-                                    onClick={() => navigate(HOME_PAGE.route)}
-                                    title="Go to home"
-                                >
-                                    <img
-                                        src={IMAGES.logo}
-                                        alt="jewellery"
-                                        className="h-6 w-6 object-scale-down"
-                                    />
-                                </div>
-                            </div>
-                        )
-                    : (
-                            <div className="flex items-center gap-2 px-2 py-2">
-                                <div
-                                    className="cursor-pointer"
-                                    onClick={() => navigate(HOME_PAGE.route)}
-                                    title="Go to home"
-                                >
-                                    <img
-                                        src={IMAGES.logo}
-                                        alt="jewellery"
-                                        className="h-8 w-8 object-scale-down"
-                                    />
-                                </div>
-                                <h1 className="text-lg font-bold text-sidebar-foreground truncate flex-1">
-                                    Jewellery Catalogue
-                                </h1>
-                            </div>
-                        )}
+                <Header isCollapsed={isCollapsed} />
             </SidebarHeader>
-
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarGroupContent>
@@ -107,4 +73,4 @@ const CollapsibleSidebar = () => {
     );
 };
 
-export default CollapsibleSidebar;
+export default AppSidebar;
