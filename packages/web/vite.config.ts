@@ -13,14 +13,6 @@ export default defineConfig(({ mode }) => {
                 '@jewellery-catalogue/types': path.resolve(__dirname, '../types/src'),
             }
         },
-        // @ts-expect-error - Vitest config in Vite config
-        test: {
-            setupFiles: ['./src/setupTests.ts'],
-            environment: 'jsdom',
-            globals: true,
-            exclude: ['tests/**/*', 'node_modules/**/*'],
-            include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}'],
-        },
         define: {
             __APP_VERSION__: JSON.stringify(process.env.APP_VERSION || (isDev ? 'localhost' : '')),
             __IS_PROD__: JSON.stringify(!isDev),

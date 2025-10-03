@@ -6,7 +6,6 @@
         "start:mock-auth": "node mock-auth-server.js",
         "start:with-mock": "concurrently \"npm run start:mock-auth\" \"npm run start\"",
         "build": "vite build --emptyOutDir",
-        "test": "vitest --coverage",
         "pw:install": "PLAYWRIGHT_BROWSERS_PATH=~/.cache/ms-playwright playwright install --with-deps",
         "pw:run": "playwright test --config=playwright.config.ts",
         "pw:e2e": "playwright test --config=playwright.config.ts",
