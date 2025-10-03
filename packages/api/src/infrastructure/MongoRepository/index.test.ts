@@ -103,6 +103,7 @@ describe('MongoRepository', () => {
     describe('getById', () => {
         it('should find entity by string id', async () => {
             const testEntity = { id: 'test-123', name: 'Test Entity', value: 42 };
+
             mockCollection.findOne.mockResolvedValue(testEntity);
 
             const result = await repository.getById('test-123');
@@ -115,6 +116,7 @@ describe('MongoRepository', () => {
             const catalogueRepository = new MongoRepository<TestEntity>(mockDb, CollectionNames.Catalogues);
             const testEntity = { _id: new ObjectId(), name: 'Test Catalogue', value: 100 };
             const testId = '507f1f77bcf86cd799439011';
+
             mockCollection.findOne.mockResolvedValue(testEntity);
 
             const result = await catalogueRepository.getById(testId);
@@ -133,6 +135,7 @@ describe('MongoRepository', () => {
 
         it('should propagate database errors', async () => {
             const mockError = new Error('Database connection error');
+
             mockCollection.findOne.mockRejectedValue(mockError);
 
             await expect(repository.getById('test-123')).rejects.toThrow('Database connection error');
@@ -148,6 +151,7 @@ describe('MongoRepository', () => {
             const mockCursor = {
                 toArray: vi.fn().mockResolvedValue(testEntities)
             };
+
             mockCollection.find.mockReturnValue(mockCursor);
 
             const result = await repository.getAll();
@@ -161,6 +165,7 @@ describe('MongoRepository', () => {
             const mockCursor = {
                 toArray: vi.fn().mockResolvedValue([])
             };
+
             mockCollection.find.mockReturnValue(mockCursor);
 
             const result = await repository.getAll();
@@ -173,6 +178,7 @@ describe('MongoRepository', () => {
             const mockCursor = {
                 toArray: vi.fn().mockRejectedValue(mockError)
             };
+
             mockCollection.find.mockReturnValue(mockCursor);
 
             await expect(repository.getAll()).rejects.toThrow('Database query error');
@@ -182,6 +188,7 @@ describe('MongoRepository', () => {
     describe('insert', () => {
         it('should insert entity into collection', async () => {
             const testEntity = { id: 'new-entity', name: 'New Entity', value: 99 };
+
             mockCollection.insertOne.mockResolvedValue({ insertedId: 'new-id' });
 
             await repository.insert(testEntity);
@@ -192,6 +199,7 @@ describe('MongoRepository', () => {
         it('should propagate database errors during insert', async () => {
             const testEntity = { id: 'error-entity', name: 'Error Entity', value: 0 };
             const mockError = new Error('Insert failed');
+
             mockCollection.insertOne.mockRejectedValue(mockError);
 
             await expect(repository.insert(testEntity)).rejects.toThrow('Insert failed');
@@ -201,6 +209,7 @@ describe('MongoRepository', () => {
     describe('update', () => {
         it('should update entity by string id', async () => {
             const testEntity = { id: 'update-test', name: 'Updated Entity', value: 200 };
+
             mockCollection.findOneAndReplace.mockResolvedValue({ value: testEntity });
 
             await repository.update('update-test', testEntity);
@@ -215,6 +224,7 @@ describe('MongoRepository', () => {
             const catalogueRepository = new MongoRepository<TestEntity>(mockDb, CollectionNames.Catalogues);
             const testEntity = { _id: new ObjectId(), name: 'Updated Catalogue', value: 300 };
             const testId = '507f1f77bcf86cd799439011';
+
             mockCollection.findOneAndReplace.mockResolvedValue({ value: testEntity });
 
             await catalogueRepository.update(testId, testEntity);
@@ -228,6 +238,7 @@ describe('MongoRepository', () => {
         it('should propagate database errors during update', async () => {
             const testEntity = { id: 'error-update', name: 'Error Update', value: 0 };
             const mockError = new Error('Update failed');
+
             mockCollection.findOneAndReplace.mockRejectedValue(mockError);
 
             await expect(repository.update('error-update', testEntity)).rejects.toThrow('Update failed');
@@ -246,6 +257,7 @@ describe('MongoRepository', () => {
         it('should delete entity by ObjectId for catalogues', async () => {
             const catalogueRepository = new MongoRepository<TestEntity>(mockDb, CollectionNames.Catalogues);
             const testId = '507f1f77bcf86cd799439011';
+
             mockCollection.deleteOne.mockResolvedValue({ deletedCount: 1 });
 
             await catalogueRepository.delete(testId);
@@ -255,6 +267,7 @@ describe('MongoRepository', () => {
 
         it('should propagate database errors during delete', async () => {
             const mockError = new Error('Delete failed');
+
             mockCollection.deleteOne.mockRejectedValue(mockError);
 
             await expect(repository.delete('error-delete')).rejects.toThrow('Delete failed');
@@ -272,10 +285,12 @@ describe('MongoRepository', () => {
             // Read
             mockCollection.findOne.mockResolvedValue(entity);
             const retrieved = await repository.getById('crud-test');
+
             expect(retrieved).toEqual(entity);
 
             // Update
             const updatedEntity = { ...entity, name: 'Updated CRUD Test', value: 456 };
+
             mockCollection.findOneAndReplace.mockResolvedValue({ value: updatedEntity });
             await repository.update('crud-test', updatedEntity);
 
@@ -302,10 +317,12 @@ describe('MongoRepository', () => {
             // Read
             mockCollection.findOne.mockResolvedValue(entity);
             const retrieved = await catalogueRepository.getById(stringId);
+
             expect(retrieved).toEqual(entity);
 
             // Update
             const updatedEntity = { ...entity, name: 'Updated Catalogue', value: 999 };
+
             mockCollection.findOneAndReplace.mockResolvedValue({ value: updatedEntity });
             await catalogueRepository.update(stringId, updatedEntity);
 

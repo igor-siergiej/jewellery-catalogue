@@ -20,9 +20,11 @@ const getBaseURL = () => {
     if (process.env.STAGING_BASE_URL) {
         return process.env.STAGING_BASE_URL; // Pipeline sets this
     }
+
     if (isCI || isStaging) {
         return 'http://localhost:8082'; // Staging default
     }
+
     return process.env.E2E_BASE_URL || 'http://localhost:3000'; // Local development default
 };
 

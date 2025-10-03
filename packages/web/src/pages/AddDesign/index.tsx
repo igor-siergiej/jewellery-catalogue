@@ -52,6 +52,7 @@ const AddDesign: React.FC = () => {
             if (!user?.id) {
                 throw new Error('User not authenticated');
             }
+
             await makeAddDesignRequest(user.id, data, accessToken, login, logout);
 
             dispatch({
@@ -66,6 +67,7 @@ const AddDesign: React.FC = () => {
             reset();
         } catch (e) {
             const message = e instanceof Error ? e.message : 'Unknown Error';
+
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {
@@ -85,6 +87,7 @@ const AddDesign: React.FC = () => {
             const materialsCost = getTotalMaterialCosts(selectedMaterials, data);
             const timeSpentCost = parseFloat((getWageCosts(currentTimeRequired) * HOURLY_WAGE).toFixed(2));
             const totalCosts = materialsCost + timeSpentCost;
+
             setValue('price', parseFloat((totalCosts * PROFIT_COEFFICIENT).toFixed(2)));
         }
     }, [selectedMaterials, currentTimeRequired, data, setValue]);

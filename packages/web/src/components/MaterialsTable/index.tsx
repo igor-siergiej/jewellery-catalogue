@@ -19,11 +19,13 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
 
     const formatPrice = (value: number | null | undefined) => {
         if (value == null) return '';
+
         return `$${Number(value).toFixed(2)}`;
     };
 
     const renderPurchaseUrl = (url: string | null | undefined) => {
         if (!url) return null;
+
         return (
             <a
                 href={url}

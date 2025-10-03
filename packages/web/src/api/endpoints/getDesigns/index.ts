@@ -37,5 +37,6 @@ export const designsLoader = (queryClient: QueryClient) => async (
     const result = await queryClient.fetchQuery({
         ...getDesignsQuery(catalogueId, accessToken, onTokenRefresh, onTokenClear),
     });
+
     return result;
 };

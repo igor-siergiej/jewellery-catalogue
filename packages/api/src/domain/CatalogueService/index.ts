@@ -33,6 +33,7 @@ export class CatalogueService {
 
         // Check if catalogue with this ID already exists
         const existing = await this.repo.getById(catalogueId);
+
         if (existing) {
             throw Object.assign(new Error('Catalogue with this ID already exists'), { status: 409 });
         }
@@ -44,6 +45,7 @@ export class CatalogueService {
         };
 
         await this.repo.insert(newCatalogue);
+
         return newCatalogue;
     }
 
@@ -53,6 +55,7 @@ export class CatalogueService {
         }
 
         const catalogue = await this.repo.getById(id);
+
         if (!catalogue) {
             throw Object.assign(new Error('Catalogue not found'), { status: 404 });
         }

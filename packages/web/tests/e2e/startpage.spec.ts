@@ -11,6 +11,7 @@ test.describe('Given Start Page', () => {
         await expect(page).toHaveTitle('Jewellery Catalogue');
 
         const rootElement = page.locator('#root');
+
         await expect(rootElement).toBeVisible();
 
         // Wait for React app to load
@@ -62,13 +63,17 @@ test.describe('Given Start Page', () => {
         const authServiceUrl = process.env.E2E_AUTH_SERVICE_URL || 'http://192.168.68.54:5002';
 
         const apiResponse = await request.get(`${apiServiceUrl}/health`);
+
         expect(apiResponse.status()).toBe(200);
         const apiBody = await apiResponse.json();
+
         expect(apiBody.service).toBe('api');
 
         const authResponse = await request.get(`${authServiceUrl}/health`);
+
         expect(authResponse.status()).toBe(200);
         const authBody = await authResponse.json();
+
         expect(authBody.service).toBe('auth');
 
         await page.goto('/');
@@ -82,9 +87,11 @@ test.describe('Given Start Page', () => {
         await page.waitForLoadState('networkidle');
 
         const bodyElement = page.locator('body');
+
         await expect(bodyElement).toHaveCSS('background-color', 'rgb(204, 218, 244)');
 
         const fontLinks = page.locator('link[href*="fonts.googleapis.com"]');
+
         await expect(fontLinks).toHaveCount(2);
     });
 

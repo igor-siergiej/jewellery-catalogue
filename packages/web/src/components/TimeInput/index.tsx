@@ -11,6 +11,7 @@ export interface TimeInputProps {
 const TimeInput: React.FC<TimeInputProps> = ({ setValue }) => {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
+
         setValue('timeRequired', value);
     };
 

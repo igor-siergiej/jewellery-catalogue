@@ -9,6 +9,7 @@ export const addCatalogue = async (userId: string) => {
 
     if (!response.ok) {
         const json = await response.json();
+
         throw new Error(json.error || 'Failed to create catalogue');
     }
 

@@ -32,9 +32,11 @@ describe('MongoDesignRepository', () => {
             if (collectionName === CollectionNames.Designs) {
                 return mockDesignsCollection;
             }
+
             if (collectionName === CollectionNames.Catalogues) {
                 return mockCataloguesCollection;
             }
+
             return {};
         });
 
@@ -82,6 +84,7 @@ describe('MongoDesignRepository', () => {
             const mockCursor = {
                 toArray: vi.fn().mockResolvedValue(designs)
             };
+
             mockDesignsCollection.find.mockReturnValue(mockCursor);
 
             const result = await repository.getAll();
@@ -100,6 +103,7 @@ describe('MongoDesignRepository', () => {
 
         it('should update design by id', async () => {
             const updatedDesign = { ...mockDesign, title: 'Updated Design' };
+
             mockDesignsCollection.findOneAndReplace.mockResolvedValue({ value: updatedDesign });
 
             await repository.update('design-123', updatedDesign);

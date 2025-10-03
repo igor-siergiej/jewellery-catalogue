@@ -10,6 +10,7 @@ export class BucketStore implements ImageStore {
     async getHeadObject(name: string): Promise<{ metaData?: { 'content-type'?: string } } | null> {
         try {
             const stat = await this.bucket.statObject(name);
+
             return {
                 metaData: {
                     'content-type': stat?.metaData?.['content-type']

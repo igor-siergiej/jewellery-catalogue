@@ -62,6 +62,7 @@ describe('ImageHandlers', () => {
             };
 
             const ctx = createMockContext({ params: { name: imageName } });
+
             mockImageService.getImage.mockResolvedValue(mockImageResponse);
 
             await imageHandlers.getImage(ctx);
@@ -83,6 +84,7 @@ describe('ImageHandlers', () => {
             };
 
             const ctx = createMockContext({ params: { name: imageName } });
+
             mockImageService.getImage.mockResolvedValue(mockImageResponse);
 
             await imageHandlers.getImage(ctx);
@@ -96,6 +98,7 @@ describe('ImageHandlers', () => {
             const ctx = createMockContext({ params: { name: imageName } });
 
             const serviceError = Object.assign(new Error('Image not found'), { status: 404 });
+
             mockImageService.getImage.mockRejectedValue(serviceError);
 
             await imageHandlers.getImage(ctx);
@@ -111,6 +114,7 @@ describe('ImageHandlers', () => {
             const ctx = createMockContext({ params: { name: imageName } });
 
             const serviceError = Object.assign(new Error('File does not exist'), { status: 404 });
+
             mockImageService.getImage.mockRejectedValue(serviceError);
 
             await imageHandlers.getImage(ctx);
@@ -124,6 +128,7 @@ describe('ImageHandlers', () => {
             const ctx = createMockContext({ params: { name: imageName } });
 
             const serviceError = Object.assign(new Error('Image name is required'), { status: 400 });
+
             mockImageService.getImage.mockRejectedValue(serviceError);
 
             await imageHandlers.getImage(ctx);
@@ -161,6 +166,7 @@ describe('ImageHandlers', () => {
             const ctx = createMockContext({ params: { name: imageName } });
 
             const serviceError = Object.assign(new Error('Access denied'), { status: 403 });
+
             mockImageService.getImage.mockRejectedValue(serviceError);
 
             await imageHandlers.getImage(ctx);
@@ -243,6 +249,7 @@ describe('ImageHandlers', () => {
             const ctx = createMockContext({ params: {} });
 
             const serviceError = Object.assign(new Error('Image name is required'), { status: 400 });
+
             mockImageService.getImage.mockRejectedValue(serviceError);
 
             await imageHandlers.getImage(ctx);
@@ -261,6 +268,7 @@ describe('ImageHandlers', () => {
             };
 
             const ctx = createMockContext({ params: { name: imageName } });
+
             mockImageService.getImage.mockResolvedValue(mockImageResponse);
 
             await imageHandlers.getImage(ctx);
@@ -279,6 +287,7 @@ describe('ImageHandlers', () => {
             };
 
             const ctx = createMockContext({ params: { name: imageName } });
+
             mockImageService.getImage.mockResolvedValue(mockImageResponse);
 
             await imageHandlers.getImage(ctx);

@@ -51,6 +51,7 @@ export const makeRequestWithAutoRefresh = async <T>(
     onTokenClear: () => void
 ) => {
     const config = getAuthConfig();
+
     return withTokenRefresh(
         () => makeRequest<T>(requestProps),
         onTokenRefresh,

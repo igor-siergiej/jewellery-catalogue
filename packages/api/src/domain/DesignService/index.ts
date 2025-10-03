@@ -42,6 +42,7 @@ export class DesignService {
 
         // Verify catalogue exists
         const catalogue = await this.catalogueRepo.getById(catalogueId);
+
         if (!catalogue) {
             throw Object.assign(new Error('Catalogue not found'), { status: 404 });
         }
@@ -55,6 +56,7 @@ export class DesignService {
 
         // Parse materials if needed
         let materials: Array<RequiredMaterial>;
+
         try {
             materials = typeof designData.materials === 'string'
                 ? JSON.parse(designData.materials)
@@ -89,11 +91,13 @@ export class DesignService {
         }
 
         const existing = await this.designRepo.getById(id);
+
         if (!existing) {
             throw Object.assign(new Error('Design not found'), { status: 404 });
         }
 
         const updated = { ...existing, ...updates };
+
         await this.designRepo.update(id, updated);
 
         return updated;
@@ -105,6 +109,7 @@ export class DesignService {
         }
 
         const design = await this.designRepo.getById(id);
+
         if (!design) {
             throw Object.assign(new Error('Design not found'), { status: 404 });
         }

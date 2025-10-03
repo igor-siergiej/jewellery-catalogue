@@ -15,6 +15,7 @@ export const clearAuthState = async (page: Page) => {
                 // localStorage might be disabled or not accessible
                 console.warn('Could not clear localStorage:', e);
             }
+
             try {
                 sessionStorage.clear();
             } catch (e) {
@@ -49,9 +50,11 @@ export const waitForAuthServices = async (page: Page) => {
 
     // Wait for API service
     let retries = 0;
+
     while (retries < maxRetries) {
         try {
             const response = await page.request.get(`${apiServiceUrl}/health`);
+
             if (response.status() === 200) {
                 console.log('✅ API service is ready');
                 break;
@@ -59,10 +62,12 @@ export const waitForAuthServices = async (page: Page) => {
         } catch (error) {
             // Service not ready yet
         }
+
         retries++;
         if (retries >= maxRetries) {
             throw new Error(`API service not ready after ${maxRetries} attempts at ${apiServiceUrl}/health`);
         }
+
         await page.waitForTimeout(retryDelay);
     }
 
@@ -71,6 +76,7 @@ export const waitForAuthServices = async (page: Page) => {
     while (retries < maxRetries) {
         try {
             const response = await page.request.get(`${authServiceUrl}/health`);
+
             if (response.status() === 200) {
                 console.log('✅ Auth service is ready');
                 break;
@@ -78,10 +84,12 @@ export const waitForAuthServices = async (page: Page) => {
         } catch (error) {
             // Service not ready yet
         }
+
         retries++;
         if (retries >= maxRetries) {
             throw new Error(`Auth service not ready after ${maxRetries} attempts at ${authServiceUrl}/health`);
         }
+
         await page.waitForTimeout(retryDelay);
     }
 

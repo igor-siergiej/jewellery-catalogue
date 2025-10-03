@@ -56,6 +56,7 @@ const AddMaterial = () => {
             if (!user?.id) {
                 throw new Error('User not authenticated');
             }
+
             await makeAddMaterialRequest(user.id, data, accessToken, login, logout);
 
             dispatch({
@@ -70,6 +71,7 @@ const AddMaterial = () => {
             reset();
         } catch (e) {
             const message = e instanceof Error ? e.message : 'Unknown Error';
+
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {

@@ -90,6 +90,7 @@ describe('DesignService', () => {
         it('should propagate repository errors', async () => {
             const catalogueId = 'catalogue-123';
             const repoError = new Error('Database connection failed');
+
             mockDesignRepo.getByCatalogueId.mockRejectedValue(repoError);
 
             await expect(service.getDesignsByCatalogue(catalogueId)).rejects.toThrow('Database connection failed');
@@ -129,6 +130,7 @@ describe('DesignService', () => {
 
         it('should throw error when design not found', async () => {
             const designId = 'non-existent';
+
             mockDesignRepo.getById.mockResolvedValue(null);
 
             await expect(service.getDesign(designId)).rejects.toMatchObject({

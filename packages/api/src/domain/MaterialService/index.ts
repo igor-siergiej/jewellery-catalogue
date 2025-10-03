@@ -41,6 +41,7 @@ export class MaterialService {
 
         // Verify catalogue exists
         const catalogue = await this.catalogueRepo.getById(catalogueId);
+
         if (!catalogue) {
             throw Object.assign(new Error('Catalogue not found'), { status: 404 });
         }
@@ -63,11 +64,13 @@ export class MaterialService {
         }
 
         const existing = await this.materialRepo.getById(id);
+
         if (!existing) {
             throw Object.assign(new Error('Material not found'), { status: 404 });
         }
 
         const updated = { ...existing, ...updates };
+
         await this.materialRepo.update(id, updated);
 
         return updated;
@@ -79,6 +82,7 @@ export class MaterialService {
         }
 
         const material = await this.materialRepo.getById(id);
+
         if (!material) {
             throw Object.assign(new Error('Material not found'), { status: 404 });
         }
@@ -107,6 +111,7 @@ export class MaterialService {
             .filter(key => expectedKeys.includes(key))
             .reduce((obj, key) => {
                 obj[key] = materialData[key];
+
                 return obj;
             }, {} as FormMaterial);
 

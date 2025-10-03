@@ -74,6 +74,7 @@ describe('MaterialHandlers', () => {
             ];
 
             const ctx = createMockContext({ params: { catalogueId } });
+
             mockMaterialService.getMaterialsByCatalogue.mockResolvedValue(mockMaterials);
 
             await materialHandlers.getMaterials(ctx);
@@ -88,6 +89,7 @@ describe('MaterialHandlers', () => {
             const ctx = createMockContext({ params: { catalogueId } });
 
             const serviceError = Object.assign(new Error('Catalogue not found'), { status: 404 });
+
             mockMaterialService.getMaterialsByCatalogue.mockRejectedValue(serviceError);
 
             await materialHandlers.getMaterials(ctx);
@@ -137,6 +139,7 @@ describe('MaterialHandlers', () => {
             };
 
             const ctx = createMockContext({ params: { id: materialId } });
+
             mockMaterialService.getMaterial.mockResolvedValue(mockMaterial);
 
             await materialHandlers.getMaterial(ctx);
@@ -151,6 +154,7 @@ describe('MaterialHandlers', () => {
             const ctx = createMockContext({ params: { id: materialId } });
 
             const serviceError = Object.assign(new Error('Material not found'), { status: 404 });
+
             mockMaterialService.getMaterial.mockRejectedValue(serviceError);
 
             await materialHandlers.getMaterial(ctx);
@@ -225,6 +229,7 @@ describe('MaterialHandlers', () => {
             });
 
             const serviceError = Object.assign(new Error('Invalid material data'), { status: 400 });
+
             mockMaterialService.addMaterial.mockRejectedValue(serviceError);
 
             await materialHandlers.addMaterial(ctx);
@@ -255,6 +260,7 @@ describe('MaterialHandlers', () => {
             });
 
             const serviceError = Object.assign(new Error('Catalogue not found'), { status: 404 });
+
             mockMaterialService.addMaterial.mockRejectedValue(serviceError);
 
             await materialHandlers.addMaterial(ctx);
@@ -305,6 +311,7 @@ describe('MaterialHandlers', () => {
             });
 
             const serviceError = Object.assign(new Error('Material not found'), { status: 404 });
+
             mockMaterialService.updateMaterial.mockRejectedValue(serviceError);
 
             await materialHandlers.updateMaterial(ctx);
@@ -323,6 +330,7 @@ describe('MaterialHandlers', () => {
             });
 
             const serviceError = Object.assign(new Error('Invalid update data'), { status: 400 });
+
             mockMaterialService.updateMaterial.mockRejectedValue(serviceError);
 
             await materialHandlers.updateMaterial(ctx);
@@ -337,6 +345,7 @@ describe('MaterialHandlers', () => {
             const materialId = 'material-123';
 
             const ctx = createMockContext({ params: { id: materialId } });
+
             mockMaterialService.deleteMaterial.mockResolvedValue(undefined);
 
             await materialHandlers.deleteMaterial(ctx);
@@ -352,6 +361,7 @@ describe('MaterialHandlers', () => {
             const ctx = createMockContext({ params: { id: materialId } });
 
             const serviceError = Object.assign(new Error('Material not found'), { status: 404 });
+
             mockMaterialService.deleteMaterial.mockRejectedValue(serviceError);
 
             await materialHandlers.deleteMaterial(ctx);
@@ -364,6 +374,7 @@ describe('MaterialHandlers', () => {
             const materialId = 'error-material';
 
             const ctx = createMockContext({ params: { id: materialId } });
+
             mockMaterialService.deleteMaterial.mockRejectedValue(new Error('Delete failed'));
 
             await materialHandlers.deleteMaterial(ctx);
@@ -376,6 +387,7 @@ describe('MaterialHandlers', () => {
     describe('dependency resolution', () => {
         it('should resolve MaterialService from dependency container', async () => {
             const ctx = createMockContext({ params: { catalogueId: 'test' } });
+
             mockMaterialService.getMaterialsByCatalogue.mockResolvedValue([]);
 
             await materialHandlers.getMaterials(ctx);
@@ -387,6 +399,7 @@ describe('MaterialHandlers', () => {
     describe('error handling edge cases', () => {
         it('should handle null error objects', async () => {
             const ctx = createMockContext({ params: { id: 'test' } });
+
             mockMaterialService.getMaterial.mockRejectedValue(null);
 
             await materialHandlers.getMaterial(ctx);
@@ -397,6 +410,7 @@ describe('MaterialHandlers', () => {
 
         it('should handle error objects without message', async () => {
             const ctx = createMockContext({ params: { id: 'test' } });
+
             mockMaterialService.getMaterial.mockRejectedValue({ status: 403 });
 
             await materialHandlers.getMaterial(ctx);
@@ -407,6 +421,7 @@ describe('MaterialHandlers', () => {
 
         it('should handle string errors', async () => {
             const ctx = createMockContext({ params: { id: 'test' } });
+
             mockMaterialService.getMaterial.mockRejectedValue('String error');
 
             await materialHandlers.getMaterial(ctx);

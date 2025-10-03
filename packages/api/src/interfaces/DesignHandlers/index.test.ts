@@ -205,6 +205,7 @@ describe('DesignHandlers', () => {
             });
 
             const mockUpdatedDesign = { id: 'design-123', name: 'Updated Design' };
+
             mockDesignService.updateDesign.mockResolvedValue(mockUpdatedDesign);
 
             await designHandlers.updateDesign(ctx);
@@ -220,6 +221,7 @@ describe('DesignHandlers', () => {
             });
 
             const error = Object.assign(new Error('Design not found'), { status: 404 });
+
             mockDesignService.updateDesign.mockRejectedValue(error);
 
             await designHandlers.updateDesign(ctx);
@@ -258,6 +260,7 @@ describe('DesignHandlers', () => {
     describe('dependency resolution', () => {
         it('should resolve DesignService from dependency container', async () => {
             const ctx = createMockContext({ params: { id: 'test' } });
+
             mockDesignService.getDesign.mockResolvedValue({ id: 'test', name: 'Test Design' });
 
             await designHandlers.getDesign(ctx);
@@ -269,6 +272,7 @@ describe('DesignHandlers', () => {
     describe('error handling edge cases', () => {
         it('should handle null error objects', async () => {
             const ctx = createMockContext({ params: { id: 'test' } });
+
             mockDesignService.getDesign.mockRejectedValue(null);
 
             await designHandlers.getDesign(ctx);

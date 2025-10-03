@@ -59,6 +59,7 @@ export const AlertProvider = (props: StoreProviderProps) => {
             if (timeoutRef.current) {
                 clearTimeout(timeoutRef.current);
             }
+
             dispatch(action);
         } else if (action.type === SHOW_ALERT) {
             dispatch(action);

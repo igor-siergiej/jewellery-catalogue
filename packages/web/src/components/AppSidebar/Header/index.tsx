@@ -10,6 +10,7 @@ export interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
     const navigate = useNavigate();
+
     if (isCollapsed) {
         return (
 

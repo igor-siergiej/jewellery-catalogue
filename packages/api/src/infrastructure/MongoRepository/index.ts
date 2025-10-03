@@ -19,6 +19,7 @@ export class MongoRepository<T extends { id?: string; _id?: any }, TId = string>
         if (this.usesObjectId()) {
             return { _id: new ObjectId(id as string) };
         }
+
         // For entities with string id (like Design, Material)
         return { id: id as string };
     }

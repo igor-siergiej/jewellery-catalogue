@@ -18,9 +18,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ setImage }) => {
     const handleFile = (file: File) => {
         if (!file.type.startsWith('image/')) return;
         const reader = new FileReader();
+
         reader.onload = () => {
             setPreview(reader.result as string);
         };
+
         reader.readAsDataURL(file);
         setImage('image', file);
     };

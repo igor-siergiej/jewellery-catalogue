@@ -77,6 +77,7 @@ describe('MongoCatalogueRepository', () => {
             const mockCursor = {
                 toArray: vi.fn().mockResolvedValue(catalogues)
             };
+
             mockCataloguesCollection.find.mockReturnValue(mockCursor);
 
             const result = await repository.getAll();
@@ -95,6 +96,7 @@ describe('MongoCatalogueRepository', () => {
 
         it('should update catalogue by ObjectId', async () => {
             const updatedCatalogue = { ...mockCatalogue, title: 'Updated Catalogue' };
+
             mockCataloguesCollection.findOneAndReplace.mockResolvedValue({ value: updatedCatalogue });
 
             await repository.update(catalogueId, updatedCatalogue);
@@ -127,6 +129,7 @@ describe('MongoCatalogueRepository', () => {
     describe('error handling', () => {
         it('should propagate database errors during getById', async () => {
             const mockError = new Error('Database connection error');
+
             mockCataloguesCollection.findOne.mockRejectedValue(mockError);
 
             await expect(repository.getById('507f1f77bcf86cd799439011')).rejects.toThrow('Database connection error');
@@ -137,6 +140,7 @@ describe('MongoCatalogueRepository', () => {
             const mockCursor = {
                 toArray: vi.fn().mockRejectedValue(mockError)
             };
+
             mockCataloguesCollection.find.mockReturnValue(mockCursor);
 
             await expect(repository.getAll()).rejects.toThrow('Database query error');
@@ -153,6 +157,7 @@ describe('MongoCatalogueRepository', () => {
                 materials: []
             };
             const mockError = new Error('Insert failed');
+
             mockCataloguesCollection.insertOne.mockRejectedValue(mockError);
 
             await expect(repository.insert(mockCatalogue)).rejects.toThrow('Insert failed');
@@ -170,6 +175,7 @@ describe('MongoCatalogueRepository', () => {
                 materials: []
             };
             const mockError = new Error('Update failed');
+
             mockCataloguesCollection.findOneAndReplace.mockRejectedValue(mockError);
 
             await expect(repository.update('507f1f77bcf86cd799439011', mockCatalogue)).rejects.toThrow('Update failed');
@@ -177,6 +183,7 @@ describe('MongoCatalogueRepository', () => {
 
         it('should propagate database errors during delete', async () => {
             const mockError = new Error('Delete failed');
+
             mockCataloguesCollection.deleteOne.mockRejectedValue(mockError);
 
             await expect(repository.delete('507f1f77bcf86cd799439011')).rejects.toThrow('Delete failed');

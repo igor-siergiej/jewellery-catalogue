@@ -18,6 +18,7 @@ export const GlobalAlert: React.FC = () => {
             }
         });
     };
+
     if (!state.open) return null;
 
     return (

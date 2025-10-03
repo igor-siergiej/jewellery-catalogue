@@ -83,6 +83,7 @@ describe('CatalogueHandlers', () => {
 
         it('should handle null error objects', async () => {
             const ctx = createMockContext({ params: { id: 'test' } });
+
             mockCatalogueService.getCatalogue.mockRejectedValue(null);
 
             await catalogueHandlers.getCatalogue(ctx);
@@ -187,6 +188,7 @@ describe('CatalogueHandlers', () => {
     describe('dependency resolution', () => {
         it('should resolve CatalogueService from dependency container', async () => {
             const ctx = createMockContext({ params: { id: 'test' } });
+
             mockCatalogueService.getCatalogue.mockResolvedValue({ _id: 'test', designs: [], materials: [] });
 
             await catalogueHandlers.getCatalogue(ctx);

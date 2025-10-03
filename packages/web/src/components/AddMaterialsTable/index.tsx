@@ -23,12 +23,15 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
 
     const handleSaveClick = (id: string) => {
         const rowToSave = rows.find(row => row.id === id);
+
         if (!rowToSave) return;
 
         if (rowToSave.isNew) {
             const actualId = availableMaterials.find(material => material.name === rowToSave.name)?.id;
+
             if (!actualId) {
                 alert('Could not find a matching material name from availableMaterials');
+
                 return;
             }
 
@@ -50,6 +53,7 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
 
     const handleDeleteClick = (id: string) => {
         const newRows = rows.filter(row => row.id !== id);
+
         setRows(newRows);
         setSelectedMaterials(newRows);
         setMaterials(newRows);
@@ -101,32 +105,39 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
 
     const getUnitLabel = (materialName: string) => {
         const material = availableMaterials.find(m => m.name === materialName);
+
         if (material?.type === 'WIRE' || material?.type === 'CHAIN') {
             return 'cm';
         }
+
         if (material?.type === 'BEAD' || material?.type === 'EAR_HOOK') {
             return 'pcs';
         }
+
         return '';
     };
 
     const formatValue = (value: number, materialName: string) => {
         const unit = getUnitLabel(materialName);
+
         return unit ? `${value} ${unit}` : value.toString();
     };
 
     const getAvailableMaterials = () => {
         return availableMaterials.filter((material) => {
             const materialHasAlreadyBeenSelected = selectedMaterials.some(selectedMaterial => selectedMaterial.name === material.name);
+
             return !materialHasAlreadyBeenSelected;
         });
     };
 
     const handleAddMaterial = () => {
         const hasNewRow = rows.some(row => row.isNew);
+
         if (hasNewRow) return;
 
         const newId = `new-${Date.now()}`;
+
         setRows(oldRows => [
             ...oldRows,
             { id: newId, name: '', required: 0, isNew: true, isEditing: true },

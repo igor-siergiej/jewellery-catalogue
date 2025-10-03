@@ -12,6 +12,7 @@ const NavBar = () => {
 
     const navBarButtons = ROUTES.map((route) => {
         const isActive = location.pathname === route.route;
+
         return (
             <Button
                 key={route.route}

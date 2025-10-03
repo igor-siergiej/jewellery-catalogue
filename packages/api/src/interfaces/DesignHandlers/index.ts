@@ -46,6 +46,7 @@ export const addDesign = async (ctx: Context) => {
     if (!file) {
         ctx.status = 400;
         ctx.body = { error: 'File is required' };
+
         return;
     }
 

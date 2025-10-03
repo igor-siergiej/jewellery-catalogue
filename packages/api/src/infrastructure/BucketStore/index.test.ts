@@ -109,6 +109,7 @@ describe('BucketStore', () => {
     describe('getObjectStream', () => {
         it('should return object stream from bucket', async () => {
             const mockStream = {} as NodeJS.ReadableStream;
+
             mockBucket.getObjectStream.mockResolvedValue(mockStream);
 
             const result = await bucketStore.getObjectStream('test-file.pdf');
@@ -119,6 +120,7 @@ describe('BucketStore', () => {
 
         it('should propagate errors from bucket getObjectStream', async () => {
             const mockError = new Error('Stream error');
+
             mockBucket.getObjectStream.mockRejectedValue(mockError);
 
             await expect(bucketStore.getObjectStream('error-file.pdf')).rejects.toThrow('Stream error');
@@ -129,6 +131,7 @@ describe('BucketStore', () => {
     describe('putObject', () => {
         it('should put object to bucket without options', async () => {
             const buffer = Buffer.from('test data');
+
             mockBucket.putObject.mockResolvedValue(undefined);
 
             await bucketStore.putObject('test-file.txt', buffer);
@@ -139,6 +142,7 @@ describe('BucketStore', () => {
         it('should put object to bucket with content type options', async () => {
             const buffer = Buffer.from('image data');
             const options = { contentType: 'image/jpeg' };
+
             mockBucket.putObject.mockResolvedValue(undefined);
 
             await bucketStore.putObject('test-image.jpg', buffer, options);
@@ -149,6 +153,7 @@ describe('BucketStore', () => {
         it('should propagate errors from bucket putObject', async () => {
             const buffer = Buffer.from('test data');
             const mockError = new Error('Upload error');
+
             mockBucket.putObject.mockRejectedValue(mockError);
 
             await expect(bucketStore.putObject('error-file.txt', buffer)).rejects.toThrow('Upload error');
@@ -157,6 +162,7 @@ describe('BucketStore', () => {
 
         it('should handle empty buffer', async () => {
             const buffer = Buffer.alloc(0);
+
             mockBucket.putObject.mockResolvedValue(undefined);
 
             await bucketStore.putObject('empty-file.txt', buffer);
