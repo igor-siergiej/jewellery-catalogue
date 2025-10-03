@@ -1,4 +1,4 @@
-import { MongoDbConnection } from '@igor-siergiej/api-utils';
+import { MongoDbConnection } from '@imapps/api-utils';
 import { Material } from '@jewellery-catalogue/types';
 import { ObjectId } from 'mongodb';
 
@@ -20,6 +20,7 @@ export class MongoMaterialRepository extends MongoRepository<Material> implement
         // In a more normalized approach, we could store catalogueId in materials
         const catalogueCollection = this.db.getCollection(CollectionNames.Catalogues);
         const catalogue = await catalogueCollection.findOne({ _id: new ObjectId(catalogueId) });
+
         return catalogue?.materials || [];
     }
 }

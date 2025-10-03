@@ -1,4 +1,4 @@
-import { MongoDbConnection } from '@igor-siergiej/api-utils';
+import { MongoDbConnection } from '@imapps/api-utils';
 import { Material, MaterialType, METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
 import { ObjectId } from 'mongodb';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -32,9 +32,11 @@ describe('MongoMaterialRepository', () => {
             if (collectionName === CollectionNames.Materials) {
                 return mockMaterialsCollection;
             }
+
             if (collectionName === CollectionNames.Catalogues) {
                 return mockCataloguesCollection;
             }
+
             return {};
         });
 
@@ -83,6 +85,7 @@ describe('MongoMaterialRepository', () => {
             const mockCursor = {
                 toArray: vi.fn().mockResolvedValue(materials)
             };
+
             mockMaterialsCollection.find.mockReturnValue(mockCursor);
 
             const result = await repository.getAll();
@@ -101,6 +104,7 @@ describe('MongoMaterialRepository', () => {
 
         it('should update material by id', async () => {
             const updatedMaterial = { ...mockMaterial, name: 'Updated Wire' };
+
             mockMaterialsCollection.findOneAndReplace.mockResolvedValue({ value: updatedMaterial });
 
             await repository.update('material-123', updatedMaterial);

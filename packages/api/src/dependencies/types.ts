@@ -1,4 +1,4 @@
-import { Logger, MongoDbConnection, ObjectStoreConnection } from '@igor-siergiej/api-utils';
+import { Logger, MongoDbConnection, ObjectStoreConnection } from '@imapps/api-utils';
 import { Catalogue, Design, Material } from '@jewellery-catalogue/types';
 
 import { CatalogueRepository } from '../domain/CatalogueRepository';

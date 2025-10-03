@@ -1,4 +1,4 @@
-import { withTokenRefresh } from '@igor-siergiej/web-utils';
+import { withTokenRefresh } from '@imapps/web-utils';
 import { MakeRequestProps } from '@jewellery-catalogue/types';
 
 import { getAuthConfig } from '../../utils/authConfig';

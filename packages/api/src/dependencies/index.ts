@@ -1,4 +1,4 @@
-import { DependencyContainer, Logger, MongoDbConnection, ObjectStoreConnection } from '@igor-siergiej/api-utils';
+import { DependencyContainer, Logger, MongoDbConnection, ObjectStoreConnection } from '@imapps/api-utils';
 
 import { CatalogueService } from '../domain/CatalogueService';
 import { DesignService } from '../domain/DesignService';

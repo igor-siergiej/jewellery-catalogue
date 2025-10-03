@@ -1,4 +1,4 @@
-import { Logger } from '@igor-siergiej/api-utils';
+import { Logger } from '@imapps/api-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ImageService } from './index';
@@ -36,6 +36,7 @@ describe('ImageService', () => {
     describe('constructor', () => {
         it('should create service with store only', () => {
             const minimalService = new ImageService(mockStore as unknown as ImageStore);
+
             expect(minimalService).toBeInstanceOf(ImageService);
         });
 

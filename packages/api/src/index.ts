@@ -43,9 +43,11 @@ const customLogger = async (ctx: Context, next: Next) => {
 const corsOptions = {
     origin: (ctx: Context) => {
         const origin = ctx.get('origin');
+
         if (allowedOrigins.includes(origin)) {
             return origin;
         }
+
         return '*';
     },
     credentials: true,
@@ -65,6 +67,7 @@ const bodyOptions = {
 export const onStartup = async () => {
     try {
         const app = new Koa();
+
         app.use(cors(corsOptions));
 
         registerDepdendencies();
@@ -143,6 +146,7 @@ export const onStartup = async () => {
                 appLogger.error('Encountered unexpected error on start up', { error });
             }
         }
+
         process.exit(1);
     }
 };

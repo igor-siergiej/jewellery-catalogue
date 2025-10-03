@@ -1,4 +1,4 @@
-import { useAuth, useUser } from '@igor-siergiej/web-utils';
+import { useAuth, useUser } from '@imapps/web-utils';
 import { FormMaterial, MaterialType } from '@jewellery-catalogue/types';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';

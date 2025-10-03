@@ -1,6 +1,6 @@
-import { extractUserFromToken, useAuth, useAuthConfig } from '@igor-siergiej/web-utils';
+import { extractUserFromToken, useAuth, useAuthConfig } from '@imapps/web-utils';
 import { Eye, EyeOff } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,8 +20,8 @@ export const RegisterForm: React.FC = () => {
         register,
         formState: { errors },
     } = useForm<RegisterParams>();
-    const [showPassword, setShowPassword] = React.useState(false);
-    const [isLoading, setIsLoading] = React.useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const { dispatch } = useAlert();
     const navigate = useNavigate();
     const { login } = useAuth();
@@ -31,6 +31,7 @@ export const RegisterForm: React.FC = () => {
         if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)) {
             return 'Password must be at least 8 characters long and contain at least one letter and one number';
         }
+
         return true;
     };
 
@@ -45,15 +46,20 @@ export const RegisterForm: React.FC = () => {
                 body: JSON.stringify(data),
                 credentials: 'include',
             });
+
             if (!response.ok) {
                 const json = await response.json();
+
                 throw new Error(json.message);
             }
+
             const json = await response.json();
+
             if (!json.accessToken) throw new Error('No access token returned');
 
             // Extract user ID from the token
             const userInfo = extractUserFromToken(json.accessToken);
+
             if (!userInfo?.id) {
                 throw new Error('Could not extract user ID from token');
             }
@@ -67,6 +73,7 @@ export const RegisterForm: React.FC = () => {
             navigate(HOME_PAGE.route);
         } catch (e) {
             const message = e instanceof Error ? e.message : 'Unknown error';
+
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {

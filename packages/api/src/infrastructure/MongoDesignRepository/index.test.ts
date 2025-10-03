@@ -1,4 +1,4 @@
-import { MongoDbConnection } from '@igor-siergiej/api-utils';
+import { MongoDbConnection } from '@imapps/api-utils';
 import { Design } from '@jewellery-catalogue/types';
 import { ObjectId } from 'mongodb';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

@@ -1,4 +1,4 @@
-import { useAuth, useUser } from '@igor-siergiej/web-utils';
+import { useAuth, useUser } from '@imapps/web-utils';
 import { LogOut, User } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';

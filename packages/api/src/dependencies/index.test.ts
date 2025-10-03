@@ -1,4 +1,4 @@
-import { Logger, MongoDbConnection, ObjectStoreConnection } from '@igor-siergiej/api-utils';
+import { Logger, MongoDbConnection, ObjectStoreConnection } from '@imapps/api-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CatalogueService } from '../domain/CatalogueService';
@@ -19,7 +19,7 @@ const mockDependencyContainer = vi.hoisted(() => ({
 }));
 
 // Mock all the dependencies
-vi.mock('@igor-siergiej/api-utils', () => ({
+vi.mock('@imapps/api-utils', () => ({
     DependencyContainer: {
         getInstance: vi.fn(() => mockDependencyContainer)
     },

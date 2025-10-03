@@ -1,4 +1,4 @@
-import { useAuth } from '@igor-siergiej/web-utils';
+import { useAuth } from '@imapps/web-utils';
 import { MakeRequestProps } from '@jewellery-catalogue/types';
 import { useCallback } from 'react';
 

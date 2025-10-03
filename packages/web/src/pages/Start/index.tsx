@@ -1,4 +1,4 @@
-import { useRedirectIfAuthenticated } from '@igor-siergiej/web-utils';
+import { useRedirectIfAuthenticated } from '@imapps/web-utils';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';

@@ -1,4 +1,4 @@
-import { MongoDbConnection } from '@igor-siergiej/api-utils';
+import { MongoDbConnection } from '@imapps/api-utils';
 import { ObjectId } from 'mongodb';
 
 import { Collections } from '../../dependencies/types';

@@ -1,4 +1,4 @@
-import { MongoDbConnection } from '@igor-siergiej/api-utils';
+import { MongoDbConnection } from '@imapps/api-utils';
 import { Catalogue } from '@jewellery-catalogue/types';
 
 import { CollectionNames, Collections } from '../../dependencies/types';

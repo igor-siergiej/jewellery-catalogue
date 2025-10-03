@@ -10,5 +10,5 @@ export default defineConfig({
     sourcemap: true,
     clean: true,
     dts: false,
-    noExternal: ['koa', '@koa/cors', 'koa-body', 'koa-router', 'dotenv', 'mongodb', 'minio', '@igor-siergiej/api-utils']
+    noExternal: ['koa', '@koa/cors', 'koa-body', 'koa-router', 'dotenv', 'mongodb', 'minio', '@imapps/api-utils']
 });

@@ -4,7 +4,7 @@ import {
     AuthConfigProvider,
     AuthProvider,
     ProtectedRoute,
-    UserProvider } from '@igor-siergiej/web-utils';
+    UserProvider } from '@imapps/web-utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';

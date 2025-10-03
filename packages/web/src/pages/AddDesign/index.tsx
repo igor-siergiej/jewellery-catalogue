@@ -1,4 +1,4 @@
-import { useAuth, useUser } from '@igor-siergiej/web-utils';
+import { useAuth, useUser } from '@imapps/web-utils';
 import { FormDesign } from '@jewellery-catalogue/types';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';

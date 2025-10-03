@@ -1,6 +1,6 @@
-import { useAuth, useAuthConfig } from '@igor-siergiej/web-utils';
+import { useAuth, useAuthConfig } from '@imapps/web-utils';
 import { Eye, EyeOff } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,8 +19,8 @@ export const LoginForm: React.FC = () => {
         register,
         formState: { errors },
     } = useForm<LoginParams>();
-    const [showPassword, setShowPassword] = React.useState(false);
-    const [isLoading, setIsLoading] = React.useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const { dispatch } = useAlert();
     const navigate = useNavigate();
     const { login } = useAuth();
@@ -37,16 +37,21 @@ export const LoginForm: React.FC = () => {
                 body: JSON.stringify(data),
                 credentials: 'include',
             });
+
             if (!response.ok) {
                 const json = await response.json();
+
                 throw new Error(json.message);
             }
+
             const json = await response.json();
+
             if (!json.accessToken) throw new Error('No access token returned');
             login(json.accessToken);
             navigate(HOME_PAGE.route);
         } catch (e) {
             const message = e instanceof Error ? e.message : 'Unknown error';
+
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {

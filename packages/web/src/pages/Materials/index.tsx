@@ -1,4 +1,4 @@
-import { useAuth, useUser } from '@igor-siergiej/web-utils';
+import { useAuth, useUser } from '@imapps/web-utils';
 import { useQuery } from '@tanstack/react-query';
 
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
