@@ -9,23 +9,26 @@ COPY package.json yarn.lock ./
 COPY .yarnrc.yml ./.yarnrc.yml
 
 COPY packages/types/package.json packages/types/package.json
-COPY packages/web/package.json packages/web/package.json
 COPY packages/api/package.json packages/api/package.json
+COPY packages/web/package.json packages/web/package.json
 
 ENV YARN_NODE_LINKER=node-modules
 
 RUN corepack enable && corepack prepare yarn@4.9.2 --activate
 
-RUN --mount=type=secret,id=PAT_TOKEN,required \
-  sh -c 'export PAT_TOKEN="$(cat /run/secrets/PAT_TOKEN)" && yarn install --immutable'
+# Configure GitLab Package Registry authentication
+RUN --mount=type=secret,id=CI_JOB_TOKEN \
+    CI_JOB_TOKEN=$(cat /run/secrets/CI_JOB_TOKEN) && \
+    yarn config set npmScopes.imapps.npmRegistryServer "https://gitlab.com/api/v4/projects/116310254/packages/npm/" && \
+    yarn config set npmScopes.imapps.npmAuthToken "$CI_JOB_TOKEN"
+
+RUN yarn install --immutable
 
 COPY . .
 
-RUN --mount=type=secret,id=PAT_TOKEN,required \
-  sh -c 'export PAT_TOKEN="$(cat /run/secrets/PAT_TOKEN)" && yarn install --immutable'
+RUN yarn install --immutable
 
-RUN --mount=type=secret,id=PAT_TOKEN,required \
-  sh -c 'export PAT_TOKEN="$(cat /run/secrets/PAT_TOKEN)" APP_VERSION="$APP_VERSION" && yarn workspace @jewellery-catalogue/web build'
+RUN APP_VERSION="$APP_VERSION" yarn workspace @jewellery-catalogue/web build
 
 FROM nginx:alpine
 
