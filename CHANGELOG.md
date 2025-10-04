@@ -1,3 +1,10 @@
+# [1.1.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.0.1...v1.1.0) (2025-10-04)
+
+
+### Features
+
+* added empty components ([60902a8](https://gitlab.com/imapps/jewellery-catalogue/commit/60902a82d45908c8f799a188b5a36df4af129762))
+
 # 1.0.0 (2025-10-04)
 
 
