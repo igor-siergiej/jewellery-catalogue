@@ -1,5 +1,8 @@
 import { useAuth, useUser } from '@imapps/web-utils';
 import { useQuery } from '@tanstack/react-query';
+import { Sparkles } from 'lucide-react';
+
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 
 import { getDesignsQuery } from '../../api/endpoints/getDesigns';
 import { DesignCard } from '../../components/DesignCard';
@@ -29,14 +32,17 @@ const Designs = () => {
         <div>
             {data.length === 0
                 ? (
-                        <div>
-                            <div>
-                                No Designs Yet...
-                            </div>
-                            <div>
-                                Start creating beautiful jewellery designs to see them here!
-                            </div>
-                        </div>
+                        <Empty>
+                            <EmptyHeader>
+                                <EmptyMedia variant="icon">
+                                    <Sparkles />
+                                </EmptyMedia>
+                                <EmptyTitle>No Designs Yet</EmptyTitle>
+                                <EmptyDescription>
+                                    Start creating beautiful jewellery designs to see them here!
+                                </EmptyDescription>
+                            </EmptyHeader>
+                        </Empty>
                     )
                 : (
                         designs

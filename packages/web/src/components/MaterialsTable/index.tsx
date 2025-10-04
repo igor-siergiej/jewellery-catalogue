@@ -1,8 +1,9 @@
 import { Material } from '@jewellery-catalogue/types';
-import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ExternalLink, Package } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 
 export interface IMaterialTableProps {
     materials: Array<Material>;
@@ -165,17 +166,21 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
         );
     };
 
-    const EmptyState = () => (
-        <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
-            <p className="text-muted-foreground">No materials found</p>
-        </div>
-    );
-
     return (
         <div className="border rounded-lg overflow-hidden">
             {materials.length === 0
                 ? (
-                        <EmptyState />
+                        <Empty>
+                            <EmptyHeader>
+                                <EmptyMedia variant="icon">
+                                    <Package />
+                                </EmptyMedia>
+                                <EmptyTitle>No Materials Found</EmptyTitle>
+                                <EmptyDescription>
+                                    Add materials to your inventory to see them listed here.
+                                </EmptyDescription>
+                            </EmptyHeader>
+                        </Empty>
                     )
                 : (
                         <>
