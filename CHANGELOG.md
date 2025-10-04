@@ -1,3 +1,10 @@
+## [1.1.1](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.1.0...v1.1.1) (2025-10-04)
+
+
+### Bug Fixes
+
+* remove price and material costs from design card ([faa4ffd](https://gitlab.com/imapps/jewellery-catalogue/commit/faa4ffd956e85fe93b0345ac014a4c06270d10ff))
+
 # [1.1.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.0.1...v1.1.0) (2025-10-04)
 
 
