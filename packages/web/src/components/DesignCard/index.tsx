@@ -41,17 +41,9 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design }) => {
                         </h2>
                         <div className="border-b border-border"></div>
                         <p className="text-base">
-                            Price: $15.00
-                        </p>
-
-                        <p className="text-base">
                             Time to make:
                             {' '}
                             {timeRequired}
-                        </p>
-
-                        <p className="text-base">
-                            Material Costs: $10.00
                         </p>
                     </div>
 
