@@ -27,21 +27,31 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
         if (!rowToSave) return;
 
         if (rowToSave.isNew) {
-            const actualId = availableMaterials.find(material => material.name === rowToSave.name)?.id;
-
-            if (!actualId) {
-                alert('Could not find a matching material name from availableMaterials');
+            if (!rowToSave.id || rowToSave.id.startsWith('new-')) {
+                alert('Please select a material');
 
                 return;
             }
 
-            const updatedRow = { ...rowToSave, isNew: false, isEditing: false, id: actualId };
+            if (!rowToSave.required || rowToSave.required <= 0) {
+                alert('Please enter a valid required amount');
+
+                return;
+            }
+
+            const updatedRow = { ...rowToSave, isNew: false, isEditing: false };
             const newRows = rows.map(row => (row.id === id ? updatedRow : row));
 
             setSelectedMaterials(newRows);
             setRows(newRows);
             setMaterials(newRows);
         } else {
+            if (!rowToSave.required || rowToSave.required <= 0) {
+                alert('Please enter a valid required amount');
+
+                return;
+            }
+
             setRows(prevRows =>
                 prevRows.map(row =>
                     row.id === id ? { ...row, isEditing: false } : row
@@ -87,10 +97,14 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
         setValue('materials', actualMaterials);
     };
 
-    const handleMaterialChange = (id: string, name: string) => {
+    const handleMaterialChange = (oldId: string, newMaterialId: string) => {
+        const material = availableMaterials.find(m => m.id === newMaterialId);
+
+        if (!material) return;
+
         setRows(prevRows =>
             prevRows.map(row =>
-                row.id === id ? { ...row, name } : row
+                row.id === oldId ? { ...row, id: newMaterialId, name: material.name, required: 0 } : row
             )
         );
     };
@@ -103,8 +117,12 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
         );
     };
 
-    const getUnitLabel = (materialName: string) => {
-        const material = availableMaterials.find(m => m.name === materialName);
+    const getMaterialById = (materialId: string) => {
+        return availableMaterials.find(m => m.id === materialId);
+    };
+
+    const getUnitLabel = (materialId: string) => {
+        const material = getMaterialById(materialId);
 
         if (material?.type === 'WIRE' || material?.type === 'CHAIN') {
             return 'cm';
@@ -117,15 +135,29 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
         return '';
     };
 
-    const formatValue = (value: number, materialName: string) => {
-        const unit = getUnitLabel(materialName);
+    const getInputStep = (materialId: string) => {
+        const material = getMaterialById(materialId);
+
+        if (material?.type === 'WIRE' || material?.type === 'CHAIN') {
+            return 0.1;
+        }
+
+        if (material?.type === 'BEAD' || material?.type === 'EAR_HOOK') {
+            return 1;
+        }
+
+        return 0.1;
+    };
+
+    const formatValue = (value: number, materialId: string) => {
+        const unit = getUnitLabel(materialId);
 
         return unit ? `${value} ${unit}` : value.toString();
     };
 
     const getAvailableMaterials = () => {
         return availableMaterials.filter((material) => {
-            const materialHasAlreadyBeenSelected = selectedMaterials.some(selectedMaterial => selectedMaterial.name === material.name);
+            const materialHasAlreadyBeenSelected = selectedMaterials.some(selectedMaterial => selectedMaterial.id === material.id);
 
             return !materialHasAlreadyBeenSelected;
         });
@@ -157,7 +189,7 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
     const TableHeader = () => (
         <div className="grid grid-cols-12 gap-4 p-4 bg-muted/50 border-b font-medium text-sm">
             <div className="col-span-5">Material</div>
-            <div className="col-span-5">Required Amount</div>
+            <div className="col-span-5">Required Length/Quantity</div>
             <div className="col-span-2">Actions</div>
         </div>
     );
@@ -168,7 +200,7 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
                 {row.isEditing
                     ? (
                             <Select
-                                value={row.name}
+                                value={row.id.startsWith('new-') ? '' : row.id}
                                 onValueChange={value => handleMaterialChange(row.id, value)}
                             >
                                 <SelectTrigger className="w-full">
@@ -176,7 +208,7 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
                                 </SelectTrigger>
                                 <SelectContent>
                                     {getAvailableMaterials().map(material => (
-                                        <SelectItem key={material.id} value={material.name}>
+                                        <SelectItem key={material.id} value={material.id}>
                                             {material.name}
                                         </SelectItem>
                                     ))}
@@ -197,15 +229,19 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
                                     onChange={e => handleRequiredChange(row.id, Number(e.target.value))}
                                     className="flex-1"
                                     min="0"
-                                    step="0.1"
+                                    step={!row.id.startsWith('new-') ? getInputStep(row.id) : 0.1}
+                                    disabled={row.id.startsWith('new-')}
+                                    placeholder={row.id.startsWith('new-') ? 'Select material first' : '0'}
                                 />
-                                <span className="text-sm text-muted-foreground min-w-[3ch]">
-                                    {getUnitLabel(row.name)}
-                                </span>
+                                {!row.id.startsWith('new-') && (
+                                    <span className="text-sm text-muted-foreground min-w-[3ch]">
+                                        {getUnitLabel(row.id)}
+                                    </span>
+                                )}
                             </div>
                         )
                     : (
-                            <span>{formatValue(row.required, row.name)}</span>
+                            <span>{formatValue(row.required, row.id)}</span>
                         )}
             </div>
             <div className="col-span-2 flex items-center gap-2">

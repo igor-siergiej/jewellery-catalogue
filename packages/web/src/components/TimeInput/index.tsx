@@ -1,30 +1,33 @@
-import { FormDesign } from '@jewellery-catalogue/types';
-import { UseFormSetValue } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+
+import { AddDesignFormData } from '../../schemas/addDesignSchema';
 
 export interface TimeInputProps {
-    setValue: UseFormSetValue<FormDesign>;
+    form: UseFormReturn<AddDesignFormData>;
 }
 
-const TimeInput: React.FC<TimeInputProps> = ({ setValue }) => {
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value;
-
-        setValue('timeRequired', value);
-    };
-
+const TimeInput: React.FC<TimeInputProps> = ({ form }) => {
     return (
-        <div className="w-full space-y-2">
-            <Label htmlFor="time-input">Time Spent Crafting</Label>
-            <Input
-                id="time-input"
-                type="time"
-                className="w-full"
-                onChange={handleChange}
-            />
-        </div>
+        <FormField
+            control={form.control}
+            name="timeRequired"
+            render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Time Spent Crafting</FormLabel>
+                    <FormControl>
+                        <Input
+                            type="time"
+                            className="max-w-[200px]"
+                            {...field}
+                        />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            )}
+        />
     );
 };
 
