@@ -1,3 +1,10 @@
+# [1.4.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.3.0...v1.4.0) (2025-10-05)
+
+
+### Features
+
+* reworked add design page ([dabd3a3](https://gitlab.com/imapps/jewellery-catalogue/commit/dabd3a352d06b5ed7a8c6972fa98f7b133681bbc))
+
 # [1.3.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.2.1...v1.3.0) (2025-10-05)
 
 
