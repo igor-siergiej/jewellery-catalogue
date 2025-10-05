@@ -1,3 +1,11 @@
+# [1.3.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.2.1...v1.3.0) (2025-10-05)
+
+
+### Features
+
+* add table for each material type ([6901a3f](https://gitlab.com/imapps/jewellery-catalogue/commit/6901a3f96843e3a746d722f040ce34b64eebc5c9))
+* rework add material form ([013c10a](https://gitlab.com/imapps/jewellery-catalogue/commit/013c10a1db15a7aa501b07138119f24872dac90c))
+
 ## [1.2.1](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.2.0...v1.2.1) (2025-10-05)
 
 
