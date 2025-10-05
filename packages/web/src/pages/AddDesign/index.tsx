@@ -15,6 +15,7 @@ import makeAddDesignRequest from '../../api/endpoints/addDesign';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
 import { AddMaterialsTable } from '../../components/AddMaterialsTable';
 import ImageUpload from '../../components/ImageUpload';
+import RichTextEditor from '../../components/RichTextEditor';
 import TimeInput from '../../components/TimeInput';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
@@ -88,14 +89,16 @@ const AddDesign: React.FC = () => {
     };
 
     useEffect(() => {
-        if (data && selectedMaterials) {
-            const materialsCost = getTotalMaterialCosts(selectedMaterials, data);
-            const timeSpentCost = parseFloat((getWageCosts(currentTimeRequired) * HOURLY_WAGE).toFixed(2));
-            const totalCosts = materialsCost + timeSpentCost;
+        if (!data) return;
 
-            form.setValue('price', parseFloat((totalCosts * PROFIT_COEFFICIENT).toFixed(2)));
-        }
-    }, [selectedMaterials, currentTimeRequired, data, form]);
+        const materialsCost = selectedMaterials.length > 0
+            ? getTotalMaterialCosts(selectedMaterials, data)
+            : 0;
+        const timeSpentCost = parseFloat((getWageCosts(currentTimeRequired) * HOURLY_WAGE).toFixed(2));
+        const totalCosts = materialsCost + timeSpentCost;
+
+        form.setValue('price', parseFloat((totalCosts * PROFIT_COEFFICIENT).toFixed(2)));
+    }, [selectedMaterials, currentTimeRequired, data]);
 
     if (!data) {
         return null;
@@ -158,7 +161,22 @@ const AddDesign: React.FC = () => {
                             </h2>
                         </div>
                         <div className="col-span-8">
-                            <ImageUpload setImage={form.setValue} />
+                            <FormField
+                                control={form.control}
+                                name="image"
+                                render={({ field, fieldState }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <ImageUpload
+                                                setImage={form.setValue}
+                                                hasError={!!fieldState.error}
+                                                value={field.value}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </div>
                     </div>
 
@@ -172,7 +190,22 @@ const AddDesign: React.FC = () => {
                             </h2>
                         </div>
                         <div className="col-span-8">
-                            <AddMaterialsTable availableMaterials={data} setValue={form.setValue} />
+                            <FormField
+                                control={form.control}
+                                name="materials"
+                                render={({ fieldState }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <AddMaterialsTable
+                                                availableMaterials={data}
+                                                setValue={form.setValue}
+                                                hasError={!!fieldState.error}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </div>
                     </div>
 
@@ -228,7 +261,23 @@ const AddDesign: React.FC = () => {
                             </h2>
                         </div>
                         <div className="col-span-8">
-                            {/* TODO: Add description editor here */}
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Description (Optional)</FormLabel>
+                                        <FormControl>
+                                            <RichTextEditor
+                                                value={field.value || ''}
+                                                onChange={field.onChange}
+                                                placeholder="Add notes about how to create this design..."
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </div>
                     </div>
 

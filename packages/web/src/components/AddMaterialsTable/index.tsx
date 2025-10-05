@@ -1,28 +1,165 @@
 import { RequiredMaterial } from '@jewellery-catalogue/types';
-import { Edit3, Plus, Save, Trash2, X } from 'lucide-react';
+import { Edit3, Package, Plus, Save, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
 import { AddMaterialsTableProps, TableMaterial } from './types';
 import { getRequiredMaterial } from './util';
 
-export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, availableMaterials }) => {
+interface TableRowProps {
+    row: TableMaterial;
+    availableMaterials: Array<Material>;
+    getAvailableMaterials: (editingRowKey?: string) => Array<Material>;
+    handleMaterialChange: (rowKey: string, newMaterialId: string) => void;
+    handleRequiredChange: (rowKey: string, required: number) => void;
+    getInputStep: (materialId: string) => number;
+    getUnitLabel: (materialId: string) => string;
+    formatValue: (value: number, materialId: string) => string;
+    handleSaveClick: (rowKey: string) => void;
+    handleCancelClick: (rowKey: string) => void;
+    handleEditClick: (rowKey: string) => void;
+    handleDeleteClick: (rowKey: string) => void;
+}
+
+const TableRow: React.FC<TableRowProps> = ({
+    row,
+    availableMaterials,
+    getAvailableMaterials,
+    handleMaterialChange,
+    handleRequiredChange,
+    getInputStep,
+    getUnitLabel,
+    formatValue,
+    handleSaveClick,
+    handleCancelClick,
+    handleEditClick,
+    handleDeleteClick,
+}) => (
+    <div className="grid grid-cols-12 gap-4 p-4 border-b hover:bg-muted/30 transition-colors">
+        <div className="col-span-5 flex items-center">
+            {row.isEditing
+                ? (
+                        <Select
+                            value={row.id.startsWith('new-') ? '' : row.id}
+                            onValueChange={value => handleMaterialChange(row.rowKey, value)}
+                        >
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select material" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {getAvailableMaterials(row.rowKey).map(material => (
+                                    <SelectItem key={material.id} value={material.id}>
+                                        {material.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    )
+                : (
+                        <span>{row.name}</span>
+                    )}
+        </div>
+        <div className="col-span-5 flex items-center">
+            {row.isEditing
+                ? (
+                        <div className="flex items-center gap-2 w-full">
+                            <Input
+                                type="number"
+                                value={row.required}
+                                onChange={e => handleRequiredChange(row.rowKey, Number(e.target.value))}
+                                className="flex-1"
+                                min="0"
+                                step={!row.id.startsWith('new-') ? getInputStep(row.id) : 0.1}
+                                disabled={row.id.startsWith('new-')}
+                                placeholder={row.id.startsWith('new-') ? 'Select material first' : '0'}
+                            />
+                            {!row.id.startsWith('new-') && (
+                                <span className="text-sm text-muted-foreground min-w-[3ch]">
+                                    {getUnitLabel(row.id)}
+                                </span>
+                            )}
+                        </div>
+                    )
+                : (
+                        <span>{formatValue(row.required, row.id)}</span>
+                    )}
+        </div>
+        <div className="col-span-2 flex items-center gap-2">
+            {row.isEditing
+                ? (
+                        <>
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleSaveClick(row.rowKey)}
+                                className="h-8 w-8 p-0"
+                            >
+                                <Save className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleCancelClick(row.rowKey)}
+                                className="h-8 w-8 p-0"
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </>
+                    )
+                : (
+                        <>
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleEditClick(row.rowKey)}
+                                className="h-8 w-8 p-0"
+                            >
+                                <Edit3 className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDeleteClick(row.rowKey)}
+                                className="h-8 w-8 p-0"
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </>
+                    )}
+        </div>
+    </div>
+);
+
+export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, availableMaterials, hasError = false }) => {
     const [rows, setRows] = useState<Array<TableMaterial>>([]);
     const [selectedMaterials, setSelectedMaterials] = useState<Array<TableMaterial>>([]);
+    const [originalRowData, setOriginalRowData] = useState<Record<string, TableMaterial>>({});
 
-    const handleEditClick = (id: string) => {
+    const handleEditClick = (rowKey: string) => {
         setRows(prevRows =>
-            prevRows.map(row =>
-                row.id === id ? { ...row, isEditing: true } : row
-            )
+            prevRows.map((row) => {
+                if (row.rowKey === rowKey) {
+                    // Store original data before editing
+                    setOriginalRowData(prev => ({ ...prev, [rowKey]: { ...row } }));
+
+                    return { ...row, isEditing: true };
+                }
+
+                return row;
+            })
         );
     };
 
-    const handleSaveClick = (id: string) => {
-        const rowToSave = rows.find(row => row.id === id);
+    const handleSaveClick = (rowKey: string) => {
+        const rowToSave = rows.find(row => row.rowKey === rowKey);
 
         if (!rowToSave) return;
 
@@ -40,7 +177,7 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
             }
 
             const updatedRow = { ...rowToSave, isNew: false, isEditing: false };
-            const newRows = rows.map(row => (row.id === id ? updatedRow : row));
+            const newRows = rows.map(row => (row.rowKey === rowKey ? updatedRow : row));
 
             setSelectedMaterials(newRows);
             setRows(newRows);
@@ -54,32 +191,60 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
 
             setRows(prevRows =>
                 prevRows.map(row =>
-                    row.id === id ? { ...row, isEditing: false } : row
+                    row.rowKey === rowKey ? { ...row, isEditing: false } : row
                 )
             );
-            setMaterials(rows.map(row => row.id === id ? { ...row, isEditing: false } : row));
+            setMaterials(rows.map(row => row.rowKey === rowKey ? { ...row, isEditing: false } : row));
+
+            // Clean up original data after successful save
+            setOriginalRowData((prev) => {
+                const newData = { ...prev };
+
+                delete newData[rowKey];
+
+                return newData;
+            });
         }
     };
 
-    const handleDeleteClick = (id: string) => {
-        const newRows = rows.filter(row => row.id !== id);
+    const handleDeleteClick = (rowKey: string) => {
+        const newRows = rows.filter(row => row.rowKey !== rowKey);
 
         setRows(newRows);
         setSelectedMaterials(newRows);
         setMaterials(newRows);
     };
 
-    const handleCancelClick = (id: string) => {
-        const editedRow = rows.find(row => row.id === id);
+    const handleCancelClick = (rowKey: string) => {
+        const editedRow = rows.find(row => row.rowKey === rowKey);
 
         if (editedRow?.isNew) {
-            setRows(rows.filter(row => row.id !== id));
+            setRows(rows.filter(row => row.rowKey !== rowKey));
         } else {
-            setRows(prevRows =>
-                prevRows.map(row =>
-                    row.id === id ? { ...row, isEditing: false } : row
-                )
-            );
+            // Restore original data
+            const original = originalRowData[rowKey];
+
+            if (original) {
+                setRows(prevRows =>
+                    prevRows.map(row =>
+                        row.rowKey === rowKey ? { ...original, isEditing: false } : row
+                    )
+                );
+                // Clean up original data
+                setOriginalRowData((prev) => {
+                    const newData = { ...prev };
+
+                    delete newData[rowKey];
+
+                    return newData;
+                });
+            } else {
+                setRows(prevRows =>
+                    prevRows.map(row =>
+                        row.rowKey === rowKey ? { ...row, isEditing: false } : row
+                    )
+                );
+            }
         }
     };
 
@@ -94,25 +259,25 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
             return acc;
         }, []);
 
-        setValue('materials', actualMaterials);
+        setValue('materials', actualMaterials, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
     };
 
-    const handleMaterialChange = (oldId: string, newMaterialId: string) => {
+    const handleMaterialChange = (rowKey: string, newMaterialId: string) => {
         const material = availableMaterials.find(m => m.id === newMaterialId);
 
         if (!material) return;
 
         setRows(prevRows =>
             prevRows.map(row =>
-                row.id === oldId ? { ...row, id: newMaterialId, name: material.name, required: 0 } : row
+                row.rowKey === rowKey ? { ...row, id: newMaterialId, name: material.name, required: 0 } : row
             )
         );
     };
 
-    const handleRequiredChange = (id: string, required: number) => {
+    const handleRequiredChange = (rowKey: string, required: number) => {
         setRows(prevRows =>
             prevRows.map(row =>
-                row.id === id ? { ...row, required } : row
+                row.rowKey === rowKey ? { ...row, required } : row
             )
         );
     };
@@ -155,9 +320,16 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
         return unit ? `${value} ${unit}` : value.toString();
     };
 
-    const getAvailableMaterials = () => {
+    const getAvailableMaterials = (editingRowKey?: string) => {
         return availableMaterials.filter((material) => {
-            const materialHasAlreadyBeenSelected = selectedMaterials.some(selectedMaterial => selectedMaterial.id === material.id);
+            const materialHasAlreadyBeenSelected = selectedMaterials.some((selectedMaterial) => {
+                // If we're editing a row, allow its current material to be shown
+                if (editingRowKey && selectedMaterial.rowKey === editingRowKey) {
+                    return false;
+                }
+
+                return selectedMaterial.id === material.id;
+            });
 
             return !materialHasAlreadyBeenSelected;
         });
@@ -168,125 +340,63 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
 
         if (hasNewRow) return;
 
-        const newId = `new-${Date.now()}`;
+        const newRowKey = `row-${Date.now()}`;
 
         setRows(oldRows => [
             ...oldRows,
-            { id: newId, name: '', required: 0, isNew: true, isEditing: true },
+            { rowKey: newRowKey, id: `new-${Date.now()}`, name: '', required: 0, isNew: true, isEditing: true },
         ]);
     };
 
-    const EmptyState = () => (
-        <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
-            <p className="text-muted-foreground">No materials added yet</p>
-            <Button onClick={handleAddMaterial} className="gap-2">
-                <Plus className="h-4 w-4" />
-                Add Material
-            </Button>
-        </div>
-    );
+    const EmptyState = () => {
+        const hasMaterials = availableMaterials.length > 0;
+
+        return (
+            <div className="flex flex-col items-center justify-center py-4 gap-3 text-center">
+                <div className={cn(
+                    'rounded-full p-1',
+                    hasError ? 'bg-destructive/10' : 'bg-muted'
+                )}
+                >
+                    <Package className={cn(
+                        'h-6 w-6',
+                        hasError ? 'text-destructive' : 'text-muted-foreground'
+                    )}
+                    />
+                </div>
+                <div className="space-y-1">
+                    <p className={cn(
+                        'text-sm font-medium',
+                        hasError && 'text-destructive'
+                    )}
+                    >
+                        {hasMaterials ? 'No materials added' : 'No materials available'}
+                    </p>
+                    <p className={cn(
+                        'text-sm',
+                        hasError ? 'text-destructive' : 'text-muted-foreground'
+                    )}
+                    >
+                        {hasMaterials
+                            ? 'Add materials to calculate the design price'
+                            : 'Create materials in your library first'}
+                    </p>
+                </div>
+                {hasMaterials && (
+                    <Button type="button" onClick={handleAddMaterial} size="sm" className="gap-2 mt-2">
+                        <Plus className="h-4 w-4" />
+                        Add Material
+                    </Button>
+                )}
+            </div>
+        );
+    };
 
     const TableHeader = () => (
         <div className="grid grid-cols-12 gap-4 p-4 bg-muted/50 border-b font-medium text-sm">
             <div className="col-span-5">Material</div>
             <div className="col-span-5">Required Length/Quantity</div>
             <div className="col-span-2">Actions</div>
-        </div>
-    );
-
-    const TableRow = ({ row }: { row: TableMaterial }) => (
-        <div className="grid grid-cols-12 gap-4 p-4 border-b hover:bg-muted/30 transition-colors">
-            <div className="col-span-5 flex items-center">
-                {row.isEditing
-                    ? (
-                            <Select
-                                value={row.id.startsWith('new-') ? '' : row.id}
-                                onValueChange={value => handleMaterialChange(row.id, value)}
-                            >
-                                <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select material" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {getAvailableMaterials().map(material => (
-                                        <SelectItem key={material.id} value={material.id}>
-                                            {material.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        )
-                    : (
-                            <span>{row.name}</span>
-                        )}
-            </div>
-            <div className="col-span-5 flex items-center">
-                {row.isEditing
-                    ? (
-                            <div className="flex items-center gap-2 w-full">
-                                <Input
-                                    type="number"
-                                    value={row.required}
-                                    onChange={e => handleRequiredChange(row.id, Number(e.target.value))}
-                                    className="flex-1"
-                                    min="0"
-                                    step={!row.id.startsWith('new-') ? getInputStep(row.id) : 0.1}
-                                    disabled={row.id.startsWith('new-')}
-                                    placeholder={row.id.startsWith('new-') ? 'Select material first' : '0'}
-                                />
-                                {!row.id.startsWith('new-') && (
-                                    <span className="text-sm text-muted-foreground min-w-[3ch]">
-                                        {getUnitLabel(row.id)}
-                                    </span>
-                                )}
-                            </div>
-                        )
-                    : (
-                            <span>{formatValue(row.required, row.id)}</span>
-                        )}
-            </div>
-            <div className="col-span-2 flex items-center gap-2">
-                {row.isEditing
-                    ? (
-                            <>
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleSaveClick(row.id)}
-                                    className="h-8 w-8 p-0"
-                                >
-                                    <Save className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleCancelClick(row.id)}
-                                    className="h-8 w-8 p-0"
-                                >
-                                    <X className="h-4 w-4" />
-                                </Button>
-                            </>
-                        )
-                    : (
-                            <>
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleEditClick(row.id)}
-                                    className="h-8 w-8 p-0"
-                                >
-                                    <Edit3 className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleDeleteClick(row.id)}
-                                    className="h-8 w-8 p-0"
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
-                            </>
-                        )}
-            </div>
         </div>
     );
 
@@ -298,6 +408,7 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
         return (
             <div className="p-4 border-t bg-muted/20">
                 <Button
+                    type="button"
                     variant="outline"
                     onClick={handleAddMaterial}
                     className="gap-2"
@@ -319,7 +430,21 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
                         <>
                             <TableHeader />
                             {rows.map(row => (
-                                <TableRow key={row.id} row={row} />
+                                <TableRow
+                                    key={row.rowKey}
+                                    row={row}
+                                    availableMaterials={availableMaterials}
+                                    getAvailableMaterials={getAvailableMaterials}
+                                    handleMaterialChange={handleMaterialChange}
+                                    handleRequiredChange={handleRequiredChange}
+                                    getInputStep={getInputStep}
+                                    getUnitLabel={getUnitLabel}
+                                    formatValue={formatValue}
+                                    handleSaveClick={handleSaveClick}
+                                    handleCancelClick={handleCancelClick}
+                                    handleEditClick={handleEditClick}
+                                    handleDeleteClick={handleDeleteClick}
+                                />
                             ))}
                             <TableFooter />
                         </>

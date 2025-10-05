@@ -9,7 +9,7 @@ const requiredMaterialSchema = z.object({
 export const addDesignSchema = z.object({
     name: z.string().min(1, 'Please enter the design name').trim(),
     timeRequired: z.string().min(1, 'Please enter the time required'),
-    materials: z.array(requiredMaterialSchema).default([]),
+    materials: z.array(requiredMaterialSchema).min(1, 'Please add at least one material').default([]),
     image: z.instanceof(File, { message: 'Please upload an image' }),
     price: z.number({ required_error: 'Please enter the price' }).positive('Price must be greater than 0'),
     description: z.string().optional().default(''),

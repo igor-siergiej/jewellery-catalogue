@@ -1,6 +1,6 @@
 import { FormDesign } from '@jewellery-catalogue/types';
 import { ImagePlus, X } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { UseFormSetValue } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
@@ -8,12 +8,24 @@ import { cn } from '@/lib/utils';
 
 interface ImageUploadProps {
     setImage: UseFormSetValue<FormDesign>;
+    hasError?: boolean;
+    value?: File;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ setImage }) => {
+const ImageUpload: React.FC<ImageUploadProps> = ({ setImage, hasError = false, value }) => {
     const [preview, setPreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDragging, setIsDragging] = useState(false);
+
+    // Clear preview when form is reset (value becomes undefined)
+    useEffect(() => {
+        if (!value) {
+            setPreview(null);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        }
+    }, [value]);
 
     const handleFile = (file: File) => {
         if (!file.type.startsWith('image/')) return;
@@ -73,8 +85,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ setImage }) => {
             className={cn(
                 'border-2 border-dashed rounded-lg w-[300px] h-[300px] cursor-pointer flex items-center justify-center overflow-hidden relative transition-colors',
                 isDragging
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-300 bg-blue-50'
+                    ? 'border-primary bg-muted/50'
+                    : hasError
+                        ? 'border-destructive bg-card'
+                        : 'border-border bg-card'
             )}
         >
             <input
