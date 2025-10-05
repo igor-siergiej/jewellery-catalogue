@@ -1,3 +1,10 @@
+# [1.2.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.1.1...v1.2.0) (2025-10-05)
+
+
+### Features
+
+* use zod for login/register form ([c88c649](https://gitlab.com/imapps/jewellery-catalogue/commit/c88c649d6235d698422085413931ce9d8c3a08b3))
+
 ## [1.1.1](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.1.0...v1.1.1) (2025-10-04)
 
 
