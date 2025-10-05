@@ -1,3 +1,10 @@
+# [1.5.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.4.0...v1.5.0) (2025-10-05)
+
+
+### Features
+
+* reworked add design form ([362fe6c](https://gitlab.com/imapps/jewellery-catalogue/commit/362fe6ccb703977a5a9974ae51dcd2f7daeb04dd))
+
 # [1.4.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.3.0...v1.4.0) (2025-10-05)
 
 
