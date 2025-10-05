@@ -1,3 +1,10 @@
+## [1.2.1](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.2.0...v1.2.1) (2025-10-05)
+
+
+### Bug Fixes
+
+* add hook form resolver ([6d9a8ae](https://gitlab.com/imapps/jewellery-catalogue/commit/6d9a8ae9114297f6e8935bf6602169081db64f98))
+
 # [1.2.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.1.1...v1.2.0) (2025-10-05)
 
 
