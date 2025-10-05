@@ -1,8 +1,10 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { extractUserFromToken, useAuth, useAuthConfig } from '@imapps/web-utils';
 import { Eye, EyeOff } from 'lucide-react';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,14 +14,35 @@ import { addCatalogue } from '../../api/endpoints/addCatalogue';
 import { HOME_PAGE } from '../../constants/routes';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-import { RegisterParams } from './types';
+
+const registerSchema = z.object({
+    username: z
+        .string()
+        .min(1, 'Username is required')
+        .min(3, 'Username must be at least 3 characters')
+        .max(50, 'Username must not exceed 50 characters')
+        .trim(),
+    password: z
+        .string()
+        .min(1, 'Password is required')
+        .min(8, 'Password must be at least 8 characters long')
+        .max(100, 'Password must not exceed 100 characters')
+        .regex(
+            /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
+            'Password must contain at least one letter and one number'
+        ),
+});
+
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 export const RegisterForm: React.FC = () => {
     const {
         handleSubmit,
         register,
         formState: { errors },
-    } = useForm<RegisterParams>();
+    } = useForm<RegisterFormData>({
+        resolver: zodResolver(registerSchema),
+    });
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const { dispatch } = useAlert();
@@ -27,15 +50,7 @@ export const RegisterForm: React.FC = () => {
     const { login } = useAuth();
     const config = useAuthConfig();
 
-    const validatePassword = (password: string) => {
-        if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)) {
-            return 'Password must be at least 8 characters long and contain at least one letter and one number';
-        }
-
-        return true;
-    };
-
-    const onSubmit = async (data: RegisterParams) => {
+    const onSubmit = async (data: RegisterFormData) => {
         setIsLoading(true);
         try {
             const response = await fetch(`${config.authUrl}/register`, {
@@ -96,8 +111,9 @@ export const RegisterForm: React.FC = () => {
                     id="username"
                     type="text"
                     autoComplete="username"
-                    {...register('username', { required: 'Username is required' })}
+                    {...register('username')}
                     className={errors.username ? 'border-destructive' : ''}
+                    aria-invalid={errors.username ? 'true' : 'false'}
                 />
                 <p className="text-sm text-destructive min-h-[20px]">
                     {errors.username?.message || ''}
@@ -111,11 +127,9 @@ export const RegisterForm: React.FC = () => {
                         id="password"
                         type={showPassword ? 'text' : 'password'}
                         autoComplete="new-password"
-                        {...register('password', {
-                            required: 'Password is required',
-                            validate: validatePassword
-                        })}
+                        {...register('password')}
                         className={`pr-10 ${errors.password ? 'border-destructive' : ''}`}
+                        aria-invalid={errors.password ? 'true' : 'false'}
                     />
                     <button
                         type="button"

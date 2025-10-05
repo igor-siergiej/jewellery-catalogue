@@ -1,8 +1,10 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth, useAuthConfig } from '@imapps/web-utils';
 import { Eye, EyeOff } from 'lucide-react';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,14 +13,31 @@ import { Label } from '@/components/ui/label';
 import { HOME_PAGE } from '../../constants/routes';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-import { LoginParams } from './types';
+
+const loginSchema = z.object({
+    username: z
+        .string()
+        .min(1, 'Username is required')
+        .min(3, 'Username must be at least 3 characters')
+        .max(50, 'Username must not exceed 50 characters')
+        .trim(),
+    password: z
+        .string()
+        .min(1, 'Password is required')
+        .min(6, 'Password must be at least 6 characters')
+        .max(100, 'Password must not exceed 100 characters'),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export const LoginForm: React.FC = () => {
     const {
         handleSubmit,
         register,
         formState: { errors },
-    } = useForm<LoginParams>();
+    } = useForm<LoginFormData>({
+        resolver: zodResolver(loginSchema),
+    });
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const { dispatch } = useAlert();
@@ -26,7 +45,7 @@ export const LoginForm: React.FC = () => {
     const { login } = useAuth();
     const config = useAuthConfig();
 
-    const onSubmit = async (data: LoginParams) => {
+    const onSubmit = async (data: LoginFormData) => {
         setIsLoading(true);
         try {
             const response = await fetch(`${config.authUrl}/login`, {
@@ -74,8 +93,9 @@ export const LoginForm: React.FC = () => {
                     id="username"
                     type="text"
                     autoComplete="username"
-                    {...register('username', { required: 'Username is required' })}
+                    {...register('username')}
                     className={errors.username ? 'border-destructive' : ''}
+                    aria-invalid={errors.username ? 'true' : 'false'}
                 />
                 <p className="text-sm text-destructive min-h-[20px]">
                     {errors.username?.message || ''}
@@ -89,8 +109,9 @@ export const LoginForm: React.FC = () => {
                         id="password"
                         type={showPassword ? 'text' : 'password'}
                         autoComplete="current-password"
-                        {...register('password', { required: 'Password is required' })}
+                        {...register('password')}
                         className={`pr-10 ${errors.password ? 'border-destructive' : ''}`}
+                        aria-invalid={errors.password ? 'true' : 'false'}
                     />
                     <button
                         type="button"
