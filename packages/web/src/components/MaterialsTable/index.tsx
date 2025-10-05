@@ -1,9 +1,16 @@
-import { Material } from '@jewellery-catalogue/types';
-import { ChevronLeft, ChevronRight, ExternalLink, Package } from 'lucide-react';
+import { Bead, Chain, EarHook, Material, MaterialType, Wire } from '@jewellery-catalogue/types';
+import { ChevronLeft, ChevronRight, Package } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+import AllMaterialsTable from './AllMaterialsTable';
+import BeadTable from './BeadTable';
+import ChainTable from './ChainTable';
+import EarHookTable from './EarHookTable';
+import WireTable from './WireTable';
 
 export interface IMaterialTableProps {
     materials: Array<Material>;
@@ -13,34 +20,15 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
     const [currentPage, setCurrentPage] = useState(0);
     const [pageSize, setPageSize] = useState(10);
 
-    const totalPages = Math.ceil(materials.length / pageSize);
-    const startIndex = currentPage * pageSize;
-    const endIndex = startIndex + pageSize;
-    const currentMaterials = materials.slice(startIndex, endIndex);
+    // Filter materials by type
+    const wireMaterials = materials.filter((m): m is Wire => m.type === MaterialType.WIRE);
+    const beadMaterials = materials.filter((m): m is Bead => m.type === MaterialType.BEAD);
+    const chainMaterials = materials.filter((m): m is Chain => m.type === MaterialType.CHAIN);
+    const earHookMaterials = materials.filter((m): m is EarHook => m.type === MaterialType.EAR_HOOK);
 
-    const formatPrice = (value: number | null | undefined) => {
-        if (value == null) return '';
+    const goToNextPage = (totalMaterials: number) => {
+        const totalPages = Math.ceil(totalMaterials / pageSize);
 
-        return `$${Number(value).toFixed(2)}`;
-    };
-
-    const renderPurchaseUrl = (url: string | null | undefined) => {
-        if (!url) return null;
-
-        return (
-            <a
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors"
-            >
-                <ExternalLink className="h-3 w-3" />
-                View
-            </a>
-        );
-    };
-
-    const goToNextPage = () => {
         if (currentPage < totalPages - 1) {
             setCurrentPage(currentPage + 1);
         }
@@ -56,37 +44,11 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
         setCurrentPage(page);
     };
 
-    const TableHeader = () => (
-        <div className="grid grid-cols-12 gap-2 p-4 bg-muted/50 border-b font-medium text-sm">
-            <div className="col-span-1">Name</div>
-            <div className="col-span-1">Brand</div>
-            <div className="col-span-1">Type</div>
-            <div className="col-span-1">Diameter</div>
-            <div className="col-span-1">URL</div>
-            <div className="col-span-1">Quantity</div>
-            <div className="col-span-1">Colour</div>
-            <div className="col-span-1">Wire Type</div>
-            <div className="col-span-1">Metal Type</div>
-            <div className="col-span-3">Price Per Meter</div>
-        </div>
-    );
+    const Pagination = ({ totalMaterials }: { totalMaterials: number }) => {
+        const totalPages = Math.ceil(totalMaterials / pageSize);
+        const startIndex = currentPage * pageSize;
+        const endIndex = startIndex + pageSize;
 
-    const TableRow = ({ material }: { material: Material }) => (
-        <div className="grid grid-cols-12 gap-2 p-4 border-b hover:bg-muted/30 transition-colors text-sm">
-            <div className="col-span-1 truncate" title={material.name}>{material.name}</div>
-            <div className="col-span-1 truncate" title={material.brand}>{material.brand}</div>
-            <div className="col-span-1 truncate">{material.type}</div>
-            <div className="col-span-1 truncate">{material.diameter}</div>
-            <div className="col-span-1">{renderPurchaseUrl(material.purchaseUrl)}</div>
-            <div className="col-span-1 truncate">{(material as any).quantity}</div>
-            <div className="col-span-1 truncate">{(material as any).colour}</div>
-            <div className="col-span-1 truncate">{(material as any).wireType}</div>
-            <div className="col-span-1 truncate">{(material as any).metalType}</div>
-            <div className="col-span-3 truncate">{formatPrice((material as any).pricePerMeter)}</div>
-        </div>
-    );
-
-    const Pagination = () => {
         if (totalPages <= 1) return null;
 
         const pageNumbers = [];
@@ -111,11 +73,11 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
                     {' '}
                     to
                     {' '}
-                    {Math.min(endIndex, materials.length)}
+                    {Math.min(endIndex, totalMaterials)}
                     {' '}
                     of
                     {' '}
-                    {materials.length}
+                    {totalMaterials}
                     {' '}
                     materials
                 </div>
@@ -155,7 +117,7 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={goToNextPage}
+                        onClick={() => goToNextPage(totalMaterials)}
                         disabled={currentPage === totalPages - 1}
                         className="h-8 w-8 p-0"
                     >
@@ -166,31 +128,83 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
         );
     };
 
+    if (materials.length === 0) {
+        return (
+            <div className="border rounded-lg overflow-hidden">
+                <Empty>
+                    <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                            <Package />
+                        </EmptyMedia>
+                        <EmptyTitle>No Materials Found</EmptyTitle>
+                        <EmptyDescription>
+                            Add materials to your inventory to see them listed here.
+                        </EmptyDescription>
+                    </EmptyHeader>
+                </Empty>
+            </div>
+        );
+    }
+
+    const getPaginatedMaterials = <T extends Material>(materials: Array<T>) => {
+        const startIndex = currentPage * pageSize;
+        const endIndex = startIndex + pageSize;
+
+        return materials.slice(startIndex, endIndex);
+    };
+
     return (
-        <div className="border rounded-lg overflow-hidden">
-            {materials.length === 0
-                ? (
-                        <Empty>
-                            <EmptyHeader>
-                                <EmptyMedia variant="icon">
-                                    <Package />
-                                </EmptyMedia>
-                                <EmptyTitle>No Materials Found</EmptyTitle>
-                                <EmptyDescription>
-                                    Add materials to your inventory to see them listed here.
-                                </EmptyDescription>
-                            </EmptyHeader>
-                        </Empty>
-                    )
-                : (
-                        <>
-                            <TableHeader />
-                            {currentMaterials.map((material, index) => (
-                                <TableRow key={material.id || `material-${index}`} material={material} />
-                            ))}
-                            <Pagination />
-                        </>
-                    )}
+        <div className="space-y-4">
+            <Tabs defaultValue="all" onValueChange={() => setCurrentPage(0)}>
+                <TabsList>
+                    <TabsTrigger value="all">All Materials</TabsTrigger>
+                    <TabsTrigger value="wire">
+                        Wire (
+                        {wireMaterials.length}
+                        )
+                    </TabsTrigger>
+                    <TabsTrigger value="bead">
+                        Bead (
+                        {beadMaterials.length}
+                        )
+                    </TabsTrigger>
+                    <TabsTrigger value="chain">
+                        Chain (
+                        {chainMaterials.length}
+                        )
+                    </TabsTrigger>
+                    <TabsTrigger value="ear-hook">
+                        Ear Hook (
+                        {earHookMaterials.length}
+                        )
+                    </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="all">
+                    <AllMaterialsTable materials={getPaginatedMaterials(materials)} />
+                    <Pagination totalMaterials={materials.length} />
+                </TabsContent>
+
+                <TabsContent value="wire">
+                    <WireTable materials={getPaginatedMaterials(wireMaterials)} />
+                    <Pagination totalMaterials={wireMaterials.length} />
+                </TabsContent>
+
+                <TabsContent value="bead">
+                    <BeadTable materials={getPaginatedMaterials(beadMaterials)} />
+                    <Pagination totalMaterials={beadMaterials.length} />
+                </TabsContent>
+
+                <TabsContent value="chain">
+                    <ChainTable materials={getPaginatedMaterials(chainMaterials)} />
+                    <Pagination totalMaterials={chainMaterials.length} />
+                </TabsContent>
+
+                <TabsContent value="ear-hook">
+                    <EarHookTable materials={getPaginatedMaterials(earHookMaterials)} />
+                    <Pagination totalMaterials={earHookMaterials.length} />
+                </TabsContent>
+            </Tabs>
         </div>
     );
 };

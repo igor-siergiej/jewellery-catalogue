@@ -25,7 +25,7 @@ const AddEarHookForm: React.FC<IMaterialFormProps> = ({ form }) => {
                         <FormLabel>Metal Type</FormLabel>
                         <FormControl>
                             <ButtonGroup className="w-full sm:w-auto flex-wrap">
-                                {(Object.keys(METAL_TYPE) as Array<METAL_TYPE>).map((type) => (
+                                {(Object.keys(METAL_TYPE) as Array<METAL_TYPE>).map(type => (
                                     <Button
                                         key={type}
                                         type="button"
@@ -51,7 +51,7 @@ const AddEarHookForm: React.FC<IMaterialFormProps> = ({ form }) => {
                         <FormLabel>Wire Type</FormLabel>
                         <FormControl>
                             <ButtonGroup className="w-full sm:w-auto">
-                                {(Object.keys(WIRE_TYPE) as Array<WIRE_TYPE>).map((type) => (
+                                {(Object.keys(WIRE_TYPE) as Array<WIRE_TYPE>).map(type => (
                                     <Button
                                         key={type}
                                         type="button"
@@ -84,6 +84,7 @@ const AddEarHookForm: React.FC<IMaterialFormProps> = ({ form }) => {
                                 value={field.value ?? ''}
                                 onChange={(e) => {
                                     const value = e.target.value;
+
                                     field.onChange(value === '' ? undefined : Number(value));
                                 }}
                             />

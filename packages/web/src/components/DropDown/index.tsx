@@ -19,9 +19,11 @@ const getDisplayLabel = (value: string, name: string): string => {
     if (name === 'wireType' && value in WIRE_TYPE) {
         return WIRE_TYPE_LABELS[value as WIRE_TYPE];
     }
+
     if (name === 'metalType' && value in METAL_TYPE) {
         return METAL_TYPE_LABELS[value as METAL_TYPE];
     }
+
     return value;
 };
 

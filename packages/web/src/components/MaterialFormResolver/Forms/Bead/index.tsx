@@ -47,6 +47,7 @@ const AddBeadForm: React.FC<IMaterialFormProps> = ({ form }) => {
                                     value={field.value ?? ''}
                                     onChange={(e) => {
                                         const value = e.target.value;
+
                                         field.onChange(value === '' ? undefined : Number(value));
                                     }}
                                 />
@@ -75,6 +76,7 @@ const AddBeadForm: React.FC<IMaterialFormProps> = ({ form }) => {
                                 value={field.value ?? ''}
                                 onChange={(e) => {
                                     const value = e.target.value;
+
                                     field.onChange(value === '' ? undefined : Number(value));
                                 }}
                             />

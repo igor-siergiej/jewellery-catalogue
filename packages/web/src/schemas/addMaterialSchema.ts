@@ -1,8 +1,8 @@
 import { MaterialType, METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
 import { z } from 'zod';
 
-const URL_REGEX =
-    /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/;
+const URL_REGEX
+    = /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/;
 
 // Base schema with common fields
 const baseMaterialSchema = z.object({
@@ -101,4 +101,4 @@ export const addMaterialSchema = z.discriminatedUnion('type', [
 export type AddMaterialFormData = z.infer<typeof addMaterialSchema>;
 
 // Export individual schemas for use in sub-forms if needed
-export { wireSchema, beadSchema, chainSchema, earHookSchema };
+export { beadSchema, chainSchema, earHookSchema, wireSchema };
