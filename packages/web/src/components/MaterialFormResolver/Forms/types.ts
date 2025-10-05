@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { FormMaterial } from '@jewellery-catalogue/types';
-import { Control, UseFormRegister } from 'react-hook-form';
+import { Control, UseFormReturn } from 'react-hook-form';
+
+import { AddMaterialFormData } from '@/schemas/addMaterialSchema';
 
 export interface IMaterialFormProps {
-    register: UseFormRegister<FormMaterial>;
-    control: Control<FormMaterial, any>;
+    control: Control<AddMaterialFormData, any>;
+    form: UseFormReturn<AddMaterialFormData>;
 }

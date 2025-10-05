@@ -1,52 +1,88 @@
+import {
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput,
+    InputGroupText,
+} from '@/components/ui/input-group';
 
 import { IMaterialFormProps } from '../types';
 
-const AddBeadForm: React.FC<IMaterialFormProps> = ({ register }) => {
+const AddBeadForm: React.FC<IMaterialFormProps> = ({ form }) => {
     return (
         <div className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="colour">Colour</Label>
-                <Input
-                    id="colour"
-                    {...register('colour')}
-                />
-            </div>
+            <FormField
+                control={form.control}
+                name="colour"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Colour</FormLabel>
+                        <FormControl>
+                            <Input className="max-w-[200px]" {...field} value={field.value ?? ''} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
 
-            <div className="space-y-2">
-                <Label htmlFor="diameter">Diameter (Millimeters)</Label>
-                <Input
-                    id="diameter"
-                    type="number"
-                    step="0.1"
-                    {...register('diameter', {
-                        required: {
-                            value: true,
-                            message: 'Please enter the diameter.',
-                        },
-                        validate: value => value > -1,
-                        setValueAs: value => value === '' ? undefined : Number(value),
-                    })}
-                />
-            </div>
+            <FormField
+                control={form.control}
+                name="diameter"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Diameter</FormLabel>
+                        <FormControl>
+                            <InputGroup className="max-w-[100px]">
+                                <InputGroupInput
+                                    type="number"
+                                    step="0.1"
+                                    {...field}
+                                    value={field.value ?? ''}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        field.onChange(value === '' ? undefined : Number(value));
+                                    }}
+                                />
+                                <InputGroupAddon align="inline-end">
+                                    <InputGroupText>mm</InputGroupText>
+                                </InputGroupAddon>
+                            </InputGroup>
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
 
-            <div className="space-y-2">
-                <Label htmlFor="quantity">Quantity</Label>
-                <Input
-                    id="quantity"
-                    type="number"
-                    step="1"
-                    {...register('quantity', {
-                        required: {
-                            value: true,
-                            message: 'Please enter a quantity of beads.',
-                        },
-                        validate: value => value > 0,
-                        setValueAs: value => value === '' ? undefined : Number(value),
-                    })}
-                />
-            </div>
+            <FormField
+                control={form.control}
+                name="quantity"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Quantity</FormLabel>
+                        <FormControl>
+                            <Input
+                                className="max-w-[100px]"
+                                type="number"
+                                step="1"
+                                {...field}
+                                value={field.value ?? ''}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    field.onChange(value === '' ? undefined : Number(value));
+                                }}
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
         </div>
     );
 };

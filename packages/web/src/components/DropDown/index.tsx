@@ -1,6 +1,8 @@
-import { BeadKeysEnum, ChainKeysEnum, EarHookKeysEnum, WireKeysEnum } from '@jewellery-catalogue/types';
+import { BeadKeysEnum, ChainKeysEnum, EarHookKeysEnum, METAL_TYPE, WIRE_TYPE, WireKeysEnum } from '@jewellery-catalogue/types';
 import { Controller } from 'react-hook-form';
 import { type Control } from 'react-hook-form';
+
+import { METAL_TYPE_LABELS, WIRE_TYPE_LABELS } from '@/lib/materialLabels';
 
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -12,6 +14,16 @@ export interface IProps {
     label: string;
     name: keyof typeof WireKeysEnum | keyof typeof BeadKeysEnum | keyof typeof ChainKeysEnum | keyof typeof EarHookKeysEnum;
 }
+
+const getDisplayLabel = (value: string, name: string): string => {
+    if (name === 'wireType' && value in WIRE_TYPE) {
+        return WIRE_TYPE_LABELS[value as WIRE_TYPE];
+    }
+    if (name === 'metalType' && value in METAL_TYPE) {
+        return METAL_TYPE_LABELS[value as METAL_TYPE];
+    }
+    return value;
+};
 
 const DropDown: React.FC<IProps> = ({ control, options, label, name }) => {
     return (
@@ -34,7 +46,7 @@ const DropDown: React.FC<IProps> = ({ control, options, label, name }) => {
                             <SelectContent>
                                 {options.map(type => (
                                     <SelectItem key={type} value={type}>
-                                        {type}
+                                        {getDisplayLabel(type, name)}
                                     </SelectItem>
                                 ))}
                             </SelectContent>

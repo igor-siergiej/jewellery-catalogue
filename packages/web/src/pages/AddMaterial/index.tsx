@@ -1,56 +1,57 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth, useUser } from '@imapps/web-utils';
-import { FormMaterial, MaterialType } from '@jewellery-catalogue/types';
-import { Loader2 } from 'lucide-react';
+import { MaterialType } from '@jewellery-catalogue/types';
+import { Link, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
+import { ButtonGroup } from '@/components/ui/button-group';
 import { Card } from '@/components/ui/card';
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput,
+    InputGroupText,
+} from '@/components/ui/input-group';
 
 import makeAddMaterialRequest from '../../api/endpoints/addMaterial';
-import DropDown from '../../components/DropDown';
 import MaterialFormResolver from '../../components/MaterialFormResolver';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-
-const URL_REGEX
-    = /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/g;
+import { MATERIAL_TYPE_LABELS } from '../../lib/materialLabels';
+import { type AddMaterialFormData, addMaterialSchema } from '../../schemas/addMaterialSchema';
 
 const AddMaterial = () => {
-    const {
-        control,
-        handleSubmit,
-        register,
-        watch,
-        reset,
-        formState: { errors },
-    } = useForm<FormMaterial>({
+    const form = useForm<AddMaterialFormData>({
+        resolver: zodResolver(addMaterialSchema),
         defaultValues: {
             name: '',
             brand: '',
-            diameter: undefined,
             purchaseUrl: '',
             pricePerPack: undefined,
             packs: undefined,
             type: undefined,
-            wireType: undefined,
-            metalType: undefined,
-            length: undefined,
-            colour: '',
-            quantity: undefined
-        }
+        } as any, // TypeScript workaround for discriminated union defaults
     });
+
     const [isMakingRequest, setIsMakingRequest] = useState(false);
     const { accessToken, login, logout } = useAuth();
     const { user } = useUser();
-
     const { dispatch } = useAlert();
 
-    const currentMaterialType = watch('type');
+    const currentMaterialType = form.watch('type');
 
-    const onSubmit: SubmitHandler<FormMaterial> = async (data) => {
+    const onSubmit = async (data: AddMaterialFormData) => {
         setIsMakingRequest(true);
         try {
             if (!user?.id) {
@@ -68,7 +69,7 @@ const AddMaterial = () => {
                     variant: 'standard'
                 }
             });
-            reset();
+            form.reset();
         } catch (e) {
             const message = e instanceof Error ? e.message : 'Unknown Error';
 
@@ -87,162 +88,195 @@ const AddMaterial = () => {
     };
 
     return (
-        <Card className="p-6">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-                <div>
-                    <h1 className="text-2xl font-bold pl-2 leading-[50px] truncate">
-                        Adding New Material
-                    </h1>
-                    <div className="border-b border-border mt-2" />
-                </div>
-
-                <div className="flex flex-col lg:flex-row gap-6">
-                    <div className="lg:w-1/4">
-                        <h2 className="text-center text-xl font-semibold pt-1.5">
-                            Material Details
-                        </h2>
-                    </div>
-
-                    <div className="lg:w-3/4 space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Name</Label>
-                            <Input
-                                id="name"
-                                {...register('name', {
-                                    required: {
-                                        value: true,
-                                        message: 'Please enter the material name.',
-                                    },
-                                })}
-                                className={errors.name ? 'border-red-500' : ''}
-                            />
-                            {errors.name && (
-                                <p className="text-sm text-red-500">{errors.name.message}</p>
-                            )}
+        <div className="container mx-auto max-w-5xl px-4 py-8">
+            <Card className="p-6 md:p-8">
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                        <div>
+                            <h1 className="text-2xl font-bold leading-[50px] truncate">
+                                Adding New Material
+                            </h1>
+                            <div className="border-b border-border mt-2" />
                         </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="brand">Brand</Label>
-                            <Input
-                                id="brand"
-                                {...register('brand', {
-                                    required: {
-                                        value: true,
-                                        message: 'Please enter the brand name.',
-                                    },
-                                })}
-                                className={errors.brand ? 'border-red-500' : ''}
-                            />
-                            {errors.brand && (
-                                <p className="text-sm text-red-500">{errors.brand.message}</p>
-                            )}
+                        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+                            <div className="lg:w-1/4">
+                                <h2 className="text-lg lg:text-xl font-semibold lg:text-right lg:pt-1.5">
+                                    Material Details
+                                </h2>
+                            </div>
+
+                            <div className="lg:w-3/4 space-y-4 lg:space-y-5">
+                                <FormField
+                                    control={form.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                        <FormItem className="max-w-[300px]">
+                                            <FormLabel>Name</FormLabel>
+                                            <FormControl>
+                                                <Input {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="brand"
+                                    render={({ field }) => (
+                                        <FormItem className="max-w-[300px]">
+                                            <FormLabel>Brand</FormLabel>
+                                            <FormControl>
+                                                <Input {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="purchaseUrl"
+                                    render={({ field }) => (
+                                        <FormItem className="max-w-[400px]">
+                                            <FormLabel>URL</FormLabel>
+                                            <FormControl>
+                                                <InputGroup>
+                                                    <InputGroupAddon align="inline-start">
+                                                        <InputGroupText>
+                                                            <Link className="size-4" />
+                                                        </InputGroupText>
+                                                    </InputGroupAddon>
+                                                    <InputGroupInput {...field} />
+                                                </InputGroup>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="pricePerPack"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Price per Pack</FormLabel>
+                                            <FormControl>
+                                                <InputGroup
+                                                    className="max-w-[100px]"
+                                                >
+                                                    <InputGroupAddon align="inline-start">
+                                                        <InputGroupText>£</InputGroupText>
+                                                    </InputGroupAddon>
+                                                    <InputGroupInput
+                                                        type="number"
+                                                        step="0.01"
+                                                        {...field}
+                                                        value={field.value ?? ''}
+                                                        onChange={(e) => {
+                                                            const value = e.target.value;
+
+                                                            field.onChange(value === '' ? undefined : Number(value));
+                                                        }}
+                                                    />
+                                                </InputGroup>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="packs"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Number of new packs</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    className="max-w-[100px]"
+                                                    type="number"
+                                                    step="1"
+                                                    {...field}
+                                                    value={field.value ?? ''}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+
+                                                        field.onChange(value === '' ? undefined : Number(value));
+                                                    }}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="purchaseUrl">URL</Label>
-                            <Input
-                                id="purchaseUrl"
-                                {...register('purchaseUrl', {
-                                    required: {
-                                        value: true,
-                                        message: 'Please enter the URL',
-                                    },
-                                    pattern: {
-                                        value: URL_REGEX,
-                                        message: 'Please enter a valid URL',
-                                    },
-                                })}
-                                className={errors.purchaseUrl ? 'border-red-500' : ''}
-                            />
-                            {errors.purchaseUrl && (
-                                <p className="text-sm text-red-500">{errors.purchaseUrl.message}</p>
-                            )}
+                        <div className="border-b border-border" />
+
+                        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+                            <div className="lg:w-1/4">
+                                <h2 className="text-lg lg:text-xl font-semibold lg:text-right">
+                                    Material Type
+                                </h2>
+                            </div>
+
+                            <div className="lg:w-3/4 space-y-4 lg:space-y-5">
+                                <FormField
+                                    control={form.control}
+                                    name="type"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Material Type</FormLabel>
+                                            <FormControl>
+                                                <ButtonGroup className="w-full sm:w-auto">
+                                                    {(Object.keys(MaterialType) as Array<MaterialType>).map(type => (
+                                                        <Button
+                                                            key={type}
+                                                            type="button"
+                                                            variant={field.value === type ? 'secondary' : 'outline'}
+                                                            onClick={() => field.onChange(type)}
+                                                            className="flex-1 sm:flex-none"
+                                                        >
+                                                            {MATERIAL_TYPE_LABELS[type]}
+                                                        </Button>
+                                                    ))}
+                                                </ButtonGroup>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <MaterialFormResolver
+                                    control={form.control}
+                                    materialType={currentMaterialType}
+                                    form={form}
+                                />
+                            </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="pricePerPack">Price per Pack (£)</Label>
-                            <Input
-                                id="pricePerPack"
-                                type="number"
-                                step="0.01"
-                                {...register('pricePerPack', {
-                                    required: {
-                                        value: true,
-                                        message: 'Please enter the price.',
-                                    },
-                                    setValueAs: value => value === '' ? undefined : Number(value),
-                                })}
-                                className={errors.pricePerPack ? 'border-red-500' : ''}
-                            />
-                            {errors.pricePerPack && (
-                                <p className="text-sm text-red-500">{errors.pricePerPack.message}</p>
-                            )}
+                        <div className="border-b border-border" />
+
+                        <div className="flex justify-end pt-2">
+                            <Button
+                                type="submit"
+                                variant="secondary"
+                                disabled={isMakingRequest}
+                                className="min-w-32 w-full sm:w-auto"
+                            >
+                                {isMakingRequest && (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                )}
+                                Add Material!
+                            </Button>
                         </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="packs">Number of new packs</Label>
-                            <Input
-                                id="packs"
-                                type="number"
-                                step="1"
-                                {...register('packs', {
-                                    required: {
-                                        value: true,
-                                        message: 'Please enter the quantity of packs.',
-                                    },
-                                    setValueAs: value => value === '' ? undefined : Number(value),
-                                })}
-                                className={errors.packs ? 'border-red-500' : ''}
-                            />
-                            {errors.packs && (
-                                <p className="text-sm text-red-500">{errors.packs.message}</p>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="border-b border-border" />
-
-                <div className="flex flex-col lg:flex-row gap-6">
-                    <div className="lg:w-1/4">
-                        <h2 className="text-center text-xl font-semibold h-[30px]">
-                            Material Type
-                        </h2>
-                    </div>
-
-                    <div className="lg:w-3/4 space-y-4">
-                        <DropDown
-                            label="Material Type"
-                            name="type"
-                            control={control}
-                            options={Object.keys(MaterialType) as Array<MaterialType>}
-                        />
-
-                        <MaterialFormResolver
-                            control={control}
-                            materialType={currentMaterialType}
-                            register={register}
-                        />
-                    </div>
-                </div>
-
-                <div className="border-b border-border" />
-
-                <div className="flex justify-end">
-                    <Button
-                        type="submit"
-                        variant="secondary"
-                        disabled={isMakingRequest}
-                        className="min-w-32"
-                    >
-                        {isMakingRequest && (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        )}
-                        Add Material!
-                    </Button>
-                </div>
-            </form>
-        </Card>
+                    </form>
+                </Form>
+            </Card>
+        </div>
     );
 };
 

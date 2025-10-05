@@ -17,13 +17,13 @@ const MATERIAL_TYPE_TO_FORM_MAPPING: IMaterialTypeToFormMapping = {
 } as const;
 
 const content = (props: IMaterialFormResolverProps) => {
-    const { materialType } = props;
+    const { materialType, form } = props;
 
     if (materialType in MATERIAL_TYPE_TO_FORM_MAPPING) {
         const FormComponent = MATERIAL_TYPE_TO_FORM_MAPPING[materialType];
 
         if (FormComponent) {
-            return <FormComponent {...props} />;
+            return <FormComponent form={form} control={form.control} />;
         }
     }
 
