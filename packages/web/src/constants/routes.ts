@@ -1,4 +1,4 @@
-import { NavRoute } from './types';
+import type { NavRoute } from './types';
 
 export const START_PAGE: NavRoute = {
     name: 'Start Page',
@@ -41,10 +41,4 @@ export const VIEW_DESIGN_PAGE = {
     getRoute: (id: string) => `/designs/${id}`,
 };
 
-export const ROUTES = [
-    HOME_PAGE,
-    DESIGNS_PAGE,
-    ADD_DESIGN_PAGE,
-    MATERIALS_PAGE,
-    ADD_MATERIAL_PAGE,
-];
+export const ROUTES = [HOME_PAGE, DESIGNS_PAGE, ADD_DESIGN_PAGE, MATERIALS_PAGE, ADD_MATERIAL_PAGE];

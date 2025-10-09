@@ -1,8 +1,8 @@
-import { FormMaterial, FormMaterialKeysMap, Material, MaterialType } from '@jewellery-catalogue/types';
+import { type FormMaterial, FormMaterialKeysMap, type Material, MaterialType } from '@jewellery-catalogue/types';
 
 import { convertFormDataToMaterial } from '../../utils/material-conversion';
-import { IdGenerator } from '../IdGenerator';
-import { MaterialRepository } from '../MaterialRepository';
+import type { IdGenerator } from '../IdGenerator';
+import type { MaterialRepository } from '../MaterialRepository';
 
 export class MaterialService {
     constructor(
@@ -97,17 +97,19 @@ export class MaterialService {
         }
 
         const expectedKeys = Object.keys(FormMaterialKeysMap[materialType]);
-        const missingKeys = expectedKeys.filter(key => !(key in materialData));
+        const missingKeys = expectedKeys.filter((key) => !(key in materialData));
 
         if (missingKeys.length > 0) {
             throw Object.assign(
-                new Error(`Material of type '${materialType}' is missing the following keys: ${missingKeys.join(', ')}`),
+                new Error(
+                    `Material of type '${materialType}' is missing the following keys: ${missingKeys.join(', ')}`
+                ),
                 { status: 400 }
             );
         }
 
         const filteredMaterial = Object.keys(materialData)
-            .filter(key => expectedKeys.includes(key))
+            .filter((key) => expectedKeys.includes(key))
             .reduce((obj, key) => {
                 obj[key] = materialData[key];
 

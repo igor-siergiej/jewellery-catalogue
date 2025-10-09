@@ -1,24 +1,24 @@
-import { Logger } from '@imapps/api-utils';
+import type { Logger } from '@imapps/api-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ImageService } from './index';
-import { ImageGenerator, ImageStore } from './types';
+import type { ImageGenerator, ImageStore } from './types';
 
 const mockStore = {
     getHeadObject: vi.fn(),
     getObjectStream: vi.fn(),
-    putObject: vi.fn()
+    putObject: vi.fn(),
 };
 
 const mockGenerator = {
-    generateImage: vi.fn()
+    generateImage: vi.fn(),
 };
 
 const mockLogger = {
     info: vi.fn(),
     warn: vi.fn(),
     error: vi.fn(),
-    debug: vi.fn()
+    debug: vi.fn(),
 };
 
 describe('ImageService', () => {
@@ -51,8 +51,8 @@ describe('ImageService', () => {
             const mockStream = {} as NodeJS.ReadableStream;
             const mockHead = {
                 metaData: {
-                    'content-type': 'image/jpeg'
-                }
+                    'content-type': 'image/jpeg',
+                },
             };
 
             mockStore.getHeadObject.mockResolvedValue(mockHead);
@@ -65,7 +65,7 @@ describe('ImageService', () => {
             expect(result).toEqual({
                 stream: mockStream,
                 contentType: 'image/jpeg',
-                cacheControl: 'public, max-age=31536000, immutable'
+                cacheControl: 'public, max-age=31536000, immutable',
             });
         });
 
@@ -73,7 +73,7 @@ describe('ImageService', () => {
             const imageName = 'test-image-no-type.jpg';
             const mockStream = {} as NodeJS.ReadableStream;
             const mockHead = {
-                metaData: {}
+                metaData: {},
             };
 
             mockStore.getHeadObject.mockResolvedValue(mockHead);
@@ -102,8 +102,8 @@ describe('ImageService', () => {
             const mockStream = {} as NodeJS.ReadableStream;
             const mockHead = {
                 metaData: {
-                    'content-type': 'image/png'
-                }
+                    'content-type': 'image/png',
+                },
             };
 
             mockStore.getHeadObject.mockResolvedValue(mockHead);
@@ -117,7 +117,7 @@ describe('ImageService', () => {
         it('should throw error for empty image name', async () => {
             await expect(service.getImage('')).rejects.toMatchObject({
                 message: 'Image name is required',
-                status: 400
+                status: 400,
             });
 
             expect(mockStore.getHeadObject).not.toHaveBeenCalled();
@@ -126,7 +126,7 @@ describe('ImageService', () => {
         it('should throw error for null image name', async () => {
             await expect(service.getImage(null as any)).rejects.toMatchObject({
                 message: 'Image name is required',
-                status: 400
+                status: 400,
             });
         });
 
@@ -138,7 +138,7 @@ describe('ImageService', () => {
 
             await expect(service.getImage(imageName)).rejects.toMatchObject({
                 message: 'Image not found',
-                status: 404
+                status: 404,
             });
 
             expect(mockLogger.warn).toHaveBeenCalledWith('Image not found in store', { name: imageName });
@@ -149,8 +149,8 @@ describe('ImageService', () => {
             const imageName = 'stream-error.jpg';
             const mockHead = {
                 metaData: {
-                    'content-type': 'image/jpeg'
-                }
+                    'content-type': 'image/jpeg',
+                },
             };
 
             mockStore.getHeadObject.mockResolvedValue(mockHead);
@@ -158,7 +158,7 @@ describe('ImageService', () => {
 
             await expect(service.getImage(imageName)).rejects.toMatchObject({
                 message: 'Image not found',
-                status: 404
+                status: 404,
             });
 
             expect(mockLogger.warn).toHaveBeenCalledWith('Image not found in store', { name: imageName });
@@ -172,7 +172,7 @@ describe('ImageService', () => {
 
             await expect(serviceWithoutLogger.getImage(imageName)).rejects.toMatchObject({
                 message: 'Image not found',
-                status: 404
+                status: 404,
             });
 
             // Should not throw error when logger is undefined
@@ -192,7 +192,7 @@ describe('ImageService', () => {
             expect(mockStore.putObject).toHaveBeenCalledWith(imageName, imageBuffer, { contentType });
             expect(mockLogger.info).toHaveBeenCalledWith('Image uploaded successfully', {
                 name: imageName,
-                contentType
+                contentType,
             });
         });
 
@@ -202,7 +202,7 @@ describe('ImageService', () => {
 
             await expect(service.uploadImage('', imageBuffer, contentType)).rejects.toMatchObject({
                 message: 'Image name and buffer are required',
-                status: 400
+                status: 400,
             });
 
             expect(mockStore.putObject).not.toHaveBeenCalled();
@@ -214,7 +214,7 @@ describe('ImageService', () => {
 
             await expect(service.uploadImage(imageName, null as any, contentType)).rejects.toMatchObject({
                 message: 'Image name and buffer are required',
-                status: 400
+                status: 400,
             });
 
             expect(mockStore.putObject).not.toHaveBeenCalled();
@@ -226,7 +226,7 @@ describe('ImageService', () => {
 
             await expect(service.uploadImage(imageName, undefined as any, contentType)).rejects.toMatchObject({
                 message: 'Image name and buffer are required',
-                status: 400
+                status: 400,
             });
         });
 
@@ -252,17 +252,17 @@ describe('ImageService', () => {
 
             await expect(service.uploadImage(imageName, imageBuffer, contentType)).rejects.toMatchObject({
                 message: 'Failed to upload image',
-                status: 500
+                status: 500,
             });
 
             expect(mockLogger.error).toHaveBeenCalledWith('Failed to upload image', {
                 name: imageName,
-                error: storeError
+                error: storeError,
             });
         });
 
         it('should work without logger during success', async () => {
-            const serviceWithoutLogger = new ImageService(mockStore as unknown as ImageStore);
+            const _serviceWithoutLogger = new ImageService(mockStore as unknown as ImageStore);
             const imageName = 'no-logger-success.jpg';
             const imageBuffer = Buffer.from('image data');
             const contentType = 'image/jpeg';
@@ -285,7 +285,7 @@ describe('ImageService', () => {
 
             await expect(serviceWithoutLogger.uploadImage(imageName, imageBuffer, contentType)).rejects.toMatchObject({
                 message: 'Failed to upload image',
-                status: 500
+                status: 500,
             });
             // Should not throw error when logger is undefined
         });
@@ -302,7 +302,7 @@ describe('ImageService', () => {
             expect(mockStore.putObject).toHaveBeenCalledWith(imageName, imageBuffer, { contentType });
             expect(mockLogger.info).toHaveBeenCalledWith('Image uploaded successfully', {
                 name: imageName,
-                contentType
+                contentType,
             });
         });
 
@@ -330,7 +330,7 @@ describe('ImageService', () => {
 
             const promises = [
                 service.uploadImage(imageName1, imageBuffer, contentType),
-                service.uploadImage(imageName2, imageBuffer, contentType)
+                service.uploadImage(imageName2, imageBuffer, contentType),
             ];
 
             await Promise.all(promises);

@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UuidGenerator } from './index';
 
 vi.mock('mongodb', () => ({
-    ObjectId: vi.fn()
+    ObjectId: vi.fn(),
 }));
 
 describe('UuidGenerator', () => {
@@ -19,7 +19,7 @@ describe('UuidGenerator', () => {
     it('should generate a UUID using MongoDB ObjectId', () => {
         const mockId = '507f1f77bcf86cd799439011';
         const mockObjectIdInstance = {
-            toString: vi.fn().mockReturnValue(mockId)
+            toString: vi.fn().mockReturnValue(mockId),
         };
 
         mockObjectId.mockReturnValue(mockObjectIdInstance as any);
@@ -36,10 +36,10 @@ describe('UuidGenerator', () => {
         const mockId2 = '507f1f77bcf86cd799439012';
 
         const mockObjectIdInstance1 = {
-            toString: vi.fn().mockReturnValue(mockId1)
+            toString: vi.fn().mockReturnValue(mockId1),
         };
         const mockObjectIdInstance2 = {
-            toString: vi.fn().mockReturnValue(mockId2)
+            toString: vi.fn().mockReturnValue(mockId2),
         };
 
         mockObjectId
@@ -58,7 +58,7 @@ describe('UuidGenerator', () => {
     it('should return string type', () => {
         const mockId = '507f1f77bcf86cd799439013';
         const mockObjectIdInstance = {
-            toString: vi.fn().mockReturnValue(mockId)
+            toString: vi.fn().mockReturnValue(mockId),
         };
 
         mockObjectId.mockReturnValue(mockObjectIdInstance as any);

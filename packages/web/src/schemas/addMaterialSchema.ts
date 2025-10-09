@@ -1,26 +1,15 @@
 import { MaterialType, METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
 import { z } from 'zod';
 
-const URL_REGEX
-    = /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/;
+const URL_REGEX =
+    /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/;
 
 // Base schema with common fields
 const baseMaterialSchema = z.object({
-    name: z
-        .string()
-        .min(1, 'Please enter the material name')
-        .trim(),
-    brand: z
-        .string()
-        .min(1, 'Please enter the brand name')
-        .trim(),
-    purchaseUrl: z
-        .string()
-        .min(1, 'Please enter the URL')
-        .regex(URL_REGEX, 'Please enter a valid URL'),
-    pricePerPack: z
-        .number({ required_error: 'Please enter the price' })
-        .positive('Price must be greater than 0'),
+    name: z.string().min(1, 'Please enter the material name').trim(),
+    brand: z.string().min(1, 'Please enter the brand name').trim(),
+    purchaseUrl: z.string().min(1, 'Please enter the URL').regex(URL_REGEX, 'Please enter a valid URL'),
+    pricePerPack: z.number({ required_error: 'Please enter the price' }).positive('Price must be greater than 0'),
     packs: z
         .number({ required_error: 'Please enter the quantity of packs' })
         .int('Packs must be a whole number')
@@ -36,21 +25,15 @@ const wireSchema = baseMaterialSchema.extend({
     metalType: z.nativeEnum(METAL_TYPE, {
         required_error: 'Please select a metal type',
     }),
-    diameter: z
-        .number({ required_error: 'Please enter the diameter' })
-        .positive('Diameter must be greater than 0'),
-    length: z
-        .number({ required_error: 'Please enter the wire length' })
-        .positive('Length must be greater than 0'),
+    diameter: z.number({ required_error: 'Please enter the diameter' }).positive('Diameter must be greater than 0'),
+    length: z.number({ required_error: 'Please enter the wire length' }).positive('Length must be greater than 0'),
 });
 
 // Bead-specific schema
 const beadSchema = baseMaterialSchema.extend({
     type: z.literal(MaterialType.BEAD),
     colour: z.string().optional(),
-    diameter: z
-        .number({ required_error: 'Please enter the diameter' })
-        .nonnegative('Diameter must be 0 or greater'),
+    diameter: z.number({ required_error: 'Please enter the diameter' }).nonnegative('Diameter must be 0 or greater'),
     quantity: z
         .number({ required_error: 'Please enter a quantity of beads' })
         .int('Quantity must be a whole number')
@@ -69,9 +52,7 @@ const chainSchema = baseMaterialSchema.extend({
     diameter: z
         .number({ required_error: 'Please enter the chain diameter' })
         .positive('Diameter must be greater than 0'),
-    length: z
-        .number({ required_error: 'Please enter the chain length' })
-        .positive('Length must be greater than 0'),
+    length: z.number({ required_error: 'Please enter the chain length' }).positive('Length must be greater than 0'),
 });
 
 // EarHook-specific schema
@@ -90,12 +71,7 @@ const earHookSchema = baseMaterialSchema.extend({
 });
 
 // Discriminated union schema
-export const addMaterialSchema = z.discriminatedUnion('type', [
-    wireSchema,
-    beadSchema,
-    chainSchema,
-    earHookSchema,
-]);
+export const addMaterialSchema = z.discriminatedUnion('type', [wireSchema, beadSchema, chainSchema, earHookSchema]);
 
 // Export type for TypeScript
 export type AddMaterialFormData = z.infer<typeof addMaterialSchema>;

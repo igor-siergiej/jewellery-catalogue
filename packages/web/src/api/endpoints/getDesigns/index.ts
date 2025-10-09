@@ -1,5 +1,5 @@
-import { Design, MethodType } from '@jewellery-catalogue/types';
-import { QueryClient } from '@tanstack/react-query';
+import { type Design, MethodType } from '@jewellery-catalogue/types';
+import type { QueryClient } from '@tanstack/react-query';
 
 import { DESIGNS_ENDPOINT } from '../../endpoints';
 import { makeRequestWithAutoRefresh } from '../../makeRequest';
@@ -9,12 +9,16 @@ const makeGetDesignsRequest = async (
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
 ) => {
-    return await makeRequestWithAutoRefresh<Array<Design>>({
-        pathname: DESIGNS_ENDPOINT,
-        method: MethodType.GET,
-        operationString: 'fetch designs',
-        accessToken
-    }, onTokenRefresh, onTokenClear);
+    return await makeRequestWithAutoRefresh<Array<Design>>(
+        {
+            pathname: DESIGNS_ENDPOINT,
+            method: MethodType.GET,
+            operationString: 'fetch designs',
+            accessToken,
+        },
+        onTokenRefresh,
+        onTokenClear
+    );
 };
 
 export const getDesignsQuery = (
@@ -26,14 +30,12 @@ export const getDesignsQuery = (
     queryFn: async () => makeGetDesignsRequest(accessToken, onTokenRefresh, onTokenClear),
 });
 
-export const designsLoader = (queryClient: QueryClient) => async (
-    accessToken: string,
-    onTokenRefresh: (newToken: string) => void,
-    onTokenClear: () => void
-) => {
-    const result = await queryClient.fetchQuery({
-        ...getDesignsQuery(accessToken, onTokenRefresh, onTokenClear),
-    });
+export const designsLoader =
+    (queryClient: QueryClient) =>
+    async (accessToken: string, onTokenRefresh: (newToken: string) => void, onTokenClear: () => void) => {
+        const result = await queryClient.fetchQuery({
+            ...getDesignsQuery(accessToken, onTokenRefresh, onTokenClear),
+        });
 
-    return result;
-};
+        return result;
+    };

@@ -1,9 +1,9 @@
-import { UseFormReturn } from 'react-hook-form';
+import type { UseFormReturn } from 'react-hook-form';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
-import { AddDesignFormData } from '../../schemas/addDesignSchema';
+import type { AddDesignFormData } from '../../schemas/addDesignSchema';
 
 export interface TimeInputProps {
     form: UseFormReturn<AddDesignFormData>;
@@ -18,11 +18,7 @@ const TimeInput: React.FC<TimeInputProps> = ({ form }) => {
                 <FormItem>
                     <FormLabel>Time Spent Crafting</FormLabel>
                     <FormControl>
-                        <Input
-                            type="time"
-                            className="max-w-[200px]"
-                            {...field}
-                        />
+                        <Input type="time" className="max-w-[200px]" {...field} />
                     </FormControl>
                     <FormMessage />
                 </FormItem>

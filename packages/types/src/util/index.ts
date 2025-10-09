@@ -1,4 +1,4 @@
-import { Bead, Material, Wire } from '../material';
+import type { Bead, Material, Wire } from '../material';
 
 export interface MakeRequestProps {
     pathname: string;
@@ -7,14 +7,14 @@ export interface MakeRequestProps {
     headers?: Record<string, string>;
     body?: object | FormData;
     accessToken?: string;
-};
+}
 
 export enum MethodType {
     GET = 'GET',
     PUT = 'PUT',
     POST = 'POST',
     DELETE = 'DELETE',
-};
+}
 
 export type Spread<T> = { [Key in keyof T]: T[Key] };
 

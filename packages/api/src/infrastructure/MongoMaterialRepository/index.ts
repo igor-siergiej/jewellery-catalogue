@@ -1,8 +1,8 @@
-import { MongoDbConnection } from '@imapps/api-utils';
-import { Material } from '@jewellery-catalogue/types';
+import type { MongoDbConnection } from '@imapps/api-utils';
+import type { Material } from '@jewellery-catalogue/types';
 
-import { CollectionNames, Collections } from '../../dependencies/types';
-import { MaterialRepository } from '../../domain/MaterialRepository';
+import { CollectionNames, type Collections } from '../../dependencies/types';
+import type { MaterialRepository } from '../../domain/MaterialRepository';
 import { MongoRepository } from '../MongoRepository';
 
 export class MongoMaterialRepository extends MongoRepository<Material> implements MaterialRepository {

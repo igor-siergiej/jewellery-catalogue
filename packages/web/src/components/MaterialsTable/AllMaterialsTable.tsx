@@ -1,4 +1,4 @@
-import { Material } from '@jewellery-catalogue/types';
+import type { Material } from '@jewellery-catalogue/types';
 import { ExternalLink } from 'lucide-react';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -48,30 +48,28 @@ const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({ materials }) => 
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {materials.length === 0
-                        ? (
-                                <TableRow>
-                                    <TableCell colSpan={10} className="h-24 text-center text-muted-foreground">
-                                        No materials found.
-                                    </TableCell>
-                                </TableRow>
-                            )
-                        : (
-                                materials.map((material, index) => (
-                                    <TableRow key={material.id || `material-${index}`}>
-                                        <TableCell className="font-medium">{material.name}</TableCell>
-                                        <TableCell>{material.brand}</TableCell>
-                                        <TableCell>{material.type}</TableCell>
-                                        <TableCell>{material.diameter || '-'}</TableCell>
-                                        <TableCell>{renderPurchaseUrl(material.purchaseUrl)}</TableCell>
-                                        <TableCell>{(material as any).quantity || '-'}</TableCell>
-                                        <TableCell>{(material as any).colour || '-'}</TableCell>
-                                        <TableCell>{(material as any).wireType || '-'}</TableCell>
-                                        <TableCell>{(material as any).metalType || '-'}</TableCell>
-                                        <TableCell>{formatPrice((material as any).pricePerMeter)}</TableCell>
-                                    </TableRow>
-                                ))
-                            )}
+                    {materials.length === 0 ? (
+                        <TableRow>
+                            <TableCell colSpan={10} className="h-24 text-center text-muted-foreground">
+                                No materials found.
+                            </TableCell>
+                        </TableRow>
+                    ) : (
+                        materials.map((material, index) => (
+                            <TableRow key={material.id || `material-${index}`}>
+                                <TableCell className="font-medium">{material.name}</TableCell>
+                                <TableCell>{material.brand}</TableCell>
+                                <TableCell>{material.type}</TableCell>
+                                <TableCell>{material.diameter || '-'}</TableCell>
+                                <TableCell>{renderPurchaseUrl(material.purchaseUrl)}</TableCell>
+                                <TableCell>{(material as any).quantity || '-'}</TableCell>
+                                <TableCell>{(material as any).colour || '-'}</TableCell>
+                                <TableCell>{(material as any).wireType || '-'}</TableCell>
+                                <TableCell>{(material as any).metalType || '-'}</TableCell>
+                                <TableCell>{formatPrice((material as any).pricePerMeter)}</TableCell>
+                            </TableRow>
+                        ))
+                    )}
                 </TableBody>
             </Table>
         </div>

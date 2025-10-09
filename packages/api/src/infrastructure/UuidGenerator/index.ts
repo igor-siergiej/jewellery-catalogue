@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
 
-import { IdGenerator } from '../../domain/IdGenerator';
+import type { IdGenerator } from '../../domain/IdGenerator';
 
 export class UuidGenerator implements IdGenerator {
     generate(): string {

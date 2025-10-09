@@ -1,8 +1,8 @@
-import { MongoDbConnection } from '@imapps/api-utils';
-import { Design } from '@jewellery-catalogue/types';
+import type { MongoDbConnection } from '@imapps/api-utils';
+import type { Design } from '@jewellery-catalogue/types';
 
-import { CollectionNames, Collections } from '../../dependencies/types';
-import { DesignRepository } from '../../domain/DesignRepository';
+import { CollectionNames, type Collections } from '../../dependencies/types';
+import type { DesignRepository } from '../../domain/DesignRepository';
 import { MongoRepository } from '../MongoRepository';
 
 export class MongoDesignRepository extends MongoRepository<Design> implements DesignRepository {
@@ -23,8 +23,10 @@ export class MongoDesignRepository extends MongoRepository<Design> implements De
     }
 
     async findByMaterialId(materialId: string): Promise<Array<Design>> {
-        return this.collection().find({
-            'materials.materialId': materialId
-        }).toArray();
+        return this.collection()
+            .find({
+                'materials.materialId': materialId,
+            })
+            .toArray();
     }
 }

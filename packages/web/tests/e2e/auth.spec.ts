@@ -7,7 +7,8 @@ import {
     registerUser,
     selectors,
     testCredentials,
-    waitForAuthServices } from './utils/auth-helpers';
+    waitForAuthServices,
+} from './utils/auth-helpers';
 
 test.describe('Authentication Flow', () => {
     test.beforeEach(async ({ page }) => {
@@ -72,7 +73,7 @@ test.describe('Authentication Flow', () => {
             const weakPasswords = [
                 testCredentials.weakPasswords.tooShort,
                 testCredentials.weakPasswords.noNumber,
-                testCredentials.weakPasswords.noLetter
+                testCredentials.weakPasswords.noLetter,
             ];
 
             for (const weakPassword of weakPasswords) {

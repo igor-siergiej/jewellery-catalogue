@@ -1,13 +1,12 @@
-import { PersistentFile, UploadDesign } from '@jewellery-catalogue/types';
-import fs from 'fs';
-import { Context } from 'koa';
+import fs from 'node:fs';
+import type { PersistentFile, UploadDesign } from '@jewellery-catalogue/types';
+import type { Context } from 'koa';
 
 import { dependencyContainer } from '../../dependencies';
 import { DependencyToken } from '../../dependencies/types';
-import { DesignService } from '../../domain/DesignService';
+import type { DesignService } from '../../domain/DesignService';
 
-const getDesignService = (): DesignService =>
-    dependencyContainer.resolve(DependencyToken.DesignService);
+const getDesignService = (): DesignService => dependencyContainer.resolve(DependencyToken.DesignService);
 
 export const getDesigns = async (ctx: Context) => {
     const userId = ctx.state.userId;
@@ -51,8 +50,8 @@ export const addDesign = async (ctx: Context) => {
         return;
     }
 
-    const { name, description, timeRequired, materials, totalMaterialCosts, price }
-        = ctx.request.body as Partial<UploadDesign>;
+    const { name, description, timeRequired, materials, totalMaterialCosts, price } = ctx.request
+        .body as Partial<UploadDesign>;
 
     try {
         // Read the file from filesystem and convert to Buffer
@@ -66,7 +65,7 @@ export const addDesign = async (ctx: Context) => {
             materials: materials!,
             totalMaterialCosts: Number(totalMaterialCosts),
             price: Number(price),
-            image: file
+            image: file,
         };
 
         const design = await getDesignService().addDesign(designData, fileBuffer, contentType, userId);

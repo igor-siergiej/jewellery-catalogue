@@ -1,7 +1,19 @@
-import { FormBead, FormChain, FormWire, MaterialType, METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
+import {
+    type FormBead,
+    type FormChain,
+    type FormWire,
+    MaterialType,
+    METAL_TYPE,
+    WIRE_TYPE,
+} from '@jewellery-catalogue/types';
 import { describe, expect, it } from 'vitest';
 
-import { convertFormBeadToMaterial, convertFormChainToMaterial, convertFormDataToMaterial, convertFormWireToMaterial } from './material-conversion';
+import {
+    convertFormBeadToMaterial,
+    convertFormChainToMaterial,
+    convertFormDataToMaterial,
+    convertFormWireToMaterial,
+} from './material-conversion';
 
 describe('material-conversion', () => {
     describe('convertFormDataToMaterial', () => {
@@ -17,7 +29,7 @@ describe('material-conversion', () => {
                 diameter: 1.5,
                 length: 10,
                 pricePerPack: 25.0,
-                packs: 2
+                packs: 2,
             };
 
             const result = convertFormDataToMaterial(formWire);
@@ -31,7 +43,7 @@ describe('material-conversion', () => {
                 wireType: WIRE_TYPE.FULL,
                 metalType: METAL_TYPE.SILVER,
                 length: 10,
-                pricePerMeter: 2.5
+                pricePerMeter: 2.5,
             });
         });
 
@@ -46,7 +58,7 @@ describe('material-conversion', () => {
                 colour: 'Blue',
                 quantity: 50,
                 pricePerPack: 15.0,
-                packs: 3
+                packs: 3,
             };
 
             const result = convertFormDataToMaterial(formBead);
@@ -59,7 +71,7 @@ describe('material-conversion', () => {
                 diameter: 8,
                 colour: 'Blue',
                 quantity: 50,
-                pricePerBead: 0.3
+                pricePerBead: 0.3,
             });
         });
 
@@ -75,7 +87,7 @@ describe('material-conversion', () => {
                 diameter: 2.0,
                 length: 5,
                 pricePerPack: 100.0,
-                packs: 1
+                packs: 1,
             };
 
             const result = convertFormDataToMaterial(formChain);
@@ -88,7 +100,7 @@ describe('material-conversion', () => {
                 metalType: METAL_TYPE.GOLD,
                 wireType: WIRE_TYPE.FILLED,
                 diameter: 2.0,
-                length: 5
+                length: 5,
             });
         });
 
@@ -97,10 +109,12 @@ describe('material-conversion', () => {
                 type: 'INVALID_TYPE' as MaterialType,
                 name: 'Invalid',
                 brand: 'Brand',
-                purchaseUrl: 'url'
+                purchaseUrl: 'url',
             };
 
-            expect(() => convertFormDataToMaterial(invalidMaterial as any)).toThrow('Unsupported material type: INVALID_TYPE');
+            expect(() => convertFormDataToMaterial(invalidMaterial as any)).toThrow(
+                'Unsupported material type: INVALID_TYPE'
+            );
         });
     });
 
@@ -117,7 +131,7 @@ describe('material-conversion', () => {
                 diameter: 0.8,
                 length: 20,
                 pricePerPack: 10.0,
-                packs: 1
+                packs: 1,
             };
 
             const result = convertFormWireToMaterial(formWire);
@@ -137,13 +151,13 @@ describe('material-conversion', () => {
                 diameter: 1.2,
                 length: 15,
                 pricePerPack: 12.0,
-                packs: 4
+                packs: 4,
             };
 
             const result = convertFormWireToMaterial(formWire);
 
-            const expectedTotalLength = 4 * 15; // 60
-            const expectedTotalPrice = 4 * 12.0; // 48
+            const _expectedTotalLength = 4 * 15; // 60
+            const _expectedTotalPrice = 4 * 12.0; // 48
             const expectedPricePerMeter = 48 / 60; // 0.8
 
             expect(result.pricePerMeter).toBe(expectedPricePerMeter);
@@ -161,7 +175,7 @@ describe('material-conversion', () => {
                 diameter: 2.5,
                 length: 8,
                 pricePerPack: 30.0,
-                packs: 2
+                packs: 2,
             };
 
             const result = convertFormWireToMaterial(formWire);
@@ -175,7 +189,7 @@ describe('material-conversion', () => {
                 wireType: WIRE_TYPE.FILLED,
                 metalType: METAL_TYPE.GILT,
                 length: 8,
-                pricePerMeter: 3.75
+                pricePerMeter: 3.75,
             });
         });
     });
@@ -192,7 +206,7 @@ describe('material-conversion', () => {
                 colour: 'Red',
                 quantity: 100,
                 pricePerPack: 20.0,
-                packs: 1
+                packs: 1,
             };
 
             const result = convertFormBeadToMaterial(formBead);
@@ -211,13 +225,13 @@ describe('material-conversion', () => {
                 colour: 'Green',
                 quantity: 25,
                 pricePerPack: 15.0,
-                packs: 5
+                packs: 5,
             };
 
             const result = convertFormBeadToMaterial(formBead);
 
-            const expectedTotalQuantity = 5 * 25; // 125
-            const expectedTotalPrice = 5 * 15.0; // 75
+            const _expectedTotalQuantity = 5 * 25; // 125
+            const _expectedTotalPrice = 5 * 15.0; // 75
             const expectedPricePerBead = 75 / 125; // 0.6
 
             expect(result.pricePerBead).toBe(expectedPricePerBead);
@@ -234,7 +248,7 @@ describe('material-conversion', () => {
                 colour: 'Multicolor',
                 quantity: 40,
                 pricePerPack: 18.0,
-                packs: 3
+                packs: 3,
             };
 
             const result = convertFormBeadToMaterial(formBead);
@@ -247,7 +261,7 @@ describe('material-conversion', () => {
                 diameter: 12,
                 colour: 'Multicolor',
                 quantity: 40,
-                pricePerBead: 0.45
+                pricePerBead: 0.45,
             });
         });
     });
@@ -265,7 +279,7 @@ describe('material-conversion', () => {
                 diameter: 1.8,
                 length: 12,
                 pricePerPack: 45.0,
-                packs: 2
+                packs: 2,
             };
 
             const result = convertFormChainToMaterial(formChain);
@@ -278,7 +292,7 @@ describe('material-conversion', () => {
                 metalType: METAL_TYPE.SILVER,
                 wireType: WIRE_TYPE.FULL,
                 diameter: 1.8,
-                length: 12
+                length: 12,
             });
         });
 
@@ -293,13 +307,13 @@ describe('material-conversion', () => {
                 diameter: 1.0,
                 length: 10,
                 pricePerPack: 25.0,
-                packs: 1
+                packs: 1,
             };
 
             Object.values(METAL_TYPE).forEach((metalType) => {
                 const formChain: FormChain = {
                     ...baseFormChain,
-                    metalType
+                    metalType,
                 };
 
                 const result = convertFormChainToMaterial(formChain);
@@ -319,13 +333,13 @@ describe('material-conversion', () => {
                 diameter: 1.0,
                 length: 10,
                 pricePerPack: 25.0,
-                packs: 1
+                packs: 1,
             };
 
             Object.values(WIRE_TYPE).forEach((wireType) => {
                 const formChain: FormChain = {
                     ...baseFormChain,
-                    wireType
+                    wireType,
                 };
 
                 const result = convertFormChainToMaterial(formChain);
@@ -348,7 +362,7 @@ describe('material-conversion', () => {
                 diameter: 1.0,
                 length: 10,
                 pricePerPack: 10.0,
-                packs: 0
+                packs: 0,
             };
 
             const result = convertFormWireToMaterial(formWire);
@@ -369,7 +383,7 @@ describe('material-conversion', () => {
                 colour: 'Blue',
                 quantity: 50,
                 pricePerPack: 15.0,
-                packs: 0
+                packs: 0,
             };
 
             const result = convertFormBeadToMaterial(formBead);
@@ -390,7 +404,7 @@ describe('material-conversion', () => {
                 colour: 'Blue',
                 quantity: 0,
                 pricePerPack: 15.0,
-                packs: 2
+                packs: 2,
             };
 
             const result = convertFormBeadToMaterial(formBead);
@@ -410,7 +424,7 @@ describe('material-conversion', () => {
                 diameter: 1.0,
                 length: 0,
                 pricePerPack: 10.0,
-                packs: 2
+                packs: 2,
             };
 
             const result = convertFormWireToMaterial(formWire);

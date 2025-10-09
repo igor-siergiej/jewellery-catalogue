@@ -4,16 +4,13 @@ import AddBeadForm from './Forms/Bead';
 import AddChainForm from './Forms/Chain';
 import AddEarHookForm from './Forms/EarHook';
 import AddWireForm from './Forms/Wire';
-import {
-    IMaterialFormResolverProps,
-    IMaterialTypeToFormMapping,
-} from './types';
+import type { IMaterialFormResolverProps, IMaterialTypeToFormMapping } from './types';
 
 const MATERIAL_TYPE_TO_FORM_MAPPING: IMaterialTypeToFormMapping = {
     [MaterialType.WIRE]: AddWireForm,
     [MaterialType.BEAD]: AddBeadForm,
     [MaterialType.EAR_HOOK]: AddEarHookForm,
-    [MaterialType.CHAIN]: AddChainForm
+    [MaterialType.CHAIN]: AddChainForm,
 } as const;
 
 const content = (props: IMaterialFormResolverProps) => {
@@ -30,8 +27,6 @@ const content = (props: IMaterialFormResolverProps) => {
     return null;
 };
 
-const MaterialFormResolver: React.FC<IMaterialFormResolverProps> = props => (
-    <>{content(props)}</>
-);
+const MaterialFormResolver: React.FC<IMaterialFormResolverProps> = (props) => <>{content(props)}</>;
 
 export default MaterialFormResolver;

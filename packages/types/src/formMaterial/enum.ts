@@ -1,4 +1,4 @@
-import { FormBead, FormChain, FormWire } from '.';
+import type { FormBead, FormChain, FormWire } from '.';
 
 export const FormWireKeysEnum: { [K in keyof Required<FormWire>]: K } = {
     wireType: 'wireType',
@@ -10,7 +10,7 @@ export const FormWireKeysEnum: { [K in keyof Required<FormWire>]: K } = {
     purchaseUrl: 'purchaseUrl',
     type: 'type',
     pricePerPack: 'pricePerPack',
-    packs: 'packs'
+    packs: 'packs',
 };
 
 export const FormBeadKeysEnum: { [K in keyof Required<FormBead>]: K } = {
@@ -22,7 +22,7 @@ export const FormBeadKeysEnum: { [K in keyof Required<FormBead>]: K } = {
     purchaseUrl: 'purchaseUrl',
     type: 'type',
     pricePerPack: 'pricePerPack',
-    packs: 'packs'
+    packs: 'packs',
 };
 
 export const FormChainKeysEnum: { [K in keyof Required<FormChain>]: K } = {
@@ -35,5 +35,5 @@ export const FormChainKeysEnum: { [K in keyof Required<FormChain>]: K } = {
     purchaseUrl: 'purchaseUrl',
     type: 'type',
     pricePerPack: 'pricePerPack',
-    packs: 'packs'
+    packs: 'packs',
 };

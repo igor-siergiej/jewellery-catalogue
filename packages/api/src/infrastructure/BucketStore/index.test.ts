@@ -1,4 +1,4 @@
-import { ObjectStoreConnection } from '@imapps/api-utils';
+import type { ObjectStoreConnection } from '@imapps/api-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { BucketStore } from './index';
@@ -6,7 +6,7 @@ import { BucketStore } from './index';
 const mockBucket = {
     statObject: vi.fn(),
     getObjectStream: vi.fn(),
-    putObject: vi.fn()
+    putObject: vi.fn(),
 };
 
 describe('BucketStore', () => {
@@ -21,8 +21,8 @@ describe('BucketStore', () => {
         it('should return metadata when object exists', async () => {
             const mockStat = {
                 metaData: {
-                    'content-type': 'image/jpeg'
-                }
+                    'content-type': 'image/jpeg',
+                },
             };
 
             mockBucket.statObject.mockResolvedValue(mockStat);
@@ -32,8 +32,8 @@ describe('BucketStore', () => {
             expect(mockBucket.statObject).toHaveBeenCalledWith('test-image.jpg');
             expect(result).toEqual({
                 metaData: {
-                    'content-type': 'image/jpeg'
-                }
+                    'content-type': 'image/jpeg',
+                },
             });
         });
 
@@ -41,8 +41,8 @@ describe('BucketStore', () => {
             const mockStat = {
                 metaData: {
                     'content-type': 'image/png',
-                    'other-property': 'value'
-                }
+                    'other-property': 'value',
+                },
             };
 
             mockBucket.statObject.mockResolvedValue(mockStat);
@@ -51,16 +51,16 @@ describe('BucketStore', () => {
 
             expect(result).toEqual({
                 metaData: {
-                    'content-type': 'image/png'
-                }
+                    'content-type': 'image/png',
+                },
             });
         });
 
         it('should return metadata with undefined content-type when not present', async () => {
             const mockStat = {
                 metaData: {
-                    'other-property': 'value'
-                }
+                    'other-property': 'value',
+                },
             };
 
             mockBucket.statObject.mockResolvedValue(mockStat);
@@ -69,8 +69,8 @@ describe('BucketStore', () => {
 
             expect(result).toEqual({
                 metaData: {
-                    'content-type': undefined
-                }
+                    'content-type': undefined,
+                },
             });
         });
 
@@ -83,8 +83,8 @@ describe('BucketStore', () => {
 
             expect(result).toEqual({
                 metaData: {
-                    'content-type': undefined
-                }
+                    'content-type': undefined,
+                },
             });
         });
 

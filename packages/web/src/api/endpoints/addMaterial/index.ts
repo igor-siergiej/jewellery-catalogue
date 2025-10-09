@@ -1,4 +1,4 @@
-import { FormMaterial, Material, MethodType } from '@jewellery-catalogue/types';
+import { type FormMaterial, type Material, MethodType } from '@jewellery-catalogue/types';
 
 import { MATERIALS_ENDPOINT } from '../../endpoints';
 import { makeRequestWithAutoRefresh } from '../../makeRequest';
@@ -18,7 +18,7 @@ const makeAddMaterialRequest = async (
             },
             operationString: 'add materials',
             body: material,
-            accessToken
+            accessToken,
         },
         onTokenRefresh,
         onTokenClear

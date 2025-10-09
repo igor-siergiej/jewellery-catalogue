@@ -4,19 +4,19 @@ import { describe, expect, it, vi } from 'vitest';
 const mockConfigService = vi.fn();
 const mockParsers = {
     number: vi.fn(),
-    string: vi.fn()
+    string: vi.fn(),
 };
 
 vi.mock('@imapps/api-utils', () => ({
     ConfigService: mockConfigService,
-    parsers: mockParsers
+    parsers: mockParsers,
 }));
 
 describe('Config', () => {
     describe('schema definition', () => {
         it('should create ConfigService with correct schema', async () => {
             // Import the config to trigger the constructor
-            const { config } = await import('./index');
+            await import('./index');
 
             expect(mockConfigService).toHaveBeenCalledWith({
                 port: { parser: mockParsers.number, from: 'PORT' },
@@ -25,12 +25,12 @@ describe('Config', () => {
                 bucketName: { parser: mockParsers.string, from: 'BUCKET_NAME' },
                 bucketAccessKey: { parser: mockParsers.string, from: 'BUCKET_ACCESS_KEY' },
                 bucketSecretKey: { parser: mockParsers.string, from: 'BUCKET_SECRET_KEY' },
-                bucketEndpoint: { parser: mockParsers.string, from: 'BUCKET_ENDPOINT' }
+                bucketEndpoint: { parser: mockParsers.string, from: 'BUCKET_ENDPOINT' },
             });
         });
 
         it('should use number parser for port', async () => {
-            const { config } = await import('./index');
+            await import('./index');
             const callArgs = mockConfigService.mock.calls[0][0];
 
             expect(callArgs.port.parser).toBe(mockParsers.number);
@@ -47,7 +47,7 @@ describe('Config', () => {
                 'bucketName',
                 'bucketAccessKey',
                 'bucketSecretKey',
-                'bucketEndpoint'
+                'bucketEndpoint',
             ];
 
             stringFields.forEach((field) => {
@@ -95,7 +95,7 @@ describe('Config', () => {
                 'bucketName',
                 'bucketAccessKey',
                 'bucketSecretKey',
-                'bucketEndpoint'
+                'bucketEndpoint',
             ];
 
             expectedFields.forEach((field) => {
@@ -164,8 +164,12 @@ describe('Config', () => {
 
             // All string fields should use string parser
             const stringFields = [
-                'connectionUri', 'databaseName', 'bucketName',
-                'bucketAccessKey', 'bucketSecretKey', 'bucketEndpoint'
+                'connectionUri',
+                'databaseName',
+                'bucketName',
+                'bucketAccessKey',
+                'bucketSecretKey',
+                'bucketEndpoint',
             ];
 
             stringFields.forEach((field) => {
@@ -178,8 +182,9 @@ describe('Config', () => {
             const callArgs = mockConfigService.mock.calls[0][0];
 
             // Count how many fields use number parser
-            const numberParserFields = Object.entries(callArgs)
-                .filter(([, config]) => config.parser === mockParsers.number);
+            const numberParserFields = Object.entries(callArgs).filter(
+                ([, config]) => config.parser === mockParsers.number
+            );
 
             expect(numberParserFields).toHaveLength(1);
             expect(numberParserFields[0][0]).toBe('port');
@@ -190,8 +195,9 @@ describe('Config', () => {
             const callArgs = mockConfigService.mock.calls[0][0];
 
             // Count how many fields use string parser
-            const stringParserFields = Object.entries(callArgs)
-                .filter(([, config]) => config.parser === mockParsers.string);
+            const stringParserFields = Object.entries(callArgs).filter(
+                ([, config]) => config.parser === mockParsers.string
+            );
 
             expect(stringParserFields).toHaveLength(6);
         });

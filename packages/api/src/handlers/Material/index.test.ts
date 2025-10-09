@@ -1,23 +1,23 @@
-import { FormMaterial, Material, MaterialType, METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
-import { Context } from 'koa';
+import { type FormMaterial, type Material, MaterialType, METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
+import type { Context } from 'koa';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import * as materialHandlers from './index';
 
 const mockDependencyContainer = vi.hoisted(() => ({
-    resolve: vi.fn()
+    resolve: vi.fn(),
 }));
 
 vi.mock('../../dependencies', () => ({
-    dependencyContainer: mockDependencyContainer
+    dependencyContainer: mockDependencyContainer,
 }));
 
 const mockMaterialService = {
-    getMaterialsByCatalogue: vi.fn(),
+    getMaterialsByUserId: vi.fn(),
     getMaterial: vi.fn(),
     addMaterial: vi.fn(),
     updateMaterial: vi.fn(),
-    deleteMaterial: vi.fn()
+    deleteMaterial: vi.fn(),
 };
 
 const createMockContext = (overrides: Partial<Context> = {}): Context => {
@@ -25,25 +25,29 @@ const createMockContext = (overrides: Partial<Context> = {}): Context => {
         params: {},
         request: { body: {} } as Context['request'],
         response: { status: 200 } as Context['response'],
-        state: {},
+        state: { userId: 'user-123' },
         set: vi.fn(),
         status: 200,
         body: {},
-        ...overrides
+        ...overrides,
     } as Context;
 
     Object.defineProperty(ctx, 'status', {
         get: () => ctx.response.status,
-        set: (value) => { ctx.response.status = value; },
+        set: (value) => {
+            ctx.response.status = value;
+        },
         configurable: true,
-        enumerable: true
+        enumerable: true,
     });
 
     Object.defineProperty(ctx, 'body', {
         get: () => ctx.response.body,
-        set: (value) => { ctx.response.body = value; },
+        set: (value) => {
+            ctx.response.body = value;
+        },
         configurable: true,
-        enumerable: true
+        enumerable: true,
     });
 
     return ctx;
@@ -56,8 +60,7 @@ describe('MaterialHandlers', () => {
     });
 
     describe('getMaterials', () => {
-        it('should return materials for valid catalogue ID', async () => {
-            const catalogueId = 'catalogue-123';
+        it('should return materials for valid user ID', async () => {
             const mockMaterials: Array<Material> = [
                 {
                     id: 'material-1',
@@ -69,40 +72,38 @@ describe('MaterialHandlers', () => {
                     wireType: WIRE_TYPE.FULL,
                     metalType: METAL_TYPE.SILVER,
                     length: 10,
-                    pricePerMeter: 2.0
-                }
+                    pricePerMeter: 2.0,
+                },
             ];
 
-            const ctx = createMockContext({ params: { catalogueId } });
+            const ctx = createMockContext();
 
-            mockMaterialService.getMaterialsByCatalogue.mockResolvedValue(mockMaterials);
+            mockMaterialService.getMaterialsByUserId.mockResolvedValue(mockMaterials);
 
             await materialHandlers.getMaterials(ctx);
 
-            expect(mockMaterialService.getMaterialsByCatalogue).toHaveBeenCalledWith(catalogueId);
+            expect(mockMaterialService.getMaterialsByUserId).toHaveBeenCalledWith('user-123');
             expect(ctx.response.status).toBe(200);
             expect(ctx.body).toEqual(mockMaterials);
         });
 
         it('should handle service errors with status', async () => {
-            const catalogueId = 'invalid-catalogue';
-            const ctx = createMockContext({ params: { catalogueId } });
+            const ctx = createMockContext();
 
-            const serviceError = Object.assign(new Error('Catalogue not found'), { status: 404 });
+            const serviceError = Object.assign(new Error('Service error'), { status: 500 });
 
-            mockMaterialService.getMaterialsByCatalogue.mockRejectedValue(serviceError);
+            mockMaterialService.getMaterialsByUserId.mockRejectedValue(serviceError);
 
             await materialHandlers.getMaterials(ctx);
 
-            expect(ctx.response.status).toBe(404);
-            expect(ctx.body).toEqual({ error: 'Catalogue not found' });
+            expect(ctx.response.status).toBe(500);
+            expect(ctx.body).toEqual({ error: 'Service error' });
         });
 
         it('should handle service errors without status', async () => {
-            const catalogueId = 'error-catalogue';
-            const ctx = createMockContext({ params: { catalogueId } });
+            const ctx = createMockContext();
 
-            mockMaterialService.getMaterialsByCatalogue.mockRejectedValue(new Error('Database error'));
+            mockMaterialService.getMaterialsByUserId.mockRejectedValue(new Error('Database error'));
 
             await materialHandlers.getMaterials(ctx);
 
@@ -111,10 +112,9 @@ describe('MaterialHandlers', () => {
         });
 
         it('should handle unknown errors', async () => {
-            const catalogueId = 'unknown-error';
-            const ctx = createMockContext({ params: { catalogueId } });
+            const ctx = createMockContext();
 
-            mockMaterialService.getMaterialsByCatalogue.mockRejectedValue({});
+            mockMaterialService.getMaterialsByUserId.mockRejectedValue({});
 
             await materialHandlers.getMaterials(ctx);
 
@@ -124,8 +124,7 @@ describe('MaterialHandlers', () => {
     });
 
     describe('getMaterial', () => {
-        it('should return material for valid ID with catalogueId', async () => {
-            const catalogueId = 'catalogue-123';
+        it('should return material for valid ID with userId', async () => {
             const materialId = 'material-123';
             const mockMaterial: Material = {
                 id: materialId,
@@ -136,16 +135,16 @@ describe('MaterialHandlers', () => {
                 diameter: 8,
                 colour: 'Blue',
                 quantity: 100,
-                pricePerBead: 0.15
+                pricePerBead: 0.15,
             };
 
-            const ctx = createMockContext({ params: { catalogueId, id: materialId } });
+            const ctx = createMockContext({ params: { id: materialId } });
 
             mockMaterialService.getMaterial.mockResolvedValue(mockMaterial);
 
             await materialHandlers.getMaterial(ctx);
 
-            expect(mockMaterialService.getMaterial).toHaveBeenCalledWith(materialId, catalogueId);
+            expect(mockMaterialService.getMaterial).toHaveBeenCalledWith(materialId, 'user-123');
             expect(ctx.response.status).toBe(200);
             expect(ctx.body).toEqual(mockMaterial);
         });
@@ -179,7 +178,6 @@ describe('MaterialHandlers', () => {
 
     describe('addMaterial', () => {
         it('should add material successfully', async () => {
-            const catalogueId = 'catalogue-123';
             const materialData: FormMaterial = {
                 id: 'form-material-1',
                 type: MaterialType.CHAIN,
@@ -191,7 +189,7 @@ describe('MaterialHandlers', () => {
                 diameter: 2.0,
                 length: 5,
                 pricePerPack: 50.0,
-                packs: 2
+                packs: 2,
             };
 
             const addedMaterial: Material = {
@@ -203,30 +201,27 @@ describe('MaterialHandlers', () => {
                 metalType: METAL_TYPE.GOLD,
                 wireType: WIRE_TYPE.FILLED,
                 diameter: 2.0,
-                length: 5
+                length: 5,
             };
 
             const ctx = createMockContext({
-                params: { catalogueId },
-                request: { body: materialData } as any
+                request: { body: materialData } as any,
             });
 
             mockMaterialService.addMaterial.mockResolvedValue(addedMaterial);
 
             await materialHandlers.addMaterial(ctx);
 
-            expect(mockMaterialService.addMaterial).toHaveBeenCalledWith(catalogueId, materialData);
+            expect(mockMaterialService.addMaterial).toHaveBeenCalledWith(materialData, 'user-123');
             expect(ctx.response.status).toBe(200);
             expect(ctx.body).toEqual(addedMaterial);
         });
 
         it('should handle validation errors', async () => {
-            const catalogueId = 'catalogue-123';
             const invalidMaterialData = { name: 'Invalid' };
 
             const ctx = createMockContext({
-                params: { catalogueId },
-                request: { body: invalidMaterialData } as any
+                request: { body: invalidMaterialData } as any,
             });
 
             const serviceError = Object.assign(new Error('Invalid material data'), { status: 400 });
@@ -239,8 +234,7 @@ describe('MaterialHandlers', () => {
             expect(ctx.body).toEqual({ error: 'Invalid material data' });
         });
 
-        it('should handle catalogue not found', async () => {
-            const catalogueId = 'non-existent-catalogue';
+        it('should handle service errors', async () => {
             const materialData: FormMaterial = {
                 id: 'material-1',
                 type: MaterialType.WIRE,
@@ -252,28 +246,26 @@ describe('MaterialHandlers', () => {
                 diameter: 1.0,
                 length: 5,
                 pricePerPack: 10.0,
-                packs: 1
+                packs: 1,
             };
 
             const ctx = createMockContext({
-                params: { catalogueId },
-                request: { body: materialData } as any
+                request: { body: materialData } as any,
             });
 
-            const serviceError = Object.assign(new Error('Catalogue not found'), { status: 404 });
+            const serviceError = Object.assign(new Error('Service error'), { status: 500 });
 
             mockMaterialService.addMaterial.mockRejectedValue(serviceError);
 
             await materialHandlers.addMaterial(ctx);
 
-            expect(ctx.response.status).toBe(404);
-            expect(ctx.body).toEqual({ error: 'Catalogue not found' });
+            expect(ctx.response.status).toBe(500);
+            expect(ctx.body).toEqual({ error: 'Service error' });
         });
     });
 
     describe('updateMaterial', () => {
         it('should update material successfully', async () => {
-            const catalogueId = 'catalogue-123';
             const materialId = 'material-123';
             const updates = { name: 'Updated Material Name', pricePerMeter: 3.0 };
             const updatedMaterial: Material = {
@@ -286,19 +278,19 @@ describe('MaterialHandlers', () => {
                 wireType: WIRE_TYPE.FULL,
                 metalType: METAL_TYPE.SILVER,
                 length: 10,
-                pricePerMeter: 3.0
+                pricePerMeter: 3.0,
             };
 
             const ctx = createMockContext({
-                params: { catalogueId, id: materialId },
-                request: { body: updates } as any
+                params: { id: materialId },
+                request: { body: updates } as any,
             });
 
             mockMaterialService.updateMaterial.mockResolvedValue(updatedMaterial);
 
             await materialHandlers.updateMaterial(ctx);
 
-            expect(mockMaterialService.updateMaterial).toHaveBeenCalledWith(materialId, updates, catalogueId);
+            expect(mockMaterialService.updateMaterial).toHaveBeenCalledWith(materialId, updates, 'user-123');
             expect(ctx.response.status).toBe(200);
             expect(ctx.body).toEqual(updatedMaterial);
         });
@@ -309,7 +301,7 @@ describe('MaterialHandlers', () => {
 
             const ctx = createMockContext({
                 params: { id: materialId },
-                request: { body: updates } as any
+                request: { body: updates } as any,
             });
 
             const serviceError = Object.assign(new Error('Material not found'), { status: 404 });
@@ -328,7 +320,7 @@ describe('MaterialHandlers', () => {
 
             const ctx = createMockContext({
                 params: { id: materialId },
-                request: { body: invalidUpdates } as any
+                request: { body: invalidUpdates } as any,
             });
 
             const serviceError = Object.assign(new Error('Invalid update data'), { status: 400 });
@@ -344,16 +336,15 @@ describe('MaterialHandlers', () => {
 
     describe('deleteMaterial', () => {
         it('should delete material successfully', async () => {
-            const catalogueId = 'catalogue-123';
             const materialId = 'material-123';
 
-            const ctx = createMockContext({ params: { catalogueId, id: materialId } });
+            const ctx = createMockContext({ params: { id: materialId } });
 
             mockMaterialService.deleteMaterial.mockResolvedValue(undefined);
 
             await materialHandlers.deleteMaterial(ctx);
 
-            expect(mockMaterialService.deleteMaterial).toHaveBeenCalledWith(materialId, catalogueId);
+            expect(mockMaterialService.deleteMaterial).toHaveBeenCalledWith(materialId, 'user-123');
             expect(ctx.response.status).toBe(200);
             expect(ctx.body).toEqual({ message: 'Material deleted successfully' });
         });
@@ -389,9 +380,9 @@ describe('MaterialHandlers', () => {
 
     describe('dependency resolution', () => {
         it('should resolve MaterialService from dependency container', async () => {
-            const ctx = createMockContext({ params: { catalogueId: 'test' } });
+            const ctx = createMockContext();
 
-            mockMaterialService.getMaterialsByCatalogue.mockResolvedValue([]);
+            mockMaterialService.getMaterialsByUserId.mockResolvedValue([]);
 
             await materialHandlers.getMaterials(ctx);
 

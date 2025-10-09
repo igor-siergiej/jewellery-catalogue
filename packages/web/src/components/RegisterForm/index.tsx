@@ -1,7 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth, useAuthConfig } from '@imapps/web-utils';
 import { Eye, EyeOff } from 'lucide-react';
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -26,10 +27,7 @@ const registerSchema = z.object({
         .min(1, 'Password is required')
         .min(8, 'Password must be at least 8 characters long')
         .max(100, 'Password must not exceed 100 characters')
-        .regex(
-            /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
-            'Password must contain at least one letter and one number'
-        ),
+        .regex(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/, 'Password must contain at least one letter and one number'),
 });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
@@ -104,9 +102,7 @@ export const RegisterForm: React.FC = () => {
                     className={errors.username ? 'border-destructive' : ''}
                     aria-invalid={errors.username ? 'true' : 'false'}
                 />
-                <p className="text-sm text-destructive min-h-[20px]">
-                    {errors.username?.message || ''}
-                </p>
+                <p className="text-sm text-destructive min-h-[20px]">{errors.username?.message || ''}</p>
             </div>
 
             <div className="space-y-2">
@@ -122,29 +118,21 @@ export const RegisterForm: React.FC = () => {
                     />
                     <button
                         type="button"
-                        onClick={() => setShowPassword(show => !show)}
+                        onClick={() => setShowPassword((show) => !show)}
                         className="absolute inset-y-0 right-0 pr-3 flex items-center"
                         aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
-                        {showPassword
-                            ? (
-                                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                                )
-                            : (
-                                    <Eye className="h-4 w-4 text-muted-foreground" />
-                                )}
+                        {showPassword ? (
+                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                            <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
                     </button>
                 </div>
-                <p className="text-sm text-destructive min-h-[20px]">
-                    {errors.password?.message || ''}
-                </p>
+                <p className="text-sm text-destructive min-h-[20px]">{errors.password?.message || ''}</p>
             </div>
 
-            <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full"
-            >
+            <Button type="submit" disabled={isLoading} className="w-full">
                 {isLoading ? 'Creating account...' : 'Register'}
             </Button>
         </form>

@@ -13,15 +13,10 @@ const Start = () => {
     useRedirectIfAuthenticated(HOME_PAGE.route);
 
     return (
-        <AuthLayout
-            title="Jewellery Catalogue"
-            subtitle="Welcome back Goldsmith!"
-        >
+        <AuthLayout title="Jewellery Catalogue" subtitle="Welcome back Goldsmith!">
             <LoginForm />
 
-            <p className="text-sm pt-8">
-                Haven't joined the goldsmith empire yet?
-            </p>
+            <p className="text-sm pt-8">Haven't joined the goldsmith empire yet?</p>
 
             <Button
                 className="w-full"

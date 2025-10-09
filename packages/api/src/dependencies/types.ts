@@ -1,13 +1,13 @@
-import { Logger, MongoDbConnection, ObjectStoreConnection } from '@imapps/api-utils';
-import { Design, Material } from '@jewellery-catalogue/types';
+import type { Logger, MongoDbConnection, ObjectStoreConnection } from '@imapps/api-utils';
+import type { Design, Material } from '@jewellery-catalogue/types';
 
-import { DesignRepository } from '../domain/DesignRepository';
-import { DesignService } from '../domain/DesignService';
-import { IdGenerator } from '../domain/IdGenerator';
-import { ImageService } from '../domain/ImageService';
-import { ImageStore } from '../domain/ImageService/types';
-import { MaterialRepository } from '../domain/MaterialRepository';
-import { MaterialService } from '../domain/MaterialService';
+import type { DesignRepository } from '../domain/DesignRepository';
+import type { DesignService } from '../domain/DesignService';
+import type { IdGenerator } from '../domain/IdGenerator';
+import type { ImageService } from '../domain/ImageService';
+import type { ImageStore } from '../domain/ImageService/types';
+import type { MaterialRepository } from '../domain/MaterialRepository';
+import type { MaterialService } from '../domain/MaterialService';
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export type Collections = {
@@ -28,7 +28,7 @@ export enum DependencyToken {
     ImageService = 'ImageService',
     // Infrastructure
     IdGenerator = 'IdGenerator',
-    ImageStore = 'ImageStore'
+    ImageStore = 'ImageStore',
 }
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -50,5 +50,5 @@ export type Dependencies = {
 
 export enum CollectionNames {
     Designs = 'designs',
-    Materials = 'materials'
+    Materials = 'materials',
 }

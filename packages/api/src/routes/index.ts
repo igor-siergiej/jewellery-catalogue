@@ -2,9 +2,9 @@ import Router from 'koa-router';
 
 import { dependencyContainer } from '../dependencies';
 import { DependencyToken } from '../dependencies/types';
-import { addDesign, deleteDesign, getDesign, getDesigns, updateDesign } from '../interfaces/DesignHandlers';
-import { getImage } from '../interfaces/ImageHandlers';
-import { addMaterial, deleteMaterial, getMaterial, getMaterials, updateMaterial } from '../interfaces/MaterialHandlers';
+import { addDesign, deleteDesign, getDesign, getDesigns, updateDesign } from '../handlers/Design';
+import { getImage } from '../handlers/Image';
+import { addMaterial, deleteMaterial, getMaterial, getMaterials, updateMaterial } from '../handlers/Material';
 import { authenticate } from '../middleware/auth';
 
 const router = new Router();

@@ -1,6 +1,6 @@
-import { Design } from '@jewellery-catalogue/types';
+import type { Design } from '@jewellery-catalogue/types';
 
-import { BaseRepository } from '../BaseRepository';
+import type { BaseRepository } from '../BaseRepository';
 
 export interface DesignRepository extends BaseRepository<Design> {
     getByUserId(userId: string): Promise<Array<Design>>;

@@ -1,10 +1,6 @@
 import './index.css';
 
-import {
-    AuthConfigProvider,
-    AuthProvider,
-    ProtectedRoute,
-    UserProvider } from '@imapps/web-utils';
+import { AuthConfigProvider, AuthProvider, ProtectedRoute, UserProvider } from '@imapps/web-utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
@@ -43,9 +39,7 @@ const queryClient = new QueryClient({
     },
 });
 
-const root = ReactDOM.createRoot(
-    document.getElementById('root') as HTMLElement
-);
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
 function App() {
     return (
@@ -55,68 +49,68 @@ function App() {
 
             <Route
                 path={HOME_PAGE.route}
-                element={(
+                element={
                     <ProtectedRoute fallbackPath={START_PAGE.route}>
                         <MainLayout>
                             <Home />
                         </MainLayout>
                     </ProtectedRoute>
-                )}
+                }
             />
 
             <Route
                 path={DESIGNS_PAGE.route}
-                element={(
+                element={
                     <ProtectedRoute fallbackPath={START_PAGE.route}>
                         <MainLayout>
                             <Designs />
                         </MainLayout>
                     </ProtectedRoute>
-                )}
+                }
             />
 
             <Route
                 path={VIEW_DESIGN_PAGE.route}
-                element={(
+                element={
                     <ProtectedRoute fallbackPath={START_PAGE.route}>
                         <MainLayout>
                             <ViewDesign />
                         </MainLayout>
                     </ProtectedRoute>
-                )}
+                }
             />
 
             <Route
                 path={ADD_DESIGN_PAGE.route}
-                element={(
+                element={
                     <ProtectedRoute fallbackPath={START_PAGE.route}>
                         <MainLayout>
                             <AddDesign />
                         </MainLayout>
                     </ProtectedRoute>
-                )}
+                }
             />
 
             <Route
                 path={MATERIALS_PAGE.route}
-                element={(
+                element={
                     <ProtectedRoute fallbackPath={START_PAGE.route}>
                         <MainLayout>
                             <Materials />
                         </MainLayout>
                     </ProtectedRoute>
-                )}
+                }
             />
 
             <Route
                 path={ADD_MATERIAL_PAGE.route}
-                element={(
+                element={
                     <ProtectedRoute fallbackPath={START_PAGE.route}>
                         <MainLayout>
                             <AddMaterial />
                         </MainLayout>
                     </ProtectedRoute>
-                )}
+                }
             />
         </Routes>
     );
@@ -146,27 +140,27 @@ const initializeApp = async () => {
         );
     } catch (error) {
         root.render(
-            <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100vh',
-                fontFamily: 'Arial, sans-serif',
-                backgroundColor: '#f5f5f5'
-            }}
-            >
-                <div style={{
-                    textAlign: 'center',
-                    padding: '2rem',
-                    backgroundColor: 'white',
-                    borderRadius: '8px',
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-                    maxWidth: '500px'
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '100vh',
+                    fontFamily: 'Arial, sans-serif',
+                    backgroundColor: '#f5f5f5',
                 }}
+            >
+                <div
+                    style={{
+                        textAlign: 'center',
+                        padding: '2rem',
+                        backgroundColor: 'white',
+                        borderRadius: '8px',
+                        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                        maxWidth: '500px',
+                    }}
                 >
-                    <h1 style={{ color: '#e53e3e', marginBottom: '1rem' }}>
-                        Configuration Error
-                    </h1>
+                    <h1 style={{ color: '#e53e3e', marginBottom: '1rem' }}>Configuration Error</h1>
                     <p style={{ color: '#4a5568', marginBottom: '1rem' }}>
                         The application failed to load its configuration.
                     </p>
@@ -174,6 +168,7 @@ const initializeApp = async () => {
                         {error instanceof Error ? error.message : 'Unknown error occurred'}
                     </p>
                     <button
+                        type="button"
                         onClick={() => window.location.reload()}
                         style={{
                             marginTop: '1rem',
@@ -182,7 +177,7 @@ const initializeApp = async () => {
                             color: 'white',
                             border: 'none',
                             borderRadius: '4px',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
                         }}
                     >
                         Retry

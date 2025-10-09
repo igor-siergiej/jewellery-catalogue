@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
 /**
  * Clears all authentication state including cookies, localStorage, and sessionStorage
@@ -32,8 +32,7 @@ export const clearAuthState = async (page: Page) => {
 /**
  * Generates a unique username for testing to avoid conflicts
  */
-export const generateUniqueUsername = () =>
-    `testuser_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+export const generateUniqueUsername = () => `testuser_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
 /**
  * Waits for both API and authentication services to be ready before running tests
@@ -59,7 +58,7 @@ export const waitForAuthServices = async (page: Page) => {
                 console.log('✅ API service is ready');
                 break;
             }
-        } catch (error) {
+        } catch (_error) {
             // Service not ready yet
         }
 
@@ -81,7 +80,7 @@ export const waitForAuthServices = async (page: Page) => {
                 console.log('✅ Auth service is ready');
                 break;
             }
-        } catch (error) {
+        } catch (_error) {
             // Service not ready yet
         }
 
@@ -140,8 +139,8 @@ export const testCredentials = {
     weakPasswords: {
         tooShort: 'weak',
         noNumber: 'weakpassword',
-        noLetter: '12345678'
-    }
+        noLetter: '12345678',
+    },
 };
 
 /**
@@ -158,9 +157,10 @@ export const selectors = {
     errorAlert: '[role="alert"]',
     usernameRequiredError: 'text=Username is required',
     passwordRequiredError: 'text=Password is required',
-    passwordValidationError: 'text=Password must be at least 8 characters long and contain at least one letter and one number',
+    passwordValidationError:
+        'text=Password must be at least 8 characters long and contain at least one letter and one number',
     registrationError: 'text=Registration Error',
-    loginError: 'text=Login Error'
+    loginError: 'text=Login Error',
 };
 
 /**
@@ -170,11 +170,11 @@ export const pageContent = {
     login: {
         title: 'Jewellery Catalogue',
         subtitle: 'Welcome back Goldsmith!',
-        submitButtonText: 'Login'
+        submitButtonText: 'Login',
     },
     register: {
         title: 'Jewellery Catalogue',
         subtitle: 'Join the goldsmith empire!',
-        submitButtonText: 'Register'
-    }
+        submitButtonText: 'Register',
+    },
 };

@@ -1,4 +1,4 @@
-import { FormDesign, Material, MethodType } from '@jewellery-catalogue/types';
+import { type FormDesign, type Material, MethodType } from '@jewellery-catalogue/types';
 
 import { DESIGNS_ENDPOINT } from '../../endpoints';
 import { makeRequestWithAutoRefresh } from '../../makeRequest';
@@ -12,7 +12,7 @@ const makeAddDesignRequest = async (
     const formData = new FormData();
 
     for (const key in formDesign) {
-        if (Object.prototype.hasOwnProperty.call(formDesign, key)) {
+        if (Object.hasOwn(formDesign, key)) {
             const value = formDesign[key as keyof FormDesign];
 
             if (key === 'image' && value instanceof File) {
@@ -32,7 +32,7 @@ const makeAddDesignRequest = async (
             headers: {},
             operationString: 'add design',
             body: formData,
-            accessToken
+            accessToken,
         },
         onTokenRefresh,
         onTokenClear

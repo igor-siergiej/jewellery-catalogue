@@ -1,8 +1,8 @@
-import { Design, RequiredMaterial, UploadDesign } from '@jewellery-catalogue/types';
+import type { Design, RequiredMaterial, UploadDesign } from '@jewellery-catalogue/types';
 
-import { DesignRepository } from '../DesignRepository';
-import { IdGenerator } from '../IdGenerator';
-import { ImageService } from '../ImageService';
+import type { DesignRepository } from '../DesignRepository';
+import type { IdGenerator } from '../IdGenerator';
+import type { ImageService } from '../ImageService';
 
 export class DesignService {
     constructor(
@@ -33,7 +33,12 @@ export class DesignService {
         return design;
     }
 
-    async addDesign(designData: UploadDesign, imageBuffer: Buffer, contentType: string, userId: string): Promise<Design> {
+    async addDesign(
+        designData: UploadDesign,
+        imageBuffer: Buffer,
+        contentType: string,
+        userId: string
+    ): Promise<Design> {
         if (!userId) {
             throw Object.assign(new Error('User ID is required'), { status: 400 });
         }
@@ -49,9 +54,8 @@ export class DesignService {
         let materials: Array<RequiredMaterial>;
 
         try {
-            materials = typeof designData.materials === 'string'
-                ? JSON.parse(designData.materials)
-                : designData.materials;
+            materials =
+                typeof designData.materials === 'string' ? JSON.parse(designData.materials) : designData.materials;
         } catch {
             throw Object.assign(new Error('Invalid materials format'), { status: 400 });
         }
@@ -62,13 +66,10 @@ export class DesignService {
             name: designData.name,
             description: designData.description,
             timeRequired: designData.timeRequired,
-            laborCost: 0, // TODO: Calculate from timeRequired
-            markup: 1.15, // TODO: Make configurable
             totalMaterialCosts: designData.totalMaterialCosts,
             price: designData.price,
-            costsCalculatedAt: new Date(),
             imageId,
-            materials
+            materials,
         };
 
         await this.designRepo.insert(design);

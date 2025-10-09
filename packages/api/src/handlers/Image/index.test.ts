@@ -1,19 +1,19 @@
-import { Context } from 'koa';
+import type { Context } from 'koa';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import * as imageHandlers from './index';
 
 const mockDependencyContainer = vi.hoisted(() => ({
-    resolve: vi.fn()
+    resolve: vi.fn(),
 }));
 
 vi.mock('../../dependencies', () => ({
-    dependencyContainer: mockDependencyContainer
+    dependencyContainer: mockDependencyContainer,
 }));
 
 const mockImageService = {
     getImage: vi.fn(),
-    uploadImage: vi.fn()
+    uploadImage: vi.fn(),
 };
 
 const createMockContext = (overrides: Partial<Context> = {}): Context => {
@@ -25,21 +25,25 @@ const createMockContext = (overrides: Partial<Context> = {}): Context => {
         set: vi.fn(),
         status: 200,
         body: {},
-        ...overrides
+        ...overrides,
     } as Context;
 
     Object.defineProperty(ctx, 'status', {
         get: () => ctx.response.status,
-        set: (value) => { ctx.response.status = value; },
+        set: (value) => {
+            ctx.response.status = value;
+        },
         configurable: true,
-        enumerable: true
+        enumerable: true,
     });
 
     Object.defineProperty(ctx, 'body', {
         get: () => ctx.response.body,
-        set: (value) => { ctx.response.body = value; },
+        set: (value) => {
+            ctx.response.body = value;
+        },
         configurable: true,
-        enumerable: true
+        enumerable: true,
     });
 
     return ctx;
@@ -58,7 +62,7 @@ describe('ImageHandlers', () => {
             const mockImageResponse = {
                 stream: mockStream,
                 contentType: 'image/jpeg',
-                cacheControl: 'public, max-age=31536000, immutable'
+                cacheControl: 'public, max-age=31536000, immutable',
             };
 
             const ctx = createMockContext({ params: { name: imageName } });
@@ -80,7 +84,7 @@ describe('ImageHandlers', () => {
             const mockImageResponse = {
                 stream: mockStream,
                 contentType: 'image/png',
-                cacheControl: 'public, max-age=31536000, immutable'
+                cacheControl: 'public, max-age=31536000, immutable',
             };
 
             const ctx = createMockContext({ params: { name: imageName } });
@@ -202,7 +206,7 @@ describe('ImageHandlers', () => {
                 { name: 'image.webp', contentType: 'image/webp' },
                 { name: 'image.gif', contentType: 'image/gif' },
                 { name: 'image.bmp', contentType: 'image/bmp' },
-                { name: 'image.svg', contentType: 'image/svg+xml' }
+                { name: 'image.svg', contentType: 'image/svg+xml' },
             ];
 
             for (const testCase of testCases) {
@@ -211,7 +215,7 @@ describe('ImageHandlers', () => {
                 const mockImageResponse = {
                     stream: mockStream,
                     contentType: testCase.contentType,
-                    cacheControl: 'public, max-age=31536000, immutable'
+                    cacheControl: 'public, max-age=31536000, immutable',
                 };
 
                 mockImageService.getImage.mockResolvedValue(mockImageResponse);
@@ -233,7 +237,7 @@ describe('ImageHandlers', () => {
             const mockImageResponse = {
                 stream: {} as NodeJS.ReadableStream,
                 contentType: 'image/jpeg',
-                cacheControl: 'public, max-age=31536000, immutable'
+                cacheControl: 'public, max-age=31536000, immutable',
             };
 
             mockImageService.getImage.mockResolvedValue(mockImageResponse);
@@ -264,7 +268,7 @@ describe('ImageHandlers', () => {
             const mockImageResponse = {
                 stream: mockStream,
                 contentType: 'image/jpeg',
-                cacheControl: 'public, max-age=31536000, immutable'
+                cacheControl: 'public, max-age=31536000, immutable',
             };
 
             const ctx = createMockContext({ params: { name: imageName } });
@@ -278,12 +282,12 @@ describe('ImageHandlers', () => {
         });
 
         it('should handle long image names', async () => {
-            const imageName = 'a'.repeat(1000) + '.jpg';
+            const imageName = `${'a'.repeat(1000)}.jpg`;
             const mockStream = {} as NodeJS.ReadableStream;
             const mockImageResponse = {
                 stream: mockStream,
                 contentType: 'image/jpeg',
-                cacheControl: 'public, max-age=31536000, immutable'
+                cacheControl: 'public, max-age=31536000, immutable',
             };
 
             const ctx = createMockContext({ params: { name: imageName } });

@@ -1,9 +1,4 @@
-import {
-    Gem,
-    Home,
-    Palette,
-    Plus,
-    PlusCircle } from 'lucide-react';
+import { Gem, Home, Palette, Plus, PlusCircle } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
@@ -52,11 +47,9 @@ const AppSidebar = () => {
 
                                 return (
                                     <SidebarMenuItem key={route.route}>
-                                        <SidebarMenuButton
-                                            asChild
-                                            isActive={isActive}
-                                        >
+                                        <SidebarMenuButton asChild isActive={isActive}>
                                             <button
+                                                type="button"
                                                 onClick={() => navigate(route.route)}
                                                 className="w-full justify-start"
                                             >

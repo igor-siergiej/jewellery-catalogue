@@ -1,4 +1,4 @@
-import { RequiredMaterial } from '@jewellery-catalogue/types';
+import type { Material, RequiredMaterial } from '@jewellery-catalogue/types';
 import { Edit3, Package, Plus, Save, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 
@@ -7,12 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
-import { AddMaterialsTableProps, TableMaterial } from './types';
+import type { AddMaterialsTableProps, TableMaterial } from './types';
 import { getRequiredMaterial } from './util';
 
 interface TableRowProps {
     row: TableMaterial;
-    availableMaterials: Array<Material>;
     getAvailableMaterials: (editingRowKey?: string) => Array<Material>;
     handleMaterialChange: (rowKey: string, newMaterialId: string) => void;
     handleRequiredChange: (rowKey: string, required: number) => void;
@@ -27,7 +26,6 @@ interface TableRowProps {
 
 const TableRow: React.FC<TableRowProps> = ({
     row,
-    availableMaterials,
     getAvailableMaterials,
     handleMaterialChange,
     handleRequiredChange,
@@ -41,114 +39,110 @@ const TableRow: React.FC<TableRowProps> = ({
 }) => (
     <div className="grid grid-cols-12 gap-4 p-4 border-b hover:bg-muted/30 transition-colors">
         <div className="col-span-5 flex items-center">
-            {row.isEditing
-                ? (
-                        <Select
-                            value={row.id.startsWith('new-') ? '' : row.id}
-                            onValueChange={value => handleMaterialChange(row.rowKey, value)}
-                        >
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select material" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {getAvailableMaterials(row.rowKey).map(material => (
-                                    <SelectItem key={material.id} value={material.id}>
-                                        {material.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    )
-                : (
-                        <span>{row.name}</span>
-                    )}
+            {row.isEditing ? (
+                <Select
+                    value={row.id.startsWith('new-') ? '' : row.id}
+                    onValueChange={(value) => handleMaterialChange(row.rowKey, value)}
+                >
+                    <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select material" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {getAvailableMaterials(row.rowKey).map((material) => (
+                            <SelectItem key={material.id} value={material.id}>
+                                {material.name}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            ) : (
+                <span>{row.name}</span>
+            )}
         </div>
         <div className="col-span-5 flex items-center">
-            {row.isEditing
-                ? (
-                        <div className="flex items-center gap-2 w-full">
-                            <Input
-                                type="number"
-                                value={row.required}
-                                onChange={e => handleRequiredChange(row.rowKey, Number(e.target.value))}
-                                className="flex-1"
-                                min="0"
-                                step={!row.id.startsWith('new-') ? getInputStep(row.id) : 0.1}
-                                disabled={row.id.startsWith('new-')}
-                                placeholder={row.id.startsWith('new-') ? 'Select material first' : '0'}
-                            />
-                            {!row.id.startsWith('new-') && (
-                                <span className="text-sm text-muted-foreground min-w-[3ch]">
-                                    {getUnitLabel(row.id)}
-                                </span>
-                            )}
-                        </div>
-                    )
-                : (
-                        <span>{formatValue(row.required, row.id)}</span>
+            {row.isEditing ? (
+                <div className="flex items-center gap-2 w-full">
+                    <Input
+                        type="number"
+                        value={row.required}
+                        onChange={(e) => handleRequiredChange(row.rowKey, Number(e.target.value))}
+                        className="flex-1"
+                        min="0"
+                        step={!row.id.startsWith('new-') ? getInputStep(row.id) : 0.1}
+                        disabled={row.id.startsWith('new-')}
+                        placeholder={row.id.startsWith('new-') ? 'Select material first' : '0'}
+                    />
+                    {!row.id.startsWith('new-') && (
+                        <span className="text-sm text-muted-foreground min-w-[3ch]">{getUnitLabel(row.id)}</span>
                     )}
+                </div>
+            ) : (
+                <span>{formatValue(row.required, row.id)}</span>
+            )}
         </div>
         <div className="col-span-2 flex items-center gap-2">
-            {row.isEditing
-                ? (
-                        <>
-                            <Button
-                                type="button"
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleSaveClick(row.rowKey)}
-                                className="h-8 w-8 p-0"
-                            >
-                                <Save className="h-4 w-4" />
-                            </Button>
-                            <Button
-                                type="button"
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleCancelClick(row.rowKey)}
-                                className="h-8 w-8 p-0"
-                            >
-                                <X className="h-4 w-4" />
-                            </Button>
-                        </>
-                    )
-                : (
-                        <>
-                            <Button
-                                type="button"
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleEditClick(row.rowKey)}
-                                className="h-8 w-8 p-0"
-                            >
-                                <Edit3 className="h-4 w-4" />
-                            </Button>
-                            <Button
-                                type="button"
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleDeleteClick(row.rowKey)}
-                                className="h-8 w-8 p-0"
-                            >
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
-                        </>
-                    )}
+            {row.isEditing ? (
+                <>
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleSaveClick(row.rowKey)}
+                        className="h-8 w-8 p-0"
+                    >
+                        <Save className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleCancelClick(row.rowKey)}
+                        className="h-8 w-8 p-0"
+                    >
+                        <X className="h-4 w-4" />
+                    </Button>
+                </>
+            ) : (
+                <>
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditClick(row.rowKey)}
+                        className="h-8 w-8 p-0"
+                    >
+                        <Edit3 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeleteClick(row.rowKey)}
+                        className="h-8 w-8 p-0"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                </>
+            )}
         </div>
     </div>
 );
 
-export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, availableMaterials, hasError = false }) => {
+export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({
+    setValue,
+    availableMaterials,
+    hasError = false,
+}) => {
     const [rows, setRows] = useState<Array<TableMaterial>>([]);
     const [selectedMaterials, setSelectedMaterials] = useState<Array<TableMaterial>>([]);
     const [originalRowData, setOriginalRowData] = useState<Record<string, TableMaterial>>({});
 
     const handleEditClick = (rowKey: string) => {
-        setRows(prevRows =>
+        setRows((prevRows) =>
             prevRows.map((row) => {
                 if (row.rowKey === rowKey) {
                     // Store original data before editing
-                    setOriginalRowData(prev => ({ ...prev, [rowKey]: { ...row } }));
+                    setOriginalRowData((prev) => ({ ...prev, [rowKey]: { ...row } }));
 
                     return { ...row, isEditing: true };
                 }
@@ -159,7 +153,7 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
     };
 
     const handleSaveClick = (rowKey: string) => {
-        const rowToSave = rows.find(row => row.rowKey === rowKey);
+        const rowToSave = rows.find((row) => row.rowKey === rowKey);
 
         if (!rowToSave) return;
 
@@ -177,7 +171,7 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
             }
 
             const updatedRow = { ...rowToSave, isNew: false, isEditing: false };
-            const newRows = rows.map(row => (row.rowKey === rowKey ? updatedRow : row));
+            const newRows = rows.map((row) => (row.rowKey === rowKey ? updatedRow : row));
 
             setSelectedMaterials(newRows);
             setRows(newRows);
@@ -189,12 +183,8 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
                 return;
             }
 
-            setRows(prevRows =>
-                prevRows.map(row =>
-                    row.rowKey === rowKey ? { ...row, isEditing: false } : row
-                )
-            );
-            setMaterials(rows.map(row => row.rowKey === rowKey ? { ...row, isEditing: false } : row));
+            setRows((prevRows) => prevRows.map((row) => (row.rowKey === rowKey ? { ...row, isEditing: false } : row)));
+            setMaterials(rows.map((row) => (row.rowKey === rowKey ? { ...row, isEditing: false } : row)));
 
             // Clean up original data after successful save
             setOriginalRowData((prev) => {
@@ -208,7 +198,7 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
     };
 
     const handleDeleteClick = (rowKey: string) => {
-        const newRows = rows.filter(row => row.rowKey !== rowKey);
+        const newRows = rows.filter((row) => row.rowKey !== rowKey);
 
         setRows(newRows);
         setSelectedMaterials(newRows);
@@ -216,19 +206,17 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
     };
 
     const handleCancelClick = (rowKey: string) => {
-        const editedRow = rows.find(row => row.rowKey === rowKey);
+        const editedRow = rows.find((row) => row.rowKey === rowKey);
 
         if (editedRow?.isNew) {
-            setRows(rows.filter(row => row.rowKey !== rowKey));
+            setRows(rows.filter((row) => row.rowKey !== rowKey));
         } else {
             // Restore original data
             const original = originalRowData[rowKey];
 
             if (original) {
-                setRows(prevRows =>
-                    prevRows.map(row =>
-                        row.rowKey === rowKey ? { ...original, isEditing: false } : row
-                    )
+                setRows((prevRows) =>
+                    prevRows.map((row) => (row.rowKey === rowKey ? { ...original, isEditing: false } : row))
                 );
                 // Clean up original data
                 setOriginalRowData((prev) => {
@@ -239,51 +227,45 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
                     return newData;
                 });
             } else {
-                setRows(prevRows =>
-                    prevRows.map(row =>
-                        row.rowKey === rowKey ? { ...row, isEditing: false } : row
-                    )
+                setRows((prevRows) =>
+                    prevRows.map((row) => (row.rowKey === rowKey ? { ...row, isEditing: false } : row))
                 );
             }
         }
     };
 
     const setMaterials = (rows: Array<TableMaterial>) => {
-        const actualMaterials = availableMaterials.reduce<Array<RequiredMaterial>>((acc, material) => {
-            const matchedRow = rows.find(tableMaterial => tableMaterial.id === material.id);
+        const actualMaterials: Array<RequiredMaterial> = [];
+
+        for (const material of availableMaterials) {
+            const matchedRow = rows.find((tableMaterial) => tableMaterial.id === material.id);
 
             if (matchedRow) {
-                return [...acc, getRequiredMaterial(material, matchedRow)];
+                actualMaterials.push(getRequiredMaterial(material, matchedRow));
             }
-
-            return acc;
-        }, []);
+        }
 
         setValue('materials', actualMaterials, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
     };
 
     const handleMaterialChange = (rowKey: string, newMaterialId: string) => {
-        const material = availableMaterials.find(m => m.id === newMaterialId);
+        const material = availableMaterials.find((m) => m.id === newMaterialId);
 
         if (!material) return;
 
-        setRows(prevRows =>
-            prevRows.map(row =>
+        setRows((prevRows) =>
+            prevRows.map((row) =>
                 row.rowKey === rowKey ? { ...row, id: newMaterialId, name: material.name, required: 0 } : row
             )
         );
     };
 
     const handleRequiredChange = (rowKey: string, required: number) => {
-        setRows(prevRows =>
-            prevRows.map(row =>
-                row.rowKey === rowKey ? { ...row, required } : row
-            )
-        );
+        setRows((prevRows) => prevRows.map((row) => (row.rowKey === rowKey ? { ...row, required } : row)));
     };
 
     const getMaterialById = (materialId: string) => {
-        return availableMaterials.find(m => m.id === materialId);
+        return availableMaterials.find((m) => m.id === materialId);
     };
 
     const getUnitLabel = (materialId: string) => {
@@ -336,119 +318,106 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({ setValue, 
     };
 
     const handleAddMaterial = () => {
-        const hasNewRow = rows.some(row => row.isNew);
+        const hasNewRow = rows.some((row) => row.isNew);
 
         if (hasNewRow) return;
 
         const newRowKey = `row-${Date.now()}`;
 
-        setRows(oldRows => [
+        setRows((oldRows) => [
             ...oldRows,
             { rowKey: newRowKey, id: `new-${Date.now()}`, name: '', required: 0, isNew: true, isEditing: true },
         ]);
     };
 
-    const EmptyState = () => {
-        const hasMaterials = availableMaterials.length > 0;
-
-        return (
-            <div className="flex flex-col items-center justify-center py-4 gap-3 text-center">
-                <div className={cn(
-                    'rounded-full p-1',
-                    hasError ? 'bg-destructive/10' : 'bg-muted'
-                )}
-                >
-                    <Package className={cn(
-                        'h-6 w-6',
-                        hasError ? 'text-destructive' : 'text-muted-foreground'
-                    )}
-                    />
-                </div>
-                <div className="space-y-1">
-                    <p className={cn(
-                        'text-sm font-medium',
-                        hasError && 'text-destructive'
-                    )}
-                    >
-                        {hasMaterials ? 'No materials added' : 'No materials available'}
-                    </p>
-                    <p className={cn(
-                        'text-sm',
-                        hasError ? 'text-destructive' : 'text-muted-foreground'
-                    )}
-                    >
-                        {hasMaterials
-                            ? 'Add materials to calculate the design price'
-                            : 'Create materials in your library first'}
-                    </p>
-                </div>
-                {hasMaterials && (
-                    <Button type="button" onClick={handleAddMaterial} size="sm" className="gap-2 mt-2">
-                        <Plus className="h-4 w-4" />
-                        Add Material
-                    </Button>
-                )}
-            </div>
-        );
-    };
-
-    const TableHeader = () => (
-        <div className="grid grid-cols-12 gap-4 p-4 bg-muted/50 border-b font-medium text-sm">
-            <div className="col-span-5">Material</div>
-            <div className="col-span-5">Required Length/Quantity</div>
-            <div className="col-span-2">Actions</div>
+    return (
+        <div className="border rounded-lg overflow-hidden">
+            {rows.length === 0 ? (
+                <EmptyState
+                    hasError={hasError}
+                    availableMaterials={availableMaterials}
+                    handleAddMaterial={handleAddMaterial}
+                />
+            ) : (
+                <>
+                    <TableHeader />
+                    {rows.map((row) => (
+                        <TableRow
+                            key={row.rowKey}
+                            row={row}
+                            getAvailableMaterials={getAvailableMaterials}
+                            handleMaterialChange={handleMaterialChange}
+                            handleRequiredChange={handleRequiredChange}
+                            getInputStep={getInputStep}
+                            getUnitLabel={getUnitLabel}
+                            formatValue={formatValue}
+                            handleSaveClick={handleSaveClick}
+                            handleCancelClick={handleCancelClick}
+                            handleEditClick={handleEditClick}
+                            handleDeleteClick={handleDeleteClick}
+                        />
+                    ))}
+                    <TableFooter handleAddMaterial={handleAddMaterial} rows={rows} />
+                </>
+            )}
         </div>
     );
+};
 
-    const TableFooter = () => {
-        const hasNewRow = rows.some(row => row.isNew);
+const EmptyState: React.FC<{
+    availableMaterials: Array<Material>;
+    hasError: boolean;
+    handleAddMaterial: () => void;
+}> = ({ availableMaterials, hasError, handleAddMaterial }) => {
+    const hasMaterials = availableMaterials.length > 0;
 
-        if (rows.length === 0 || hasNewRow) return null;
-
-        return (
-            <div className="p-4 border-t bg-muted/20">
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleAddMaterial}
-                    className="gap-2"
-                >
+    return (
+        <div className="flex flex-col items-center justify-center py-4 gap-3 text-center">
+            <div className={cn('rounded-full p-1', hasError ? 'bg-destructive/10' : 'bg-muted')}>
+                <Package className={cn('h-6 w-6', hasError ? 'text-destructive' : 'text-muted-foreground')} />
+            </div>
+            <div className="space-y-1">
+                <p className={cn('text-sm font-medium', hasError && 'text-destructive')}>
+                    {hasMaterials ? 'No materials added' : 'No materials available'}
+                </p>
+                <p className={cn('text-sm', hasError ? 'text-destructive' : 'text-muted-foreground')}>
+                    {hasMaterials
+                        ? 'Add materials to calculate the design price'
+                        : 'Create materials in your library first'}
+                </p>
+            </div>
+            {hasMaterials && (
+                <Button type="button" onClick={handleAddMaterial} size="sm" className="gap-2 mt-2">
                     <Plus className="h-4 w-4" />
                     Add Material
                 </Button>
-            </div>
-        );
-    };
+            )}
+        </div>
+    );
+};
+
+const TableHeader = () => (
+    <div className="grid grid-cols-12 gap-4 p-4 bg-muted/50 border-b font-medium text-sm">
+        <div className="col-span-5">Material</div>
+        <div className="col-span-5">Required Length/Quantity</div>
+        <div className="col-span-2">Actions</div>
+    </div>
+);
+
+const TableFooter: React.FC<{ rows: Array<TableMaterial>; handleAddMaterial: () => void }> = ({
+    rows,
+    handleAddMaterial,
+}) => {
+    const hasNewRow = rows.some((row) => row.isNew);
+
+    if (rows.length === 0 || hasNewRow) return null;
 
     return (
-        <div className="border rounded-lg overflow-hidden">
-            {rows.length === 0
-                ? (
-                        <EmptyState />
-                    )
-                : (
-                        <>
-                            <TableHeader />
-                            {rows.map(row => (
-                                <TableRow
-                                    key={row.rowKey}
-                                    row={row}
-                                    availableMaterials={availableMaterials}
-                                    getAvailableMaterials={getAvailableMaterials}
-                                    handleMaterialChange={handleMaterialChange}
-                                    handleRequiredChange={handleRequiredChange}
-                                    getInputStep={getInputStep}
-                                    getUnitLabel={getUnitLabel}
-                                    formatValue={formatValue}
-                                    handleSaveClick={handleSaveClick}
-                                    handleCancelClick={handleCancelClick}
-                                    handleEditClick={handleEditClick}
-                                    handleDeleteClick={handleDeleteClick}
-                                />
-                            ))}
-                            <TableFooter />
-                        </>
-                    )}
+        <div className="p-4 border-t bg-muted/20">
+            <Button type="button" variant="outline" onClick={handleAddMaterial} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Add Material
+            </Button>
         </div>
     );
 };

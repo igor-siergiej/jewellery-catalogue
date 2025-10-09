@@ -1,6 +1,12 @@
-import { BeadKeysEnum, ChainKeysEnum, EarHookKeysEnum, METAL_TYPE, WIRE_TYPE, WireKeysEnum } from '@jewellery-catalogue/types';
-import { Controller } from 'react-hook-form';
-import { type Control } from 'react-hook-form';
+import {
+    type BeadKeysEnum,
+    type ChainKeysEnum,
+    type EarHookKeysEnum,
+    METAL_TYPE,
+    WIRE_TYPE,
+    type WireKeysEnum,
+} from '@jewellery-catalogue/types';
+import { type Control, Controller } from 'react-hook-form';
 
 import { METAL_TYPE_LABELS, WIRE_TYPE_LABELS } from '@/lib/materialLabels';
 
@@ -12,7 +18,11 @@ export interface IProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     control: Control<any, any>;
     label: string;
-    name: keyof typeof WireKeysEnum | keyof typeof BeadKeysEnum | keyof typeof ChainKeysEnum | keyof typeof EarHookKeysEnum;
+    name:
+        | keyof typeof WireKeysEnum
+        | keyof typeof BeadKeysEnum
+        | keyof typeof ChainKeysEnum
+        | keyof typeof EarHookKeysEnum;
 }
 
 const getDisplayLabel = (value: string, name: string): string => {
@@ -37,16 +47,12 @@ const DropDown: React.FC<IProps> = ({ control, options, label, name }) => {
                 render={({ field }) => (
                     <div className="w-48">
                         <Label htmlFor={name}>{label}</Label>
-                        <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                            required
-                        >
+                        <Select value={field.value} onValueChange={field.onChange} required>
                             <SelectTrigger id={name}>
                                 <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
                             </SelectTrigger>
                             <SelectContent>
-                                {options.map(type => (
+                                {options.map((type) => (
                                     <SelectItem key={type} value={type}>
                                         {getDisplayLabel(type, name)}
                                     </SelectItem>

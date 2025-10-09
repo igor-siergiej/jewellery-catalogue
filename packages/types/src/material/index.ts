@@ -1,5 +1,13 @@
-import { BaseMaterial } from '../baseMaterial';
-import { BeadKeysEnum, ChainKeysEnum, EarHookKeysEnum, MaterialType, METAL_TYPE, WIRE_TYPE, WireKeysEnum } from './enum';
+import type { BaseMaterial } from '../baseMaterial';
+import {
+    BeadKeysEnum,
+    ChainKeysEnum,
+    EarHookKeysEnum,
+    MaterialType,
+    type METAL_TYPE,
+    type WIRE_TYPE,
+    WireKeysEnum,
+} from './enum';
 
 export type Material = Wire | Bead | Chain | EarHook;
 
@@ -37,7 +45,7 @@ export const MaterialKeysMap = {
     [MaterialType.BEAD]: BeadKeysEnum,
     [MaterialType.WIRE]: WireKeysEnum,
     [MaterialType.EAR_HOOK]: EarHookKeysEnum,
-    [MaterialType.CHAIN]: ChainKeysEnum
+    [MaterialType.CHAIN]: ChainKeysEnum,
 };
 
 export * from './enum';

@@ -1,5 +1,5 @@
-import { FormDesign, Material } from '@jewellery-catalogue/types';
-import { UseFormSetValue } from 'react-hook-form';
+import type { FormDesign, Material } from '@jewellery-catalogue/types';
+import type { UseFormSetValue } from 'react-hook-form';
 
 export interface TableMaterial {
     rowKey: string;
@@ -8,7 +8,7 @@ export interface TableMaterial {
     required: number;
     isNew?: boolean;
     isEditing?: boolean;
-};
+}
 
 export interface AddMaterialsTableProps {
     setValue: UseFormSetValue<FormDesign>;

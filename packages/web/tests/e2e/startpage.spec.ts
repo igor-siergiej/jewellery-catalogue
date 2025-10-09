@@ -40,16 +40,17 @@ test.describe('Given Start Page', () => {
         await page.goto('/');
         await page.waitForLoadState('networkidle');
 
-        const criticalErrors = consoleErrors.filter(error =>
-            !error.includes('favicon')
-            && !error.includes('manifest')
-            && !error.includes('DevTools')
-            && !error.includes('400 (Bad Request)')
+        const criticalErrors = consoleErrors.filter(
+            (error) =>
+                !error.includes('favicon') &&
+                !error.includes('manifest') &&
+                !error.includes('DevTools') &&
+                !error.includes('400 (Bad Request)')
         );
 
         expect(criticalErrors).toHaveLength(0);
 
-        const criticalNetworkErrors = networkErrors.filter(error => !error.includes('/refresh'));
+        const criticalNetworkErrors = networkErrors.filter((error) => !error.includes('/refresh'));
 
         expect(criticalNetworkErrors).toHaveLength(0);
     });

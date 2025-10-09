@@ -13,15 +13,10 @@ const Register = () => {
     useRedirectIfAuthenticated(HOME_PAGE.route);
 
     return (
-        <AuthLayout
-            title="Jewellery Catalogue"
-            subtitle="Join the goldsmith empire!"
-        >
+        <AuthLayout title="Jewellery Catalogue" subtitle="Join the goldsmith empire!">
             <RegisterForm />
 
-            <p className="text-sm pt-8">
-                Already part of the goldsmith empire?
-            </p>
+            <p className="text-sm pt-8">Already part of the goldsmith empire?</p>
 
             <Button
                 className="w-full"

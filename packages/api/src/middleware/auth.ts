@@ -1,4 +1,4 @@
-import { Context, Next } from 'koa';
+import type { Context, Next } from 'koa';
 
 interface JWTPayload {
     username: string;
@@ -60,7 +60,7 @@ export const authenticate = async (ctx: Context, next: Next) => {
         ctx.state.userId = payload.id;
 
         await next();
-    } catch (error) {
+    } catch (_error) {
         ctx.status = 401;
         ctx.body = { error: 'Invalid token' };
     }

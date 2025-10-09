@@ -1,4 +1,4 @@
-import { Design } from '@jewellery-catalogue/types';
+import type { Design } from '@jewellery-catalogue/types';
 import { Clock, Heart } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -39,24 +39,18 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design }) => {
                 className="absolute bottom-2 right-2 z-10"
                 onClick={handleFavoriteClick}
             >
-                <Heart
-                    className={`h-10 w-10 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`}
-                />
+                <Heart className={`h-10 w-10 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
             </Button>
             <ItemHeader className="basis-auto justify-start">
                 <div className="w-64 h-64">
-                    <Image
-                        imageId={imageId}
-                    />
+                    <Image imageId={imageId} />
                 </div>
             </ItemHeader>
             <ItemContent className="flex-none items-start text-left w-full">
                 <ItemTitle className="text-lg font-semibold">{name}</ItemTitle>
                 <ItemFooter className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
-                    {timeRequired}
-                    {' '}
-                    hours
+                    {timeRequired} hours
                 </ItemFooter>
             </ItemContent>
         </Item>

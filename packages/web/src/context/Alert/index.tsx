@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { createContext, ReactNode, useContext, useReducer, useRef } from 'react';
+import { createContext, type ReactNode, useContext, useReducer, useRef } from 'react';
 
-import { AlertState, AlertStoreAction, AlertStoreActions } from './types';
+import { type AlertState, type AlertStoreAction, AlertStoreActions } from './types';
 
 const DEFAULT_DURATION = 10_000;
 
@@ -10,7 +10,7 @@ const initialState: AlertState = {
     title: '',
     message: '',
     severity: 'info',
-    variant: 'standard'
+    variant: 'standard',
 };
 
 const { SHOW_ALERT, HIDE_ALERT } = AlertStoreActions;
@@ -20,7 +20,7 @@ const AlertContext = createContext<{
     dispatch: React.Dispatch<AlertStoreAction>;
 }>({
     state: initialState,
-    dispatch: () => { },
+    dispatch: () => {},
 });
 
 export const alertReducer = (state: AlertState, action: AlertStoreAction): AlertState => {
@@ -31,7 +31,7 @@ export const alertReducer = (state: AlertState, action: AlertStoreAction): Alert
                 message: action.payload.message,
                 severity: action.payload.severity,
                 variant: action.payload?.variant,
-                title: action.payload.title
+                title: action.payload.title,
             };
         case HIDE_ALERT:
             return {
@@ -39,7 +39,7 @@ export const alertReducer = (state: AlertState, action: AlertStoreAction): Alert
                 message: action.payload.message,
                 severity: action.payload.severity,
                 variant: action.payload?.variant,
-                title: action.payload.title
+                title: action.payload.title,
             };
         default:
             return state;
@@ -79,11 +79,7 @@ export const AlertProvider = (props: StoreProviderProps) => {
         }
     };
 
-    return (
-        <AlertContext.Provider value={{ state, dispatch: alertDispatch }}>
-            {props.children}
-        </AlertContext.Provider>
-    );
+    return <AlertContext.Provider value={{ state, dispatch: alertDispatch }}>{props.children}</AlertContext.Provider>;
 };
 
 export const useAlert = () => useContext(AlertContext);

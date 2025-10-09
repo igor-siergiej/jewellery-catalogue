@@ -11,7 +11,11 @@ const ViewDesign = () => {
     const { accessToken, login, logout } = useAuth();
     const { user } = useUser();
 
-    const { data: design, isError, isLoading } = useQuery({
+    const {
+        data: design,
+        isError,
+        isLoading,
+    } = useQuery({
         ...getDesignQuery(id || '', accessToken, login, logout),
         enabled: !!id && !!accessToken && !!user?.id,
     });

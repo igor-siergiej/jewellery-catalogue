@@ -1,5 +1,18 @@
-import { Bead, Chain, EarHook, Material, MaterialType, Wire } from '@jewellery-catalogue/types';
-import { RequiredBead, RequiredChain, RequiredEarHook, RequiredMaterial, RequiredWire } from '@jewellery-catalogue/types/src/requiredMaterial';
+import {
+    type Bead,
+    type Chain,
+    type EarHook,
+    type Material,
+    MaterialType,
+    type Wire,
+} from '@jewellery-catalogue/types';
+import type {
+    RequiredBead,
+    RequiredChain,
+    RequiredEarHook,
+    RequiredMaterial,
+    RequiredWire,
+} from '@jewellery-catalogue/types/src/requiredMaterial';
 
 const BeadPriceCalculator = (requiredBead: RequiredBead, bead: Bead) => {
     const { requiredQuantity } = requiredBead;
@@ -62,9 +75,14 @@ export const MaterialPriceResolver = (requiredMaterial: RequiredMaterial, materi
     throw new Error(`Unsupported material type!`);
 };
 
-export const getTotalMaterialCosts = (selectedMaterials: Array<RequiredMaterial>, materials: Array<Material>): number => {
-    const matchedMaterials = selectedMaterials.reduce<Array<{ selectedMaterial: RequiredMaterial; material: Material }>>((acc, requiredMaterial) => {
-        const match = materials.find(searchMaterial => searchMaterial.id === requiredMaterial.materialId);
+export const getTotalMaterialCosts = (
+    selectedMaterials: Array<RequiredMaterial>,
+    materials: Array<Material>
+): number => {
+    const matchedMaterials = selectedMaterials.reduce<
+        Array<{ selectedMaterial: RequiredMaterial; material: Material }>
+    >((acc, requiredMaterial) => {
+        const match = materials.find((searchMaterial) => searchMaterial.id === requiredMaterial.materialId);
 
         if (match) {
             acc.push({ selectedMaterial: requiredMaterial, material: match });

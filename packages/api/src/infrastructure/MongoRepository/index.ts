@@ -1,8 +1,8 @@
-import { MongoDbConnection } from '@imapps/api-utils';
+import type { MongoDbConnection } from '@imapps/api-utils';
 import { ObjectId } from 'mongodb';
 
-import { Collections } from '../../dependencies/types';
-import { BaseRepository } from '../../domain/BaseRepository';
+import type { Collections } from '../../dependencies/types';
+import type { BaseRepository } from '../../domain/BaseRepository';
 
 export class MongoRepository<T extends { id?: string; _id?: any }, TId = string> implements BaseRepository<T, TId> {
     constructor(

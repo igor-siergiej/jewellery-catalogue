@@ -1,4 +1,13 @@
-import { Bead, Chain, FormBead, FormChain, FormMaterial, FormWire, MaterialType, Wire } from '@jewellery-catalogue/types';
+import {
+    type Bead,
+    type Chain,
+    type FormBead,
+    type FormChain,
+    type FormMaterial,
+    type FormWire,
+    MaterialType,
+    type Wire,
+} from '@jewellery-catalogue/types';
 
 export const convertFormDataToMaterial = (formMaterial: FormMaterial) => {
     switch (formMaterial.type) {
@@ -27,7 +36,7 @@ export const convertFormWireToMaterial = (formWire: FormWire): Omit<Wire, 'id'> 
         wireType: formWire.wireType,
         metalType: formWire.metalType,
         length: formWire.length,
-        pricePerMeter
+        pricePerMeter,
     };
 };
 
@@ -44,7 +53,7 @@ export const convertFormBeadToMaterial = (formBead: FormBead): Omit<Bead, 'id'> 
         diameter: formBead.diameter,
         colour: formBead.colour,
         quantity: formBead.quantity,
-        pricePerBead
+        pricePerBead,
     };
 };
 
@@ -57,6 +66,6 @@ export const convertFormChainToMaterial = (formChain: FormChain): Omit<Chain, 'i
         metalType: formChain.metalType,
         wireType: formChain.wireType,
         diameter: formChain.diameter,
-        length: formChain.length
+        length: formChain.length,
     };
 };

@@ -1,5 +1,5 @@
-import { RequiredMaterial } from '../requiredMaterial';
-import { PersistentFile } from '../util';
+import type { RequiredMaterial } from '../requiredMaterial';
+import type { PersistentFile } from '../util';
 
 export interface FormDesign {
     materials: Array<RequiredMaterial>;

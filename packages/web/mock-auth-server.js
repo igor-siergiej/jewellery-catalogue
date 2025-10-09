@@ -6,10 +6,12 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 3008;
 
-app.use(cors({
-    origin: true,
-    credentials: true
-}));
+app.use(
+    cors({
+        origin: true,
+        credentials: true,
+    })
+);
 
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -23,13 +25,15 @@ const generateMockToken = (username) => {
     const catalogueId = `68c6f0f5b97c946129015117`; // Mock catalogue ID for user
 
     const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-    const payload = btoa(JSON.stringify({
-        username: username,
-        id: userId,
-        catalogueId: catalogueId,
-        exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
-        iat: Math.floor(Date.now() / 1000)
-    }));
+    const payload = btoa(
+        JSON.stringify({
+            username: username,
+            id: userId,
+            catalogueId: catalogueId,
+            exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+            iat: Math.floor(Date.now() / 1000),
+        })
+    );
     const signature = btoa('mock-signature');
 
     return `${header}.${payload}.${signature}`;
@@ -59,16 +63,16 @@ app.post('/login', (req, res) => {
         httpOnly: true,
         secure: false, // Set to true in production with HTTPS
         sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     res.status(200).json({
         token: accessToken,
         user: {
             username,
-            id: `user-${username}`
+            id: `user-${username}`,
         },
-        message: 'Login successful'
+        message: 'Login successful',
     });
 });
 
@@ -90,16 +94,16 @@ app.post('/register', (req, res) => {
         httpOnly: true,
         secure: false, // Set to true in production with HTTPS
         sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     res.status(201).json({
         token: accessToken,
         user: {
             username,
-            id: `user-${username}`
+            id: `user-${username}`,
         },
-        message: 'Registration successful'
+        message: 'Registration successful',
     });
 });
 
@@ -116,7 +120,7 @@ app.post('/logout', (req, res) => {
     }
 
     res.status(200).json({
-        message: 'Logout successful'
+        message: 'Logout successful',
     });
 });
 
@@ -128,7 +132,7 @@ app.post('/refresh', (req, res) => {
 
     if (!refreshToken || !refreshTokens.has(refreshToken)) {
         return res.status(401).json({
-            error: 'Invalid or expired refresh token'
+            error: 'Invalid or expired refresh token',
         });
     }
 
@@ -148,13 +152,13 @@ app.post('/refresh', (req, res) => {
         httpOnly: true,
         secure: false, // Set to true in production with HTTPS
         sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     res.status(200).json({
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
-        expiresIn: 3600 // 1 hour
+        expiresIn: 3600, // 1 hour
     });
 });
 

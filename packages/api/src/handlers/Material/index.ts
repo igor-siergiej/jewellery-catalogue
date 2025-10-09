@@ -1,12 +1,11 @@
-import { FormMaterial } from '@jewellery-catalogue/types';
-import { Context } from 'koa';
+import type { FormMaterial } from '@jewellery-catalogue/types';
+import type { Context } from 'koa';
 
 import { dependencyContainer } from '../../dependencies';
 import { DependencyToken } from '../../dependencies/types';
-import { MaterialService } from '../../domain/MaterialService';
+import type { MaterialService } from '../../domain/MaterialService';
 
-const getMaterialService = (): MaterialService =>
-    dependencyContainer.resolve(DependencyToken.MaterialService);
+const getMaterialService = (): MaterialService => dependencyContainer.resolve(DependencyToken.MaterialService);
 
 export const getMaterials = async (ctx: Context) => {
     const userId = ctx.state.userId;

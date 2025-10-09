@@ -8,21 +8,9 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import { Card } from '@/components/ui/card';
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-    InputGroup,
-    InputGroupAddon,
-    InputGroupInput,
-    InputGroupText,
-} from '@/components/ui/input-group';
+import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
 
 import makeAddMaterialRequest from '../../api/endpoints/addMaterial';
 import MaterialFormResolver from '../../components/MaterialFormResolver';
@@ -61,8 +49,8 @@ const AddMaterial = () => {
                     title: 'Yahoooo!',
                     message: 'Added material successfully!',
                     severity: 'success',
-                    variant: 'standard'
-                }
+                    variant: 'standard',
+                },
             });
             form.reset();
         } catch (e) {
@@ -74,8 +62,8 @@ const AddMaterial = () => {
                     title: 'Error occured during adding material! :(',
                     message: `Details: ${message}`,
                     severity: 'error',
-                    variant: 'standard'
-                }
+                    variant: 'standard',
+                },
             });
         } finally {
             setIsMakingRequest(false);
@@ -88,9 +76,7 @@ const AddMaterial = () => {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                         <div>
-                            <h1 className="text-2xl font-bold leading-[50px] truncate">
-                                Adding New Material
-                            </h1>
+                            <h1 className="text-2xl font-bold leading-[50px] truncate">Adding New Material</h1>
                             <div className="border-b border-border mt-2" />
                         </div>
 
@@ -158,9 +144,7 @@ const AddMaterial = () => {
                                         <FormItem>
                                             <FormLabel>Price per Pack</FormLabel>
                                             <FormControl>
-                                                <InputGroup
-                                                    className="max-w-[100px]"
-                                                >
+                                                <InputGroup className="max-w-[100px]">
                                                     <InputGroupAddon align="inline-start">
                                                         <InputGroupText>£</InputGroupText>
                                                     </InputGroupAddon>
@@ -213,9 +197,7 @@ const AddMaterial = () => {
 
                         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
                             <div className="lg:w-1/4">
-                                <h2 className="text-lg lg:text-xl font-semibold lg:text-right">
-                                    Material Type
-                                </h2>
+                                <h2 className="text-lg lg:text-xl font-semibold lg:text-right">Material Type</h2>
                             </div>
 
                             <div className="lg:w-3/4 space-y-4 lg:space-y-5">
@@ -227,7 +209,7 @@ const AddMaterial = () => {
                                             <FormLabel>Material Type</FormLabel>
                                             <FormControl>
                                                 <ButtonGroup className="w-full sm:w-auto">
-                                                    {(Object.keys(MaterialType) as Array<MaterialType>).map(type => (
+                                                    {(Object.keys(MaterialType) as Array<MaterialType>).map((type) => (
                                                         <Button
                                                             key={type}
                                                             type="button"
@@ -262,9 +244,7 @@ const AddMaterial = () => {
                                 disabled={isMakingRequest}
                                 className="min-w-32 w-full sm:w-auto"
                             >
-                                {isMakingRequest && (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                )}
+                                {isMakingRequest && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Add Material!
                             </Button>
                         </div>

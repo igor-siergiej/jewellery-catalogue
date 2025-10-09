@@ -17,10 +17,7 @@ const NavBar = () => {
             <Button
                 key={route.route}
                 variant={isActive ? 'secondary' : 'ghost'}
-                className={cn(
-                    'w-full justify-start border-b border-gray-200 rounded-none',
-                    isActive && 'bg-gray-100'
-                )}
+                className={cn('w-full justify-start border-b border-gray-200 rounded-none', isActive && 'bg-gray-100')}
                 onClick={() => navigate(route.route)}
             >
                 {route.name}
@@ -38,16 +35,12 @@ const NavBar = () => {
                         className="w-16 h-16 object-scale-down cursor-pointer"
                         onClick={() => navigate(HOME_PAGE.route)}
                     />
-                    <h1 className="text-3xl font-bold leading-[80px] truncate">
-                        Jewellery Catalogue
-                    </h1>
+                    <h1 className="text-3xl font-bold leading-[80px] truncate">Jewellery Catalogue</h1>
                 </div>
             </header>
 
             <aside className="fixed left-0 top-[80px] bottom-0 w-[150px] bg-background border-r border-border">
-                <nav className="flex flex-col">
-                    {navBarButtons}
-                </nav>
+                <nav className="flex flex-col">{navBarButtons}</nav>
             </aside>
         </>
     );

@@ -37,37 +37,31 @@ const Designs = () => {
         return <LoadingScreen />;
     }
 
-    const filteredData = searchQuery && fuse
-        ? fuse.search(searchQuery).map(result => result.item)
-        : data;
+    const filteredData = searchQuery && fuse ? fuse.search(searchQuery).map((result) => result.item) : data;
 
     const designs = filteredData.map((design) => {
-        return (<DesignCard key={design.id} design={design} />);
+        return <DesignCard key={design.id} design={design} />;
     });
 
     return (
         <div>
-            {filteredData.length === 0
-                ? (
-                        <Empty>
-                            <EmptyHeader>
-                                <EmptyMedia variant="icon">
-                                    <Sparkles />
-                                </EmptyMedia>
-                                <EmptyTitle>{data.length === 0 ? 'No Designs Yet' : 'No Matching Designs'}</EmptyTitle>
-                                <EmptyDescription>
-                                    {data.length === 0
-                                        ? 'Start creating beautiful jewellery designs to see them here!'
-                                        : 'Try adjusting your search query'}
-                                </EmptyDescription>
-                            </EmptyHeader>
-                        </Empty>
-                    )
-                : (
-                        <div className="flex flex-wrap justify-center gap-6">
-                            {designs}
-                        </div>
-                    )}
+            {filteredData.length === 0 ? (
+                <Empty>
+                    <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                            <Sparkles />
+                        </EmptyMedia>
+                        <EmptyTitle>{data.length === 0 ? 'No Designs Yet' : 'No Matching Designs'}</EmptyTitle>
+                        <EmptyDescription>
+                            {data.length === 0
+                                ? 'Start creating beautiful jewellery designs to see them here!'
+                                : 'Try adjusting your search query'}
+                        </EmptyDescription>
+                    </EmptyHeader>
+                </Empty>
+            ) : (
+                <div className="flex flex-wrap justify-center gap-6">{designs}</div>
+            )}
         </div>
     );
 };

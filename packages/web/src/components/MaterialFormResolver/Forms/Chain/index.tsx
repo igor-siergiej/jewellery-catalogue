@@ -2,22 +2,11 @@ import { METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
 
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
-import {
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form';
-import {
-    InputGroup,
-    InputGroupAddon,
-    InputGroupInput,
-    InputGroupText,
-} from '@/components/ui/input-group';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
 import { METAL_TYPE_LABELS, WIRE_TYPE_LABELS } from '@/lib/materialLabels';
 
-import { IMaterialFormProps } from '../types';
+import type { IMaterialFormProps } from '../types';
 
 const AddChainForm: React.FC<IMaterialFormProps> = ({ form }) => {
     return (
@@ -30,7 +19,7 @@ const AddChainForm: React.FC<IMaterialFormProps> = ({ form }) => {
                         <FormLabel>Wire Type</FormLabel>
                         <FormControl>
                             <ButtonGroup className="w-full sm:w-auto">
-                                {(Object.keys(WIRE_TYPE) as Array<WIRE_TYPE>).map(type => (
+                                {(Object.keys(WIRE_TYPE) as Array<WIRE_TYPE>).map((type) => (
                                     <Button
                                         key={type}
                                         type="button"
@@ -56,7 +45,7 @@ const AddChainForm: React.FC<IMaterialFormProps> = ({ form }) => {
                         <FormLabel>Metal Type</FormLabel>
                         <FormControl>
                             <ButtonGroup className="w-full sm:w-auto flex-wrap">
-                                {(Object.keys(METAL_TYPE) as Array<METAL_TYPE>).map(type => (
+                                {(Object.keys(METAL_TYPE) as Array<METAL_TYPE>).map((type) => (
                                     <Button
                                         key={type}
                                         type="button"

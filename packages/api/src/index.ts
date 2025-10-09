@@ -1,7 +1,7 @@
 import 'dotenv/config';
 
 import cors from '@koa/cors';
-import Koa, { Context, Next } from 'koa';
+import Koa, { type Context, type Next } from 'koa';
 import koaBody from 'koa-body';
 
 import { config } from './config';
@@ -16,7 +16,7 @@ const allowedOrigins = [
     'http://localhost:3000', // Development
     'http://localhost:8082', // Staging (localhost)
     'http://192.168.68.54:8082', // Staging (IP)
-    'https://jewellerycatalogue.imapps.co.uk' // Production
+    'https://jewellerycatalogue.imapps.co.uk', // Production
 ];
 
 const customLogger = async (ctx: Context, next: Next) => {
@@ -27,7 +27,7 @@ const customLogger = async (ctx: Context, next: Next) => {
         appLogger.info(`Incoming request: ${ctx.method} ${ctx.url}`, {
             method: ctx.method,
             url: ctx.url,
-            userAgent: ctx.get('user-agent') || 'unknown'
+            userAgent: ctx.get('user-agent') || 'unknown',
         });
     }
 
@@ -82,7 +82,7 @@ export const onStartup = async () => {
                 ctx.status = err.status || HttpErrorCode.InternalServerError;
                 ctx.body = {
                     success: false,
-                    message: err.message || 'Internal Server Error'
+                    message: err.message || 'Internal Server Error',
                 };
                 ctx.app.emit('error', err, ctx);
             }
@@ -97,7 +97,7 @@ export const onStartup = async () => {
                     stack: err.stack,
                     path: ctx.request.path,
                     method: ctx.request.method,
-                    status: ctx.status
+                    status: ctx.status,
                 });
             }
         });
@@ -117,7 +117,7 @@ export const onStartup = async () => {
         appLogger.info('Starting API server - connecting to database and object store');
         await database.connect({
             connectionUri: config.get('connectionUri'),
-            databaseName: config.get('databaseName')
+            databaseName: config.get('databaseName'),
         });
         appLogger.info('Connected to database');
 
@@ -125,7 +125,7 @@ export const onStartup = async () => {
             endpoint: config.get('bucketEndpoint'),
             accessKey: config.get('bucketAccessKey'),
             secretKey: config.get('bucketSecretKey'),
-            bucketName: config.get('bucketName')
+            bucketName: config.get('bucketName'),
         });
         appLogger.info('Connected to object store');
 

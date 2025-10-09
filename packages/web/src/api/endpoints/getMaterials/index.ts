@@ -1,4 +1,4 @@
-import { Material, MethodType } from '@jewellery-catalogue/types';
+import { type Material, MethodType } from '@jewellery-catalogue/types';
 
 import { MATERIALS_ENDPOINT } from '../../endpoints';
 import { makeRequestWithAutoRefresh } from '../../makeRequest';

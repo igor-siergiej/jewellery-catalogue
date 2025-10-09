@@ -1,4 +1,11 @@
-import { Bead, Chain, EarHook, Material, MaterialType, Wire } from '@jewellery-catalogue/types';
+import {
+    type Bead,
+    type Chain,
+    type EarHook,
+    type Material,
+    MaterialType,
+    type Wire,
+} from '@jewellery-catalogue/types';
 import { ChevronLeft, ChevronRight, Package } from 'lucide-react';
 import { useState } from 'react';
 
@@ -15,6 +22,98 @@ import WireTable from './WireTable';
 export interface IMaterialTableProps {
     materials: Array<Material>;
 }
+
+interface PaginationProps {
+    totalMaterials: number;
+    currentPage: number;
+    pageSize: number;
+    setPageSize: (size: number) => void;
+    setCurrentPage: (page: number) => void;
+    goToNextPage: (totalMaterials: number) => void;
+    goToPreviousPage: () => void;
+    goToPage: (page: number) => void;
+}
+
+const Pagination: React.FC<PaginationProps> = ({
+    totalMaterials,
+    currentPage,
+    pageSize,
+    setPageSize,
+    setCurrentPage,
+    goToNextPage,
+    goToPreviousPage,
+    goToPage,
+}) => {
+    const totalPages = Math.ceil(totalMaterials / pageSize);
+    const startIndex = currentPage * pageSize;
+    const endIndex = startIndex + pageSize;
+
+    if (totalPages <= 1) return null;
+
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(0, currentPage - Math.floor(maxVisiblePages / 2));
+    const endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage < maxVisiblePages - 1) {
+        startPage = Math.max(0, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        pageNumbers.push(i);
+    }
+
+    return (
+        <div className="flex items-center justify-between p-4 border-t bg-muted/20">
+            <div className="text-sm text-muted-foreground">
+                Showing {startIndex + 1} to {Math.min(endIndex, totalMaterials)} of {totalMaterials} materials
+            </div>
+            <div className="flex items-center gap-2">
+                <select
+                    value={pageSize}
+                    onChange={(e) => {
+                        setPageSize(Number(e.target.value));
+                        setCurrentPage(0);
+                    }}
+                    className="px-3 py-1 text-sm border rounded-md bg-background"
+                >
+                    <option value={5}>5 per page</option>
+                    <option value={10}>10 per page</option>
+                    <option value={25}>25 per page</option>
+                </select>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={goToPreviousPage}
+                    disabled={currentPage === 0}
+                    className="h-8 w-8 p-0"
+                >
+                    <ChevronLeft className="h-4 w-4" />
+                </Button>
+                {pageNumbers.map((pageNum) => (
+                    <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => goToPage(pageNum)}
+                        className="h-8 w-8 p-0"
+                    >
+                        {pageNum + 1}
+                    </Button>
+                ))}
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => goToNextPage(totalMaterials)}
+                    disabled={currentPage === totalPages - 1}
+                    className="h-8 w-8 p-0"
+                >
+                    <ChevronRight className="h-4 w-4" />
+                </Button>
+            </div>
+        </div>
+    );
+};
 
 const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
     const [currentPage, setCurrentPage] = useState(0);
@@ -44,90 +143,6 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
         setCurrentPage(page);
     };
 
-    const Pagination = ({ totalMaterials }: { totalMaterials: number }) => {
-        const totalPages = Math.ceil(totalMaterials / pageSize);
-        const startIndex = currentPage * pageSize;
-        const endIndex = startIndex + pageSize;
-
-        if (totalPages <= 1) return null;
-
-        const pageNumbers = [];
-        const maxVisiblePages = 5;
-        let startPage = Math.max(0, currentPage - Math.floor(maxVisiblePages / 2));
-        const endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 1);
-
-        if (endPage - startPage < maxVisiblePages - 1) {
-            startPage = Math.max(0, endPage - maxVisiblePages + 1);
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-            pageNumbers.push(i);
-        }
-
-        return (
-            <div className="flex items-center justify-between p-4 border-t bg-muted/20">
-                <div className="text-sm text-muted-foreground">
-                    Showing
-                    {' '}
-                    {startIndex + 1}
-                    {' '}
-                    to
-                    {' '}
-                    {Math.min(endIndex, totalMaterials)}
-                    {' '}
-                    of
-                    {' '}
-                    {totalMaterials}
-                    {' '}
-                    materials
-                </div>
-                <div className="flex items-center gap-2">
-                    <select
-                        value={pageSize}
-                        onChange={(e) => {
-                            setPageSize(Number(e.target.value));
-                            setCurrentPage(0);
-                        }}
-                        className="px-3 py-1 text-sm border rounded-md bg-background"
-                    >
-                        <option value={5}>5 per page</option>
-                        <option value={10}>10 per page</option>
-                        <option value={25}>25 per page</option>
-                    </select>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={goToPreviousPage}
-                        disabled={currentPage === 0}
-                        className="h-8 w-8 p-0"
-                    >
-                        <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    {pageNumbers.map(pageNum => (
-                        <Button
-                            key={pageNum}
-                            variant={currentPage === pageNum ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => goToPage(pageNum)}
-                            className="h-8 w-8 p-0"
-                        >
-                            {pageNum + 1}
-                        </Button>
-                    ))}
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => goToNextPage(totalMaterials)}
-                        disabled={currentPage === totalPages - 1}
-                        className="h-8 w-8 p-0"
-                    >
-                        <ChevronRight className="h-4 w-4" />
-                    </Button>
-                </div>
-            </div>
-        );
-    };
-
     if (materials.length === 0) {
         return (
             <div className="border rounded-lg overflow-hidden">
@@ -137,9 +152,7 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
                             <Package />
                         </EmptyMedia>
                         <EmptyTitle>No Materials Found</EmptyTitle>
-                        <EmptyDescription>
-                            Add materials to your inventory to see them listed here.
-                        </EmptyDescription>
+                        <EmptyDescription>Add materials to your inventory to see them listed here.</EmptyDescription>
                     </EmptyHeader>
                 </Empty>
             </div>
@@ -158,51 +171,80 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
             <Tabs defaultValue="all" onValueChange={() => setCurrentPage(0)}>
                 <TabsList>
                     <TabsTrigger value="all">All Materials</TabsTrigger>
-                    <TabsTrigger value="wire">
-                        Wire (
-                        {wireMaterials.length}
-                        )
-                    </TabsTrigger>
-                    <TabsTrigger value="bead">
-                        Bead (
-                        {beadMaterials.length}
-                        )
-                    </TabsTrigger>
-                    <TabsTrigger value="chain">
-                        Chain (
-                        {chainMaterials.length}
-                        )
-                    </TabsTrigger>
-                    <TabsTrigger value="ear-hook">
-                        Ear Hook (
-                        {earHookMaterials.length}
-                        )
-                    </TabsTrigger>
+                    <TabsTrigger value="wire">Wire ({wireMaterials.length})</TabsTrigger>
+                    <TabsTrigger value="bead">Bead ({beadMaterials.length})</TabsTrigger>
+                    <TabsTrigger value="chain">Chain ({chainMaterials.length})</TabsTrigger>
+                    <TabsTrigger value="ear-hook">Ear Hook ({earHookMaterials.length})</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="all">
                     <AllMaterialsTable materials={getPaginatedMaterials(materials)} />
-                    <Pagination totalMaterials={materials.length} />
+                    <Pagination
+                        totalMaterials={materials.length}
+                        currentPage={currentPage}
+                        pageSize={pageSize}
+                        setPageSize={setPageSize}
+                        setCurrentPage={setCurrentPage}
+                        goToNextPage={goToNextPage}
+                        goToPreviousPage={goToPreviousPage}
+                        goToPage={goToPage}
+                    />
                 </TabsContent>
 
                 <TabsContent value="wire">
                     <WireTable materials={getPaginatedMaterials(wireMaterials)} />
-                    <Pagination totalMaterials={wireMaterials.length} />
+                    <Pagination
+                        totalMaterials={wireMaterials.length}
+                        currentPage={currentPage}
+                        pageSize={pageSize}
+                        setPageSize={setPageSize}
+                        setCurrentPage={setCurrentPage}
+                        goToNextPage={goToNextPage}
+                        goToPreviousPage={goToPreviousPage}
+                        goToPage={goToPage}
+                    />
                 </TabsContent>
 
                 <TabsContent value="bead">
                     <BeadTable materials={getPaginatedMaterials(beadMaterials)} />
-                    <Pagination totalMaterials={beadMaterials.length} />
+                    <Pagination
+                        totalMaterials={beadMaterials.length}
+                        currentPage={currentPage}
+                        pageSize={pageSize}
+                        setPageSize={setPageSize}
+                        setCurrentPage={setCurrentPage}
+                        goToNextPage={goToNextPage}
+                        goToPreviousPage={goToPreviousPage}
+                        goToPage={goToPage}
+                    />
                 </TabsContent>
 
                 <TabsContent value="chain">
                     <ChainTable materials={getPaginatedMaterials(chainMaterials)} />
-                    <Pagination totalMaterials={chainMaterials.length} />
+                    <Pagination
+                        totalMaterials={chainMaterials.length}
+                        currentPage={currentPage}
+                        pageSize={pageSize}
+                        setPageSize={setPageSize}
+                        setCurrentPage={setCurrentPage}
+                        goToNextPage={goToNextPage}
+                        goToPreviousPage={goToPreviousPage}
+                        goToPage={goToPage}
+                    />
                 </TabsContent>
 
                 <TabsContent value="ear-hook">
                     <EarHookTable materials={getPaginatedMaterials(earHookMaterials)} />
-                    <Pagination totalMaterials={earHookMaterials.length} />
+                    <Pagination
+                        totalMaterials={earHookMaterials.length}
+                        currentPage={currentPage}
+                        pageSize={pageSize}
+                        setPageSize={setPageSize}
+                        setCurrentPage={setCurrentPage}
+                        goToNextPage={goToNextPage}
+                        goToPreviousPage={goToPreviousPage}
+                        goToPage={goToPage}
+                    />
                 </TabsContent>
             </Tabs>
         </div>

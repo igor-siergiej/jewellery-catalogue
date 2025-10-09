@@ -1,15 +1,17 @@
-import { Logger } from '@imapps/api-utils';
+import type { Logger } from '@imapps/api-utils';
 
-import { ImageGenerator, ImageStore } from './types';
+import type { ImageGenerator, ImageStore } from './types';
 
 export class ImageService {
     constructor(
         private readonly store: ImageStore,
-        private readonly generator?: ImageGenerator,
+        readonly _generator?: ImageGenerator,
         private readonly logger?: Logger
     ) {}
 
-    async getImage(name: string): Promise<{ stream: NodeJS.ReadableStream; contentType: string; cacheControl: string }> {
+    async getImage(
+        name: string
+    ): Promise<{ stream: NodeJS.ReadableStream; contentType: string; cacheControl: string }> {
         if (!name) {
             throw Object.assign(new Error('Image name is required'), { status: 400 });
         }
@@ -22,7 +24,7 @@ export class ImageService {
             return {
                 stream,
                 contentType,
-                cacheControl: 'public, max-age=31536000, immutable'
+                cacheControl: 'public, max-age=31536000, immutable',
             };
         } catch {
             this.logger?.warn('Image not found in store', { name });

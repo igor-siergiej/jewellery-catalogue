@@ -1,5 +1,5 @@
 import { Search } from 'lucide-react';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
@@ -28,10 +28,7 @@ const MainLayoutContent = ({ children }: MainLayoutProps) => {
             <SidebarInset>
                 <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
                     <SidebarTrigger className="-ml-1" />
-                    <Separator
-                        orientation="vertical"
-                        className="mr-2 data-[orientation=vertical]:h-4"
-                    />
+                    <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
                     {isDesignsPage && (
                         <div className="relative max-w-md">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -46,9 +43,7 @@ const MainLayoutContent = ({ children }: MainLayoutProps) => {
                     )}
                 </header>
                 <div className="flex flex-1 flex-col gap-4 p-4">
-                    <main>
-                        {children ?? <Outlet />}
-                    </main>
+                    <main>{children ?? <Outlet />}</main>
                 </div>
             </SidebarInset>
         </SidebarProvider>

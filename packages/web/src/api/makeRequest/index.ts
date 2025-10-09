@@ -1,5 +1,5 @@
 import { withTokenRefresh } from '@imapps/web-utils';
-import { MakeRequestProps } from '@jewellery-catalogue/types';
+import type { MakeRequestProps } from '@jewellery-catalogue/types';
 
 import { getAuthConfig } from '../../utils/authConfig';
 
@@ -11,7 +11,7 @@ export const makeRequest = async <T>({
     body,
     accessToken,
 }: MakeRequestProps) => {
-    const parsedBody = (body instanceof FormData) ? body : JSON.stringify(body);
+    const parsedBody = body instanceof FormData ? body : JSON.stringify(body);
 
     // When using FormData, don't set Content-Type header - let browser set it automatically
     const requestHeaders: Record<string, string> = {
@@ -26,20 +26,14 @@ export const makeRequest = async <T>({
     const response = await fetch(pathname, {
         method: method,
         headers: requestHeaders,
-        body: body ? parsedBody : undefined
+        body: body ? parsedBody : undefined,
     });
 
     if (response.ok) {
-        return await response.json() as T;
+        return (await response.json()) as T;
     } else {
-        console.error(
-            `Failed to ${operationString}:`,
-            response.status,
-            response.statusText
-        );
-        throw new Error(
-            `Response was not ok ${response.status}: ${response.statusText}`
-        );
+        console.error(`Failed to ${operationString}:`, response.status, response.statusText);
+        throw new Error(`Response was not ok ${response.status}: ${response.statusText}`);
     }
 };
 
@@ -51,10 +45,5 @@ export const makeRequestWithAutoRefresh = async <T>(
 ) => {
     const config = getAuthConfig();
 
-    return withTokenRefresh(
-        () => makeRequest<T>(requestProps),
-        onTokenRefresh,
-        onTokenClear,
-        config
-    );
+    return withTokenRefresh(() => makeRequest<T>(requestProps), onTokenRefresh, onTokenClear, config);
 };

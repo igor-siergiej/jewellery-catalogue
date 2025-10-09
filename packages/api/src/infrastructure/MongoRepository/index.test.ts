@@ -1,8 +1,7 @@
-import { MongoDbConnection } from '@imapps/api-utils';
-import { ObjectId } from 'mongodb';
+import type { MongoDbConnection } from '@imapps/api-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { CollectionNames, Collections } from '../../dependencies/types';
+import { CollectionNames, type Collections } from '../../dependencies/types';
 import { MongoRepository } from './index';
 
 const mockCollection = {
@@ -10,11 +9,11 @@ const mockCollection = {
     find: vi.fn(),
     insertOne: vi.fn(),
     findOneAndReplace: vi.fn(),
-    deleteOne: vi.fn()
+    deleteOne: vi.fn(),
 };
 
 const mockDb = {
-    getCollection: vi.fn().mockReturnValue(mockCollection)
+    getCollection: vi.fn().mockReturnValue(mockCollection),
 } as unknown as MongoDbConnection<Collections>;
 
 interface TestEntity {
@@ -34,26 +33,17 @@ describe('MongoRepository', () => {
 
     describe('collection', () => {
         it('should get collection from database', () => {
-            repository['collection']();
+            repository.collection();
 
             expect(mockDb.getCollection).toHaveBeenCalledWith(CollectionNames.Materials);
         });
     });
 
     describe('getMongoFilter', () => {
-        it('should create ObjectId filter for catalogues collection', () => {
-            const catalogueRepository = new MongoRepository<TestEntity>(mockDb, CollectionNames.Catalogues);
-            const testId = '507f1f77bcf86cd799439011';
-
-            const filter = catalogueRepository['getMongoFilter'](testId);
-
-            expect(filter).toEqual({ _id: new ObjectId(testId) });
-        });
-
-        it('should create string id filter for non-catalogue collections', () => {
+        it('should create string id filter for materials collection', () => {
             const testId = 'test-id-123';
 
-            const filter = repository['getMongoFilter'](testId);
+            const filter = repository.getMongoFilter(testId);
 
             expect(filter).toEqual({ id: testId });
         });
@@ -62,31 +52,15 @@ describe('MongoRepository', () => {
             const designRepository = new MongoRepository<TestEntity>(mockDb, CollectionNames.Designs);
             const testId = 'design-id-123';
 
-            const filter = designRepository['getMongoFilter'](testId);
-
-            expect(filter).toEqual({ id: testId });
-        });
-
-        it('should create string id filter for materials collection', () => {
-            const testId = 'material-id-123';
-
-            const filter = repository['getMongoFilter'](testId);
+            const filter = designRepository.getMongoFilter(testId);
 
             expect(filter).toEqual({ id: testId });
         });
     });
 
     describe('usesObjectId', () => {
-        it('should return true for catalogues collection', () => {
-            const catalogueRepository = new MongoRepository<TestEntity>(mockDb, CollectionNames.Catalogues);
-
-            const result = catalogueRepository['usesObjectId']();
-
-            expect(result).toBe(true);
-        });
-
         it('should return false for materials collection', () => {
-            const result = repository['usesObjectId']();
+            const result = repository.usesObjectId();
 
             expect(result).toBe(false);
         });
@@ -94,7 +68,7 @@ describe('MongoRepository', () => {
         it('should return false for designs collection', () => {
             const designRepository = new MongoRepository<TestEntity>(mockDb, CollectionNames.Designs);
 
-            const result = designRepository['usesObjectId']();
+            const result = designRepository.usesObjectId();
 
             expect(result).toBe(false);
         });
@@ -109,19 +83,6 @@ describe('MongoRepository', () => {
             const result = await repository.getById('test-123');
 
             expect(mockCollection.findOne).toHaveBeenCalledWith({ id: 'test-123' });
-            expect(result).toEqual(testEntity);
-        });
-
-        it('should find entity by ObjectId for catalogues', async () => {
-            const catalogueRepository = new MongoRepository<TestEntity>(mockDb, CollectionNames.Catalogues);
-            const testEntity = { _id: new ObjectId(), name: 'Test Catalogue', value: 100 };
-            const testId = '507f1f77bcf86cd799439011';
-
-            mockCollection.findOne.mockResolvedValue(testEntity);
-
-            const result = await catalogueRepository.getById(testId);
-
-            expect(mockCollection.findOne).toHaveBeenCalledWith({ _id: new ObjectId(testId) });
             expect(result).toEqual(testEntity);
         });
 
@@ -146,10 +107,10 @@ describe('MongoRepository', () => {
         it('should return all entities from collection', async () => {
             const testEntities = [
                 { id: 'test-1', name: 'Entity 1', value: 10 },
-                { id: 'test-2', name: 'Entity 2', value: 20 }
+                { id: 'test-2', name: 'Entity 2', value: 20 },
             ];
             const mockCursor = {
-                toArray: vi.fn().mockResolvedValue(testEntities)
+                toArray: vi.fn().mockResolvedValue(testEntities),
             };
 
             mockCollection.find.mockReturnValue(mockCursor);
@@ -163,7 +124,7 @@ describe('MongoRepository', () => {
 
         it('should return empty array when no entities exist', async () => {
             const mockCursor = {
-                toArray: vi.fn().mockResolvedValue([])
+                toArray: vi.fn().mockResolvedValue([]),
             };
 
             mockCollection.find.mockReturnValue(mockCursor);
@@ -176,7 +137,7 @@ describe('MongoRepository', () => {
         it('should propagate database errors', async () => {
             const mockError = new Error('Database query error');
             const mockCursor = {
-                toArray: vi.fn().mockRejectedValue(mockError)
+                toArray: vi.fn().mockRejectedValue(mockError),
             };
 
             mockCollection.find.mockReturnValue(mockCursor);
@@ -214,25 +175,7 @@ describe('MongoRepository', () => {
 
             await repository.update('update-test', testEntity);
 
-            expect(mockCollection.findOneAndReplace).toHaveBeenCalledWith(
-                { id: 'update-test' },
-                testEntity
-            );
-        });
-
-        it('should update entity by ObjectId for catalogues', async () => {
-            const catalogueRepository = new MongoRepository<TestEntity>(mockDb, CollectionNames.Catalogues);
-            const testEntity = { _id: new ObjectId(), name: 'Updated Catalogue', value: 300 };
-            const testId = '507f1f77bcf86cd799439011';
-
-            mockCollection.findOneAndReplace.mockResolvedValue({ value: testEntity });
-
-            await catalogueRepository.update(testId, testEntity);
-
-            expect(mockCollection.findOneAndReplace).toHaveBeenCalledWith(
-                { _id: new ObjectId(testId) },
-                testEntity
-            );
+            expect(mockCollection.findOneAndReplace).toHaveBeenCalledWith({ id: 'update-test' }, testEntity);
         });
 
         it('should propagate database errors during update', async () => {
@@ -252,17 +195,6 @@ describe('MongoRepository', () => {
             await repository.delete('delete-test');
 
             expect(mockCollection.deleteOne).toHaveBeenCalledWith({ id: 'delete-test' });
-        });
-
-        it('should delete entity by ObjectId for catalogues', async () => {
-            const catalogueRepository = new MongoRepository<TestEntity>(mockDb, CollectionNames.Catalogues);
-            const testId = '507f1f77bcf86cd799439011';
-
-            mockCollection.deleteOne.mockResolvedValue({ deletedCount: 1 });
-
-            await catalogueRepository.delete(testId);
-
-            expect(mockCollection.deleteOne).toHaveBeenCalledWith({ _id: new ObjectId(testId) });
         });
 
         it('should propagate database errors during delete', async () => {
@@ -302,38 +234,6 @@ describe('MongoRepository', () => {
             expect(mockCollection.findOne).toHaveBeenCalledWith({ id: 'crud-test' });
             expect(mockCollection.findOneAndReplace).toHaveBeenCalledWith({ id: 'crud-test' }, updatedEntity);
             expect(mockCollection.deleteOne).toHaveBeenCalledWith({ id: 'crud-test' });
-        });
-
-        it('should handle complete CRUD operations for ObjectId entities', async () => {
-            const catalogueRepository = new MongoRepository<TestEntity>(mockDb, CollectionNames.Catalogues);
-            const objectId = new ObjectId();
-            const entity = { _id: objectId, name: 'Catalogue CRUD Test', value: 789 };
-            const stringId = objectId.toString();
-
-            // Insert
-            mockCollection.insertOne.mockResolvedValue({ insertedId: objectId });
-            await catalogueRepository.insert(entity);
-
-            // Read
-            mockCollection.findOne.mockResolvedValue(entity);
-            const retrieved = await catalogueRepository.getById(stringId);
-
-            expect(retrieved).toEqual(entity);
-
-            // Update
-            const updatedEntity = { ...entity, name: 'Updated Catalogue', value: 999 };
-
-            mockCollection.findOneAndReplace.mockResolvedValue({ value: updatedEntity });
-            await catalogueRepository.update(stringId, updatedEntity);
-
-            // Delete
-            mockCollection.deleteOne.mockResolvedValue({ deletedCount: 1 });
-            await catalogueRepository.delete(stringId);
-
-            expect(mockCollection.insertOne).toHaveBeenCalledWith(entity);
-            expect(mockCollection.findOne).toHaveBeenCalledWith({ _id: objectId });
-            expect(mockCollection.findOneAndReplace).toHaveBeenCalledWith({ _id: objectId }, updatedEntity);
-            expect(mockCollection.deleteOne).toHaveBeenCalledWith({ _id: objectId });
         });
     });
 });

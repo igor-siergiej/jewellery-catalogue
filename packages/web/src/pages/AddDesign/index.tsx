@@ -3,7 +3,7 @@ import { useAuth } from '@imapps/web-utils';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { type SubmitHandler, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -19,7 +19,7 @@ import RichTextEditor from '../../components/RichTextEditor';
 import TimeInput from '../../components/TimeInput';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-import { AddDesignFormData, addDesignSchema } from '../../schemas/addDesignSchema';
+import { type AddDesignFormData, addDesignSchema } from '../../schemas/addDesignSchema';
 import { getTotalMaterialCosts } from '../../utils/getPriceOfMaterials';
 import { getWageCosts } from '../../utils/getWageCost';
 
@@ -62,8 +62,8 @@ const AddDesign: React.FC = () => {
                     title: 'Yahoooo!',
                     message: 'Added design successfully!',
                     severity: 'success',
-                    variant: 'standard'
-                }
+                    variant: 'standard',
+                },
             });
             form.reset();
         } catch (e) {
@@ -75,8 +75,8 @@ const AddDesign: React.FC = () => {
                     title: 'Error occured during the adding of the design! :(',
                     message: `Details: ${message}`,
                     severity: 'error',
-                    variant: 'standard'
-                }
+                    variant: 'standard',
+                },
             });
         } finally {
             setIsMakingRequest(false);
@@ -86,14 +86,12 @@ const AddDesign: React.FC = () => {
     useEffect(() => {
         if (!data) return;
 
-        const materialsCost = selectedMaterials.length > 0
-            ? getTotalMaterialCosts(selectedMaterials, data)
-            : 0;
+        const materialsCost = selectedMaterials.length > 0 ? getTotalMaterialCosts(selectedMaterials, data) : 0;
         const timeSpentCost = parseFloat((getWageCosts(currentTimeRequired) * HOURLY_WAGE).toFixed(2));
         const totalCosts = materialsCost + timeSpentCost;
 
         form.setValue('price', parseFloat((totalCosts * PROFIT_COEFFICIENT).toFixed(2)));
-    }, [selectedMaterials, currentTimeRequired, data]);
+    }, [selectedMaterials, currentTimeRequired, data, form.setValue]);
 
     if (!data) {
         return null;
@@ -105,18 +103,14 @@ const AddDesign: React.FC = () => {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                     {/* Header */}
                     <div className="space-y-4">
-                        <h1 className="text-2xl font-semibold text-left pl-2 leading-[50px]">
-                            Adding New Design
-                        </h1>
+                        <h1 className="text-2xl font-semibold text-left pl-2 leading-[50px]">Adding New Design</h1>
                         <hr className="border-t border-border" />
                     </div>
 
                     {/* Design Details Section */}
                     <div className="grid grid-cols-12 gap-4">
                         <div className="col-span-4">
-                            <h2 className="text-lg font-medium text-center pt-1.5">
-                                Design Details
-                            </h2>
+                            <h2 className="text-lg font-medium text-center pt-1.5">Design Details</h2>
                         </div>
                         <div className="col-span-8">
                             <div className="flex gap-4">
@@ -151,9 +145,7 @@ const AddDesign: React.FC = () => {
                     {/* Upload Image Section */}
                     <div className="grid grid-cols-12 gap-4">
                         <div className="col-span-4">
-                            <h2 className="text-lg font-medium text-center h-[30px] leading-[30px]">
-                                Upload Image
-                            </h2>
+                            <h2 className="text-lg font-medium text-center h-[30px] leading-[30px]">Upload Image</h2>
                         </div>
                         <div className="col-span-8">
                             <FormField
@@ -180,9 +172,7 @@ const AddDesign: React.FC = () => {
                     {/* Add Materials Section */}
                     <div className="grid grid-cols-12 gap-4">
                         <div className="col-span-4">
-                            <h2 className="text-lg font-medium text-center">
-                                Add Materials
-                            </h2>
+                            <h2 className="text-lg font-medium text-center">Add Materials</h2>
                         </div>
                         <div className="col-span-8">
                             <FormField
@@ -209,9 +199,7 @@ const AddDesign: React.FC = () => {
                     {/* Set Price Section */}
                     <div className="grid grid-cols-12 gap-4">
                         <div className="col-span-4">
-                            <h2 className="text-lg font-medium text-center">
-                                Set Price
-                            </h2>
+                            <h2 className="text-lg font-medium text-center">Set Price</h2>
                         </div>
                         <div className="col-span-8">
                             <FormField
@@ -251,9 +239,7 @@ const AddDesign: React.FC = () => {
                     {/* Add Description Section */}
                     <div className="grid grid-cols-12 gap-4">
                         <div className="col-span-4">
-                            <h2 className="text-lg font-medium text-center">
-                                Add Description
-                            </h2>
+                            <h2 className="text-lg font-medium text-center">Add Description</h2>
                         </div>
                         <div className="col-span-8">
                             <FormField
@@ -280,11 +266,7 @@ const AddDesign: React.FC = () => {
 
                     {/* Submit Button */}
                     <div className="flex justify-end">
-                        <Button
-                            type="submit"
-                            disabled={isMakingRequest}
-                            className="min-w-[140px]"
-                        >
+                        <Button type="submit" disabled={isMakingRequest} className="min-w-[140px]">
                             {isMakingRequest && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Create Design
                         </Button>
