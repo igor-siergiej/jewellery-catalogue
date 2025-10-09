@@ -42,14 +42,15 @@ describe('MongoDesignRepository', () => {
     describe('inherited CRUD operations', () => {
         const mockDesign: Design = {
             id: 'design-123',
-            title: 'Test Design',
+            userId: 'user-123',
+            name: 'Test Design',
             description: 'A test design',
-            dateCreated: new Date('2023-01-01'),
-            author: 'Test Author',
-            instructions: ['Step 1', 'Step 2'],
-            tags: ['test', 'design'],
-            materials: ['material-1', 'material-2'],
-            images: ['image-1.jpg', 'image-2.jpg'],
+            timeRequired: '45',
+            totalMaterialCosts: 20.0,
+            price: 35.0,
+            imageId: 'image-123',
+            materials: [],
+            dateAdded: new Date('2025-01-01'),
         };
 
         it('should get design by id using string filter', async () => {
@@ -84,7 +85,7 @@ describe('MongoDesignRepository', () => {
         });
 
         it('should update design by id', async () => {
-            const updatedDesign = { ...mockDesign, title: 'Updated Design' };
+            const updatedDesign = { ...mockDesign, name: 'Updated Design' };
 
             mockDesignsCollection.findOneAndReplace.mockResolvedValue({ value: updatedDesign });
 

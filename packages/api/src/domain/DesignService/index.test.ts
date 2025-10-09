@@ -51,6 +51,7 @@ describe('DesignService', () => {
                 price: 35.0,
                 imageId: 'image-123',
                 materials: [],
+                dateAdded: new Date('2025-01-01'),
             };
 
             mockDesignRepo.getByIdAndUserId.mockResolvedValue(mockDesign);
@@ -75,6 +76,7 @@ describe('DesignService', () => {
                 price: 35.0,
                 imageId: 'image-123',
                 materials: [],
+                dateAdded: new Date('2025-01-01'),
             };
 
             mockDesignRepo.getByIdAndUserId.mockResolvedValue(null);
@@ -135,18 +137,22 @@ describe('DesignService', () => {
             const result = await service.addDesign(mockDesignData, mockImageBuffer, mockContentType, userId);
 
             expect(mockImageService.uploadImage).toHaveBeenCalledWith('image-id-123', mockImageBuffer, mockContentType);
-            expect(mockDesignRepo.insert).toHaveBeenCalledWith({
-                id: 'design-id-123',
-                userId,
-                name: 'New Design',
-                description: 'New design description',
-                timeRequired: '6',
-                totalMaterialCosts: 30.0,
-                price: 50.0,
-                imageId: 'image-id-123',
-                materials: [],
-            });
+            expect(mockDesignRepo.insert).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    id: 'design-id-123',
+                    userId,
+                    name: 'New Design',
+                    description: 'New design description',
+                    timeRequired: '6',
+                    totalMaterialCosts: 30.0,
+                    price: 50.0,
+                    imageId: 'image-id-123',
+                    materials: [],
+                    dateAdded: expect.any(Date),
+                })
+            );
             expect(result.id).toBe('design-id-123');
+            expect(result.dateAdded).toBeInstanceOf(Date);
         });
 
         it('should parse materials from string', async () => {
@@ -234,6 +240,7 @@ describe('DesignService', () => {
             price: 25.0,
             imageId: 'image-123',
             materials: [],
+            dateAdded: new Date('2025-01-01'),
         };
 
         it('should update design successfully', async () => {
@@ -290,13 +297,15 @@ describe('DesignService', () => {
         const userId = 'user-123';
         const existingDesign: Design = {
             id: designId,
+            userId: 'user-123',
             name: 'Design to Delete',
             description: 'Will be deleted',
-            timeRequired: 30,
+            timeRequired: '30',
             totalMaterialCosts: 15.0,
             price: 25.0,
             imageId: 'image-123',
             materials: [],
+            dateAdded: new Date('2025-01-01'),
         };
 
         it('should delete design successfully with userId', async () => {

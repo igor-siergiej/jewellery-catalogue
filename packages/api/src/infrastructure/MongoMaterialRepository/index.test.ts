@@ -42,6 +42,7 @@ describe('MongoMaterialRepository', () => {
     describe('inherited CRUD operations', () => {
         const mockMaterial: Material = {
             id: 'material-123',
+            userId: 'user-123',
             type: MaterialType.WIRE,
             name: 'Test Wire',
             brand: 'Test Brand',
@@ -51,6 +52,7 @@ describe('MongoMaterialRepository', () => {
             metalType: METAL_TYPE.SILVER,
             length: 10,
             pricePerMeter: 2.5,
+            dateAdded: new Date('2025-01-01'),
         };
 
         it('should get material by id using string filter', async () => {
