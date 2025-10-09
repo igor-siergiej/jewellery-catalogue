@@ -1,6 +1,5 @@
 import { MongoDbConnection } from '@imapps/api-utils';
 import { Material } from '@jewellery-catalogue/types';
-import { ObjectId } from 'mongodb';
 
 import { CollectionNames, Collections } from '../../dependencies/types';
 import { MaterialRepository } from '../../domain/MaterialRepository';
