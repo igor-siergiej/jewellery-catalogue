@@ -129,6 +129,17 @@ export const onStartup = async () => {
         });
         appLogger.info('Connected to object store');
 
+        // Create indexes for efficient userId queries
+        appLogger.info('Creating database indexes');
+        const designsCollection = database.getCollection('designs' as any);
+        const materialsCollection = database.getCollection('materials' as any);
+
+        await designsCollection.createIndex({ userId: 1 });
+        await designsCollection.createIndex({ id: 1, userId: 1 });
+        await materialsCollection.createIndex({ userId: 1 });
+        await materialsCollection.createIndex({ id: 1, userId: 1 });
+        appLogger.info('Database indexes created');
+
         app.use(routes.routes());
 
         app.listen(port, () => {

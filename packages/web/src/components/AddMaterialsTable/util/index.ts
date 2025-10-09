@@ -4,10 +4,10 @@ import { TableMaterial } from '../types';
 
 export const getRequiredMaterial = (material: Material, matchedRow: TableMaterial) => {
     const requiredMaterialConverter = {
-        [MaterialType.WIRE]: { id: material.id, requiredLength: matchedRow.required } as RequiredWire,
-        [MaterialType.BEAD]: { id: material.id, requiredQuantity: matchedRow.required } as RequiredBead,
-        [MaterialType.CHAIN]: { id: material.id, requiredLength: matchedRow.required } as RequiredChain,
-        [MaterialType.EAR_HOOK]: { id: material.id, requiredQuantity: matchedRow.required } as RequiredEarHook
+        [MaterialType.WIRE]: { materialId: material.id, requiredLength: matchedRow.required } as RequiredWire,
+        [MaterialType.BEAD]: { materialId: material.id, requiredQuantity: matchedRow.required } as RequiredBead,
+        [MaterialType.CHAIN]: { materialId: material.id, requiredLength: matchedRow.required } as RequiredChain,
+        [MaterialType.EAR_HOOK]: { materialId: material.id, requiredQuantity: matchedRow.required } as RequiredEarHook
     };
 
     if (material.type in requiredMaterialConverter) {

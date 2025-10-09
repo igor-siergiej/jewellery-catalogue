@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAuth, useUser } from '@imapps/web-utils';
+import { useAuth } from '@imapps/web-utils';
 import { MaterialType } from '@jewellery-catalogue/types';
 import { Link, Loader2 } from 'lucide-react';
 import { useState } from 'react';
@@ -46,7 +46,6 @@ const AddMaterial = () => {
 
     const [isMakingRequest, setIsMakingRequest] = useState(false);
     const { accessToken, login, logout } = useAuth();
-    const { user } = useUser();
     const { dispatch } = useAlert();
 
     const currentMaterialType = form.watch('type');
@@ -54,11 +53,7 @@ const AddMaterial = () => {
     const onSubmit = async (data: AddMaterialFormData) => {
         setIsMakingRequest(true);
         try {
-            if (!user?.id) {
-                throw new Error('User not authenticated');
-            }
-
-            await makeAddMaterialRequest(user.id, data, accessToken, login, logout);
+            await makeAddMaterialRequest(data, accessToken, login, logout);
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,

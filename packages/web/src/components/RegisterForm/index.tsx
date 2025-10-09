@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { extractUserFromToken, useAuth, useAuthConfig } from '@imapps/web-utils';
+import { useAuth, useAuthConfig } from '@imapps/web-utils';
 import { Eye, EyeOff } from 'lucide-react';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-import { addCatalogue } from '../../api/endpoints/addCatalogue';
 import { HOME_PAGE } from '../../constants/routes';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
@@ -72,18 +71,8 @@ export const RegisterForm: React.FC = () => {
 
             if (!json.accessToken) throw new Error('No access token returned');
 
-            // Extract user ID from the token
-            const userInfo = extractUserFromToken(json.accessToken);
-
-            if (!userInfo?.id) {
-                throw new Error('Could not extract user ID from token');
-            }
-
-            // Login the user first
+            // Login the user
             login(json.accessToken);
-
-            // Create catalogue with user ID using the addCatalogue endpoint
-            await addCatalogue(userInfo.id);
 
             navigate(HOME_PAGE.route);
         } catch (e) {

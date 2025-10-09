@@ -7,10 +7,9 @@ import MaterialsTable from '../../components/MaterialsTable';
 
 const Materials = () => {
     const { accessToken, login, logout } = useAuth();
-    const { user } = useUser();
     const { data, isError, error } = useQuery({
-        ...getMaterialsQuery(user?.id || '', accessToken, login, logout),
-        enabled: !!user?.id && !!accessToken,
+        ...getMaterialsQuery(accessToken, login, logout),
+        enabled: !!accessToken,
     });
 
     if (isError) {
@@ -22,7 +21,7 @@ const Materials = () => {
         );
     }
 
-    if (!data || !user?.id) {
+    if (!data) {
         return <LoadingScreen />;
     }
 

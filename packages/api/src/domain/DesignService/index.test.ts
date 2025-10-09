@@ -18,10 +18,13 @@ const mockDesignRepo = {
 
 const mockCatalogueRepo = {
     getById: vi.fn(),
+    getByUserId: vi.fn(),
     update: vi.fn(),
     insert: vi.fn(),
     delete: vi.fn(),
-    getAll: vi.fn()
+    getAll: vi.fn(),
+    findByDesignId: vi.fn(),
+    findByMaterialId: vi.fn()
 };
 
 const mockImageService = {
@@ -50,6 +53,14 @@ describe('DesignService', () => {
     describe('getDesignsByCatalogue', () => {
         it('should return designs for valid catalogue ID', async () => {
             const catalogueId = 'catalogue-123';
+            const userId = 'user-123';
+            const mockCatalogue: Catalogue = {
+                _id: catalogueId as any,
+                userId,
+                name: 'Test Catalogue',
+                designIds: ['design-1'],
+                materialIds: []
+            };
             const mockDesigns: Array<Design> = [
                 {
                     id: 'design-1',
@@ -63,16 +74,18 @@ describe('DesignService', () => {
                 }
             ];
 
+            mockCatalogueRepo.getById.mockResolvedValue(mockCatalogue);
             mockDesignRepo.getByCatalogueId.mockResolvedValue(mockDesigns);
 
-            const result = await service.getDesignsByCatalogue(catalogueId);
+            const result = await service.getDesignsByCatalogue(catalogueId, userId);
 
+            expect(mockCatalogueRepo.getById).toHaveBeenCalledWith(catalogueId);
             expect(mockDesignRepo.getByCatalogueId).toHaveBeenCalledWith(catalogueId);
             expect(result).toEqual(mockDesigns);
         });
 
         it('should throw error for empty catalogue ID', async () => {
-            await expect(service.getDesignsByCatalogue('')).rejects.toMatchObject({
+            await expect(service.getDesignsByCatalogue('', 'user-123')).rejects.toMatchObject({
                 message: 'Catalogue ID is required',
                 status: 400
             });
@@ -81,7 +94,7 @@ describe('DesignService', () => {
         });
 
         it('should throw error for null catalogue ID', async () => {
-            await expect(service.getDesignsByCatalogue(null as any)).rejects.toMatchObject({
+            await expect(service.getDesignsByCatalogue(null as any, 'user-123')).rejects.toMatchObject({
                 message: 'Catalogue ID is required',
                 status: 400
             });
@@ -89,17 +102,27 @@ describe('DesignService', () => {
 
         it('should propagate repository errors', async () => {
             const catalogueId = 'catalogue-123';
+            const userId = 'user-123';
+            const mockCatalogue: Catalogue = {
+                _id: catalogueId as any,
+                userId,
+                name: 'Test Catalogue',
+                designIds: [],
+                materialIds: []
+            };
             const repoError = new Error('Database connection failed');
 
+            mockCatalogueRepo.getById.mockResolvedValue(mockCatalogue);
             mockDesignRepo.getByCatalogueId.mockRejectedValue(repoError);
 
-            await expect(service.getDesignsByCatalogue(catalogueId)).rejects.toThrow('Database connection failed');
+            await expect(service.getDesignsByCatalogue(catalogueId, userId)).rejects.toThrow('Database connection failed');
         });
     });
 
     describe('getDesign', () => {
         it('should return design for valid ID', async () => {
             const designId = 'design-123';
+            const userId = 'user-123';
             const mockDesign: Design = {
                 id: designId,
                 name: 'Test Design',
@@ -110,17 +133,88 @@ describe('DesignService', () => {
                 imageId: 'image-123',
                 materials: []
             };
+            const mockCatalogue: Catalogue = {
+                _id: 'catalogue-123' as any,
+                userId,
+                name: 'Test Catalogue',
+                designIds: [designId],
+                materialIds: []
+            };
 
             mockDesignRepo.getById.mockResolvedValue(mockDesign);
+            mockCatalogueRepo.findByDesignId.mockResolvedValue(mockCatalogue);
 
-            const result = await service.getDesign(designId);
+            const result = await service.getDesign(designId, userId);
 
             expect(mockDesignRepo.getById).toHaveBeenCalledWith(designId);
+            expect(mockCatalogueRepo.findByDesignId).toHaveBeenCalledWith(designId);
             expect(result).toEqual(mockDesign);
         });
 
+        it('should validate catalogue ownership when userId is provided', async () => {
+            const designId = 'design-123';
+            const userId = 'user-123';
+            const mockDesign: Design = {
+                id: designId,
+                name: 'Test Design',
+                description: 'Test description',
+                timeRequired: 45,
+                totalMaterialCosts: 20.00,
+                price: 35.00,
+                imageId: 'image-123',
+                materials: []
+            };
+            const mockCatalogue: Catalogue = {
+                _id: 'catalogue-123' as any,
+                userId,
+                name: 'Test Catalogue',
+                designIds: [designId],
+                materialIds: []
+            };
+
+            mockDesignRepo.getById.mockResolvedValue(mockDesign);
+            mockCatalogueRepo.findByDesignId.mockResolvedValue(mockCatalogue);
+
+            const result = await service.getDesign(designId, userId);
+
+            expect(mockDesignRepo.getById).toHaveBeenCalledWith(designId);
+            expect(mockCatalogueRepo.findByDesignId).toHaveBeenCalledWith(designId);
+            expect(result).toEqual(mockDesign);
+        });
+
+        it('should throw error when user does not own the design', async () => {
+            const designId = 'design-123';
+            const userId = 'user-123';
+            const wrongUserId = 'wrong-user';
+            const mockDesign: Design = {
+                id: designId,
+                name: 'Test Design',
+                description: 'Test description',
+                timeRequired: 45,
+                totalMaterialCosts: 20.00,
+                price: 35.00,
+                imageId: 'image-123',
+                materials: []
+            };
+            const mockCatalogue: Catalogue = {
+                _id: 'catalogue-123' as any,
+                userId: wrongUserId,
+                name: 'Test Catalogue',
+                designIds: [designId],
+                materialIds: []
+            };
+
+            mockDesignRepo.getById.mockResolvedValue(mockDesign);
+            mockCatalogueRepo.findByDesignId.mockResolvedValue(mockCatalogue);
+
+            await expect(service.getDesign(designId, userId)).rejects.toMatchObject({
+                message: 'Design not found',
+                status: 404
+            });
+        });
+
         it('should throw error for empty design ID', async () => {
-            await expect(service.getDesign('')).rejects.toMatchObject({
+            await expect(service.getDesign('', 'user-123')).rejects.toMatchObject({
                 message: 'Design ID is required',
                 status: 400
             });
@@ -133,7 +227,7 @@ describe('DesignService', () => {
 
             mockDesignRepo.getById.mockResolvedValue(null);
 
-            await expect(service.getDesign(designId)).rejects.toMatchObject({
+            await expect(service.getDesign(designId, 'user-123')).rejects.toMatchObject({
                 message: 'Design not found',
                 status: 404
             });
@@ -144,15 +238,13 @@ describe('DesignService', () => {
 
     describe('addDesign', () => {
         const catalogueId = 'catalogue-123';
+        const userId = 'user-123';
         const mockCatalogue: Catalogue = {
             _id: catalogueId as any,
-            title: 'Test Catalogue',
-            description: 'Test description',
-            dateCreated: new Date(),
-            author: 'Test Author',
-            isPublic: true,
-            designs: [],
-            materials: []
+            userId,
+            name: 'Test Catalogue',
+            designIds: [],
+            materialIds: []
         };
 
         const mockDesignData: UploadDesign = {
@@ -179,7 +271,7 @@ describe('DesignService', () => {
             mockDesignRepo.insert.mockResolvedValue(undefined);
             mockCatalogueRepo.update.mockResolvedValue(undefined);
 
-            const result = await service.addDesign(catalogueId, mockDesignData, mockImageBuffer, mockContentType);
+            const result = await service.addDesign(catalogueId, mockDesignData, mockImageBuffer, mockContentType, userId);
 
             expect(mockCatalogueRepo.getById).toHaveBeenCalledWith(catalogueId);
             expect(mockImageService.uploadImage).toHaveBeenCalledWith('image-id-123', mockImageBuffer, mockContentType);
@@ -195,13 +287,13 @@ describe('DesignService', () => {
             });
             expect(mockCatalogueRepo.update).toHaveBeenCalledWith(catalogueId, {
                 ...mockCatalogue,
-                designs: [result]
+                designIds: ['design-id-123']
             });
             expect(result.id).toBe('design-id-123');
         });
 
         it('should throw error for empty catalogue ID', async () => {
-            await expect(service.addDesign('', mockDesignData, mockImageBuffer, mockContentType))
+            await expect(service.addDesign('', mockDesignData, mockImageBuffer, mockContentType, userId))
                 .rejects.toMatchObject({
                     message: 'Catalogue ID is required',
                     status: 400
@@ -213,7 +305,7 @@ describe('DesignService', () => {
         it('should throw error when catalogue not found', async () => {
             mockCatalogueRepo.getById.mockResolvedValue(null);
 
-            await expect(service.addDesign(catalogueId, mockDesignData, mockImageBuffer, mockContentType))
+            await expect(service.addDesign(catalogueId, mockDesignData, mockImageBuffer, mockContentType, userId))
                 .rejects.toMatchObject({
                     message: 'Catalogue not found',
                     status: 404
@@ -238,7 +330,7 @@ describe('DesignService', () => {
             mockDesignRepo.insert.mockResolvedValue(undefined);
             mockCatalogueRepo.update.mockResolvedValue(undefined);
 
-            const result = await service.addDesign(catalogueId, designDataWithStringMaterials, mockImageBuffer, mockContentType);
+            const result = await service.addDesign(catalogueId, designDataWithStringMaterials, mockImageBuffer, mockContentType, userId);
 
             expect(result.materials).toEqual(materials);
         });
@@ -258,7 +350,7 @@ describe('DesignService', () => {
             mockDesignRepo.insert.mockResolvedValue(undefined);
             mockCatalogueRepo.update.mockResolvedValue(undefined);
 
-            const result = await service.addDesign(catalogueId, designDataWithArrayMaterials, mockImageBuffer, mockContentType);
+            const result = await service.addDesign(catalogueId, designDataWithArrayMaterials, mockImageBuffer, mockContentType, userId);
 
             expect(result.materials).toEqual(materials);
         });
@@ -271,7 +363,7 @@ describe('DesignService', () => {
 
             mockCatalogueRepo.getById.mockResolvedValue(mockCatalogue);
 
-            await expect(service.addDesign(catalogueId, designDataWithInvalidMaterials, mockImageBuffer, mockContentType))
+            await expect(service.addDesign(catalogueId, designDataWithInvalidMaterials, mockImageBuffer, mockContentType, userId))
                 .rejects.toMatchObject({
                     message: 'Invalid materials format',
                     status: 400
@@ -284,7 +376,7 @@ describe('DesignService', () => {
             mockCatalogueRepo.getById.mockResolvedValue(mockCatalogue);
             mockImageService.uploadImage.mockRejectedValue(new Error('Upload failed'));
 
-            await expect(service.addDesign(catalogueId, mockDesignData, mockImageBuffer, mockContentType))
+            await expect(service.addDesign(catalogueId, mockDesignData, mockImageBuffer, mockContentType, userId))
                 .rejects.toThrow('Upload failed');
 
             expect(mockDesignRepo.insert).not.toHaveBeenCalled();
@@ -293,6 +385,7 @@ describe('DesignService', () => {
 
     describe('updateDesign', () => {
         const designId = 'design-123';
+        const userId = 'user-123';
         const existingDesign: Design = {
             id: designId,
             name: 'Existing Design',
@@ -303,23 +396,32 @@ describe('DesignService', () => {
             imageId: 'image-123',
             materials: []
         };
+        const mockCatalogue: Catalogue = {
+            _id: 'catalogue-123' as any,
+            userId,
+            name: 'Test Catalogue',
+            designIds: [designId],
+            materialIds: []
+        };
 
         it('should update design successfully', async () => {
             const updates = { name: 'Updated Design', price: 30.00 };
             const expectedUpdated = { ...existingDesign, ...updates };
 
             mockDesignRepo.getById.mockResolvedValue(existingDesign);
+            mockCatalogueRepo.findByDesignId.mockResolvedValue(mockCatalogue);
             mockDesignRepo.update.mockResolvedValue(undefined);
 
-            const result = await service.updateDesign(designId, updates);
+            const result = await service.updateDesign(designId, updates, userId);
 
             expect(mockDesignRepo.getById).toHaveBeenCalledWith(designId);
+            expect(mockCatalogueRepo.findByDesignId).toHaveBeenCalledWith(designId);
             expect(mockDesignRepo.update).toHaveBeenCalledWith(designId, expectedUpdated);
             expect(result).toEqual(expectedUpdated);
         });
 
         it('should throw error for empty design ID', async () => {
-            await expect(service.updateDesign('', { name: 'Updated' }))
+            await expect(service.updateDesign('', { name: 'Updated' }, userId))
                 .rejects.toMatchObject({
                     message: 'Design ID is required',
                     status: 400
@@ -331,7 +433,7 @@ describe('DesignService', () => {
         it('should throw error when design not found', async () => {
             mockDesignRepo.getById.mockResolvedValue(null);
 
-            await expect(service.updateDesign(designId, { name: 'Updated' }))
+            await expect(service.updateDesign(designId, { name: 'Updated' }, userId))
                 .rejects.toMatchObject({
                     message: 'Design not found',
                     status: 404
@@ -345,9 +447,10 @@ describe('DesignService', () => {
             const expectedUpdated = { ...existingDesign, ...updates };
 
             mockDesignRepo.getById.mockResolvedValue(existingDesign);
+            mockCatalogueRepo.findByDesignId.mockResolvedValue(mockCatalogue);
             mockDesignRepo.update.mockResolvedValue(undefined);
 
-            const result = await service.updateDesign(designId, updates);
+            const result = await service.updateDesign(designId, updates, userId);
 
             expect(result).toEqual(expectedUpdated);
             expect(result.name).toBe(existingDesign.name); // unchanged
@@ -357,6 +460,8 @@ describe('DesignService', () => {
 
     describe('deleteDesign', () => {
         const designId = 'design-123';
+        const catalogueId = 'catalogue-123';
+        const userId = 'user-123';
         const existingDesign: Design = {
             id: designId,
             name: 'Design to Delete',
@@ -368,18 +473,55 @@ describe('DesignService', () => {
             materials: []
         };
 
-        it('should delete design successfully', async () => {
+        it('should delete design successfully with userId', async () => {
+            const mockCatalogue: Catalogue = {
+                _id: catalogueId as any,
+                userId,
+                name: 'Test Catalogue',
+                designIds: [designId],
+                materialIds: []
+            };
+
             mockDesignRepo.getById.mockResolvedValue(existingDesign);
+            mockCatalogueRepo.findByDesignId.mockResolvedValue(mockCatalogue);
+            mockCatalogueRepo.update.mockResolvedValue(undefined);
             mockDesignRepo.delete.mockResolvedValue(undefined);
 
-            await service.deleteDesign(designId);
+            await service.deleteDesign(designId, userId);
 
             expect(mockDesignRepo.getById).toHaveBeenCalledWith(designId);
+            expect(mockCatalogueRepo.findByDesignId).toHaveBeenCalledWith(designId);
+            expect(mockCatalogueRepo.update).toHaveBeenCalledWith(catalogueId, {
+                ...mockCatalogue,
+                designIds: []
+            });
+            expect(mockDesignRepo.delete).toHaveBeenCalledWith(designId);
+        });
+
+        it('should delete design successfully and remove from catalogue', async () => {
+            const mockCatalogue: Catalogue = {
+                _id: catalogueId as any,
+                userId,
+                name: 'Test Catalogue',
+                designIds: [designId],
+                materialIds: []
+            };
+
+            mockDesignRepo.getById.mockResolvedValue(existingDesign);
+            mockCatalogueRepo.findByDesignId.mockResolvedValue(mockCatalogue);
+            mockCatalogueRepo.update.mockResolvedValue(undefined);
+            mockDesignRepo.delete.mockResolvedValue(undefined);
+
+            await service.deleteDesign(designId, userId);
+
+            expect(mockDesignRepo.getById).toHaveBeenCalledWith(designId);
+            expect(mockCatalogueRepo.findByDesignId).toHaveBeenCalledWith(designId);
+            expect(mockCatalogueRepo.update).toHaveBeenCalled();
             expect(mockDesignRepo.delete).toHaveBeenCalledWith(designId);
         });
 
         it('should throw error for empty design ID', async () => {
-            await expect(service.deleteDesign(''))
+            await expect(service.deleteDesign('', userId))
                 .rejects.toMatchObject({
                     message: 'Design ID is required',
                     status: 400
@@ -391,7 +533,7 @@ describe('DesignService', () => {
         it('should throw error when design not found', async () => {
             mockDesignRepo.getById.mockResolvedValue(null);
 
-            await expect(service.deleteDesign(designId))
+            await expect(service.deleteDesign(designId, userId))
                 .rejects.toMatchObject({
                     message: 'Design not found',
                     status: 404
@@ -401,10 +543,19 @@ describe('DesignService', () => {
         });
 
         it('should propagate repository delete errors', async () => {
+            const mockCatalogue: Catalogue = {
+                _id: catalogueId as any,
+                userId,
+                name: 'Test Catalogue',
+                designIds: [designId],
+                materialIds: []
+            };
+
             mockDesignRepo.getById.mockResolvedValue(existingDesign);
+            mockCatalogueRepo.findByDesignId.mockResolvedValue(mockCatalogue);
             mockDesignRepo.delete.mockRejectedValue(new Error('Delete failed'));
 
-            await expect(service.deleteDesign(designId)).rejects.toThrow('Delete failed');
+            await expect(service.deleteDesign(designId, userId)).rejects.toThrow('Delete failed');
 
             expect(mockDesignRepo.delete).toHaveBeenCalledWith(designId);
         });
@@ -412,33 +563,41 @@ describe('DesignService', () => {
 
     describe('error handling and edge cases', () => {
         it('should handle undefined values gracefully', async () => {
-            await expect(service.getDesignsByCatalogue(undefined as any))
+            await expect(service.getDesignsByCatalogue(undefined as any, 'user-123'))
                 .rejects.toMatchObject({ message: 'Catalogue ID is required', status: 400 });
 
-            await expect(service.getDesign(undefined as any))
+            await expect(service.getDesign(undefined as any, 'user-123'))
                 .rejects.toMatchObject({ message: 'Design ID is required', status: 400 });
 
-            await expect(service.updateDesign(undefined as any, {}))
+            await expect(service.updateDesign(undefined as any, {}, 'user-123'))
                 .rejects.toMatchObject({ message: 'Design ID is required', status: 400 });
 
-            await expect(service.deleteDesign(undefined as any))
+            await expect(service.deleteDesign(undefined as any, 'user-123'))
                 .rejects.toMatchObject({ message: 'Design ID is required', status: 400 });
         });
 
         it('should handle repository connection failures', async () => {
             const connectionError = new Error('Database unavailable');
+            const mockCatalogue: Catalogue = {
+                _id: 'catalogue-1' as any,
+                userId: 'user-123',
+                name: 'Test',
+                designIds: [],
+                materialIds: []
+            };
 
+            mockCatalogueRepo.getById.mockResolvedValue(mockCatalogue);
             mockDesignRepo.getByCatalogueId.mockRejectedValue(connectionError);
-            await expect(service.getDesignsByCatalogue('catalogue-1')).rejects.toThrow('Database unavailable');
+            await expect(service.getDesignsByCatalogue('catalogue-1', 'user-123')).rejects.toThrow('Database unavailable');
 
             mockDesignRepo.getById.mockRejectedValue(connectionError);
-            await expect(service.getDesign('design-1')).rejects.toThrow('Database unavailable');
+            await expect(service.getDesign('design-1', 'user-123')).rejects.toThrow('Database unavailable');
 
             mockDesignRepo.getById.mockRejectedValue(connectionError);
-            await expect(service.updateDesign('design-1', {})).rejects.toThrow('Database unavailable');
+            await expect(service.updateDesign('design-1', {}, 'user-123')).rejects.toThrow('Database unavailable');
 
             mockDesignRepo.getById.mockRejectedValue(connectionError);
-            await expect(service.deleteDesign('design-1')).rejects.toThrow('Database unavailable');
+            await expect(service.deleteDesign('design-1', 'user-123')).rejects.toThrow('Database unavailable');
         });
     });
 });

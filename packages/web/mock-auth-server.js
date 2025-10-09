@@ -19,10 +19,14 @@ const refreshTokens = new Map(); // Store refresh tokens for users
 
 const generateMockToken = (username) => {
     // Create a proper JWT-like structure with user data
+    const userId = `68c6f0f5b97c946129015116`;
+    const catalogueId = `68c6f0f5b97c946129015117`; // Mock catalogue ID for user
+
     const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
     const payload = btoa(JSON.stringify({
         username: username,
-        id: `68c6f0f5b97c946129015116`,
+        id: userId,
+        catalogueId: catalogueId,
         exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
         iat: Math.floor(Date.now() / 1000)
     }));

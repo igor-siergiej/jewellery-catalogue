@@ -1,5 +1,4 @@
 export * from './baseMaterial';
-export * from './catalogue';
 export * from './design';
 export * from './formMaterial';
 export * from './material';

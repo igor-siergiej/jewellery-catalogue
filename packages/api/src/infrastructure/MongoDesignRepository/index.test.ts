@@ -153,11 +153,15 @@ describe('MongoDesignRepository', () => {
 
             const mockCatalogue = {
                 _id: new ObjectId(catalogueId),
-                title: 'Test Catalogue',
-                designs
+                name: 'Test Catalogue',
+                designIds: ['design-1', 'design-2'],
+                materialIds: []
             };
 
             mockCataloguesCollection.findOne.mockResolvedValue(mockCatalogue);
+            mockDesignsCollection.find.mockReturnValue({
+                toArray: vi.fn().mockResolvedValue(designs)
+            });
 
             const result = await repository.getByCatalogueId(catalogueId);
 
@@ -165,6 +169,7 @@ describe('MongoDesignRepository', () => {
             expect(mockCataloguesCollection.findOne).toHaveBeenCalledWith({
                 _id: new ObjectId(catalogueId)
             });
+            expect(mockDesignsCollection.find).toHaveBeenCalledWith({ id: { $in: ['design-1', 'design-2'] } });
             expect(result).toEqual(designs);
         });
 
@@ -172,8 +177,9 @@ describe('MongoDesignRepository', () => {
             const catalogueId = '507f1f77bcf86cd799439012';
             const mockCatalogue = {
                 _id: new ObjectId(catalogueId),
-                title: 'Empty Catalogue'
-                // no designs property
+                name: 'Empty Catalogue',
+                designIds: [],
+                materialIds: []
             };
 
             mockCataloguesCollection.findOne.mockResolvedValue(mockCatalogue);
@@ -183,12 +189,13 @@ describe('MongoDesignRepository', () => {
             expect(result).toEqual([]);
         });
 
-        it('should return empty array when catalogue designs is undefined', async () => {
+        it('should return empty array when catalogue designIds is undefined', async () => {
             const catalogueId = '507f1f77bcf86cd799439013';
             const mockCatalogue = {
                 _id: new ObjectId(catalogueId),
-                title: 'Catalogue with undefined designs',
-                designs: undefined
+                name: 'Catalogue with undefined designIds',
+                designIds: undefined,
+                materialIds: []
             };
 
             mockCataloguesCollection.findOne.mockResolvedValue(mockCatalogue);
@@ -257,11 +264,15 @@ describe('MongoDesignRepository', () => {
 
             const mockCatalogue = {
                 _id: new ObjectId(catalogueId),
-                title: 'Varied Designs Catalogue',
-                designs
+                name: 'Varied Designs Catalogue',
+                designIds: ['minimal-design', 'complex-design'],
+                materialIds: []
             };
 
             mockCataloguesCollection.findOne.mockResolvedValue(mockCatalogue);
+            mockDesignsCollection.find.mockReturnValue({
+                toArray: vi.fn().mockResolvedValue(designs)
+            });
 
             const result = await repository.getByCatalogueId(catalogueId);
 

@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAuth, useUser } from '@imapps/web-utils';
+import { useAuth } from '@imapps/web-utils';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -39,12 +39,11 @@ const AddDesign: React.FC = () => {
     });
 
     const { accessToken, login, logout } = useAuth();
-    const { user } = useUser();
     const [isMakingRequest, setIsMakingRequest] = useState(false);
 
     const { data } = useQuery({
-        ...getMaterialsQuery(user?.id || '', accessToken, login, logout),
-        enabled: !!user?.id && !!accessToken,
+        ...getMaterialsQuery(accessToken, login, logout),
+        enabled: !!accessToken,
     });
 
     const selectedMaterials = form.watch('materials');
@@ -55,11 +54,7 @@ const AddDesign: React.FC = () => {
     const onSubmit: SubmitHandler<AddDesignFormData> = async (data) => {
         setIsMakingRequest(true);
         try {
-            if (!user?.id) {
-                throw new Error('User not authenticated');
-            }
-
-            await makeAddDesignRequest(user.id, data, accessToken, login, logout);
+            await makeAddDesignRequest(data, accessToken, login, logout);
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,

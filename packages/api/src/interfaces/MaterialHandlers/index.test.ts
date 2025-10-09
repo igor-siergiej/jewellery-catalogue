@@ -124,7 +124,8 @@ describe('MaterialHandlers', () => {
     });
 
     describe('getMaterial', () => {
-        it('should return material for valid ID', async () => {
+        it('should return material for valid ID with catalogueId', async () => {
+            const catalogueId = 'catalogue-123';
             const materialId = 'material-123';
             const mockMaterial: Material = {
                 id: materialId,
@@ -138,13 +139,13 @@ describe('MaterialHandlers', () => {
                 pricePerBead: 0.15
             };
 
-            const ctx = createMockContext({ params: { id: materialId } });
+            const ctx = createMockContext({ params: { catalogueId, id: materialId } });
 
             mockMaterialService.getMaterial.mockResolvedValue(mockMaterial);
 
             await materialHandlers.getMaterial(ctx);
 
-            expect(mockMaterialService.getMaterial).toHaveBeenCalledWith(materialId);
+            expect(mockMaterialService.getMaterial).toHaveBeenCalledWith(materialId, catalogueId);
             expect(ctx.response.status).toBe(200);
             expect(ctx.body).toEqual(mockMaterial);
         });
@@ -272,6 +273,7 @@ describe('MaterialHandlers', () => {
 
     describe('updateMaterial', () => {
         it('should update material successfully', async () => {
+            const catalogueId = 'catalogue-123';
             const materialId = 'material-123';
             const updates = { name: 'Updated Material Name', pricePerMeter: 3.0 };
             const updatedMaterial: Material = {
@@ -288,7 +290,7 @@ describe('MaterialHandlers', () => {
             };
 
             const ctx = createMockContext({
-                params: { id: materialId },
+                params: { catalogueId, id: materialId },
                 request: { body: updates } as any
             });
 
@@ -296,7 +298,7 @@ describe('MaterialHandlers', () => {
 
             await materialHandlers.updateMaterial(ctx);
 
-            expect(mockMaterialService.updateMaterial).toHaveBeenCalledWith(materialId, updates);
+            expect(mockMaterialService.updateMaterial).toHaveBeenCalledWith(materialId, updates, catalogueId);
             expect(ctx.response.status).toBe(200);
             expect(ctx.body).toEqual(updatedMaterial);
         });
@@ -342,15 +344,16 @@ describe('MaterialHandlers', () => {
 
     describe('deleteMaterial', () => {
         it('should delete material successfully', async () => {
+            const catalogueId = 'catalogue-123';
             const materialId = 'material-123';
 
-            const ctx = createMockContext({ params: { id: materialId } });
+            const ctx = createMockContext({ params: { catalogueId, id: materialId } });
 
             mockMaterialService.deleteMaterial.mockResolvedValue(undefined);
 
             await materialHandlers.deleteMaterial(ctx);
 
-            expect(mockMaterialService.deleteMaterial).toHaveBeenCalledWith(materialId);
+            expect(mockMaterialService.deleteMaterial).toHaveBeenCalledWith(materialId, catalogueId);
             expect(ctx.response.status).toBe(200);
             expect(ctx.body).toEqual({ message: 'Material deleted successfully' });
         });

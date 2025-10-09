@@ -20,6 +20,7 @@ import {
     MATERIALS_PAGE,
     REGISTER_PAGE,
     START_PAGE,
+    VIEW_DESIGN_PAGE,
 } from './constants/routes';
 import { AlertProvider } from './context/Alert';
 import AddDesign from './pages/AddDesign';
@@ -29,6 +30,7 @@ import Home from './pages/Home';
 import Materials from './pages/Materials';
 import Register from './pages/Register';
 import Start from './pages/Start';
+import ViewDesign from './pages/ViewDesign';
 import { getAuthConfig } from './utils/authConfig';
 import { loadConfig } from './utils/loadConfig';
 
@@ -68,6 +70,17 @@ function App() {
                     <ProtectedRoute fallbackPath={START_PAGE.route}>
                         <MainLayout>
                             <Designs />
+                        </MainLayout>
+                    </ProtectedRoute>
+                )}
+            />
+
+            <Route
+                path={VIEW_DESIGN_PAGE.route}
+                element={(
+                    <ProtectedRoute fallbackPath={START_PAGE.route}>
+                        <MainLayout>
+                            <ViewDesign />
                         </MainLayout>
                     </ProtectedRoute>
                 )}

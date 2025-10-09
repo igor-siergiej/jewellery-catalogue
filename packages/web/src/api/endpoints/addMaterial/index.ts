@@ -4,7 +4,6 @@ import { MATERIALS_ENDPOINT } from '../../endpoints';
 import { makeRequestWithAutoRefresh } from '../../makeRequest';
 
 const makeAddMaterialRequest = async (
-    catalogueId: string,
     material: FormMaterial,
     accessToken: string,
     onTokenRefresh: (newToken: string) => void,
@@ -12,7 +11,7 @@ const makeAddMaterialRequest = async (
 ) => {
     return await makeRequestWithAutoRefresh<Array<Material>>(
         {
-            pathname: `${MATERIALS_ENDPOINT}/${catalogueId}`,
+            pathname: MATERIALS_ENDPOINT,
             method: MethodType.POST,
             headers: {
                 'Content-Type': 'application/json',

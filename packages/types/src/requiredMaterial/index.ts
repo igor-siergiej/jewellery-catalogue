@@ -1,20 +1,20 @@
 export interface RequiredWire {
-    id: string;
+    materialId: string;
     requiredLength: number;
 }
 
 export interface RequiredBead {
-    id: string;
+    materialId: string;
     requiredQuantity: number;
 }
 
 export interface RequiredChain {
-    id: string;
+    materialId: string;
     requiredLength: number;
 }
 
 export interface RequiredEarHook {
-    id: string;
+    materialId: string;
     requiredQuantity: number;
 }
 

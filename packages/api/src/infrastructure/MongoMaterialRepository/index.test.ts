@@ -154,11 +154,15 @@ describe('MongoMaterialRepository', () => {
 
             const mockCatalogue = {
                 _id: new ObjectId(catalogueId),
-                title: 'Test Catalogue',
-                materials
+                name: 'Test Catalogue',
+                designIds: [],
+                materialIds: ['material-1', 'material-2']
             };
 
             mockCataloguesCollection.findOne.mockResolvedValue(mockCatalogue);
+            mockMaterialsCollection.find.mockReturnValue({
+                toArray: vi.fn().mockResolvedValue(materials)
+            });
 
             const result = await repository.getByCatalogueId(catalogueId);
 
@@ -166,6 +170,7 @@ describe('MongoMaterialRepository', () => {
             expect(mockCataloguesCollection.findOne).toHaveBeenCalledWith({
                 _id: new ObjectId(catalogueId)
             });
+            expect(mockMaterialsCollection.find).toHaveBeenCalledWith({ id: { $in: ['material-1', 'material-2'] } });
             expect(result).toEqual(materials);
         });
 
@@ -173,8 +178,9 @@ describe('MongoMaterialRepository', () => {
             const catalogueId = '507f1f77bcf86cd799439012';
             const mockCatalogue = {
                 _id: new ObjectId(catalogueId),
-                title: 'Empty Catalogue'
-                // no materials property
+                name: 'Empty Catalogue',
+                designIds: [],
+                materialIds: []
             };
 
             mockCataloguesCollection.findOne.mockResolvedValue(mockCatalogue);
@@ -184,12 +190,13 @@ describe('MongoMaterialRepository', () => {
             expect(result).toEqual([]);
         });
 
-        it('should return empty array when catalogue materials is undefined', async () => {
+        it('should return empty array when catalogue materialIds is undefined', async () => {
             const catalogueId = '507f1f77bcf86cd799439013';
             const mockCatalogue = {
                 _id: new ObjectId(catalogueId),
-                title: 'Catalogue with undefined materials',
-                materials: undefined
+                name: 'Catalogue with undefined materialIds',
+                designIds: [],
+                materialIds: undefined
             };
 
             mockCataloguesCollection.findOne.mockResolvedValue(mockCatalogue);
@@ -262,11 +269,15 @@ describe('MongoMaterialRepository', () => {
 
             const mockCatalogue = {
                 _id: new ObjectId(catalogueId),
-                title: 'Multi-type Catalogue',
-                materials
+                name: 'Multi-type Catalogue',
+                designIds: [],
+                materialIds: ['wire-1', 'bead-1', 'chain-1']
             };
 
             mockCataloguesCollection.findOne.mockResolvedValue(mockCatalogue);
+            mockMaterialsCollection.find.mockReturnValue({
+                toArray: vi.fn().mockResolvedValue(materials)
+            });
 
             const result = await repository.getByCatalogueId(catalogueId);
 

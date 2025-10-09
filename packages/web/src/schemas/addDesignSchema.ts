@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const requiredMaterialSchema = z.object({
-    id: z.string().min(1, 'Material ID is required'),
+    materialId: z.string().min(1, 'Material ID is required'),
     requiredLength: z.number().optional(),
     requiredQuantity: z.number().optional(),
 });

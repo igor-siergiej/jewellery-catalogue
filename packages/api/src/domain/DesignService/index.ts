@@ -1,6 +1,5 @@
 import { Design, RequiredMaterial, UploadDesign } from '@jewellery-catalogue/types';
 
-import { CatalogueRepository } from '../CatalogueRepository';
 import { DesignRepository } from '../DesignRepository';
 import { IdGenerator } from '../IdGenerator';
 import { ImageService } from '../ImageService';
@@ -8,25 +7,24 @@ import { ImageService } from '../ImageService';
 export class DesignService {
     constructor(
         private readonly designRepo: DesignRepository,
-        private readonly catalogueRepo: CatalogueRepository,
         private readonly imageService: ImageService,
         private readonly idGenerator: IdGenerator
     ) {}
 
-    async getDesignsByCatalogue(catalogueId: string): Promise<Array<Design>> {
-        if (!catalogueId) {
-            throw Object.assign(new Error('Catalogue ID is required'), { status: 400 });
+    async getDesignsByUserId(userId: string): Promise<Array<Design>> {
+        if (!userId) {
+            throw Object.assign(new Error('User ID is required'), { status: 400 });
         }
 
-        return this.designRepo.getByCatalogueId(catalogueId);
+        return this.designRepo.getByUserId(userId);
     }
 
-    async getDesign(id: string): Promise<Design> {
+    async getDesign(id: string, userId: string): Promise<Design> {
         if (!id) {
             throw Object.assign(new Error('Design ID is required'), { status: 400 });
         }
 
-        const design = await this.designRepo.getById(id);
+        const design = await this.designRepo.getByIdAndUserId(id, userId);
 
         if (!design) {
             throw Object.assign(new Error('Design not found'), { status: 404 });
@@ -35,16 +33,9 @@ export class DesignService {
         return design;
     }
 
-    async addDesign(catalogueId: string, designData: UploadDesign, imageBuffer: Buffer, contentType: string): Promise<Design> {
-        if (!catalogueId) {
-            throw Object.assign(new Error('Catalogue ID is required'), { status: 400 });
-        }
-
-        // Verify catalogue exists
-        const catalogue = await this.catalogueRepo.getById(catalogueId);
-
-        if (!catalogue) {
-            throw Object.assign(new Error('Catalogue not found'), { status: 404 });
+    async addDesign(designData: UploadDesign, imageBuffer: Buffer, contentType: string, userId: string): Promise<Design> {
+        if (!userId) {
+            throw Object.assign(new Error('User ID is required'), { status: 400 });
         }
 
         // Generate IDs
@@ -67,30 +58,30 @@ export class DesignService {
 
         const design: Design = {
             id: designId,
+            userId: userId,
             name: designData.name,
             description: designData.description,
             timeRequired: designData.timeRequired,
+            laborCost: 0, // TODO: Calculate from timeRequired
+            markup: 1.15, // TODO: Make configurable
             totalMaterialCosts: designData.totalMaterialCosts,
             price: designData.price,
+            costsCalculatedAt: new Date(),
             imageId,
             materials
         };
 
         await this.designRepo.insert(design);
 
-        // Update catalogue to include design
-        catalogue.designs.push(design);
-        await this.catalogueRepo.update(catalogueId, catalogue);
-
         return design;
     }
 
-    async updateDesign(id: string, updates: Partial<Design>): Promise<Design> {
+    async updateDesign(id: string, updates: Partial<Design>, userId: string): Promise<Design> {
         if (!id) {
             throw Object.assign(new Error('Design ID is required'), { status: 400 });
         }
 
-        const existing = await this.designRepo.getById(id);
+        const existing = await this.designRepo.getByIdAndUserId(id, userId);
 
         if (!existing) {
             throw Object.assign(new Error('Design not found'), { status: 404 });
@@ -103,12 +94,12 @@ export class DesignService {
         return updated;
     }
 
-    async deleteDesign(id: string): Promise<void> {
+    async deleteDesign(id: string, userId: string): Promise<void> {
         if (!id) {
             throw Object.assign(new Error('Design ID is required'), { status: 400 });
         }
 
-        const design = await this.designRepo.getById(id);
+        const design = await this.designRepo.getByIdAndUserId(id, userId);
 
         if (!design) {
             throw Object.assign(new Error('Design not found'), { status: 404 });

@@ -35,6 +35,12 @@ export const ADD_MATERIAL_PAGE: NavRoute = {
     route: '/addMaterial',
 };
 
+export const VIEW_DESIGN_PAGE = {
+    name: 'View Design',
+    route: '/designs/:id',
+    getRoute: (id: string) => `/designs/${id}`,
+};
+
 export const ROUTES = [
     HOME_PAGE,
     DESIGNS_PAGE,

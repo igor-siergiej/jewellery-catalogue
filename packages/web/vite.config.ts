@@ -27,6 +27,26 @@ export default defineConfig(({ mode }) => {
                     target: 'http://localhost:3001',
                     changeOrigin: false,
                     secure: false,
+                },
+                '/login': {
+                    target: 'http://localhost:3008',
+                    changeOrigin: true,
+                    secure: false,
+                },
+                '/register': {
+                    target: 'http://localhost:3008',
+                    changeOrigin: true,
+                    secure: false,
+                },
+                '/refresh': {
+                    target: 'http://localhost:3008',
+                    changeOrigin: true,
+                    secure: false,
+                },
+                '/logout': {
+                    target: 'http://localhost:3008',
+                    changeOrigin: true,
+                    secure: false,
                 }
             },
         },

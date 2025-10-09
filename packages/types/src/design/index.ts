@@ -23,6 +23,7 @@ export interface UploadDesign {
 
 export interface Design {
     id: string;
+    userId: string;
     materials: Array<RequiredMaterial>;
     name: string;
     imageId: string;

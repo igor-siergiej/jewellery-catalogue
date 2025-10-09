@@ -9,10 +9,10 @@ const getMaterialService = (): MaterialService =>
     dependencyContainer.resolve(DependencyToken.MaterialService);
 
 export const getMaterials = async (ctx: Context) => {
-    const { catalogueId } = ctx.params;
+    const userId = ctx.state.userId;
 
     try {
-        const materials = await getMaterialService().getMaterialsByCatalogue(catalogueId);
+        const materials = await getMaterialService().getMaterialsByUserId(userId);
 
         ctx.body = materials;
     } catch (error: unknown) {
@@ -24,10 +24,11 @@ export const getMaterials = async (ctx: Context) => {
 };
 
 export const getMaterial = async (ctx: Context) => {
+    const userId = ctx.state.userId;
     const { id } = ctx.params;
 
     try {
-        const material = await getMaterialService().getMaterial(id);
+        const material = await getMaterialService().getMaterial(id, userId);
 
         ctx.body = material;
     } catch (error: unknown) {
@@ -39,11 +40,11 @@ export const getMaterial = async (ctx: Context) => {
 };
 
 export const addMaterial = async (ctx: Context) => {
-    const { catalogueId } = ctx.params;
+    const userId = ctx.state.userId;
     const materialData = ctx.request.body as FormMaterial;
 
     try {
-        const material = await getMaterialService().addMaterial(catalogueId, materialData);
+        const material = await getMaterialService().addMaterial(materialData, userId);
 
         ctx.status = 200;
         ctx.body = material;
@@ -56,11 +57,12 @@ export const addMaterial = async (ctx: Context) => {
 };
 
 export const updateMaterial = async (ctx: Context) => {
+    const userId = ctx.state.userId;
     const { id } = ctx.params;
     const updates = ctx.request.body;
 
     try {
-        const material = await getMaterialService().updateMaterial(id, updates);
+        const material = await getMaterialService().updateMaterial(id, updates, userId);
 
         ctx.body = material;
     } catch (error: unknown) {
@@ -72,10 +74,11 @@ export const updateMaterial = async (ctx: Context) => {
 };
 
 export const deleteMaterial = async (ctx: Context) => {
+    const userId = ctx.state.userId;
     const { id } = ctx.params;
 
     try {
-        await getMaterialService().deleteMaterial(id);
+        await getMaterialService().deleteMaterial(id, userId);
 
         ctx.status = 200;
         ctx.body = { message: 'Material deleted successfully' };

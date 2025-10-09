@@ -1,51 +1,72 @@
-import { useAuth, useUser } from '@imapps/web-utils';
+import { useAuth } from '@imapps/web-utils';
 import { useQuery } from '@tanstack/react-query';
+import Fuse from 'fuse.js';
 import { Sparkles } from 'lucide-react';
+import { useMemo } from 'react';
 
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 
 import { getDesignsQuery } from '../../api/endpoints/getDesigns';
 import { DesignCard } from '../../components/DesignCard';
 import LoadingScreen from '../../components/Loading';
+import { useSearch } from '../../context/SearchContext';
 
 const Designs = () => {
     const { accessToken, login, logout } = useAuth();
-    const { user } = useUser();
+    const { searchQuery } = useSearch();
     const { data, isError } = useQuery({
-        ...getDesignsQuery(user?.id || '', accessToken, login, logout),
-        enabled: !!user?.id && !!accessToken,
+        ...getDesignsQuery(accessToken, login, logout),
+        enabled: !!accessToken,
     });
+
+    const fuse = useMemo(() => {
+        if (!data) return null;
+
+        return new Fuse(data, {
+            keys: ['name'],
+            threshold: 0.4,
+            includeScore: true,
+        });
+    }, [data]);
 
     if (isError) {
         return <span>Something went wrong! :(</span>;
     }
 
-    if (!data || !user?.id) {
+    if (!data) {
         return <LoadingScreen />;
     }
 
-    const designs = data.map((design) => {
+    const filteredData = searchQuery && fuse
+        ? fuse.search(searchQuery).map(result => result.item)
+        : data;
+
+    const designs = filteredData.map((design) => {
         return (<DesignCard key={design.id} design={design} />);
     });
 
     return (
         <div>
-            {data.length === 0
+            {filteredData.length === 0
                 ? (
                         <Empty>
                             <EmptyHeader>
                                 <EmptyMedia variant="icon">
                                     <Sparkles />
                                 </EmptyMedia>
-                                <EmptyTitle>No Designs Yet</EmptyTitle>
+                                <EmptyTitle>{data.length === 0 ? 'No Designs Yet' : 'No Matching Designs'}</EmptyTitle>
                                 <EmptyDescription>
-                                    Start creating beautiful jewellery designs to see them here!
+                                    {data.length === 0
+                                        ? 'Start creating beautiful jewellery designs to see them here!'
+                                        : 'Try adjusting your search query'}
                                 </EmptyDescription>
                             </EmptyHeader>
                         </Empty>
                     )
                 : (
-                        designs
+                        <div className="flex flex-wrap justify-center gap-6">
+                            {designs}
+                        </div>
                     )}
         </div>
     );

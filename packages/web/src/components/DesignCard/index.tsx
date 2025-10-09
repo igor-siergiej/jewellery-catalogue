@@ -1,73 +1,64 @@
 import { Design } from '@jewellery-catalogue/types';
-import { ChevronDown, Heart } from 'lucide-react';
+import { Clock, Heart } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
+import { VIEW_DESIGN_PAGE } from '../../constants/routes';
 import { Image } from '../Image';
 import { Button } from '../ui/button';
-import { Card, CardContent, CardFooter } from '../ui/card';
+import { Item, ItemContent, ItemFooter, ItemHeader, ItemTitle } from '../ui/item';
 
 export interface DesignCardProps {
     design: Design;
 }
 
 export const DesignCard: React.FC<DesignCardProps> = ({ design }) => {
-    const { name, timeRequired, id, imageId, materials } = design;
+    const { name, timeRequired, id, imageId } = design;
+    const [isFavorite, setIsFavorite] = useState(false);
+    const navigate = useNavigate();
 
-    const materialsLabels = materials.map(({ id }) => {
-        return (
-            <div key={id} className="flex w-full justify-between items-center">
-                <span className="text-sm font-medium">
-                    id:
-                    {' '}
-                    {id}
-                </span>
-                <Button variant="outline" size="sm">Go To Material</Button>
-            </div>
-        );
-    });
+    const handleCardClick = () => {
+        navigate(VIEW_DESIGN_PAGE.getRoute(id));
+    };
+
+    const handleFavoriteClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setIsFavorite(!isFavorite);
+    };
 
     return (
-        <Card key={id} className="w-full p-2 mb-6 max-h-96 overflow-hidden">
-            <CardContent className="p-4">
-                <div className="flex gap-4 flex-nowrap w-full">
-                    <div className="h-48 w-48 flex-shrink-0">
-                        <Image imageId={imageId} />
-                    </div>
-
-                    <div className="flex flex-col gap-2 flex-1">
-                        <h2 className="text-xl font-semibold">
-                            Name:
-                            {' '}
-                            {name}
-                        </h2>
-                        <div className="border-b border-border"></div>
-                        <p className="text-base">
-                            Time to make:
-                            {' '}
-                            {timeRequired}
-                        </p>
-                    </div>
-
-                    <div className="flex flex-col gap-2 flex-1">
-                        <h2 className="text-xl font-semibold">
-                            Materials
-                        </h2>
-                        <div className="border-b border-border"></div>
-                        <div className="space-y-2">
-                            {materialsLabels}
-                        </div>
-                    </div>
+        <Item
+            key={id}
+            variant="outline"
+            className="w-fit max-w-max flex-col items-start bg-card relative cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]"
+            onClick={handleCardClick}
+        >
+            <Button
+                variant="ghost"
+                size="icon"
+                className="absolute bottom-2 right-2 z-10"
+                onClick={handleFavoriteClick}
+            >
+                <Heart
+                    className={`h-10 w-10 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`}
+                />
+            </Button>
+            <ItemHeader className="basis-auto justify-start">
+                <div className="w-64 h-64">
+                    <Image
+                        imageId={imageId}
+                    />
                 </div>
-            </CardContent>
-
-            <CardFooter className="flex w-full gap-2">
-                <Button variant="ghost" size="icon">
-                    <Heart className="h-4 w-4" />
-                </Button>
-
-                <Button variant="ghost" size="icon">
-                    <ChevronDown className="h-4 w-4" />
-                </Button>
-            </CardFooter>
-        </Card>
+            </ItemHeader>
+            <ItemContent className="flex-none items-start text-left w-full">
+                <ItemTitle className="text-lg font-semibold">{name}</ItemTitle>
+                <ItemFooter className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    {timeRequired}
+                    {' '}
+                    hours
+                </ItemFooter>
+            </ItemContent>
+        </Item>
     );
 };

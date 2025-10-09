@@ -10,10 +10,10 @@ const getDesignService = (): DesignService =>
     dependencyContainer.resolve(DependencyToken.DesignService);
 
 export const getDesigns = async (ctx: Context) => {
-    const { catalogueId } = ctx.params;
+    const userId = ctx.state.userId;
 
     try {
-        const designs = await getDesignService().getDesignsByCatalogue(catalogueId);
+        const designs = await getDesignService().getDesignsByUserId(userId);
 
         ctx.body = designs;
     } catch (error: unknown) {
@@ -25,10 +25,11 @@ export const getDesigns = async (ctx: Context) => {
 };
 
 export const getDesign = async (ctx: Context) => {
+    const userId = ctx.state.userId;
     const { id } = ctx.params;
 
     try {
-        const design = await getDesignService().getDesign(id);
+        const design = await getDesignService().getDesign(id, userId);
 
         ctx.body = design;
     } catch (error: unknown) {
@@ -40,7 +41,7 @@ export const getDesign = async (ctx: Context) => {
 };
 
 export const addDesign = async (ctx: Context) => {
-    const { catalogueId } = ctx.params;
+    const userId = ctx.state.userId;
     const file = ctx.request.files?.file as unknown as PersistentFile;
 
     if (!file) {
@@ -68,7 +69,7 @@ export const addDesign = async (ctx: Context) => {
             image: file
         };
 
-        const design = await getDesignService().addDesign(catalogueId, designData, fileBuffer, contentType);
+        const design = await getDesignService().addDesign(designData, fileBuffer, contentType, userId);
 
         ctx.status = 200;
         ctx.body = design;
@@ -81,11 +82,12 @@ export const addDesign = async (ctx: Context) => {
 };
 
 export const updateDesign = async (ctx: Context) => {
+    const userId = ctx.state.userId;
     const { id } = ctx.params;
     const updates = ctx.request.body;
 
     try {
-        const design = await getDesignService().updateDesign(id, updates);
+        const design = await getDesignService().updateDesign(id, updates, userId);
 
         ctx.body = design;
     } catch (error: unknown) {
@@ -97,10 +99,11 @@ export const updateDesign = async (ctx: Context) => {
 };
 
 export const deleteDesign = async (ctx: Context) => {
+    const userId = ctx.state.userId;
     const { id } = ctx.params;
 
     try {
-        await getDesignService().deleteDesign(id);
+        await getDesignService().deleteDesign(id, userId);
 
         ctx.status = 200;
         ctx.body = { message: 'Design deleted successfully' };

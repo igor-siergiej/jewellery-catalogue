@@ -38,6 +38,7 @@ const createMockContext = (overrides: any = {}) => ({
     body: undefined,
     status: 200,
     response: { status: 200 },
+    state: { userId: 'user-123' },
     ...overrides
 });
 
@@ -59,7 +60,7 @@ describe('DesignHandlers', () => {
 
             await designHandlers.getDesigns(ctx);
 
-            expect(mockDesignService.getDesignsByCatalogue).toHaveBeenCalledWith('catalogue-123');
+            expect(mockDesignService.getDesignsByCatalogue).toHaveBeenCalledWith('catalogue-123', 'user-123');
             expect(ctx.body).toEqual(mockDesigns);
         });
 
@@ -77,15 +78,15 @@ describe('DesignHandlers', () => {
     });
 
     describe('getDesign', () => {
-        it('should return design for valid ID', async () => {
-            const ctx = createMockContext({ params: { id: 'design-123' } });
+        it('should return design for valid ID with catalogueId', async () => {
+            const ctx = createMockContext({ params: { catalogueId: 'catalogue-123', id: 'design-123' } });
             const mockDesign = { id: 'design-123', name: 'Test Design' };
 
             mockDesignService.getDesign.mockResolvedValue(mockDesign);
 
             await designHandlers.getDesign(ctx);
 
-            expect(mockDesignService.getDesign).toHaveBeenCalledWith('design-123');
+            expect(mockDesignService.getDesign).toHaveBeenCalledWith('design-123', 'user-123');
             expect(ctx.body).toEqual(mockDesign);
         });
 
@@ -198,7 +199,7 @@ describe('DesignHandlers', () => {
     describe('updateDesign', () => {
         it('should update design successfully', async () => {
             const ctx = createMockContext({
-                params: { id: 'design-123' },
+                params: { catalogueId: 'catalogue-123', id: 'design-123' },
                 request: {
                     body: { name: 'Updated Design' }
                 }
@@ -210,7 +211,7 @@ describe('DesignHandlers', () => {
 
             await designHandlers.updateDesign(ctx);
 
-            expect(mockDesignService.updateDesign).toHaveBeenCalledWith('design-123', { name: 'Updated Design' });
+            expect(mockDesignService.updateDesign).toHaveBeenCalledWith('design-123', { name: 'Updated Design' }, 'catalogue-123');
             expect(ctx.body).toEqual(mockUpdatedDesign);
         });
 
@@ -233,13 +234,13 @@ describe('DesignHandlers', () => {
 
     describe('deleteDesign', () => {
         it('should delete design successfully', async () => {
-            const ctx = createMockContext({ params: { id: 'design-123' } });
+            const ctx = createMockContext({ params: { catalogueId: 'catalogue-123', id: 'design-123' } });
 
             mockDesignService.deleteDesign.mockResolvedValue(undefined);
 
             await designHandlers.deleteDesign(ctx);
 
-            expect(mockDesignService.deleteDesign).toHaveBeenCalledWith('design-123');
+            expect(mockDesignService.deleteDesign).toHaveBeenCalledWith('design-123', 'catalogue-123');
             expect(ctx.status).toBe(200);
             expect(ctx.body).toEqual({ message: 'Design deleted successfully' });
         });

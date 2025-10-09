@@ -15,12 +15,17 @@ export class MongoDesignRepository extends MongoRepository<Design> implements De
         return false; // Designs use string id, not ObjectId _id
     }
 
-    async getByCatalogueId(catalogueId: string): Promise<Array<Design>> {
-        // For now, we'll need to get designs from the catalogue
-        // In a more normalized approach, we could store catalogueId in designs
-        const catalogueCollection = this.db.getCollection(CollectionNames.Catalogues);
-        const catalogue = await catalogueCollection.findOne({ _id: new ObjectId(catalogueId) });
+    async getByUserId(userId: string): Promise<Array<Design>> {
+        return this.collection().find({ userId }).toArray();
+    }
 
-        return catalogue?.designs || [];
+    async getByIdAndUserId(id: string, userId: string): Promise<Design | null> {
+        return this.collection().findOne({ id, userId });
+    }
+
+    async findByMaterialId(materialId: string): Promise<Array<Design>> {
+        return this.collection().find({
+            'materials.materialId': materialId
+        }).toArray();
     }
 }

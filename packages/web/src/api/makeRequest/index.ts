@@ -12,11 +12,10 @@ export const makeRequest = async <T>({
     accessToken,
 }: MakeRequestProps) => {
     const parsedBody = (body instanceof FormData) ? body : JSON.stringify(body);
-    const encodedAccessToken = btoa(accessToken);
 
     // When using FormData, don't set Content-Type header - let browser set it automatically
     const requestHeaders: Record<string, string> = {
-        Authorization: `Bearer ${encodedAccessToken}`,
+        Authorization: `Bearer ${accessToken}`,
     };
 
     // Only add other headers if not using FormData (to avoid Content-Type conflicts)
