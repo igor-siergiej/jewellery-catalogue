@@ -23,9 +23,9 @@ version-release:
   needs:
     - ci
 
-# Build jewellery-catalogue-web Docker image
-build-web:
-  extends: .docker-build-template
+# Build jewellery-catalogue-web Docker image (test build with SHA tag)
+build-web-test:
+  extends: .docker-build-test-template
   variables:
     APP_NAME: "jewellery-catalogue-web"
     DOCKERFILE_PATH: "packages/web/Dockerfile"
@@ -34,11 +34,10 @@ build-web:
     - if: $CI_PIPELINE_SOURCE == "web"
   needs:
     - ci
-    - version-release
 
-# Build jewellery-catalogue-api Docker image
-build-api:
-  extends: .docker-build-template
+# Build jewellery-catalogue-api Docker image (test build with SHA tag)
+build-api-test:
+  extends: .docker-build-test-template
   variables:
     APP_NAME: "jewellery-catalogue-api"
     DOCKERFILE_PATH: "packages/api/Dockerfile"
@@ -47,6 +46,29 @@ build-api:
     - if: $CI_PIPELINE_SOURCE == "web"
   needs:
     - ci
+
+# Publish jewellery-catalogue-web with semantic version
+publish-web:
+  extends: .docker-publish-template
+  variables:
+    APP_NAME: "jewellery-catalogue-web"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "main"
+    - if: $CI_PIPELINE_SOURCE == "web"
+  needs:
+    - build-web-test
+    - version-release
+
+# Publish jewellery-catalogue-api with semantic version
+publish-api:
+  extends: .docker-publish-template
+  variables:
+    APP_NAME: "jewellery-catalogue-api"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "main"
+    - if: $CI_PIPELINE_SOURCE == "web"
+  needs:
+    - build-api-test
     - version-release
 
 # Update staging environment automatically
@@ -59,8 +81,8 @@ gitops-staging:
     - if: $CI_PIPELINE_SOURCE == "web"
   needs:
     - version-release
-    - build-web
-    - build-api
+    - publish-web
+    - publish-api
 
 # Manual production deployment
 gitops-production:
