@@ -7,4 +7,5 @@ export interface BaseMaterial {
     brand: string;
     purchaseUrl: string;
     type: MaterialType;
+    dateAdded: Date;
 }

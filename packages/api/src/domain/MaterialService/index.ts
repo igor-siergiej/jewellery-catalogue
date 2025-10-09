@@ -120,6 +120,7 @@ export class MaterialService {
             id: this.idGenerator.generate(),
             userId: userId,
             updatedAt: new Date(),
+            dateAdded: new Date(),
             ...this.convertFormDataToMaterial(filteredMaterial),
         } as Material;
     }

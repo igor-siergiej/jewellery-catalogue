@@ -31,4 +31,5 @@ export interface Design {
     description: string;
     totalMaterialCosts: number;
     price: number;
+    dateAdded: Date;
 }

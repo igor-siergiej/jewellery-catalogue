@@ -70,6 +70,7 @@ export class DesignService {
             price: designData.price,
             imageId,
             materials,
+            dateAdded: new Date(),
         };
 
         await this.designRepo.insert(design);

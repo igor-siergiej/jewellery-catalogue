@@ -17,6 +17,16 @@ ci:
 # Version release - bump version and create tag after successful builds
 version-release:
   extends: .version-release-template
+  before_script:
+    - corepack enable
+    - yarn install --immutable
+    - git config --global user.name "gitlab-ci[bot]"
+    - git config --global user.email "gitlab-ci@noreply.gitlab.com"
+    - git config --global credential.helper store
+    - echo "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com" > ~/.git-credentials
+    - git remote set-url origin "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git"
+    - git fetch origin --tags --force
+    - bash scripts/clean-orphaned-tags.sh
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "main"
     - if: $CI_PIPELINE_SOURCE == "web"
