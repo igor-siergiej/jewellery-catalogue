@@ -1,11 +1,14 @@
-import type { MaterialType } from '../material';
+import { z } from 'zod';
+import { MaterialType } from '../material/enum';
 
-export interface BaseMaterial {
-    id: string;
-    userId: string;
-    name: string;
-    brand: string;
-    purchaseUrl: string;
-    type: MaterialType;
-    dateAdded: Date;
-}
+export const baseMaterialSchema = z.object({
+    id: z.string(),
+    userId: z.string(),
+    name: z.string(),
+    brand: z.string(),
+    purchaseUrl: z.string(),
+    type: z.enum(MaterialType),
+    dateAdded: z.date(),
+});
+
+export type BaseMaterial = z.infer<typeof baseMaterialSchema>;

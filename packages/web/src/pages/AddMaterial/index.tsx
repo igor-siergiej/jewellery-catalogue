@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@imapps/web-utils';
-import { MaterialType } from '@jewellery-catalogue/types';
+import { type FormMaterial, formMaterialSchema, MaterialType } from '@jewellery-catalogue/types';
 import { Link, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -17,19 +17,16 @@ import MaterialFormResolver from '../../components/MaterialFormResolver';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
 import { MATERIAL_TYPE_LABELS } from '../../lib/materialLabels';
-import { type AddMaterialFormData, addMaterialSchema } from '../../schemas/addMaterialSchema';
 
 const AddMaterial = () => {
-    const form = useForm<AddMaterialFormData>({
-        resolver: zodResolver(addMaterialSchema),
+    const form = useForm({
+        resolver: zodResolver(formMaterialSchema),
+        mode: 'onSubmit',
         defaultValues: {
             name: '',
             brand: '',
             purchaseUrl: '',
-            pricePerPack: undefined,
-            packs: undefined,
-            type: undefined,
-        } as any, // TypeScript workaround for discriminated union defaults
+        },
     });
 
     const [isMakingRequest, setIsMakingRequest] = useState(false);
@@ -38,7 +35,7 @@ const AddMaterial = () => {
 
     const currentMaterialType = form.watch('type');
 
-    const onSubmit = async (data: AddMaterialFormData) => {
+    const onSubmit = async (data: FormMaterial) => {
         setIsMakingRequest(true);
         try {
             await makeAddMaterialRequest(data, accessToken, login, logout);

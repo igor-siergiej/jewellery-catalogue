@@ -1,21 +1,27 @@
-export interface RequiredWire {
-    materialId: string;
-    requiredLength: number;
-}
+import { z } from 'zod';
+import { beadSchema, chainSchema, earHookSchema, wireSchema } from '../material';
 
-export interface RequiredBead {
-    materialId: string;
-    requiredQuantity: number;
-}
+const requiredWireSchema = wireSchema.extend({
+    requiredLength: z.number(),
+});
 
-export interface RequiredChain {
-    materialId: string;
-    requiredLength: number;
-}
+const requiredBeadSchema = beadSchema.extend({
+    requiredQuantity: z.number(),
+});
 
-export interface RequiredEarHook {
-    materialId: string;
-    requiredQuantity: number;
-}
+const requiredChainSchema = chainSchema.extend({
+    requiredLength: z.number(),
+});
 
-export type RequiredMaterial = RequiredWire | RequiredBead | RequiredChain | RequiredEarHook;
+const requiredEarHookSchema = earHookSchema.extend({
+    requiredQuantity: z.number(),
+});
+
+export const requiredMaterialSchema = z.discriminatedUnion('type', [
+    requiredWireSchema,
+    requiredBeadSchema,
+    requiredChainSchema,
+    requiredEarHookSchema,
+]);
+
+export type RequiredMaterial = z.infer<typeof requiredMaterialSchema>;

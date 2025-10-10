@@ -20,6 +20,8 @@ const ViewDesign = () => {
         enabled: !!id && !!accessToken && !!user?.id,
     });
 
+    const { timeRequired, imageId, name, materials, totalMaterialCosts, price, dateAdded } = design ?? {};
+
     if (isLoading || !user?.id) {
         return <LoadingScreen />;
     }
@@ -32,10 +34,44 @@ const ViewDesign = () => {
         <div className="flex justify-center items-start p-8">
             <div className="bg-card rounded-lg border border-border shadow-lg overflow-hidden max-w-2xl w-full">
                 <div className="w-full h-96">
-                    <Image imageId={design.imageId} />
+                    <Image imageId={imageId} />
                 </div>
-                <div className="p-6">
-                    <h1 className="text-3xl font-bold">{design.name}</h1>
+                <div className="p-6 space-y-4">
+                    <h1 className="text-3xl font-bold">{name}</h1>
+
+                    <div className="space-y-2">
+                        <div className="grid grid-cols-2 gap-4 pt-4">
+                            <div>
+                                <span className="text-sm font-semibold">Time Required:</span>
+                                <p className="text-lg">{timeRequired} minutes</p>
+                            </div>
+                            <div>
+                                <span className="text-sm font-semibold">Material Costs:</span>
+                                <p className="text-lg">£{totalMaterialCosts.toFixed(2)}</p>
+                            </div>
+                            <div>
+                                <span className="text-sm font-semibold">Price:</span>
+                                <p className="text-lg">£{price.toFixed(2)}</p>
+                            </div>
+                            <div>
+                                <span className="text-sm font-semibold">Date Added:</span>
+                                <p className="text-lg">{new Date(dateAdded).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+
+                        {materials && materials.length > 0 && (
+                            <div className="pt-4">
+                                <h2 className="text-xl font-semibold mb-2">Materials</h2>
+                                <ul className="space-y-1">
+                                    {materials.map((material, _index) => (
+                                        <li key={material.materialId} className="text-sm">
+                                            Material ID: {material.materialId}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

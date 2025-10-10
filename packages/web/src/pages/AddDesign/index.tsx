@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@imapps/web-utils';
+import { type FormDesign, formDesignSchema } from '@jewellery-catalogue/types';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -19,7 +20,6 @@ import RichTextEditor from '../../components/RichTextEditor';
 import TimeInput from '../../components/TimeInput';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-import { type AddDesignFormData, addDesignSchema } from '../../schemas/addDesignSchema';
 import { getTotalMaterialCosts } from '../../utils/getPriceOfMaterials';
 import { getWageCosts } from '../../utils/getWageCost';
 
@@ -27,8 +27,9 @@ const PROFIT_COEFFICIENT = 1.15;
 const HOURLY_WAGE = 10;
 
 const AddDesign: React.FC = () => {
-    const form = useForm<AddDesignFormData>({
-        resolver: zodResolver(addDesignSchema),
+    const form = useForm({
+        resolver: zodResolver(formDesignSchema),
+        mode: 'onSubmit',
         defaultValues: {
             name: '',
             timeRequired: '',
@@ -51,7 +52,7 @@ const AddDesign: React.FC = () => {
 
     const { dispatch } = useAlert();
 
-    const onSubmit: SubmitHandler<AddDesignFormData> = async (data) => {
+    const onSubmit: SubmitHandler<FormDesign> = async (data) => {
         setIsMakingRequest(true);
         try {
             await makeAddDesignRequest(data, accessToken, login, logout);

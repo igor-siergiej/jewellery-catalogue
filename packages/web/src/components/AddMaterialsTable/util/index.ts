@@ -1,12 +1,4 @@
-import {
-    type Material,
-    MaterialType,
-    type RequiredBead,
-    type RequiredChain,
-    type RequiredEarHook,
-    type RequiredWire,
-} from '@jewellery-catalogue/types';
-
+import type { Material } from '@jewellery-catalogue/types';
 import type { TableMaterial } from '../types';
 
 export const getRequiredMaterial = (material: Material, matchedRow: TableMaterial) => {

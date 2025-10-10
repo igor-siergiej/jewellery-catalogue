@@ -1,4 +1,4 @@
-import type { Bead, Chain, EarHook, Wire } from '.';
+import type { Bead, Chain, EarHook, Wire } from './index';
 
 export enum METAL_TYPE {
     BRASS = 'BRASS',
@@ -32,6 +32,8 @@ export const WireKeysEnum: { [K in keyof Required<Wire>]: K } = {
     diameter: 'diameter',
     purchaseUrl: 'purchaseUrl',
     type: 'type',
+    userId: 'userId',
+    dateAdded: 'dateAdded',
 };
 
 export const BeadKeysEnum: { [K in keyof Required<Bead>]: K } = {
@@ -44,6 +46,8 @@ export const BeadKeysEnum: { [K in keyof Required<Bead>]: K } = {
     diameter: 'diameter',
     purchaseUrl: 'purchaseUrl',
     type: 'type',
+    userId: 'userId',
+    dateAdded: 'dateAdded',
 };
 
 export const ChainKeysEnum: { [K in keyof Required<Chain>]: K } = {
@@ -55,6 +59,10 @@ export const ChainKeysEnum: { [K in keyof Required<Chain>]: K } = {
     purchaseUrl: 'purchaseUrl',
     type: 'type',
     length: 'length',
+    id: 'id',
+    userId: 'userId',
+    dateAdded: 'dateAdded',
+    pricePerMeter: 'pricePerMeter',
 };
 
 export const EarHookKeysEnum: { [K in keyof Required<EarHook>]: K } = {
@@ -65,4 +73,8 @@ export const EarHookKeysEnum: { [K in keyof Required<EarHook>]: K } = {
     purchaseUrl: 'purchaseUrl',
     type: 'type',
     quantity: 'quantity',
+    id: 'id',
+    userId: 'userId',
+    dateAdded: 'dateAdded',
+    pricePerPiece: 'pricePerPiece',
 };

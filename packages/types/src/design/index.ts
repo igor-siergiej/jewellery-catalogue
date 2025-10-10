@@ -1,35 +1,19 @@
-import type { RequiredMaterial } from '../requiredMaterial';
-import type { PersistentFile } from '../util';
+export type { RequiredMaterial as RequiredMaterialLegacy } from '../requiredMaterial';
 
-export interface FormDesign {
-    materials: Array<RequiredMaterial>;
-    name: string;
-    description: string;
-    timeRequired: string;
-    image: File;
-    totalMaterialCosts: number;
-    price: number;
-}
+import z from 'zod';
+import { requiredMaterialSchema } from '../requiredMaterial';
 
-export interface UploadDesign {
-    materials: string;
-    name: string;
-    description: string;
-    timeRequired: string;
-    image: PersistentFile;
-    totalMaterialCosts: number;
-    price: number;
-}
+export const designSchema = z.object({
+    id: z.string(),
+    userId: z.string(),
+    name: z.string(),
+    timeRequired: z.string(),
+    materials: z.array(requiredMaterialSchema),
+    imageId: z.string(),
+    price: z.number(),
+    description: z.string(),
+    totalMaterialCosts: z.number(),
+    dateAdded: z.date(),
+});
 
-export interface Design {
-    id: string;
-    userId: string;
-    materials: Array<RequiredMaterial>;
-    name: string;
-    imageId: string;
-    timeRequired: string;
-    description: string;
-    totalMaterialCosts: number;
-    price: number;
-    dateAdded: Date;
-}
+export type Design = z.infer<typeof designSchema>;
