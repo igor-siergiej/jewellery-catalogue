@@ -1,3 +1,20 @@
+# [1.6.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.5.0...v1.6.0) (2025-10-10)
+
+
+### Bug Fixes
+
+* linting ([08db765](https://gitlab.com/imapps/jewellery-catalogue/commit/08db7658125d2919925fd5e97a608250c9efb3a0))
+* wait for build before versioning ([03cc015](https://gitlab.com/imapps/jewellery-catalogue/commit/03cc015eb0e65a309c932b085e566c3de2105ebc))
+
+
+### Features
+
+* add dateAdded field to Design and Material types ([cfef386](https://gitlab.com/imapps/jewellery-catalogue/commit/cfef3864b6f6368032fdcd77f7c7abd791d84e59))
+* dry up schema and types ([37b19c1](https://gitlab.com/imapps/jewellery-catalogue/commit/37b19c11a02b15a58f957b08fed6c5675acc203e))
+* remove catalogues, add design page ([d800c7e](https://gitlab.com/imapps/jewellery-catalogue/commit/d800c7ec10f9babb06a1a7bfa67d2b4d0e8efc60))
+* use biome-config package ([8aad0d7](https://gitlab.com/imapps/jewellery-catalogue/commit/8aad0d7957685cc572832bfc2dd94480d7b0e0bc))
+* use build step pipeline ([c0edd14](https://gitlab.com/imapps/jewellery-catalogue/commit/c0edd14f8f8470efc2a04016ad3cc8f6b38ea152))
+
 # [1.5.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.4.0...v1.5.0) (2025-10-05)
 
 
