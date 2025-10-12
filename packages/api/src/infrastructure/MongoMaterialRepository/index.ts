@@ -15,10 +15,12 @@ export class MongoMaterialRepository extends MongoRepository<Material> implement
     }
 
     async getByUserId(userId: string): Promise<Array<Material>> {
-        return this.collection().find({ userId }).toArray();
+        return this.collection()
+            .find({ userId }, { projection: { _id: 0 } })
+            .toArray();
     }
 
     async getByIdAndUserId(id: string, userId: string): Promise<Material | null> {
-        return this.collection().findOne({ id, userId });
+        return this.collection().findOne({ id, userId }, { projection: { _id: 0 } });
     }
 }

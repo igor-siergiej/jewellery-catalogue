@@ -5,7 +5,7 @@ import { DESIGNS_ENDPOINT } from '../../endpoints';
 import { makeRequestWithAutoRefresh } from '../../makeRequest';
 
 const makeGetDesignsRequest = async (
-    accessToken: string,
+    getAccessToken: () => string,
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
 ) => {
@@ -14,27 +14,28 @@ const makeGetDesignsRequest = async (
             pathname: DESIGNS_ENDPOINT,
             method: MethodType.GET,
             operationString: 'fetch designs',
-            accessToken,
+            accessToken: '', // Will be replaced by getAccessToken()
         },
+        getAccessToken,
         onTokenRefresh,
         onTokenClear
     );
 };
 
 export const getDesignsQuery = (
-    accessToken: string,
+    getAccessToken: () => string,
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
 ) => ({
     queryKey: ['designs'],
-    queryFn: async () => makeGetDesignsRequest(accessToken, onTokenRefresh, onTokenClear),
+    queryFn: async () => makeGetDesignsRequest(getAccessToken, onTokenRefresh, onTokenClear),
 });
 
 export const designsLoader =
     (queryClient: QueryClient) =>
-    async (accessToken: string, onTokenRefresh: (newToken: string) => void, onTokenClear: () => void) => {
+    async (getAccessToken: () => string, onTokenRefresh: (newToken: string) => void, onTokenClear: () => void) => {
         const result = await queryClient.fetchQuery({
-            ...getDesignsQuery(accessToken, onTokenRefresh, onTokenClear),
+            ...getDesignsQuery(getAccessToken, onTokenRefresh, onTokenClear),
         });
 
         return result;

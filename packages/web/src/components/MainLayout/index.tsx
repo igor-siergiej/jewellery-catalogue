@@ -1,11 +1,13 @@
-import { Search } from 'lucide-react';
+import { ArrowLeft, Search } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 
+import { DESIGNS_PAGE } from '../../constants/routes';
 import { SearchProvider, useSearch } from '../../context/SearchContext';
 import AppSidebar from '../AppSidebar';
+import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Separator } from '../ui/separator';
 
@@ -15,11 +17,17 @@ export interface MainLayoutProps {
 
 const MainLayoutContent = ({ children }: MainLayoutProps) => {
     const location = useLocation();
+    const navigate = useNavigate();
     const { searchQuery, setSearchQuery } = useSearch();
     const isDesignsPage = location.pathname === '/designs';
+    const isViewDesignPage = location.pathname.startsWith('/designs/') && location.pathname !== '/designs';
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
+    };
+
+    const handleBackToDesigns = () => {
+        navigate(DESIGNS_PAGE.route);
     };
 
     return (
@@ -40,6 +48,12 @@ const MainLayoutContent = ({ children }: MainLayoutProps) => {
                                 className="pl-9 bg-card"
                             />
                         </div>
+                    )}
+                    {isViewDesignPage && (
+                        <Button variant="ghost" onClick={handleBackToDesigns} className="gap-2">
+                            <ArrowLeft className="h-4 w-4" />
+                            Back to Designs
+                        </Button>
                     )}
                 </header>
                 <div className="flex flex-1 flex-col gap-4 p-4">

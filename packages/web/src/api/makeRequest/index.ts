@@ -1,4 +1,4 @@
-import { withTokenRefresh } from '@imapps/web-utils';
+import { getStorageItem, withTokenRefresh } from '@imapps/web-utils';
 import type { MakeRequestProps } from '@jewellery-catalogue/types';
 
 import { getAuthConfig } from '../../utils/authConfig';
@@ -13,12 +13,10 @@ export const makeRequest = async <T>({
 }: MakeRequestProps) => {
     const parsedBody = body instanceof FormData ? body : JSON.stringify(body);
 
-    // When using FormData, don't set Content-Type header - let browser set it automatically
     const requestHeaders: Record<string, string> = {
         Authorization: `Bearer ${accessToken}`,
     };
 
-    // Only add other headers if not using FormData (to avoid Content-Type conflicts)
     if (!(body instanceof FormData)) {
         Object.assign(requestHeaders, headers);
     }
@@ -37,13 +35,23 @@ export const makeRequest = async <T>({
     }
 };
 
-// Higher-order function that wraps makeRequest with automatic token refresh
 export const makeRequestWithAutoRefresh = async <T>(
     requestProps: MakeRequestProps,
+    getAccessToken: () => string,
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
 ) => {
     const config = getAuthConfig();
 
-    return withTokenRefresh(() => makeRequest<T>(requestProps), onTokenRefresh, onTokenClear, config);
+    const getLatestToken = () => {
+        const storedToken = getStorageItem(config.accessTokenKey!, config.storageType);
+        return storedToken || getAccessToken();
+    };
+
+    return withTokenRefresh(
+        () => makeRequest<T>({ ...requestProps, accessToken: getLatestToken() }),
+        onTokenRefresh,
+        onTokenClear,
+        config
+    );
 };

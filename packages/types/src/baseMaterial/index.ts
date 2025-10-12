@@ -8,7 +8,7 @@ export const baseMaterialSchema = z.object({
     brand: z.string(),
     purchaseUrl: z.string(),
     type: z.enum(MaterialType),
-    dateAdded: z.date(),
+    dateAdded: z.string().datetime(),
 });
 
 export type BaseMaterial = z.infer<typeof baseMaterialSchema>;

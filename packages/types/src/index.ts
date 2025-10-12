@@ -1,7 +1,6 @@
 export * from './baseMaterial/index';
 export * from './design/index';
 export * from './formDesign/index';
-export * from './formMaterial/enum';
 export * from './formMaterial/index';
 export * from './material/enum';
 export * from './material/index';

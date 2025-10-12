@@ -15,18 +15,23 @@ export class MongoDesignRepository extends MongoRepository<Design> implements De
     }
 
     async getByUserId(userId: string): Promise<Array<Design>> {
-        return this.collection().find({ userId }).toArray();
+        return this.collection()
+            .find({ userId }, { projection: { _id: 0 } })
+            .toArray();
     }
 
     async getByIdAndUserId(id: string, userId: string): Promise<Design | null> {
-        return this.collection().findOne({ id, userId });
+        return this.collection().findOne({ id, userId }, { projection: { _id: 0 } });
     }
 
     async findByMaterialId(materialId: string): Promise<Array<Design>> {
         return this.collection()
-            .find({
-                'materials.materialId': materialId,
-            })
+            .find(
+                {
+                    'materials.materialId': materialId,
+                },
+                { projection: { _id: 0 } }
+            )
             .toArray();
     }
 }

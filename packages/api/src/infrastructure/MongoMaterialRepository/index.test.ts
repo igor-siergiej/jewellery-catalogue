@@ -31,14 +31,6 @@ describe('MongoMaterialRepository', () => {
         });
     });
 
-    describe('usesObjectId', () => {
-        it('should return false for materials', () => {
-            const result = repository.usesObjectId();
-
-            expect(result).toBe(false);
-        });
-    });
-
     describe('inherited CRUD operations', () => {
         const mockMaterial: Material = {
             id: 'material-123',
@@ -60,7 +52,10 @@ describe('MongoMaterialRepository', () => {
 
             const result = await repository.getById('material-123');
 
-            expect(mockMaterialsCollection.findOne).toHaveBeenCalledWith({ id: 'material-123' });
+            expect(mockMaterialsCollection.findOne).toHaveBeenCalledWith(
+                { id: 'material-123' },
+                { projection: { _id: 0 } }
+            );
             expect(result).toEqual(mockMaterial);
         });
 
@@ -74,7 +69,7 @@ describe('MongoMaterialRepository', () => {
 
             const result = await repository.getAll();
 
-            expect(mockMaterialsCollection.find).toHaveBeenCalledWith({});
+            expect(mockMaterialsCollection.find).toHaveBeenCalledWith({}, { projection: { _id: 0 } });
             expect(result).toEqual(materials);
         });
 

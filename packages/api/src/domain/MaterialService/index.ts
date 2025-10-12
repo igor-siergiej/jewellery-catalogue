@@ -1,4 +1,4 @@
-import { type FormMaterial, FormMaterialKeysMap, type Material, MaterialType } from '@jewellery-catalogue/types';
+import { type FormMaterial, FormMaterialSchemas, type Material, MaterialType } from '@jewellery-catalogue/types';
 
 import { convertFormDataToMaterial } from '../../utils/material-conversion';
 import type { IdGenerator } from '../IdGenerator';
@@ -96,32 +96,32 @@ export class MaterialService {
             throw Object.assign(new Error(`Unknown material type: ${materialType}`), { status: 400 });
         }
 
-        const expectedKeys = Object.keys(FormMaterialKeysMap[materialType]);
-        const missingKeys = expectedKeys.filter((key) => !(key in materialData));
+        const schema = FormMaterialSchemas[materialType];
 
-        if (missingKeys.length > 0) {
+        const result = schema.safeParse(materialData);
+
+        if (!result.success) {
+            const issues = result.error.issues.map((issue) => ({
+                path: issue.path.join('.'),
+                message: issue.message,
+            }));
+
             throw Object.assign(
                 new Error(
-                    `Material of type '${materialType}' is missing the following keys: ${missingKeys.join(', ')}`
+                    `Validation failed for material of type '${materialType}':\n` +
+                        issues.map((i) => `- ${i.path}: ${i.message}`).join('\n')
                 ),
-                { status: 400 }
+                { status: 400, issues }
             );
         }
 
-        const filteredMaterial = Object.keys(materialData)
-            .filter((key) => expectedKeys.includes(key))
-            .reduce((obj, key) => {
-                obj[key] = materialData[key];
-
-                return obj;
-            }, {} as FormMaterial);
+        const material = this.convertFormDataToMaterial(result.data);
 
         return {
             id: this.idGenerator.generate(),
             userId: userId,
-            updatedAt: new Date(),
             dateAdded: new Date(),
-            ...this.convertFormDataToMaterial(filteredMaterial),
+            ...material,
         } as Material;
     }
 

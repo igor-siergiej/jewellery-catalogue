@@ -8,7 +8,7 @@ import MaterialsTable from '../../components/MaterialsTable';
 const Materials = () => {
     const { accessToken, login, logout } = useAuth();
     const { data, isError, error } = useQuery({
-        ...getMaterialsQuery(accessToken, login, logout),
+        ...getMaterialsQuery(() => accessToken, login, logout),
         enabled: !!accessToken,
     });
 

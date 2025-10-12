@@ -16,7 +16,7 @@ const ViewDesign = () => {
         isError,
         isLoading,
     } = useQuery({
-        ...getDesignQuery(id || '', accessToken, login, logout),
+        ...getDesignQuery(id || '', () => accessToken, login, logout),
         enabled: !!id && !!accessToken && !!user?.id,
     });
 
@@ -62,10 +62,15 @@ const ViewDesign = () => {
                         {materials && materials.length > 0 && (
                             <div className="pt-4">
                                 <h2 className="text-xl font-semibold mb-2">Materials</h2>
-                                <ul className="space-y-1">
-                                    {materials.map((material, _index) => (
-                                        <li key={material.materialId} className="text-sm">
-                                            Material ID: {material.materialId}
+                                <ul className="space-y-2">
+                                    {materials.map((material) => (
+                                        <li key={material.id} className="text-sm border-l-2 border-primary pl-3">
+                                            <div className="font-medium">{material.name}</div>
+                                            <div className="text-muted-foreground text-xs">
+                                                {'requiredLength' in material && `${material.requiredLength} cm`}
+                                                {'requiredQuantity' in material &&
+                                                    `${material.requiredQuantity} pieces`}
+                                            </div>
                                         </li>
                                     ))}
                                 </ul>

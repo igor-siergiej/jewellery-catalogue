@@ -43,7 +43,7 @@ const AddDesign: React.FC = () => {
     const [isMakingRequest, setIsMakingRequest] = useState(false);
 
     const { data } = useQuery({
-        ...getMaterialsQuery(accessToken, login, logout),
+        ...getMaterialsQuery(() => accessToken, login, logout),
         enabled: !!accessToken,
     });
 
@@ -55,7 +55,7 @@ const AddDesign: React.FC = () => {
     const onSubmit: SubmitHandler<FormDesign> = async (data) => {
         setIsMakingRequest(true);
         try {
-            await makeAddDesignRequest(data, accessToken, login, logout);
+            await makeAddDesignRequest(data, () => accessToken, login, logout);
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
@@ -68,6 +68,7 @@ const AddDesign: React.FC = () => {
             });
             form.reset();
         } catch (e) {
+            console.error('[AddDesign] Error adding design:', e);
             const message = e instanceof Error ? e.message : 'Unknown Error';
 
             dispatch({
@@ -87,11 +88,14 @@ const AddDesign: React.FC = () => {
     useEffect(() => {
         if (!data) return;
 
-        const materialsCost = selectedMaterials.length > 0 ? getTotalMaterialCosts(selectedMaterials, data) : 0;
-        const timeSpentCost = parseFloat((getWageCosts(currentTimeRequired) * HOURLY_WAGE).toFixed(2));
-        const totalCosts = materialsCost + timeSpentCost;
+        const materialsCost = selectedMaterials.length > 0 ? getTotalMaterialCosts(selectedMaterials) : 0;
 
-        form.setValue('price', parseFloat((totalCosts * PROFIT_COEFFICIENT).toFixed(2)));
+        const timeSpentCost = parseFloat((getWageCosts(currentTimeRequired) * HOURLY_WAGE).toFixed(2));
+
+        const totalCosts = materialsCost + timeSpentCost;
+        const finalPrice = parseFloat((totalCosts * PROFIT_COEFFICIENT).toFixed(2));
+
+        form.setValue('price', finalPrice);
     }, [selectedMaterials, currentTimeRequired, data, form.setValue]);
 
     if (!data) {
@@ -179,15 +183,21 @@ const AddDesign: React.FC = () => {
                             <FormField
                                 control={form.control}
                                 name="materials"
-                                render={({ fieldState }) => (
+                                render={({ field, fieldState }) => (
                                     <FormItem>
                                         <FormControl>
                                             <AddMaterialsTable
                                                 availableMaterials={data}
                                                 setValue={form.setValue}
                                                 hasError={!!fieldState.error}
+                                                value={field.value}
                                             />
                                         </FormControl>
+                                        {fieldState.error && (
+                                            <p className="text-sm font-medium text-destructive mt-2">
+                                                {fieldState.error.message || JSON.stringify(fieldState.error, null, 2)}
+                                            </p>
+                                        )}
                                         <FormMessage />
                                     </FormItem>
                                 )}

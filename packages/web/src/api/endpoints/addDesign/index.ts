@@ -5,7 +5,7 @@ import { makeRequestWithAutoRefresh } from '../../makeRequest';
 
 const makeAddDesignRequest = async (
     formDesign: FormDesign,
-    accessToken: string,
+    getAccessToken: () => string,
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
 ) => {
@@ -32,8 +32,9 @@ const makeAddDesignRequest = async (
             headers: {},
             operationString: 'add design',
             body: formData,
-            accessToken,
+            accessToken: '', // Will be replaced by getAccessToken()
         },
+        getAccessToken,
         onTokenRefresh,
         onTokenClear
     );

@@ -77,21 +77,11 @@ export const MaterialPriceResolver = (requiredMaterial: RequiredMaterial, materi
 
 export const getTotalMaterialCosts = (
     selectedMaterials: Array<RequiredMaterial>,
-    materials: Array<Material>
+    _materials: Array<Material>
 ): number => {
-    const matchedMaterials = selectedMaterials.reduce<
-        Array<{ selectedMaterial: RequiredMaterial; material: Material }>
-    >((acc, requiredMaterial) => {
-        const match = materials.find((searchMaterial) => searchMaterial.id === requiredMaterial.materialId);
-
-        if (match) {
-            acc.push({ selectedMaterial: requiredMaterial, material: match });
-        }
-
-        return acc;
-    }, []);
-
-    return matchedMaterials.reduce((acc, { selectedMaterial, material }) => {
-        return acc + MaterialPriceResolver(selectedMaterial, material);
+    const total = selectedMaterials.reduce((acc, requiredMaterial) => {
+        const cost = MaterialPriceResolver(requiredMaterial, requiredMaterial);
+        return acc + cost;
     }, 0);
+    return total;
 };

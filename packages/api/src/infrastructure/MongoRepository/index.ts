@@ -1,5 +1,4 @@
 import type { MongoDbConnection } from '@imapps/api-utils';
-import { ObjectId } from 'mongodb';
 
 import type { Collections } from '../../dependencies/types';
 import type { BaseRepository } from '../../domain/BaseRepository';
@@ -15,26 +14,17 @@ export class MongoRepository<T extends { id?: string; _id?: any }, TId = string>
     }
 
     protected getMongoFilter(id: TId): any {
-        // For entities with ObjectId _id (like Catalogue)
-        if (this.usesObjectId()) {
-            return { _id: new ObjectId(id as string) };
-        }
-
-        // For entities with string id (like Design, Material)
         return { id: id as string };
     }
 
-    protected usesObjectId(): boolean {
-        // Override this in subclasses if needed
-        return this.collectionName === 'catalogues';
-    }
-
     async getById(id: TId): Promise<T | null> {
-        return this.collection().findOne(this.getMongoFilter(id));
+        return this.collection().findOne(this.getMongoFilter(id), { projection: { _id: 0 } });
     }
 
     async getAll(): Promise<Array<T>> {
-        return this.collection().find({}).toArray();
+        return this.collection()
+            .find({}, { projection: { _id: 0 } })
+            .toArray();
     }
 
     async insert(entity: T): Promise<void> {

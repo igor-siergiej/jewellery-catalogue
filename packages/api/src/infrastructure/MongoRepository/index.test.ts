@@ -58,22 +58,6 @@ describe('MongoRepository', () => {
         });
     });
 
-    describe('usesObjectId', () => {
-        it('should return false for materials collection', () => {
-            const result = repository.usesObjectId();
-
-            expect(result).toBe(false);
-        });
-
-        it('should return false for designs collection', () => {
-            const designRepository = new MongoRepository<TestEntity>(mockDb, CollectionNames.Designs);
-
-            const result = designRepository.usesObjectId();
-
-            expect(result).toBe(false);
-        });
-    });
-
     describe('getById', () => {
         it('should find entity by string id', async () => {
             const testEntity = { id: 'test-123', name: 'Test Entity', value: 42 };
@@ -82,7 +66,7 @@ describe('MongoRepository', () => {
 
             const result = await repository.getById('test-123');
 
-            expect(mockCollection.findOne).toHaveBeenCalledWith({ id: 'test-123' });
+            expect(mockCollection.findOne).toHaveBeenCalledWith({ id: 'test-123' }, { projection: { _id: 0 } });
             expect(result).toEqual(testEntity);
         });
 
@@ -117,7 +101,7 @@ describe('MongoRepository', () => {
 
             const result = await repository.getAll();
 
-            expect(mockCollection.find).toHaveBeenCalledWith({});
+            expect(mockCollection.find).toHaveBeenCalledWith({}, { projection: { _id: 0 } });
             expect(mockCursor.toArray).toHaveBeenCalled();
             expect(result).toEqual(testEntities);
         });
@@ -231,7 +215,7 @@ describe('MongoRepository', () => {
             await repository.delete('crud-test');
 
             expect(mockCollection.insertOne).toHaveBeenCalledWith(entity);
-            expect(mockCollection.findOne).toHaveBeenCalledWith({ id: 'crud-test' });
+            expect(mockCollection.findOne).toHaveBeenCalledWith({ id: 'crud-test' }, { projection: { _id: 0 } });
             expect(mockCollection.findOneAndReplace).toHaveBeenCalledWith({ id: 'crud-test' }, updatedEntity);
             expect(mockCollection.deleteOne).toHaveBeenCalledWith({ id: 'crud-test' });
         });

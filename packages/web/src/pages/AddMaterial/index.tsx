@@ -38,7 +38,7 @@ const AddMaterial = () => {
     const onSubmit = async (data: FormMaterial) => {
         setIsMakingRequest(true);
         try {
-            await makeAddMaterialRequest(data, accessToken, login, logout);
+            await makeAddMaterialRequest(data, () => accessToken, login, logout);
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,

@@ -22,7 +22,9 @@ export const convertFormDataToMaterial = (formMaterial: FormMaterial) => {
     }
 };
 
-export const convertFormWireToMaterial = (formWire: FormWire): Omit<Wire, 'id'> => {
+type MissingMaterialFields = 'id' | 'dateAdded' | 'userId';
+
+export const convertFormWireToMaterial = (formWire: FormWire): Omit<Wire, MissingMaterialFields> => {
     const totalLength = formWire.packs * formWire.length;
     const totalPrice = formWire.packs * formWire.pricePerPack;
     const pricePerMeter = totalPrice / totalLength;
@@ -40,7 +42,7 @@ export const convertFormWireToMaterial = (formWire: FormWire): Omit<Wire, 'id'> 
     };
 };
 
-export const convertFormBeadToMaterial = (formBead: FormBead): Omit<Bead, 'id'> => {
+export const convertFormBeadToMaterial = (formBead: FormBead): Omit<Bead, MissingMaterialFields> => {
     const totalQuantity = formBead.packs * formBead.quantity;
     const totalPrice = formBead.packs * formBead.pricePerPack;
     const pricePerBead = totalPrice / totalQuantity;
@@ -57,7 +59,7 @@ export const convertFormBeadToMaterial = (formBead: FormBead): Omit<Bead, 'id'> 
     };
 };
 
-export const convertFormChainToMaterial = (formChain: FormChain): Omit<Chain, 'id'> => {
+export const convertFormChainToMaterial = (formChain: FormChain): Omit<Chain, MissingMaterialFields> => {
     return {
         type: formChain.type,
         name: formChain.name,

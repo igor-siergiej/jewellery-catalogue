@@ -4,7 +4,7 @@ import { MATERIALS_ENDPOINT } from '../../endpoints';
 import { makeRequestWithAutoRefresh } from '../../makeRequest';
 
 const makeGetMaterialsRequest = async (
-    accessToken: string,
+    getAccessToken: () => string,
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
 ) => {
@@ -13,18 +13,19 @@ const makeGetMaterialsRequest = async (
             pathname: MATERIALS_ENDPOINT,
             method: MethodType.GET,
             operationString: 'fetch materials',
-            accessToken,
+            accessToken: '', // Will be replaced by getAccessToken()
         },
+        getAccessToken,
         onTokenRefresh,
         onTokenClear
     );
 };
 
 export const getMaterialsQuery = (
-    accessToken: string,
+    getAccessToken: () => string,
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
 ) => ({
     queryKey: ['materials'],
-    queryFn: async () => makeGetMaterialsRequest(accessToken, onTokenRefresh, onTokenClear),
+    queryFn: async () => makeGetMaterialsRequest(getAccessToken, onTokenRefresh, onTokenClear),
 });

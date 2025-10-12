@@ -1,12 +1,13 @@
 import type { Material, RequiredMaterial } from '@jewellery-catalogue/types';
 import { Edit3, Package, Plus, Save, Trash2, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ADD_MATERIAL_PAGE } from '@/constants/routes';
 import { cn } from '@/lib/utils';
-
 import type { AddMaterialsTableProps, TableMaterial } from './types';
 import { getRequiredMaterial } from './util';
 
@@ -132,16 +133,24 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({
     setValue,
     availableMaterials,
     hasError = false,
+    value = [],
 }) => {
     const [rows, setRows] = useState<Array<TableMaterial>>([]);
     const [selectedMaterials, setSelectedMaterials] = useState<Array<TableMaterial>>([]);
     const [originalRowData, setOriginalRowData] = useState<Record<string, TableMaterial>>({});
 
+    useEffect(() => {
+        if (value.length === 0 && rows.length > 0) {
+            setRows([]);
+            setSelectedMaterials([]);
+            setOriginalRowData({});
+        }
+    }, [value, rows.length]);
+
     const handleEditClick = (rowKey: string) => {
         setRows((prevRows) =>
             prevRows.map((row) => {
                 if (row.rowKey === rowKey) {
-                    // Store original data before editing
                     setOriginalRowData((prev) => ({ ...prev, [rowKey]: { ...row } }));
 
                     return { ...row, isEditing: true };
@@ -173,7 +182,7 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({
             const updatedRow = { ...rowToSave, isNew: false, isEditing: false };
             const newRows = rows.map((row) => (row.rowKey === rowKey ? updatedRow : row));
 
-            setSelectedMaterials(newRows);
+            setSelectedMaterials(newRows.filter((row) => !row.isNew && !row.isEditing));
             setRows(newRows);
             setMaterials(newRows);
         } else {
@@ -183,8 +192,11 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({
                 return;
             }
 
-            setRows((prevRows) => prevRows.map((row) => (row.rowKey === rowKey ? { ...row, isEditing: false } : row)));
-            setMaterials(rows.map((row) => (row.rowKey === rowKey ? { ...row, isEditing: false } : row)));
+            const updatedRows = rows.map((row) => (row.rowKey === rowKey ? { ...row, isEditing: false } : row));
+
+            setRows(updatedRows);
+            setSelectedMaterials(updatedRows.filter((row) => !row.isNew && !row.isEditing));
+            setMaterials(updatedRows);
 
             // Clean up original data after successful save
             setOriginalRowData((prev) => {
@@ -201,7 +213,7 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({
         const newRows = rows.filter((row) => row.rowKey !== rowKey);
 
         setRows(newRows);
-        setSelectedMaterials(newRows);
+        setSelectedMaterials(newRows.filter((row) => !row.isNew && !row.isEditing));
         setMaterials(newRows);
     };
 
@@ -237,11 +249,14 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({
     const setMaterials = (rows: Array<TableMaterial>) => {
         const actualMaterials: Array<RequiredMaterial> = [];
 
+        const savedRows = rows.filter((row) => !row.isNew && !row.isEditing);
+
         for (const material of availableMaterials) {
-            const matchedRow = rows.find((tableMaterial) => tableMaterial.id === material.id);
+            const matchedRow = savedRows.find((tableMaterial) => tableMaterial.id === material.id);
 
             if (matchedRow) {
-                actualMaterials.push(getRequiredMaterial(material, matchedRow));
+                const requiredMaterial = getRequiredMaterial(material, matchedRow);
+                actualMaterials.push(requiredMaterial);
             }
         }
 
@@ -357,7 +372,11 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({
                             handleDeleteClick={handleDeleteClick}
                         />
                     ))}
-                    <TableFooter handleAddMaterial={handleAddMaterial} rows={rows} />
+                    <TableFooter
+                        handleAddMaterial={handleAddMaterial}
+                        rows={rows}
+                        availableMaterials={getAvailableMaterials()}
+                    />
                 </>
             )}
         </div>
@@ -404,20 +423,40 @@ const TableHeader = () => (
     </div>
 );
 
-const TableFooter: React.FC<{ rows: Array<TableMaterial>; handleAddMaterial: () => void }> = ({
-    rows,
-    handleAddMaterial,
-}) => {
+const TableFooter: React.FC<{
+    rows: Array<TableMaterial>;
+    handleAddMaterial: () => void;
+    availableMaterials: Array<Material>;
+}> = ({ rows, handleAddMaterial, availableMaterials }) => {
+    const navigate = useNavigate();
     const hasNewRow = rows.some((row) => row.isNew);
 
     if (rows.length === 0 || hasNewRow) return null;
 
+    const noMaterialsLeft = availableMaterials.length === 0;
+
     return (
         <div className="p-4 border-t bg-muted/20">
-            <Button type="button" variant="outline" onClick={handleAddMaterial} className="gap-2">
-                <Plus className="h-4 w-4" />
-                Add Material
-            </Button>
+            {noMaterialsLeft ? (
+                <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">All materials have been added.</span>
+                    <Button
+                        type="button"
+                        variant="link"
+                        size="sm"
+                        onClick={() => navigate(ADD_MATERIAL_PAGE.route)}
+                        className="h-auto p-0 text-sm"
+                    >
+                        Create more materials
+                    </Button>
+                    <span className="text-sm text-muted-foreground">to add them to this design.</span>
+                </div>
+            ) : (
+                <Button type="button" variant="outline" onClick={handleAddMaterial} className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Add Material
+                </Button>
+            )}
         </div>
     );
 };

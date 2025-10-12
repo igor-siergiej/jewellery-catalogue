@@ -5,7 +5,7 @@ import { makeRequestWithAutoRefresh } from '../../makeRequest';
 
 const makeAddMaterialRequest = async (
     material: FormMaterial,
-    accessToken: string,
+    getAccessToken: () => string,
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
 ) => {
@@ -18,8 +18,9 @@ const makeAddMaterialRequest = async (
             },
             operationString: 'add materials',
             body: material,
-            accessToken,
+            accessToken: '', // Will be replaced by getAccessToken()
         },
+        getAccessToken,
         onTokenRefresh,
         onTokenClear
     );

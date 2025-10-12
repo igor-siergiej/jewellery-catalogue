@@ -1,21 +1,6 @@
 import { z } from 'zod';
 import { baseMaterialSchema } from '../baseMaterial';
-import {
-    BeadKeysEnum,
-    ChainKeysEnum,
-    EarHookKeysEnum,
-    MaterialType,
-    METAL_TYPE,
-    WIRE_TYPE,
-    WireKeysEnum,
-} from './enum';
-
-export const MaterialKeysMap = {
-    [MaterialType.BEAD]: BeadKeysEnum,
-    [MaterialType.WIRE]: WireKeysEnum,
-    [MaterialType.EAR_HOOK]: EarHookKeysEnum,
-    [MaterialType.CHAIN]: ChainKeysEnum,
-};
+import { MaterialType, METAL_TYPE, WIRE_TYPE } from './enum';
 
 export const wireSchema = baseMaterialSchema.extend({
     type: z.literal(MaterialType.WIRE),
@@ -57,4 +42,5 @@ export type Wire = z.infer<typeof wireSchema>;
 export type Bead = z.infer<typeof beadSchema>;
 export type Chain = z.infer<typeof chainSchema>;
 export type EarHook = z.infer<typeof earHookSchema>;
+
 export type Material = z.infer<typeof materialSchema>;

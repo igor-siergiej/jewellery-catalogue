@@ -25,3 +25,7 @@ export const requiredMaterialSchema = z.discriminatedUnion('type', [
 ]);
 
 export type RequiredMaterial = z.infer<typeof requiredMaterialSchema>;
+export type RequiredWire = z.infer<typeof requiredWireSchema>;
+export type RequiredBead = z.infer<typeof requiredBeadSchema>;
+export type RequiredChain = z.infer<typeof requiredChainSchema>;
+export type RequiredEarHook = z.infer<typeof requiredEarHookSchema>;

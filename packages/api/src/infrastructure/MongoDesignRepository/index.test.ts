@@ -31,14 +31,6 @@ describe('MongoDesignRepository', () => {
         });
     });
 
-    describe('usesObjectId', () => {
-        it('should return false for designs', () => {
-            const result = repository.usesObjectId();
-
-            expect(result).toBe(false);
-        });
-    });
-
     describe('inherited CRUD operations', () => {
         const mockDesign: Design = {
             id: 'design-123',
@@ -58,7 +50,10 @@ describe('MongoDesignRepository', () => {
 
             const result = await repository.getById('design-123');
 
-            expect(mockDesignsCollection.findOne).toHaveBeenCalledWith({ id: 'design-123' });
+            expect(mockDesignsCollection.findOne).toHaveBeenCalledWith(
+                { id: 'design-123' },
+                { projection: { _id: 0 } }
+            );
             expect(result).toEqual(mockDesign);
         });
 
@@ -72,7 +67,7 @@ describe('MongoDesignRepository', () => {
 
             const result = await repository.getAll();
 
-            expect(mockDesignsCollection.find).toHaveBeenCalledWith({});
+            expect(mockDesignsCollection.find).toHaveBeenCalledWith({}, { projection: { _id: 0 } });
             expect(result).toEqual(designs);
         });
 

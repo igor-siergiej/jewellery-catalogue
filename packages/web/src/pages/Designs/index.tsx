@@ -15,7 +15,7 @@ const Designs = () => {
     const { accessToken, login, logout } = useAuth();
     const { searchQuery } = useSearch();
     const { data, isError } = useQuery({
-        ...getDesignsQuery(accessToken, login, logout),
+        ...getDesignsQuery(() => accessToken, login, logout),
         enabled: !!accessToken,
     });
 

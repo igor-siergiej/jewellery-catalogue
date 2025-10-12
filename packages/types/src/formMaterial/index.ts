@@ -1,48 +1,13 @@
 import { z } from 'zod';
-import type { BaseMaterial } from '../baseMaterial/index';
-import { MaterialType, METAL_TYPE, type WIRE_TYPE, WIRE_TYPE as WIRE_TYPE_ARRAY } from '../material/enum';
-import { FormBeadKeysEnum, FormChainKeysEnum, FormWireKeysEnum } from './enum';
+import { MaterialType, METAL_TYPE, WIRE_TYPE } from '../material/enum';
 
-export type FormMaterial = FormBead | FormWire | FormChain;
+export type FormMaterial = z.infer<typeof formMaterialSchema>;
 
-export interface FormWire extends BaseFormMaterial {
-    wireType: WIRE_TYPE;
-    metalType: METAL_TYPE;
-    length: number;
-    diameter: number;
-}
+export type FormWire = z.infer<typeof formWireSchema>;
+export type FormBead = z.infer<typeof formBeadSchema>;
+export type FormChain = z.infer<typeof formChainSchema>;
+export type FormEarHook = z.infer<typeof formEarHookSchema>;
 
-export interface FormBead extends BaseFormMaterial {
-    colour: string;
-    quantity: number;
-    diameter: number;
-}
-
-export interface FormEarHook extends BaseFormMaterial {
-    wireType: WIRE_TYPE;
-    metalType: METAL_TYPE;
-    quantity: number;
-}
-
-export interface FormChain extends BaseFormMaterial {
-    wireType: WIRE_TYPE;
-    metalType: METAL_TYPE;
-    diameter: number;
-    length: number;
-}
-
-export interface BaseFormMaterial extends BaseMaterial {
-    pricePerPack: number;
-    packs: number;
-}
-
-export const FormMaterialKeysMap = {
-    [MaterialType.BEAD]: FormBeadKeysEnum,
-    [MaterialType.WIRE]: FormWireKeysEnum,
-    [MaterialType.CHAIN]: FormChainKeysEnum,
-};
-
-// Base form material schema (without id, userId, dateAdded - those are server-generated)
 const baseFormMaterialSchema = z.object({
     name: z.string().min(1, 'Please enter the material name'),
     brand: z.string().min(1, 'Please enter the brand'),
@@ -57,7 +22,7 @@ const baseFormMaterialSchema = z.object({
 export const formWireSchema = baseFormMaterialSchema.extend({
     type: z.literal(MaterialType.WIRE),
     diameter: z.number({ message: 'Please enter the diameter' }).positive('Diameter must be greater than 0'),
-    wireType: z.enum(WIRE_TYPE_ARRAY),
+    wireType: z.enum(WIRE_TYPE),
     metalType: z.enum(METAL_TYPE),
     length: z.number({ message: 'Please enter the length' }).positive('Length must be greater than 0'),
 });
@@ -72,7 +37,7 @@ export const formBeadSchema = baseFormMaterialSchema.extend({
 export const formChainSchema = baseFormMaterialSchema.extend({
     type: z.literal(MaterialType.CHAIN),
     metalType: z.enum(METAL_TYPE),
-    wireType: z.enum(WIRE_TYPE_ARRAY),
+    wireType: z.enum(WIRE_TYPE),
     diameter: z.number({ message: 'Please enter the diameter' }).positive('Diameter must be greater than 0'),
     length: z.number({ message: 'Please enter the length' }).positive('Length must be greater than 0'),
 });
@@ -80,7 +45,7 @@ export const formChainSchema = baseFormMaterialSchema.extend({
 export const formEarHookSchema = baseFormMaterialSchema.extend({
     type: z.literal(MaterialType.EAR_HOOK),
     metalType: z.enum(METAL_TYPE),
-    wireType: z.enum(WIRE_TYPE_ARRAY),
+    wireType: z.enum(WIRE_TYPE),
     quantity: z.number({ message: 'Please enter the quantity' }).int().positive('Quantity must be at least 1'),
 });
 
@@ -90,3 +55,10 @@ export const formMaterialSchema = z.discriminatedUnion('type', [
     formChainSchema,
     formEarHookSchema,
 ]);
+
+export const FormMaterialSchemas = {
+    [MaterialType.BEAD]: formBeadSchema,
+    [MaterialType.WIRE]: formWireSchema,
+    [MaterialType.EAR_HOOK]: formEarHookSchema,
+    [MaterialType.CHAIN]: formChainSchema,
+};
