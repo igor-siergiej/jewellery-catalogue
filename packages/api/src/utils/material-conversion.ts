@@ -1,8 +1,10 @@
 import {
     type Bead,
     type Chain,
+    type EarHook,
     type FormBead,
     type FormChain,
+    type FormEarHook,
     type FormMaterial,
     type FormWire,
     MaterialType,
@@ -17,6 +19,8 @@ export const convertFormDataToMaterial = (formMaterial: FormMaterial) => {
             return convertFormBeadToMaterial(formMaterial as FormBead);
         case MaterialType.CHAIN:
             return convertFormChainToMaterial(formMaterial as FormChain);
+        case MaterialType.EAR_HOOK:
+            return convertFormEarHookToMaterial(formMaterial as FormEarHook);
         default:
             throw new Error(`Unsupported material type: ${formMaterial.type}`);
     }
@@ -37,7 +41,9 @@ export const convertFormWireToMaterial = (formWire: FormWire): Omit<Wire, Missin
         diameter: formWire.diameter,
         wireType: formWire.wireType,
         metalType: formWire.metalType,
-        length: formWire.length,
+        lengthPerPack: formWire.length,
+        pricePerPack: formWire.pricePerPack,
+        totalLength,
         pricePerMeter,
     };
 };
@@ -54,12 +60,18 @@ export const convertFormBeadToMaterial = (formBead: FormBead): Omit<Bead, Missin
         purchaseUrl: formBead.purchaseUrl,
         diameter: formBead.diameter,
         colour: formBead.colour,
-        quantity: formBead.quantity,
+        quantityPerPack: formBead.quantity,
+        pricePerPack: formBead.pricePerPack,
+        totalQuantity,
         pricePerBead,
     };
 };
 
 export const convertFormChainToMaterial = (formChain: FormChain): Omit<Chain, MissingMaterialFields> => {
+    const totalLength = formChain.packs * formChain.length;
+    const totalPrice = formChain.packs * formChain.pricePerPack;
+    const pricePerMeter = totalLength > 0 ? totalPrice / totalLength : undefined;
+
     return {
         type: formChain.type,
         name: formChain.name,
@@ -68,6 +80,28 @@ export const convertFormChainToMaterial = (formChain: FormChain): Omit<Chain, Mi
         metalType: formChain.metalType,
         wireType: formChain.wireType,
         diameter: formChain.diameter,
-        length: formChain.length,
+        lengthPerPack: formChain.length,
+        pricePerPack: formChain.pricePerPack,
+        totalLength,
+        pricePerMeter,
+    };
+};
+
+export const convertFormEarHookToMaterial = (formEarHook: FormEarHook): Omit<EarHook, MissingMaterialFields> => {
+    const totalQuantity = formEarHook.packs * formEarHook.quantity;
+    const totalPrice = formEarHook.packs * formEarHook.pricePerPack;
+    const pricePerPiece = totalQuantity > 0 ? totalPrice / totalQuantity : undefined;
+
+    return {
+        type: formEarHook.type,
+        name: formEarHook.name,
+        brand: formEarHook.brand,
+        purchaseUrl: formEarHook.purchaseUrl,
+        metalType: formEarHook.metalType,
+        wireType: formEarHook.wireType,
+        quantityPerPack: formEarHook.quantity,
+        pricePerPack: formEarHook.pricePerPack,
+        totalQuantity,
+        pricePerPiece,
     };
 };

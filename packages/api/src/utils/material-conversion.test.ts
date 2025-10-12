@@ -19,7 +19,6 @@ describe('material-conversion', () => {
     describe('convertFormDataToMaterial', () => {
         it('should convert FormWire to material', () => {
             const formWire: FormWire = {
-                id: 'test-id',
                 type: MaterialType.WIRE,
                 name: 'Test Wire',
                 brand: 'Test Brand',
@@ -42,14 +41,15 @@ describe('material-conversion', () => {
                 diameter: 1.5,
                 wireType: WIRE_TYPE.FULL,
                 metalType: METAL_TYPE.SILVER,
-                length: 10,
+                lengthPerPack: 10,
                 pricePerMeter: 2.5,
+                pricePerPack: 25.0,
+                totalLength: 20,
             });
         });
 
         it('should convert FormBead to material', () => {
             const formBead: FormBead = {
-                id: 'test-id',
                 type: MaterialType.BEAD,
                 name: 'Test Bead',
                 brand: 'Test Brand',
@@ -70,14 +70,15 @@ describe('material-conversion', () => {
                 purchaseUrl: 'https://example.com',
                 diameter: 8,
                 colour: 'Blue',
-                quantity: 50,
+                quantityPerPack: 50,
                 pricePerBead: 0.3,
+                pricePerPack: 15.0,
+                totalQuantity: 150,
             });
         });
 
         it('should convert FormChain to material', () => {
             const formChain: FormChain = {
-                id: 'test-id',
                 type: MaterialType.CHAIN,
                 name: 'Test Chain',
                 brand: 'Test Brand',
@@ -100,7 +101,10 @@ describe('material-conversion', () => {
                 metalType: METAL_TYPE.GOLD,
                 wireType: WIRE_TYPE.FILLED,
                 diameter: 2.0,
-                length: 5,
+                lengthPerPack: 5,
+                pricePerPack: 100.0,
+                totalLength: 5,
+                pricePerMeter: 20.0,
             });
         });
 
@@ -121,7 +125,6 @@ describe('material-conversion', () => {
     describe('convertFormWireToMaterial', () => {
         it('should correctly calculate price per meter with single pack', () => {
             const formWire: FormWire = {
-                id: 'test-id',
                 type: MaterialType.WIRE,
                 name: 'Single Pack Wire',
                 brand: 'Test Brand',
@@ -141,7 +144,6 @@ describe('material-conversion', () => {
 
         it('should correctly calculate price per meter with multiple packs', () => {
             const formWire: FormWire = {
-                id: 'test-id',
                 type: MaterialType.WIRE,
                 name: 'Multi Pack Wire',
                 brand: 'Test Brand',
@@ -165,7 +167,6 @@ describe('material-conversion', () => {
 
         it('should preserve all wire properties', () => {
             const formWire: FormWire = {
-                id: 'test-id',
                 type: MaterialType.WIRE,
                 name: 'Complete Wire',
                 brand: 'Premium Brand',
@@ -188,8 +189,10 @@ describe('material-conversion', () => {
                 diameter: 2.5,
                 wireType: WIRE_TYPE.FILLED,
                 metalType: METAL_TYPE.GILT,
-                length: 8,
+                lengthPerPack: 8,
                 pricePerMeter: 3.75,
+                pricePerPack: 30.0,
+                totalLength: 16,
             });
         });
     });
@@ -197,7 +200,6 @@ describe('material-conversion', () => {
     describe('convertFormBeadToMaterial', () => {
         it('should correctly calculate price per bead with single pack', () => {
             const formBead: FormBead = {
-                id: 'test-id',
                 type: MaterialType.BEAD,
                 name: 'Single Pack Bead',
                 brand: 'Test Brand',
@@ -216,7 +218,6 @@ describe('material-conversion', () => {
 
         it('should correctly calculate price per bead with multiple packs', () => {
             const formBead: FormBead = {
-                id: 'test-id',
                 type: MaterialType.BEAD,
                 name: 'Multi Pack Bead',
                 brand: 'Test Brand',
@@ -239,7 +240,6 @@ describe('material-conversion', () => {
 
         it('should preserve all bead properties', () => {
             const formBead: FormBead = {
-                id: 'test-id',
                 type: MaterialType.BEAD,
                 name: 'Complete Bead',
                 brand: 'Artisan Brand',
@@ -260,8 +260,10 @@ describe('material-conversion', () => {
                 purchaseUrl: 'https://artisan.com',
                 diameter: 12,
                 colour: 'Multicolor',
-                quantity: 40,
                 pricePerBead: 0.45,
+                pricePerPack: 18.0,
+                quantityPerPack: 40,
+                totalQuantity: 120,
             });
         });
     });
@@ -269,7 +271,6 @@ describe('material-conversion', () => {
     describe('convertFormChainToMaterial', () => {
         it('should convert FormChain preserving all properties', () => {
             const formChain: FormChain = {
-                id: 'test-id',
                 type: MaterialType.CHAIN,
                 name: 'Luxury Chain',
                 brand: 'Luxury Brand',
@@ -292,13 +293,15 @@ describe('material-conversion', () => {
                 metalType: METAL_TYPE.SILVER,
                 wireType: WIRE_TYPE.FULL,
                 diameter: 1.8,
-                length: 12,
+                lengthPerPack: 12,
+                pricePerPack: 45.0,
+                totalLength: 24,
+                pricePerMeter: 3.75,
             });
         });
 
         it('should handle all metal types', () => {
             const baseFormChain = {
-                id: 'test-id',
                 type: MaterialType.CHAIN,
                 name: 'Test Chain',
                 brand: 'Test Brand',
@@ -324,7 +327,6 @@ describe('material-conversion', () => {
 
         it('should handle all wire types', () => {
             const baseFormChain = {
-                id: 'test-id',
                 type: MaterialType.CHAIN,
                 name: 'Test Chain',
                 brand: 'Test Brand',
@@ -352,7 +354,6 @@ describe('material-conversion', () => {
     describe('edge cases and validation', () => {
         it('should handle zero packs for wire calculation', () => {
             const formWire: FormWire = {
-                id: 'test-id',
                 type: MaterialType.WIRE,
                 name: 'Zero Packs Wire',
                 brand: 'Test Brand',
@@ -367,14 +368,11 @@ describe('material-conversion', () => {
 
             const result = convertFormWireToMaterial(formWire);
 
-            // 0 packs * 10 length = 0 total length, 0 packs * 10 price = 0 total price
-            // 0 / 0 = NaN
             expect(Number.isNaN(result.pricePerMeter)).toBe(true);
         });
 
         it('should handle zero packs for bead calculation', () => {
             const formBead: FormBead = {
-                id: 'test-id',
                 type: MaterialType.BEAD,
                 name: 'Zero Packs Bead',
                 brand: 'Test Brand',
@@ -388,14 +386,11 @@ describe('material-conversion', () => {
 
             const result = convertFormBeadToMaterial(formBead);
 
-            // 0 packs * 50 quantity = 0 total quantity, 0 packs * 15 price = 0 total price
-            // 0 / 0 = NaN
             expect(Number.isNaN(result.pricePerBead)).toBe(true);
         });
 
         it('should handle zero quantity for bead calculation', () => {
             const formBead: FormBead = {
-                id: 'test-id',
                 type: MaterialType.BEAD,
                 name: 'Zero Quantity Bead',
                 brand: 'Test Brand',
@@ -414,7 +409,6 @@ describe('material-conversion', () => {
 
         it('should handle zero length for wire calculation', () => {
             const formWire: FormWire = {
-                id: 'test-id',
                 type: MaterialType.WIRE,
                 name: 'Zero Length Wire',
                 brand: 'Test Brand',

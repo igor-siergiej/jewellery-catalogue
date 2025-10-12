@@ -5,4 +5,5 @@ export * from './formMaterial/index';
 export * from './material/enum';
 export * from './material/index';
 export * from './requiredMaterial/index';
+export * from './updateMaterial/index';
 export * from './util/index';

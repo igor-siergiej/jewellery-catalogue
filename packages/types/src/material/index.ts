@@ -7,7 +7,9 @@ export const wireSchema = baseMaterialSchema.extend({
     diameter: z.number(),
     wireType: z.enum(WIRE_TYPE),
     metalType: z.enum(METAL_TYPE),
-    length: z.number(),
+    lengthPerPack: z.number(),
+    pricePerPack: z.number(),
+    totalLength: z.number(),
     pricePerMeter: z.number(),
 });
 
@@ -15,7 +17,9 @@ export const beadSchema = baseMaterialSchema.extend({
     type: z.literal(MaterialType.BEAD),
     diameter: z.number(),
     colour: z.string(),
-    quantity: z.number(),
+    quantityPerPack: z.number(),
+    pricePerPack: z.number(),
+    totalQuantity: z.number(),
     pricePerBead: z.number(),
 });
 
@@ -24,7 +28,9 @@ export const chainSchema = baseMaterialSchema.extend({
     metalType: z.enum(METAL_TYPE),
     wireType: z.enum(WIRE_TYPE),
     diameter: z.number(),
-    length: z.number(),
+    lengthPerPack: z.number(),
+    pricePerPack: z.number(),
+    totalLength: z.number(),
     pricePerMeter: z.number().optional(),
 });
 
@@ -32,7 +38,9 @@ export const earHookSchema = baseMaterialSchema.extend({
     type: z.literal(MaterialType.EAR_HOOK),
     metalType: z.enum(METAL_TYPE),
     wireType: z.enum(WIRE_TYPE),
-    quantity: z.number(),
+    quantityPerPack: z.number(),
+    pricePerPack: z.number(),
+    totalQuantity: z.number(),
     pricePerPiece: z.number().optional(),
 });
 

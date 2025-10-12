@@ -21,6 +21,7 @@ import WireTable from './WireTable';
 
 export interface IMaterialTableProps {
     materials: Array<Material>;
+    onMaterialUpdated?: () => void;
 }
 
 interface PaginationProps {
@@ -115,7 +116,7 @@ const Pagination: React.FC<PaginationProps> = ({
     );
 };
 
-const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
+const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUpdated }) => {
     const [currentPage, setCurrentPage] = useState(0);
     const [pageSize, setPageSize] = useState(10);
 
@@ -178,7 +179,10 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
                 </TabsList>
 
                 <TabsContent value="all">
-                    <AllMaterialsTable materials={getPaginatedMaterials(materials)} />
+                    <AllMaterialsTable
+                        materials={getPaginatedMaterials(materials)}
+                        onMaterialUpdated={onMaterialUpdated}
+                    />
                     <Pagination
                         totalMaterials={materials.length}
                         currentPage={currentPage}
@@ -192,7 +196,7 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
                 </TabsContent>
 
                 <TabsContent value="wire">
-                    <WireTable materials={getPaginatedMaterials(wireMaterials)} />
+                    <WireTable materials={getPaginatedMaterials(wireMaterials)} onMaterialUpdated={onMaterialUpdated} />
                     <Pagination
                         totalMaterials={wireMaterials.length}
                         currentPage={currentPage}
@@ -206,7 +210,7 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
                 </TabsContent>
 
                 <TabsContent value="bead">
-                    <BeadTable materials={getPaginatedMaterials(beadMaterials)} />
+                    <BeadTable materials={getPaginatedMaterials(beadMaterials)} onMaterialUpdated={onMaterialUpdated} />
                     <Pagination
                         totalMaterials={beadMaterials.length}
                         currentPage={currentPage}
@@ -220,7 +224,10 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
                 </TabsContent>
 
                 <TabsContent value="chain">
-                    <ChainTable materials={getPaginatedMaterials(chainMaterials)} />
+                    <ChainTable
+                        materials={getPaginatedMaterials(chainMaterials)}
+                        onMaterialUpdated={onMaterialUpdated}
+                    />
                     <Pagination
                         totalMaterials={chainMaterials.length}
                         currentPage={currentPage}
@@ -234,7 +241,10 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials }) => {
                 </TabsContent>
 
                 <TabsContent value="ear-hook">
-                    <EarHookTable materials={getPaginatedMaterials(earHookMaterials)} />
+                    <EarHookTable
+                        materials={getPaginatedMaterials(earHookMaterials)}
+                        onMaterialUpdated={onMaterialUpdated}
+                    />
                     <Pagination
                         totalMaterials={earHookMaterials.length}
                         currentPage={currentPage}

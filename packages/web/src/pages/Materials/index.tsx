@@ -7,7 +7,7 @@ import MaterialsTable from '../../components/MaterialsTable';
 
 const Materials = () => {
     const { accessToken, login, logout } = useAuth();
-    const { data, isError, error } = useQuery({
+    const { data, isError, error, refetch } = useQuery({
         ...getMaterialsQuery(() => accessToken, login, logout),
         enabled: !!accessToken,
     });
@@ -25,7 +25,7 @@ const Materials = () => {
         return <LoadingScreen />;
     }
 
-    return <MaterialsTable materials={data} />;
+    return <MaterialsTable materials={data} onMaterialUpdated={() => refetch()} />;
 };
 
 export default Materials;
