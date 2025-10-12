@@ -1,3 +1,10 @@
+# [1.7.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.6.0...v1.7.0) (2025-10-12)
+
+
+### Features
+
+* consolidate schema and types and add design bugs ([90f2ace](https://gitlab.com/imapps/jewellery-catalogue/commit/90f2ace9a951f7432ba55bcf45c53b6bd170f77c))
+
 # [1.6.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.5.0...v1.6.0) (2025-10-10)
 
 
