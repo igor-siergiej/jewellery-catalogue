@@ -1,3 +1,10 @@
+# [1.8.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.7.0...v1.8.0) (2025-10-12)
+
+
+### Features
+
+* add inventory attributes to materials and edit material form ([3088087](https://gitlab.com/imapps/jewellery-catalogue/commit/308808711a961dd56ed8068fad328071c3ca587b))
+
 # [1.7.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.6.0...v1.7.0) (2025-10-12)
 
 
