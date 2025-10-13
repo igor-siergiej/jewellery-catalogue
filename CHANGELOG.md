@@ -1,3 +1,10 @@
+## [1.8.1](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.8.0...v1.8.1) (2025-10-13)
+
+
+### Bug Fixes
+
+* image version in build ([92b86bc](https://gitlab.com/imapps/jewellery-catalogue/commit/92b86bc3ea1c94c794a7b47a069e17d772152f99))
+
 # [1.8.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.7.0...v1.8.0) (2025-10-12)
 
 
