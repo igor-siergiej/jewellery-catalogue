@@ -81,7 +81,8 @@ export const registerDepdendencies = () => {
                 return new DesignService(
                     dependencyContainer.resolve(DependencyToken.DesignRepository),
                     dependencyContainer.resolve(DependencyToken.ImageService),
-                    dependencyContainer.resolve(DependencyToken.IdGenerator)
+                    dependencyContainer.resolve(DependencyToken.IdGenerator),
+                    dependencyContainer.resolve(DependencyToken.MaterialRepository)
                 );
             }
         } as any

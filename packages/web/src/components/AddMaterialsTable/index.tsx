@@ -145,7 +145,7 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({
             setSelectedMaterials([]);
             setOriginalRowData({});
         }
-    }, [value, rows.length]);
+    }, [value.length, rows.length]);
 
     const handleEditClick = (rowKey: string) => {
         setRows((prevRows) =>

@@ -95,6 +95,7 @@ const AddDesign: React.FC = () => {
         const totalCosts = materialsCost + timeSpentCost;
         const finalPrice = parseFloat((totalCosts * PROFIT_COEFFICIENT).toFixed(2));
 
+        form.setValue('totalMaterialCosts', materialsCost);
         form.setValue('price', finalPrice);
     }, [selectedMaterials, currentTimeRequired, data, form.setValue]);
 

@@ -14,7 +14,7 @@ import { useSearch } from '../../context/SearchContext';
 const Designs = () => {
     const { accessToken, login, logout } = useAuth();
     const { searchQuery } = useSearch();
-    const { data, isError } = useQuery({
+    const { data, isError, refetch } = useQuery({
         ...getDesignsQuery(() => accessToken, login, logout),
         enabled: !!accessToken,
     });
@@ -40,7 +40,7 @@ const Designs = () => {
     const filteredData = searchQuery && fuse ? fuse.search(searchQuery).map((result) => result.item) : data;
 
     const designs = filteredData.map((design) => {
-        return <DesignCard key={design.id} design={design} />;
+        return <DesignCard key={design.id} design={design} onDesignUpdated={() => refetch()} />;
     });
 
     return (

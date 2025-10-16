@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import type { PersistentFile, UploadDesign } from '@jewellery-catalogue/types';
+import type { EditDesign, PersistentFile, UploadDesign } from '@jewellery-catalogue/types';
 import type { Context } from 'koa';
 
 import { dependencyContainer } from '../../dependencies';
@@ -88,6 +88,45 @@ export const updateDesign = async (ctx: Context) => {
     try {
         const design = await getDesignService().updateDesign(id, updates, userId);
 
+        ctx.body = design;
+    } catch (error: unknown) {
+        const err = error as { status?: number; message?: string } | null;
+
+        ctx.status = err?.status ?? 500;
+        ctx.body = { error: err?.message ?? 'Internal Server Error' };
+    }
+};
+
+export const editDesignProperties = async (ctx: Context) => {
+    const userId = ctx.state.userId;
+    const { id } = ctx.params;
+    const file = ctx.request.files?.file as unknown as PersistentFile | undefined;
+
+    const { name, description, timeRequired, materials, totalMaterialCosts, price } = ctx.request
+        .body as Partial<EditDesign>;
+
+    try {
+        let fileBuffer: Buffer | null = null;
+        let contentType: string | null = null;
+
+        // If a file is provided, read it
+        if (file) {
+            fileBuffer = fs.readFileSync(file.filepath);
+            contentType = file.mimetype || 'application/octet-stream';
+        }
+
+        const updates: EditDesign = {};
+
+        if (name) updates.name = name;
+        if (description !== undefined) updates.description = description;
+        if (timeRequired) updates.timeRequired = timeRequired;
+        if (materials) updates.materials = materials;
+        if (totalMaterialCosts !== undefined) updates.totalMaterialCosts = Number(totalMaterialCosts);
+        if (price !== undefined) updates.price = Number(price);
+
+        const design = await getDesignService().editDesignProperties(id, updates, fileBuffer, contentType, userId);
+
+        ctx.status = 200;
         ctx.body = design;
     } catch (error: unknown) {
         const err = error as { status?: number; message?: string } | null;

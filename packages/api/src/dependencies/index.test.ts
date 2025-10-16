@@ -187,7 +187,7 @@ describe('Dependencies', () => {
                 const FactoryClass = designServiceCall[1];
                 const _instance = new FactoryClass();
 
-                expect(DesignService).toHaveBeenCalledWith(undefined, undefined, undefined);
+                expect(DesignService).toHaveBeenCalledWith(undefined, undefined, undefined, undefined);
                 expect(mockDependencyContainer.resolve).toHaveBeenCalledWith(DependencyToken.DesignRepository);
                 expect(mockDependencyContainer.resolve).toHaveBeenCalledWith(DependencyToken.ImageService);
                 expect(mockDependencyContainer.resolve).toHaveBeenCalledWith(DependencyToken.IdGenerator);
