@@ -1,3 +1,10 @@
+## [1.9.1](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.9.0...v1.9.1) (2025-10-17)
+
+
+### Bug Fixes
+
+* adding materials in add desing not working ([6bf287f](https://gitlab.com/imapps/jewellery-catalogue/commit/6bf287f27bd107965b91c616a35115a65d05b1af))
+
 # [1.9.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.8.1...v1.9.0) (2025-10-17)
 
 
