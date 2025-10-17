@@ -140,12 +140,14 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({
     const [originalRowData, setOriginalRowData] = useState<Record<string, TableMaterial>>({});
 
     useEffect(() => {
-        if (value.length === 0 && rows.length > 0) {
+        // Only clear rows if there are no saved materials AND no rows are currently being edited
+        const hasEditingRows = rows.some((row) => row.isEditing || row.isNew);
+        if (value.length === 0 && rows.length > 0 && !hasEditingRows) {
             setRows([]);
             setSelectedMaterials([]);
             setOriginalRowData({});
         }
-    }, [value.length, rows.length]);
+    }, [value.length, rows]);
 
     const handleEditClick = (rowKey: string) => {
         setRows((prevRows) =>
