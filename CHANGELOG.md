@@ -1,3 +1,10 @@
+# [1.9.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.8.1...v1.9.0) (2025-10-17)
+
+
+### Features
+
+* add edit design and create design modals ([481aa6f](https://gitlab.com/imapps/jewellery-catalogue/commit/481aa6f6b88e87bf04e0735ecfac001bec207e10))
+
 ## [1.8.1](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.8.0...v1.8.1) (2025-10-13)
 
 
