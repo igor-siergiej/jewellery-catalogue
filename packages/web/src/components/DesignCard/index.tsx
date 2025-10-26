@@ -1,5 +1,5 @@
 import type { Design } from '@jewellery-catalogue/types';
-import { Clock, Edit, Heart } from 'lucide-react';
+import { Clock, Edit, Heart, PackageOpen } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,7 +16,7 @@ export interface DesignCardProps {
 }
 
 export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated }) => {
-    const { name, timeRequired, id, imageId } = design;
+    const { name, timeRequired, id, imageId, totalQuantity } = design;
     const [isFavorite, setIsFavorite] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const navigate = useNavigate();
@@ -69,9 +69,18 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated 
                 </ItemHeader>
                 <ItemContent className="flex-none items-start text-left w-full">
                     <ItemTitle className="text-lg font-semibold">{name}</ItemTitle>
-                    <ItemFooter className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        {timeRequired} hours
+                    <ItemFooter className="flex items-center gap-1 w-full">
+                        <div className="flex items-center justify-between w-full">
+                            <div className="flex items-center gap-1">
+                                <Clock className="h-4 w-4" />
+                                {timeRequired} hours
+                            </div>
+
+                            <div className="flex items-center gap-1">
+                                <PackageOpen className="h-4 w-4" />
+                                {totalQuantity} in stock
+                            </div>
+                        </div>
                     </ItemFooter>
                 </ItemContent>
             </Item>
