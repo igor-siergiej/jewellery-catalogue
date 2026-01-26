@@ -5,6 +5,9 @@ include:
 
 variables:
   PROJECT_NAME: "jewellery-catalogue"
+  # Override registry to use local registry
+  CI_REGISTRY: "192.168.68.59:5000"
+  PRIVATE_REGISTRY: "192.168.68.59:5000"
 
 # CI job - extends the reusable template
 ci:
@@ -77,22 +80,24 @@ publish-api:
 
 # Update staging environment automatically
 gitops-staging:
-  extends: .gitops-staging-template
+  extends: .gitops-staging-helm-template
   variables:
-    APP_IMAGES: "jewellery-catalogue-api:jewellery-catalogue-api,jewellery-catalogue-web:jewellery-catalogue-web"
+    HELM_VALUES: "apps/workloads/jewellery-catalogue/values-staging.yaml,api.image.tag;apps/workloads/jewellery-catalogue/values-staging.yaml,web.image.tag"
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "main"
     - if: $CI_PIPELINE_SOURCE == "web"
   needs:
-    - version-release
-    - publish-web
-    - publish-api
+    - job: version-release
+      artifacts: true
+    - job: publish-web
+    - job: publish-api
 
 # Manual production deployment
 gitops-production:
-  extends: .production-deploy-template
+  extends: .production-deploy-helm-template
   variables:
-    APP_IMAGES: "jewellery-catalogue-api:jewellery-catalogue-api,jewellery-catalogue-web:jewellery-catalogue-web"
+    HELM_VALUES: "apps/workloads/jewellery-catalogue/values-production.yaml,api.image.tag;apps/workloads/jewellery-catalogue/values-production.yaml,web.image.tag"
   needs:
-    - version-release
-    - gitops-staging
+    - job: version-release
+      artifacts: true
+    - job: gitops-staging
