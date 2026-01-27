@@ -31,9 +31,15 @@ version-release:
 # Build jewellery-catalogue-web Docker image (test build with SHA tag)
 build-web:
   extends: .docker-build-template
+  before_script:
+    - until docker info; do sleep 1; done
   variables:
     APP_NAME: "jewellery-catalogue-web"
     DOCKERFILE_PATH: "packages/web/Dockerfile"
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_TLS_VERIFY: ""
+    DOCKER_CERT_PATH: ""
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "main"
     - if: $CI_PIPELINE_SOURCE == "web"
@@ -43,9 +49,15 @@ build-web:
 # Build jewellery-catalogue-api Docker image (test build with SHA tag)
 build-api:
   extends: .docker-build-template
+  before_script:
+    - until docker info; do sleep 1; done
   variables:
     APP_NAME: "jewellery-catalogue-api"
     DOCKERFILE_PATH: "packages/api/Dockerfile"
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_TLS_VERIFY: ""
+    DOCKER_CERT_PATH: ""
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "main"
     - if: $CI_PIPELINE_SOURCE == "web"
@@ -55,9 +67,15 @@ build-api:
 # Build and publish jewellery-catalogue-web with semantic version
 publish-web:
   extends: .docker-publish-rebuild-template
+  before_script:
+    - until docker info; do sleep 1; done
   variables:
     APP_NAME: "jewellery-catalogue-web"
     DOCKERFILE_PATH: "packages/web/Dockerfile"
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_TLS_VERIFY: ""
+    DOCKER_CERT_PATH: ""
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "main"
     - if: $CI_PIPELINE_SOURCE == "web"
@@ -68,9 +86,15 @@ publish-web:
 # Build and publish jewellery-catalogue-api with semantic version
 publish-api:
   extends: .docker-publish-rebuild-template
+  before_script:
+    - until docker info; do sleep 1; done
   variables:
     APP_NAME: "jewellery-catalogue-api"
     DOCKERFILE_PATH: "packages/api/Dockerfile"
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_TLS_VERIFY: ""
+    DOCKER_CERT_PATH: ""
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "main"
     - if: $CI_PIPELINE_SOURCE == "web"
