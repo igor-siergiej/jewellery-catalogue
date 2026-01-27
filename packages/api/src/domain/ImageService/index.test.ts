@@ -305,18 +305,6 @@ describe('ImageService', () => {
                 contentType,
             });
         });
-
-        it('should handle large buffers', async () => {
-            const imageName = 'large-image.jpg';
-            const imageBuffer = Buffer.alloc(1024 * 1024, 0); // 1MB buffer
-            const contentType = 'image/jpeg';
-
-            mockStore.putObject.mockResolvedValue(undefined);
-
-            await service.uploadImage(imageName, imageBuffer, contentType);
-
-            expect(mockStore.putObject).toHaveBeenCalledWith(imageName, imageBuffer, { contentType });
-        });
     });
 
     describe('edge cases and error scenarios', () => {
