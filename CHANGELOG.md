@@ -1,3 +1,17 @@
+# [1.10.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.9.0...v1.10.0) (2026-01-27)
+
+
+### Bug Fixes
+
+* adding materials in add desing not working ([6bf287f](https://gitlab.com/imapps/jewellery-catalogue/commit/6bf287f27bd107965b91c616a35115a65d05b1af))
+* **ci/cd:** match shoppingo docker configuration for build jobs ([c25c3fa](https://gitlab.com/imapps/jewellery-catalogue/commit/c25c3fa02449028c9076dc12c679857168e954f8))
+* linting ([0228ca7](https://gitlab.com/imapps/jewellery-catalogue/commit/0228ca7a08de2211027e4fcc4502248e799e9442))
+
+
+### Features
+
+* added quantity in stock in design card ([a737956](https://gitlab.com/imapps/jewellery-catalogue/commit/a73795652d23a80d5acdbc671a4e0be735bdb44f))
+
 # [1.9.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.8.1...v1.9.0) (2025-10-17)
 
 
