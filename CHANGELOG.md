@@ -1,3 +1,10 @@
+## [1.10.2](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.10.1...v1.10.2) (2026-01-28)
+
+
+### Bug Fixes
+
+* update Dockerfile to install runtime dependencies ([0274bf7](https://gitlab.com/imapps/jewellery-catalogue/commit/0274bf799cfefee38b604ef923f9647cd37621c1))
+
 ## [1.10.1](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.10.0...v1.10.1) (2026-01-28)
 
 
