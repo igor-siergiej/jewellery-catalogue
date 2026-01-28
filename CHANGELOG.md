@@ -1,3 +1,10 @@
+## [1.10.1](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.10.0...v1.10.1) (2026-01-28)
+
+
+### Bug Fixes
+
+* remove koa-body from bundled dependencies ([bc33106](https://gitlab.com/imapps/jewellery-catalogue/commit/bc331067177d1574e2e789985aae8e40151ee462))
+
 # [1.10.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.9.0...v1.10.0) (2026-01-27)
 
 
