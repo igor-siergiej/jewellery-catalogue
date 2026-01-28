@@ -31,10 +31,17 @@ FROM node:22-alpine AS runner
 
 WORKDIR /app
 
-# Copy only the built application
+# Copy package files and build
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/yarn.lock ./
+COPY --from=builder /app/.yarnrc.yml ./
+COPY --from=builder /app/packages/api/package.json ./packages/api/package.json
 COPY --from=builder /app/packages/api/build ./build
 
-RUN npm install --omit=dev --include=optional sharp
+ENV YARN_NODE_LINKER=node-modules
+
+RUN corepack enable && corepack prepare yarn@4.9.2 --activate && \
+    yarn workspaces focus @jewellery-catalogue/api --production
 
 EXPOSE 4001
 
