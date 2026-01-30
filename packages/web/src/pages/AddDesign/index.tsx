@@ -103,10 +103,16 @@ const AddDesign: React.FC = () => {
         return null;
     }
 
+    const handleFormKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+        if (e.key === 'Enter' && e.target instanceof HTMLInputElement) {
+            e.preventDefault();
+        }
+    };
+
     return (
         <Card className="p-6 max-w-5xl mx-auto">
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <form onSubmit={form.handleSubmit(onSubmit)} onKeyDown={handleFormKeyDown} className="space-y-8">
                     {/* Header */}
                     <div className="space-y-4">
                         <h1 className="text-2xl font-semibold text-left pl-2 leading-[50px]">Adding New Design</h1>

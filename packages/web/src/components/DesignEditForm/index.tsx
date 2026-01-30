@@ -110,9 +110,15 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
         return null;
     }
 
+    const handleFormKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+        if (e.key === 'Enter' && e.target instanceof HTMLInputElement) {
+            e.preventDefault();
+        }
+    };
+
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} onKeyDown={handleFormKeyDown} className="space-y-6">
                 {/* Design Details Section */}
                 <div className="grid grid-cols-12 gap-4">
                     <div className="col-span-4">
