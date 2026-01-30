@@ -1,3 +1,15 @@
+# [1.11.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.10.2...v1.11.0) (2026-01-30)
+
+
+### Bug Fixes
+
+* improve theme font clarity and readability ([b2aaa08](https://gitlab.com/imapps/jewellery-catalogue/commit/b2aaa08c7379a56514aa0917ed1701f49408534b))
+
+
+### Features
+
+* add vite-node to api package and create vite config ([390aa28](https://gitlab.com/imapps/jewellery-catalogue/commit/390aa28ee113256877e7008a90c95877e81ebded))
+
 ## [1.10.2](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.10.1...v1.10.2) (2026-01-28)
 
 
