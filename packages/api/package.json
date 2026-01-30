@@ -3,7 +3,7 @@
   "version": "1.10.2",
   "type": "commonjs",
   "scripts": {
-    "start": "tsx watch src/index.ts",
+    "start": "vite-node --watch src/index.ts",
     "build": "tsup",
     "test": "vitest",
     "test:ui": "vitest --ui",
