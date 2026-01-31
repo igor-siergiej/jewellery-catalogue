@@ -1,3 +1,10 @@
+# [1.13.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.12.1...v1.13.0) (2026-01-31)
+
+
+### Features
+
+* enhance AddMaterialsTable with material type and attribute badges ([3478705](https://gitlab.com/imapps/jewellery-catalogue/commit/3478705f9c8e2aef248da7a4606f63f6cad3e1e8))
+
 ## [1.12.1](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.12.0...v1.12.1) (2026-01-31)
 
 
