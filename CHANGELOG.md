@@ -1,3 +1,16 @@
+# [1.12.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.11.0...v1.12.0) (2026-01-31)
+
+
+### Bug Fixes
+
+* prevent Enter key from submitting form on input fields ([a2bb51f](https://gitlab.com/imapps/jewellery-catalogue/commit/a2bb51f86961947b06b4269d12bf42ed0dc1de81))
+* remove FormDescription import from TimeInput ([3a60e83](https://gitlab.com/imapps/jewellery-catalogue/commit/3a60e831ed181f56237018d61a8b376cc59f2e0c))
+
+
+### Features
+
+* enhance TimeInput with keyboard-friendly UX and hidden calendar picker ([0330f9e](https://gitlab.com/imapps/jewellery-catalogue/commit/0330f9e3b60e9ef6be79276dd61e5315a6bca729))
+
 # [1.11.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.10.2...v1.11.0) (2026-01-30)
 
 
