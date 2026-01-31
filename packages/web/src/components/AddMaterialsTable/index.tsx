@@ -3,10 +3,12 @@ import { Edit3, Package, Plus, Save, Trash2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ADD_MATERIAL_PAGE } from '@/constants/routes';
+import { MATERIAL_TYPE_LABELS, METAL_TYPE_LABELS, WIRE_TYPE_LABELS } from '@/lib/materialLabels';
 import { cn } from '@/lib/utils';
 import type { AddMaterialsTableProps, TableMaterial } from './types';
 import { getRequiredMaterial } from './util';
@@ -23,7 +25,51 @@ interface TableRowProps {
     handleCancelClick: (rowKey: string) => void;
     handleEditClick: (rowKey: string) => void;
     handleDeleteClick: (rowKey: string) => void;
+    getMaterialById: (materialId: string) => Material | undefined;
 }
+
+interface MaterialAttributeBadgesProps {
+    material: Material;
+}
+
+const MaterialAttributeBadges: React.FC<MaterialAttributeBadgesProps> = ({ material }) => {
+    const badges: React.ReactNode[] = [];
+
+    // Material Type badge - all materials
+    badges.push(
+        <Badge key="type" variant="secondary" className="capitalize">
+            {MATERIAL_TYPE_LABELS[material.type]}
+        </Badge>
+    );
+
+    // Type-specific attributes
+    if (material.type === 'BEAD' && material.colour) {
+        badges.push(
+            <Badge key="colour" variant="secondary" className="capitalize">
+                {material.colour}
+            </Badge>
+        );
+    } else if (
+        (material.type === 'WIRE' || material.type === 'CHAIN' || material.type === 'EAR_HOOK') &&
+        material.metalType
+    ) {
+        badges.push(
+            <Badge key="metal" variant="outline">
+                {METAL_TYPE_LABELS[material.metalType]}
+            </Badge>
+        );
+    }
+
+    if ((material.type === 'WIRE' || material.type === 'CHAIN' || material.type === 'EAR_HOOK') && material.wireType) {
+        badges.push(
+            <Badge key="wireType" variant="secondary">
+                {WIRE_TYPE_LABELS[material.wireType]}
+            </Badge>
+        );
+    }
+
+    return <>{badges}</>;
+};
 
 const TableRow: React.FC<TableRowProps> = ({
     row,
@@ -37,9 +83,10 @@ const TableRow: React.FC<TableRowProps> = ({
     handleCancelClick,
     handleEditClick,
     handleDeleteClick,
+    getMaterialById,
 }) => (
-    <div className="grid grid-cols-12 gap-4 p-4 border-b hover:bg-muted/30 transition-colors">
-        <div className="col-span-5 flex items-center">
+    <div className="grid grid-cols-14 gap-4 p-4 border-b hover:bg-muted/30 transition-colors">
+        <div className="col-span-4 flex items-center">
             {row.isEditing ? (
                 <Select
                     value={row.id.startsWith('new-') ? '' : row.id}
@@ -59,6 +106,15 @@ const TableRow: React.FC<TableRowProps> = ({
             ) : (
                 <span>{row.name}</span>
             )}
+        </div>
+        <div className="col-span-3 flex items-center gap-1.5 flex-wrap">
+            {(() => {
+                if (row.id.startsWith('new-')) {
+                    return <span className="text-sm text-muted-foreground">-</span>;
+                }
+                const material = getMaterialById(row.id);
+                return material ? <MaterialAttributeBadges material={material} /> : null;
+            })()}
         </div>
         <div className="col-span-5 flex items-center">
             {row.isEditing ? (
@@ -372,6 +428,7 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({
                             handleCancelClick={handleCancelClick}
                             handleEditClick={handleEditClick}
                             handleDeleteClick={handleDeleteClick}
+                            getMaterialById={getMaterialById}
                         />
                     ))}
                     <TableFooter
@@ -418,8 +475,9 @@ const EmptyState: React.FC<{
 };
 
 const TableHeader = () => (
-    <div className="grid grid-cols-12 gap-4 p-4 bg-muted/50 border-b font-medium text-sm">
-        <div className="col-span-5">Material</div>
+    <div className="grid grid-cols-14 gap-4 p-4 bg-muted/50 border-b font-medium text-sm">
+        <div className="col-span-4">Material</div>
+        <div className="col-span-3">Type & Attributes</div>
         <div className="col-span-5">Required Length/Quantity</div>
         <div className="col-span-2">Actions</div>
     </div>

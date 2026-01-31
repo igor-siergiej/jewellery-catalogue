@@ -197,3 +197,10 @@
         letter-spacing: var(--tracking-normal);
     }
 }
+
+@layer components {
+    .grid-cols-14 {
+        display: grid;
+        grid-template-columns: repeat(14, minmax(0, 1fr));
+    }
+}
