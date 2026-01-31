@@ -79,8 +79,8 @@ const EarHookTable: React.FC<IEarHookTableProps> = ({ materials, onMaterialUpdat
                                     <TableCell>
                                         <Badge variant="outline">{METAL_TYPE_LABELS[material.metalType]}</Badge>
                                     </TableCell>
-                                    <TableCell>{material.totalQuantity}</TableCell>
-                                    <TableCell>{material.quantityPerPack}</TableCell>
+                                    <TableCell>{Math.round(material.totalQuantity)}</TableCell>
+                                    <TableCell>{Math.round(material.quantityPerPack)}</TableCell>
                                     <TableCell>£{material.pricePerPack.toFixed(2)}</TableCell>
                                     <TableCell>
                                         {material.pricePerPiece ? `£${material.pricePerPiece.toFixed(2)}` : '-'}

@@ -77,9 +77,9 @@ const BeadTable: React.FC<IBeadTableProps> = ({ materials, onMaterialUpdated }) 
                                             {material.colour}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell>{material.diameter}mm</TableCell>
-                                    <TableCell>{material.totalQuantity}</TableCell>
-                                    <TableCell>{material.quantityPerPack}</TableCell>
+                                    <TableCell>{material.diameter.toFixed(2)}mm</TableCell>
+                                    <TableCell>{Math.round(material.totalQuantity)}</TableCell>
+                                    <TableCell>{Math.round(material.quantityPerPack)}</TableCell>
                                     <TableCell>£{material.pricePerPack.toFixed(2)}</TableCell>
                                     <TableCell>£{material.pricePerBead.toFixed(2)}</TableCell>
                                     <TableCell>

@@ -78,14 +78,14 @@ const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({ materials, onMat
                         ) : (
                             materials.map((material, index) => {
                                 const getTotalStock = () => {
-                                    if ('totalLength' in material) return `${(material as any).totalLength}m`;
-                                    if ('totalQuantity' in material) return (material as any).totalQuantity;
+                                    if ('totalLength' in material) return `${((material as any).totalLength as number).toFixed(2)}m`;
+                                    if ('totalQuantity' in material) return Math.round((material as any).totalQuantity);
                                     return '-';
                                 };
 
                                 const getPerPack = () => {
-                                    if ('lengthPerPack' in material) return `${(material as any).lengthPerPack}m`;
-                                    if ('quantityPerPack' in material) return (material as any).quantityPerPack;
+                                    if ('lengthPerPack' in material) return `${((material as any).lengthPerPack as number).toFixed(2)}m`;
+                                    if ('quantityPerPack' in material) return Math.round((material as any).quantityPerPack);
                                     return '-';
                                 };
 
@@ -112,7 +112,7 @@ const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({ materials, onMat
                                         <TableCell>{getPerPack()}</TableCell>
                                         <TableCell>{formatPrice((material as any).pricePerPack)}</TableCell>
                                         <TableCell>{getPerUnitPrice()}</TableCell>
-                                        <TableCell>{material.diameter ? `${material.diameter}mm` : '-'}</TableCell>
+                                        <TableCell>{material.diameter ? `${(material.diameter as number).toFixed(2)}mm` : '-'}</TableCell>
                                         <TableCell>{(material as any).colour || '-'}</TableCell>
                                         <TableCell>{(material as any).wireType || '-'}</TableCell>
                                         <TableCell>{(material as any).metalType || '-'}</TableCell>

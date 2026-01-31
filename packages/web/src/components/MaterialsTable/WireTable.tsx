@@ -80,9 +80,9 @@ const WireTable: React.FC<IWireTableProps> = ({ materials, onMaterialUpdated }) 
                                     <TableCell>
                                         <Badge variant="outline">{METAL_TYPE_LABELS[material.metalType]}</Badge>
                                     </TableCell>
-                                    <TableCell>{material.diameter}mm</TableCell>
-                                    <TableCell>{material.totalLength}m</TableCell>
-                                    <TableCell>{material.lengthPerPack}m</TableCell>
+                                    <TableCell>{material.diameter.toFixed(2)}mm</TableCell>
+                                    <TableCell>{material.totalLength.toFixed(2)}m</TableCell>
+                                    <TableCell>{material.lengthPerPack.toFixed(2)}m</TableCell>
                                     <TableCell>£{material.pricePerPack.toFixed(2)}</TableCell>
                                     <TableCell>£{material.pricePerMeter.toFixed(2)}</TableCell>
                                     <TableCell>
