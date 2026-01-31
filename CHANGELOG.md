@@ -1,3 +1,10 @@
+## [1.12.1](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.12.0...v1.12.1) (2026-01-31)
+
+
+### Bug Fixes
+
+* enable materialCode field to be saved to database ([726584f](https://gitlab.com/imapps/jewellery-catalogue/commit/726584f774fe21d7ec581c02277548620b0656ab))
+
 # [1.12.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.11.0...v1.12.0) (2026-01-31)
 
 
