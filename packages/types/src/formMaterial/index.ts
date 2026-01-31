@@ -12,6 +12,7 @@ const baseFormMaterialSchema = z.object({
     name: z.string().min(1, 'Please enter the material name'),
     brand: z.string().min(1, 'Please enter the brand'),
     purchaseUrl: z.string().url('Please enter a valid URL'),
+    materialCode: z.string().optional(),
     pricePerPack: z.number({ message: 'Please enter the price per pack' }).positive('Price must be greater than 0'),
     packs: z
         .number({ message: 'Please enter the number of packs' })

@@ -6,6 +6,7 @@ const baseUpdateMaterialSchema = z.object({
     name: z.string().min(1, 'Please enter the material name').optional(),
     brand: z.string().min(1, 'Please enter the brand').optional(),
     purchaseUrl: z.string().url('Please enter a valid URL').optional(),
+    materialCode: z.string().optional(),
     pricePerPack: z
         .number({ message: 'Please enter the price per pack' })
         .positive('Price must be greater than 0')

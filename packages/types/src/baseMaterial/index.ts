@@ -7,6 +7,7 @@ export const baseMaterialSchema = z.object({
     name: z.string(),
     brand: z.string(),
     purchaseUrl: z.string(),
+    materialCode: z.string().optional(),
     type: z.enum(MaterialType),
     dateAdded: z.string().datetime(),
 });

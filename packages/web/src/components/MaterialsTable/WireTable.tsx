@@ -49,6 +49,7 @@ const WireTable: React.FC<IWireTableProps> = ({ materials, onMaterialUpdated }) 
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
                             <TableHead className="font-semibold">Name</TableHead>
+                            <TableHead className="font-semibold">Material Code</TableHead>
                             <TableHead className="font-semibold">Brand</TableHead>
                             <TableHead className="font-semibold">Wire Type</TableHead>
                             <TableHead className="font-semibold">Metal Type</TableHead>
@@ -63,7 +64,7 @@ const WireTable: React.FC<IWireTableProps> = ({ materials, onMaterialUpdated }) 
                     <TableBody>
                         {materials.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={10} className="h-24 text-center text-muted-foreground">
+                                <TableCell colSpan={11} className="h-24 text-center text-muted-foreground">
                                     No wire materials found.
                                 </TableCell>
                             </TableRow>
@@ -71,6 +72,7 @@ const WireTable: React.FC<IWireTableProps> = ({ materials, onMaterialUpdated }) 
                             materials.map((material) => (
                                 <TableRow key={material.id} className="hover:bg-muted/50">
                                     <TableCell className="font-medium">{material.name}</TableCell>
+                                    <TableCell>{material.materialCode || '-'}</TableCell>
                                     <TableCell>{material.brand}</TableCell>
                                     <TableCell>
                                         <Badge variant="secondary">{WIRE_TYPE_LABELS[material.wireType]}</Badge>

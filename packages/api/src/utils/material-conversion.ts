@@ -33,7 +33,7 @@ export const convertFormWireToMaterial = (formWire: FormWire): Omit<Wire, Missin
     const totalPrice = formWire.packs * formWire.pricePerPack;
     const pricePerMeter = totalPrice / totalLength;
 
-    return {
+    const result: any = {
         type: formWire.type,
         name: formWire.name,
         brand: formWire.brand,
@@ -46,6 +46,12 @@ export const convertFormWireToMaterial = (formWire: FormWire): Omit<Wire, Missin
         totalLength,
         pricePerMeter,
     };
+
+    if (formWire.materialCode?.trim()) {
+        result.materialCode = formWire.materialCode.trim();
+    }
+
+    return result;
 };
 
 export const convertFormBeadToMaterial = (formBead: FormBead): Omit<Bead, MissingMaterialFields> => {
@@ -53,7 +59,7 @@ export const convertFormBeadToMaterial = (formBead: FormBead): Omit<Bead, Missin
     const totalPrice = formBead.packs * formBead.pricePerPack;
     const pricePerBead = totalPrice / totalQuantity;
 
-    return {
+    const result: any = {
         type: formBead.type,
         name: formBead.name,
         brand: formBead.brand,
@@ -65,6 +71,12 @@ export const convertFormBeadToMaterial = (formBead: FormBead): Omit<Bead, Missin
         totalQuantity,
         pricePerBead,
     };
+
+    if (formBead.materialCode?.trim()) {
+        result.materialCode = formBead.materialCode.trim();
+    }
+
+    return result;
 };
 
 export const convertFormChainToMaterial = (formChain: FormChain): Omit<Chain, MissingMaterialFields> => {
@@ -72,7 +84,7 @@ export const convertFormChainToMaterial = (formChain: FormChain): Omit<Chain, Mi
     const totalPrice = formChain.packs * formChain.pricePerPack;
     const pricePerMeter = totalLength > 0 ? totalPrice / totalLength : undefined;
 
-    return {
+    const result: any = {
         type: formChain.type,
         name: formChain.name,
         brand: formChain.brand,
@@ -85,6 +97,12 @@ export const convertFormChainToMaterial = (formChain: FormChain): Omit<Chain, Mi
         totalLength,
         pricePerMeter,
     };
+
+    if (formChain.materialCode?.trim()) {
+        result.materialCode = formChain.materialCode.trim();
+    }
+
+    return result;
 };
 
 export const convertFormEarHookToMaterial = (formEarHook: FormEarHook): Omit<EarHook, MissingMaterialFields> => {
@@ -92,7 +110,7 @@ export const convertFormEarHookToMaterial = (formEarHook: FormEarHook): Omit<Ear
     const totalPrice = formEarHook.packs * formEarHook.pricePerPack;
     const pricePerPiece = totalQuantity > 0 ? totalPrice / totalQuantity : undefined;
 
-    return {
+    const result: any = {
         type: formEarHook.type,
         name: formEarHook.name,
         brand: formEarHook.brand,
@@ -104,4 +122,10 @@ export const convertFormEarHookToMaterial = (formEarHook: FormEarHook): Omit<Ear
         totalQuantity,
         pricePerPiece,
     };
+
+    if (formEarHook.materialCode?.trim()) {
+        result.materialCode = formEarHook.materialCode.trim();
+    }
+
+    return result;
 };

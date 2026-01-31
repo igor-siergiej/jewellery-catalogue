@@ -54,6 +54,7 @@ const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({ materials, onMat
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
                             <TableHead className="font-semibold">Name</TableHead>
+                            <TableHead className="font-semibold">Material Code</TableHead>
                             <TableHead className="font-semibold">Brand</TableHead>
                             <TableHead className="font-semibold">Type</TableHead>
                             <TableHead className="font-semibold">Total Stock</TableHead>
@@ -70,7 +71,7 @@ const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({ materials, onMat
                     <TableBody>
                         {materials.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={12} className="h-24 text-center text-muted-foreground">
+                                <TableCell colSpan={13} className="h-24 text-center text-muted-foreground">
                                     No materials found.
                                 </TableCell>
                             </TableRow>
@@ -100,6 +101,7 @@ const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({ materials, onMat
                                 return (
                                     <TableRow key={material.id || `material-${index}`} className="hover:bg-muted/50">
                                         <TableCell className="font-medium">{material.name}</TableCell>
+                                        <TableCell>{material.materialCode || '-'}</TableCell>
                                         <TableCell>{material.brand}</TableCell>
                                         <TableCell>
                                             <Badge variant="secondary" className="capitalize">

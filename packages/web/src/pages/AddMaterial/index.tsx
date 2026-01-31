@@ -26,6 +26,8 @@ const AddMaterial = () => {
             name: '',
             brand: '',
             purchaseUrl: '',
+            materialCode: '',
+            type: MaterialType.WIRE,
         },
     });
 
@@ -105,6 +107,20 @@ const AddMaterial = () => {
                                     render={({ field }) => (
                                         <FormItem className="max-w-[300px]">
                                             <FormLabel>Brand</FormLabel>
+                                            <FormControl>
+                                                <Input {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="materialCode"
+                                    render={({ field }) => (
+                                        <FormItem className="max-w-[300px]">
+                                            <FormLabel>Material Code (Optional)</FormLabel>
                                             <FormControl>
                                                 <Input {...field} />
                                             </FormControl>

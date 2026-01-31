@@ -38,6 +38,7 @@ const MaterialUpdateForm: React.FC<IMaterialUpdateFormProps> = ({ material, onSu
             name: material.name,
             brand: material.brand,
             purchaseUrl: material.purchaseUrl,
+            materialCode: material.materialCode || '',
             addPacks: undefined,
         },
     });
@@ -192,6 +193,20 @@ const MaterialUpdateForm: React.FC<IMaterialUpdateFormProps> = ({ material, onSu
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Brand</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="materialCode"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Material Code (Optional)</FormLabel>
                                     <FormControl>
                                         <Input {...field} />
                                     </FormControl>
