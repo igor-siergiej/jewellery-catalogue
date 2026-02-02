@@ -82,6 +82,7 @@ export class DesignService {
             materials,
             dateAdded: new Date(),
             totalQuantity: 0,
+            lowStockThreshold: designData.lowStockThreshold,
         };
 
         await this.designRepo.insert(design);

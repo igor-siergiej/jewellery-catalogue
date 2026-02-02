@@ -10,6 +10,7 @@ export const editDesignSchema = z.object({
     price: z.number().positive('Price must be greater than 0').optional(),
     description: z.string().optional(),
     totalMaterialCosts: z.number().optional(),
+    lowStockThreshold: z.number().int().nonnegative().optional(),
 });
 
 export type EditDesign = z.infer<typeof editDesignSchema>;

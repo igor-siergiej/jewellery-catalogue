@@ -8,4 +8,5 @@ export interface UploadDesign {
     image: PersistentFile;
     totalMaterialCosts: number;
     price: number;
+    lowStockThreshold?: number;
 }
