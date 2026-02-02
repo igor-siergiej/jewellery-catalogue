@@ -2,7 +2,7 @@ import { METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
 
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
 import { METAL_TYPE_LABELS, WIRE_TYPE_LABELS } from '@/lib/materialLabels';
 
@@ -116,6 +116,34 @@ const AddWireForm: React.FC<IMaterialFormProps> = ({ form }) => {
                                 </InputGroupAddon>
                             </InputGroup>
                         </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+
+            <FormField
+                control={form.control}
+                name="lowStockThreshold"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Low Stock Threshold (Optional)</FormLabel>
+                        <FormControl>
+                            <InputGroup className="max-w-[150px]">
+                                <InputGroupInput
+                                    type="number"
+                                    step="1"
+                                    min="0"
+                                    placeholder="e.g., 2"
+                                    {...field}
+                                    value={field.value ?? ''}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        field.onChange(value === '' ? undefined : Number(value));
+                                    }}
+                                />
+                            </InputGroup>
+                        </FormControl>
+                        <FormDescription>Alert when stock drops below this many packs</FormDescription>
                         <FormMessage />
                     </FormItem>
                 )}

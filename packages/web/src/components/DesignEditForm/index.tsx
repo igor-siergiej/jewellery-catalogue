@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
 
@@ -43,6 +43,7 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
             totalMaterialCosts: design.totalMaterialCosts,
             price: design.price,
             image: design.imageId,
+            lowStockThreshold: design.lowStockThreshold,
         },
     });
 
@@ -273,6 +274,43 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                                             placeholder="Add notes about how to create this design..."
                                         />
                                     </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                </div>
+
+                <hr className="border-t border-border" />
+
+                {/* Low Stock Threshold Section */}
+                <div className="grid grid-cols-12 gap-4">
+                    <div className="col-span-4">
+                        <h2 className="text-lg font-medium text-center">Stock Alert</h2>
+                    </div>
+                    <div className="col-span-8">
+                        <FormField
+                            control={form.control}
+                            name="lowStockThreshold"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Low Stock Threshold (Optional)</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="e.g., 5"
+                                            className="max-w-[300px]"
+                                            type="number"
+                                            step="1"
+                                            min="0"
+                                            {...field}
+                                            value={field.value ?? ''}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                field.onChange(value === '' ? undefined : Number(value));
+                                            }}
+                                        />
+                                    </FormControl>
+                                    <FormDescription>Alert when finished items drop below this quantity</FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}

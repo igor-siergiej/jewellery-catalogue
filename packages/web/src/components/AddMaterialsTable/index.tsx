@@ -196,6 +196,31 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({
     const [originalRowData, setOriginalRowData] = useState<Record<string, TableMaterial>>({});
 
     useEffect(() => {
+        // Initialize rows from incoming value (for edit mode)
+        if (value.length > 0 && rows.length === 0) {
+            const initialRows = value.map((requiredMaterial) => {
+                const material = availableMaterials.find((m) => m.id === requiredMaterial.id);
+                const rowKey = `row-${requiredMaterial.id}`;
+
+                // Extract the required value based on material type
+                const required = (requiredMaterial as any).requiredLength ?? (requiredMaterial as any).requiredQuantity ?? 0;
+
+                return {
+                    rowKey,
+                    id: requiredMaterial.id,
+                    name: material?.name || '',
+                    required,
+                    isNew: false,
+                    isEditing: false,
+                };
+            });
+
+            setRows(initialRows);
+            setSelectedMaterials(initialRows);
+        }
+    }, [value, availableMaterials]);
+
+    useEffect(() => {
         // Only clear rows if there are no saved materials AND no rows are currently being edited
         const hasEditingRows = rows.some((row) => row.isEditing || row.isNew);
         if (value.length === 0 && rows.length > 0 && !hasEditingRows) {

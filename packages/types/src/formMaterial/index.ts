@@ -18,6 +18,7 @@ const baseFormMaterialSchema = z.object({
         .number({ message: 'Please enter the number of packs' })
         .int()
         .positive('Number of packs must be at least 1'),
+    lowStockThreshold: z.number().int().nonnegative().optional(),
 });
 
 export const formWireSchema = baseFormMaterialSchema.extend({

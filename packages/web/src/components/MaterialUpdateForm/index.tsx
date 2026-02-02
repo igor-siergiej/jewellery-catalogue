@@ -40,6 +40,7 @@ const MaterialUpdateForm: React.FC<IMaterialUpdateFormProps> = ({ material, onSu
             purchaseUrl: material.purchaseUrl,
             materialCode: material.materialCode || '',
             addPacks: undefined,
+            lowStockThreshold: material.lowStockThreshold,
         },
     });
 
@@ -224,6 +225,33 @@ const MaterialUpdateForm: React.FC<IMaterialUpdateFormProps> = ({ material, onSu
                                     <FormControl>
                                         <Input {...field} />
                                     </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="lowStockThreshold"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Low Stock Threshold (Optional)</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            className="max-w-[150px]"
+                                            type="number"
+                                            step="1"
+                                            min="0"
+                                            placeholder="e.g., 2"
+                                            {...field}
+                                            value={field.value ?? ''}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                field.onChange(value === '' ? undefined : Number(value));
+                                            }}
+                                        />
+                                    </FormControl>
+                                    <FormDescription>Alert when stock drops below this many packs</FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}

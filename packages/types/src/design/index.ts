@@ -15,6 +15,7 @@ export const designSchema = z.object({
     totalMaterialCosts: z.number(),
     dateAdded: z.date(),
     totalQuantity: z.number().default(0),
+    lowStockThreshold: z.number().int().nonnegative().optional(),
 });
 
 export type Design = z.infer<typeof designSchema>;
