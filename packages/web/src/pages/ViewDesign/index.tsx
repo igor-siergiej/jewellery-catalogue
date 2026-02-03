@@ -1,16 +1,20 @@
 import { useAuth, useUser } from '@imapps/web-utils';
 import { useQuery } from '@tanstack/react-query';
-import { Edit, Settings } from 'lucide-react';
+import { Edit, PackageOpen } from 'lucide-react';
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import { getDesignQuery } from '../../api/endpoints/getDesign';
 import DesignEditForm from '../../components/DesignEditForm';
 import DesignUpdateForm from '../../components/DesignUpdateForm';
 import { Image } from '../../components/Image';
 import LoadingScreen from '../../components/Loading';
+import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
+import { MATERIALS_PAGE } from '../../constants/routes';
+import { MATERIAL_TYPE_LABELS, METAL_TYPE_LABELS, WIRE_TYPE_LABELS } from '../../lib/materialLabels';
 
 const ViewDesign = () => {
     const { id } = useParams<{ id: string }>();
@@ -74,15 +78,22 @@ const ViewDesign = () => {
                         <Image imageId={imageId} />
                         <div className="absolute top-4 right-4 flex gap-2">
                             <Button
-                                variant="secondary"
-                                size="icon"
+                                variant="outline"
                                 onClick={handleEditPropertiesClick}
                                 title="Edit Design Properties"
+                                className="text-black"
                             >
-                                <Settings className="h-4 w-4" />
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit Details
                             </Button>
-                            <Button variant="secondary" size="icon" onClick={handleEditClick} title="Manage Inventory">
-                                <Edit className="h-4 w-4" />
+                            <Button
+                                variant="outline"
+                                onClick={handleEditClick}
+                                title="Manage Inventory"
+                                className="text-black"
+                            >
+                                <PackageOpen className="h-4 w-4 mr-2" />
+                                Manage Inventory
                             </Button>
                         </div>
                     </div>
@@ -116,18 +127,66 @@ const ViewDesign = () => {
                             {materials && materials.length > 0 && (
                                 <div className="pt-4">
                                     <h2 className="text-xl font-semibold mb-2">Materials</h2>
-                                    <ul className="space-y-2">
-                                        {materials.map((material) => (
-                                            <li key={material.id} className="text-sm border-l-2 border-primary pl-3">
-                                                <div className="font-medium">{material.name}</div>
-                                                <div className="text-muted-foreground text-xs">
-                                                    {'requiredLength' in material && `${material.requiredLength} cm`}
-                                                    {'requiredQuantity' in material &&
-                                                        `${material.requiredQuantity} pieces`}
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Material</TableHead>
+                                                <TableHead>Type</TableHead>
+                                                <TableHead>Attributes</TableHead>
+                                                <TableHead>Required</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {materials.map((material) => (
+                                                <TableRow key={material.id}>
+                                                    <TableCell>
+                                                        <Link
+                                                            to={MATERIALS_PAGE.route}
+                                                            className="text-primary hover:underline"
+                                                        >
+                                                            {material.name}
+                                                        </Link>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Badge variant="secondary" className="capitalize">
+                                                            {MATERIAL_TYPE_LABELS[material.type]}
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex gap-1.5 flex-wrap">
+                                                            {material.type === 'BEAD' && material.colour && (
+                                                                <Badge variant="secondary" className="capitalize">
+                                                                    {material.colour}
+                                                                </Badge>
+                                                            )}
+                                                            {(material.type === 'WIRE' ||
+                                                                material.type === 'CHAIN' ||
+                                                                material.type === 'EAR_HOOK') &&
+                                                                material.metalType && (
+                                                                    <Badge variant="outline">
+                                                                        {METAL_TYPE_LABELS[material.metalType]}
+                                                                    </Badge>
+                                                                )}
+                                                            {(material.type === 'WIRE' ||
+                                                                material.type === 'CHAIN' ||
+                                                                material.type === 'EAR_HOOK') &&
+                                                                material.wireType && (
+                                                                    <Badge variant="secondary">
+                                                                        {WIRE_TYPE_LABELS[material.wireType]}
+                                                                    </Badge>
+                                                                )}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {('requiredLength' in material &&
+                                                            `${material.requiredLength} cm`) ||
+                                                            ('requiredQuantity' in material &&
+                                                                `${material.requiredQuantity} pcs`)}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
                                 </div>
                             )}
                         </div>

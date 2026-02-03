@@ -1,5 +1,5 @@
 import type { Design } from '@jewellery-catalogue/types';
-import { Clock, Edit, Heart, PackageOpen } from 'lucide-react';
+import { Clock, Heart, PackageOpen } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -55,10 +55,21 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated 
                 onClick={handleCardClick}
             >
                 <div className="absolute top-2 right-2 z-10 flex gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleEditClick}>
-                        <Edit className="h-4 w-4" />
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 text-black"
+                        onClick={handleEditClick}
+                        title="Manage Inventory"
+                    >
+                        <PackageOpen className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleFavoriteClick}>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 text-black"
+                        onClick={handleFavoriteClick}
+                    >
                         <Heart className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
                     </Button>
                 </div>
