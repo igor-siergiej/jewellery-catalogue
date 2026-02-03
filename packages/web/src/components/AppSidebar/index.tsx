@@ -35,7 +35,8 @@ const AppSidebar = () => {
     return (
         <Sidebar
             collapsible="icon"
-            className="relative h-full border-r border-sidebar-border [&_[data-slot='sidebar-container']]:z-50 [&_[data-sidebar='sidebar']]:flex [&_[data-sidebar='sidebar']]:h-full [&_[data-sidebar='sidebar']]:flex-col [&_[data-sidebar='sidebar']]:overflow-hidden">
+            className="relative h-full border-r border-sidebar-border [&_[data-slot='sidebar-container']]:z-50 [&_[data-sidebar='sidebar']]:flex [&_[data-sidebar='sidebar']]:h-full [&_[data-sidebar='sidebar']]:flex-col [&_[data-sidebar='sidebar']]:overflow-hidden"
+        >
             <SidebarHeader>
                 <Header isCollapsed={isCollapsed} />
             </SidebarHeader>

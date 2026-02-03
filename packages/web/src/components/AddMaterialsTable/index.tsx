@@ -203,7 +203,8 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({
                 const rowKey = `row-${requiredMaterial.id}`;
 
                 // Extract the required value based on material type
-                const required = (requiredMaterial as any).requiredLength ?? (requiredMaterial as any).requiredQuantity ?? 0;
+                const required =
+                    (requiredMaterial as any).requiredLength ?? (requiredMaterial as any).requiredQuantity ?? 0;
 
                 return {
                     rowKey,
@@ -218,7 +219,7 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({
             setRows(initialRows);
             setSelectedMaterials(initialRows);
         }
-    }, [value, availableMaterials]);
+    }, [value, availableMaterials, rows.length]);
 
     useEffect(() => {
         // Only clear rows if there are no saved materials AND no rows are currently being edited

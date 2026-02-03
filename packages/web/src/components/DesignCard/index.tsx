@@ -64,12 +64,7 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated 
                     >
                         <PackageOpen className="h-4 w-4" />
                     </Button>
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8 text-black"
-                        onClick={handleFavoriteClick}
-                    >
+                    <Button variant="outline" size="icon" className="h-8 w-8 text-black" onClick={handleFavoriteClick}>
                         <Heart className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
                     </Button>
                 </div>

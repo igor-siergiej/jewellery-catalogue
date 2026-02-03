@@ -4,9 +4,9 @@ import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 import { getDesignsQuery } from '@/api/endpoints/getDesigns';
 import { getMaterialsQuery } from '@/api/endpoints/getMaterials';
+import LoadingScreen from '@/components/Loading';
 import LowStockDesignsTable from '@/components/LowStockDesignsTable';
 import LowStockMaterialsTable from '@/components/LowStockMaterialsTable';
-import LoadingScreen from '@/components/Loading';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { getLowStockDesigns, getLowStockMaterials } from '@/utils/lowStock';
@@ -14,12 +14,20 @@ import { getLowStockDesigns, getLowStockMaterials } from '@/utils/lowStock';
 const Home = () => {
     const { accessToken, login, logout } = useAuth();
 
-    const { data: materials, isError: materialsError, refetch: refetchMaterials } = useQuery({
+    const {
+        data: materials,
+        isError: materialsError,
+        refetch: refetchMaterials,
+    } = useQuery({
         ...getMaterialsQuery(() => accessToken, login, logout),
         enabled: !!accessToken,
     });
 
-    const { data: designs, isError: designsError, refetch: refetchDesigns } = useQuery({
+    const {
+        data: designs,
+        isError: designsError,
+        refetch: refetchDesigns,
+    } = useQuery({
         ...getDesignsQuery(() => accessToken, login, logout),
         enabled: !!accessToken,
     });
@@ -68,9 +76,7 @@ const Home = () => {
                     <AlertTriangle className="text-orange-500" />
                     Low Stock Dashboard
                 </h1>
-                <p className="text-muted-foreground">
-                    Items that have fallen below their low stock thresholds
-                </p>
+                <p className="text-muted-foreground">Items that have fallen below their low stock thresholds</p>
             </div>
 
             {/* Low Stock Materials Section */}

@@ -310,7 +310,9 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                                             }}
                                         />
                                     </FormControl>
-                                    <FormDescription>Alert when finished items drop below this quantity</FormDescription>
+                                    <FormDescription>
+                                        Alert when finished items drop below this quantity
+                                    </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}

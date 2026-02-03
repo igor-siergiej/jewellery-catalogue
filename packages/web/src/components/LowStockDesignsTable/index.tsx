@@ -83,10 +83,7 @@ const LowStockDesignsTable: React.FC<ILowStockDesignsTableProps> = ({ designs, o
                                 const threshold = design.lowStockThreshold ?? '-';
 
                                 return (
-                                    <TableRow
-                                        key={design.id || `design-${index}`}
-                                        className="hover:bg-muted/50"
-                                    >
+                                    <TableRow key={design.id || `design-${index}`} className="hover:bg-muted/50">
                                         <TableCell>
                                             <div className="h-12 w-12 rounded-md overflow-hidden bg-muted flex items-center justify-center">
                                                 <Image imageId={design.imageId} />
@@ -136,11 +133,7 @@ const LowStockDesignsTable: React.FC<ILowStockDesignsTableProps> = ({ designs, o
                         <DialogTitle>Manage Design Inventory</DialogTitle>
                     </DialogHeader>
                     {selectedDesign && (
-                        <DesignUpdateForm
-                            design={selectedDesign}
-                            onSuccess={handleSuccess}
-                            onCancel={handleCancel}
-                        />
+                        <DesignUpdateForm design={selectedDesign} onSuccess={handleSuccess} onCancel={handleCancel} />
                     )}
                 </DialogContent>
             </Dialog>

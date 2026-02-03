@@ -89,14 +89,17 @@ const LowStockMaterialsTable: React.FC<ILowStockMaterialsTableProps> = ({ materi
                         ) : (
                             materials.map((material, index) => {
                                 const getTotalStock = () => {
-                                    if ('totalLength' in material) return `${((material as any).totalLength as number).toFixed(2)}m`;
+                                    if ('totalLength' in material)
+                                        return `${((material as any).totalLength as number).toFixed(2)}m`;
                                     if ('totalQuantity' in material) return Math.round((material as any).totalQuantity);
                                     return '-';
                                 };
 
                                 const getPerPack = () => {
-                                    if ('lengthPerPack' in material) return `${((material as any).lengthPerPack as number).toFixed(2)}m`;
-                                    if ('quantityPerPack' in material) return Math.round((material as any).quantityPerPack);
+                                    if ('lengthPerPack' in material)
+                                        return `${((material as any).lengthPerPack as number).toFixed(2)}m`;
+                                    if ('quantityPerPack' in material)
+                                        return Math.round((material as any).quantityPerPack);
                                     return '-';
                                 };
 

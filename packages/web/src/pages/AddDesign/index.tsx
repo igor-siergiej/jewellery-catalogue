@@ -311,7 +311,9 @@ const AddDesign: React.FC = () => {
                                                 }}
                                             />
                                         </FormControl>
-                                        <FormDescription>Alert when finished items drop below this quantity</FormDescription>
+                                        <FormDescription>
+                                            Alert when finished items drop below this quantity
+                                        </FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}
