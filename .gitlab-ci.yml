@@ -6,8 +6,8 @@ include:
 variables:
   PROJECT_NAME: "jewellery-catalogue"
   # Override registry to use local registry
-  CI_REGISTRY: "192.168.68.59:5000"
-  PRIVATE_REGISTRY: "192.168.68.59:5000"
+  CI_REGISTRY: "192.168.68.54:5000"
+  PRIVATE_REGISTRY: "192.168.68.54:5000"
 
 # CI job - extends the reusable template
 ci:
