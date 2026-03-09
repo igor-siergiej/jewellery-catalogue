@@ -14,3 +14,6 @@ packages/web/blob-report/
 packages/web/playwright/.cache/
 
 packages/web/coverage/
+
+# Git worktrees
+.worktrees
