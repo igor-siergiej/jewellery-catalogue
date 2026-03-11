@@ -1,7 +1,7 @@
 {
   "name": "jewellery-catalogue",
   "private": true,
-  "repository": "git@gitlab.com:imapps/jewellery-catalogue.git",
+  "repository": "https://github.com/imapps/jewellery-catalogue",
   "author": "Igor Siergiej <igorsiergiej@gmail.com>",
   "scripts": {
     "start:web": "dotenv -e .env -- yarn workspace @jewellery-catalogue/web start",
