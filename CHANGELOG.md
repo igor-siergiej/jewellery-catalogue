@@ -1,3 +1,29 @@
+# [1.14.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.13.0...v1.14.0) (2026-03-12)
+
+
+### Bug Fixes
+
+* add mime.types include to nginx config for correct MIME type serving ([d0d0c69](https://github.com/igor-siergiej/jewellery-catalogue/commit/d0d0c69eb1af89ba6efecdb2389fdca369ef7da3))
+* **ci-cd:** add contents:read permission for checkout action ([2040d40](https://github.com/igor-siergiej/jewellery-catalogue/commit/2040d40776ad922633f02ae96b20dd630824a0bf))
+* **ci-cd:** correct version extraction for GitHub Actions ([312801d](https://github.com/igor-siergiej/jewellery-catalogue/commit/312801d2609b6a155d8af1ba8655e90f4e26ac5f))
+* **ci-cd:** use GITHUB_TOKEN instead of GH_TOKEN ([9652c49](https://github.com/igor-siergiej/jewellery-catalogue/commit/9652c4984956b252938f8aa41de36dc86c35d5e0))
+* correct Docker build output paths for web (build) and api (build) ([2bcdbbd](https://github.com/igor-siergiej/jewellery-catalogue/commit/2bcdbbdb09b096e175bf4998d7ca6b7e4a315fbc))
+* correct materials population and low stock threshold logic ([8c183a1](https://github.com/igor-siergiej/jewellery-catalogue/commit/8c183a18f94d2538c03f5f7bbb823ad93f7731a4))
+* correct repository URL to igor-siergiej org ([5cd50ff](https://github.com/igor-siergiej/jewellery-catalogue/commit/5cd50ffdc9c521814f912f2831cd01c9b71ab9d7))
+* correct reusable workflow org reference ([27aaa98](https://github.com/igor-siergiej/jewellery-catalogue/commit/27aaa989aaff4ad2ed6be90415a42a76f54bc685))
+* enable lowStockThreshold to be saved on design create/edit ([9c1dc3f](https://github.com/igor-siergiej/jewellery-catalogue/commit/9c1dc3f0b5cd78f81a7a895e836fc9c1e2884499))
+* format numeric values in materials tables to prevent floating-point precision display ([5b111b0](https://github.com/igor-siergiej/jewellery-catalogue/commit/5b111b062e16bcdefbfcc9bdd8dc4517d8f6a40f))
+* make NODE_AUTH_TOKEN optional in yarn config ([4519df0](https://github.com/igor-siergiej/jewellery-catalogue/commit/4519df050e18a65dff010fd20f92afeba1914089))
+* Update Docker registry IP from 192.168.68.59 to 192.168.68.54 ([12307bf](https://github.com/igor-siergiej/jewellery-catalogue/commit/12307bf76a234abd9b91ed76d1f09cfe00b1fb2f))
+
+
+### Features
+
+* add separate Dockerfiles for API and web services ([5b99382](https://github.com/igor-siergiej/jewellery-catalogue/commit/5b99382b2902bfe093aa81a2b51fcec3e84f2828))
+* add utils submodule for shared CI/CD pipelines ([d7b1118](https://github.com/igor-siergiej/jewellery-catalogue/commit/d7b111832ccd8942c76ece75233dbdc92b439d42))
+* **ci-cd:** add GitHub Actions workflow with shared pipelines ([e86a0c5](https://github.com/igor-siergiej/jewellery-catalogue/commit/e86a0c55187043011bceb465374e3ff8f70f4ed5))
+* improve design buttons UX, add sticky layout, and richer materials table ([0702ddd](https://github.com/igor-siergiej/jewellery-catalogue/commit/0702ddda4b676aee6bf73dae9fe23cd9de999da5))
+
 # [1.13.0](https://gitlab.com/imapps/jewellery-catalogue/compare/v1.12.1...v1.13.0) (2026-01-31)
 
 
