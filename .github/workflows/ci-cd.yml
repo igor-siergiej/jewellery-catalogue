@@ -98,7 +98,7 @@ jobs:
           node-version: 22
       - name: Extract version
         id: version
-        run: source .github/workflows-utils/pipelines/scripts/extract-version.sh
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
       - name: Publish Docker images
         run: .github/workflows-utils/pipelines/scripts/publish-images.sh jewellery-catalogue ${{ steps.version.outputs.version }}
         env:
