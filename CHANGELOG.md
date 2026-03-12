@@ -1,3 +1,11 @@
+## [1.14.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.14.0...v1.14.1) (2026-03-12)
+
+
+### Bug Fixes
+
+* remove duplicate workflow files ([c38c316](https://github.com/igor-siergiej/jewellery-catalogue/commit/c38c3168b2f47fc7dabc8c34f21795c19fe334f4))
+* use GitHub Container Registry (ghcr.io) instead of Docker Hub ([e189dce](https://github.com/igor-siergiej/jewellery-catalogue/commit/e189dcec18b57da3767d78fc2ae2e20063a40484))
+
 # [1.14.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.13.0...v1.14.0) (2026-03-12)
 
 
