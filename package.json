@@ -4,11 +4,11 @@
   "repository": "https://github.com/igor-siergiej/jewellery-catalogue",
   "author": "Igor Siergiej <igorsiergiej@gmail.com>",
   "scripts": {
-    "start:web": "dotenv -e .env -- yarn workspace @jewellery-catalogue/web start",
-    "start:web:with-mock": "dotenv -e .env -- yarn workspace @jewellery-catalogue/web start:with-mock",
-    "start:api": "dotenv -e .env -- yarn workspace @jewellery-catalogue/api start",
-    "start": "concurrently \"yarn start:web\" \"yarn start:api\"",
-    "start:with-mock": "concurrently \"yarn start:web:with-mock\" \"yarn start:api\"",
+    "start:web": "dotenv -e .env -- bun run --filter @jewellery-catalogue/web start",
+    "start:web:with-mock": "dotenv -e .env -- bun run --filter @jewellery-catalogue/web start:with-mock",
+    "start:api": "dotenv -e .env -- bun run --filter @jewellery-catalogue/api start",
+    "start": "concurrently \"bun run start:web\" \"bun run start:api\"",
+    "start:with-mock": "concurrently \"bun run start:web:with-mock\" \"bun run start:api\"",
     "lint": "biome check .",
     "lint:fix": "biome check --fix --unsafe .",
     "format": "biome format --write .",
@@ -20,7 +20,7 @@
   ],
   "devDependencies": {
     "@biomejs/biome": "2.2.5",
-    "@imapps/biome-config": "0.3.0",
+    "@imapps/biome-config": "0.5.1",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^13.0.0",
     "@semantic-release/exec": "^7.1.0",
@@ -32,10 +32,8 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.0",
     "semantic-release": "^24.2.0",
-    "tsup": "^8.5.0",
     "typescript": "^5.8.3",
-    "vite": "^7.0.4",
-    "vite-node": "^3.2.4"
+    "vite": "^7.0.4"
   },
   "packageManager": "bun@1",
   "version": "1.14.1",
