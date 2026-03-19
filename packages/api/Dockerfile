@@ -7,10 +7,6 @@ COPY packages/types/package.json packages/types/package.json
 COPY packages/api/package.json packages/api/package.json
 COPY packages/web/package.json packages/web/package.json
 
-RUN --mount=type=secret,id=CI_JOB_TOKEN \
-    printf '[install.scopes]\n"@imapps" = { url = "https://npm.pkg.github.com/", token = "%s" }\n' \
-    "$(cat /run/secrets/CI_JOB_TOKEN)" > bunfig.toml
-
 RUN bun install --frozen-lockfile
 
 COPY . .

@@ -52,8 +52,7 @@ The project was migrated from Yarn Berry 4.9.2 to Bun 1 to simplify the toolchai
 7. **Docker Base**: Updated to `oven/bun:1-alpine`
 
 ### Configuration Files
-- **bunfig.toml** (root): Configures @imapps npm registry scope and test preload
-- **bunfig.toml** (packages/api): Test setup preload path
+- **bunfig.toml** (root): Test setup preload configuration
 - **biome.json**: Inlined configuration (previously extended @imapps/biome-config/base)
 
 ### Test Migration Details
@@ -246,13 +245,6 @@ bun x semantic-release                          # Manual release (normally CI on
 
 ## Common Issues & Solutions
 
-### Module Resolution Failed
-**Problem**: `@imapps/api-utils` or `@imapps/web-utils` not found
-**Solution**:
-1. Set `NODE_AUTH_TOKEN=<github-token>` in environment
-2. Token must have GitHub Packages read permission
-3. Run `bun install` again
-
 ### Tests Failing with "Cannot find module"
 **Problem**: Tests can't resolve bun:test mocks
 **Solution**:
@@ -298,6 +290,7 @@ docker build -f packages/web/Dockerfile \
 - GitHub Actions `build-publish` job triggers on main branch after release
 - Builds images with `oven/bun` and `nginx` base layers
 - Pushes to GitHub Container Registry (ghcr.io)
+- Uses public npm packages (@imapps packages from public npm registry)
 - Updates Kubernetes manifests via GitOps (if configured)
 
 ## Related Services & Repositories

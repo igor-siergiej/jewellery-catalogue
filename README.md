@@ -29,13 +29,7 @@ A modern jewellery catalogue application for browsing and managing jewellery col
 bun install
 ```
 
-Bun handles private npm packages via `bunfig.toml` config:
-```toml
-[install.scopes]
-"@imapps" = { url = "https://npm.pkg.github.com/", token = "$NODE_AUTH_TOKEN" }
-```
-
-Set `NODE_AUTH_TOKEN` environment variable with a GitHub token that has `packages:read` permission.
+All npm packages (@imapps/* utilities) are published to the public npm registry.
 
 ### 2. Setup Environment
 
@@ -221,14 +215,6 @@ GitHub Actions workflows handle:
 - **Release** - Semantic versioning and NPM publishing
 
 ## Troubleshooting
-
-### `@imapps` Package Resolution Failed
-
-If you see module not found errors for `@imapps/api-utils` or `@imapps/web-utils`:
-
-1. Set `NODE_AUTH_TOKEN` environment variable with valid GitHub token
-2. Token must have `packages:read` permission
-3. Run `bun install` to refresh dependencies
 
 ### Tests Failing with Mock Issues
 
