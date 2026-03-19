@@ -1,5 +1,47 @@
-import { Logger, MongoDbConnection, ObjectStoreConnection } from '@imapps/api-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
+
+const mockDependencyContainer = {
+    registerSingleton: mock(),
+    resolve: mock(),
+};
+
+// Mock all the dependencies first, before any imports
+mock.module('@imapps/api-utils', () => ({
+    DependencyContainer: {
+        getInstance: mock(() => mockDependencyContainer),
+    },
+    Logger: mock(),
+    MongoDbConnection: mock(),
+    ObjectStoreConnection: mock(),
+}));
+
+mock.module('../domain/DesignService', () => ({
+    DesignService: mock(),
+}));
+
+mock.module('../domain/ImageService', () => ({
+    ImageService: mock(),
+}));
+
+mock.module('../domain/MaterialService', () => ({
+    MaterialService: mock(),
+}));
+
+mock.module('../infrastructure/BucketStore', () => ({
+    BucketStore: mock(),
+}));
+
+mock.module('../infrastructure/MongoDesignRepository', () => ({
+    MongoDesignRepository: mock(),
+}));
+
+mock.module('../infrastructure/MongoMaterialRepository', () => ({
+    MongoMaterialRepository: mock(),
+}));
+
+mock.module('../infrastructure/UuidGenerator', () => ({
+    UuidGenerator: mock(),
+}));
 
 import { DesignService } from '../domain/DesignService';
 import { ImageService } from '../domain/ImageService';
@@ -11,49 +53,6 @@ import { UuidGenerator } from '../infrastructure/UuidGenerator';
 import { dependencyContainer, registerDepdendencies } from './index';
 import { DependencyToken } from './types';
 
-const mockDependencyContainer = vi.hoisted(() => ({
-    registerSingleton: vi.fn(),
-    resolve: vi.fn(),
-}));
-
-// Mock all the dependencies
-vi.mock('@imapps/api-utils', () => ({
-    DependencyContainer: {
-        getInstance: vi.fn(() => mockDependencyContainer),
-    },
-    Logger: vi.fn(),
-    MongoDbConnection: vi.fn(),
-    ObjectStoreConnection: vi.fn(),
-}));
-
-vi.mock('../domain/DesignService', () => ({
-    DesignService: vi.fn(),
-}));
-
-vi.mock('../domain/ImageService', () => ({
-    ImageService: vi.fn(),
-}));
-
-vi.mock('../domain/MaterialService', () => ({
-    MaterialService: vi.fn(),
-}));
-
-vi.mock('../infrastructure/BucketStore', () => ({
-    BucketStore: vi.fn(),
-}));
-
-vi.mock('../infrastructure/MongoDesignRepository', () => ({
-    MongoDesignRepository: vi.fn(),
-}));
-
-vi.mock('../infrastructure/MongoMaterialRepository', () => ({
-    MongoMaterialRepository: vi.fn(),
-}));
-
-vi.mock('../infrastructure/UuidGenerator', () => ({
-    UuidGenerator: vi.fn(),
-}));
-
 describe('Dependencies', () => {
     describe('dependencyContainer', () => {
         it('should be the mocked dependency container instance', () => {
@@ -62,7 +61,7 @@ describe('Dependencies', () => {
     });
 
     beforeEach(() => {
-        vi.clearAllMocks();
+        jest.clearAllMocks();
     });
 
     describe('registerDepdendencies', () => {
@@ -295,7 +294,7 @@ describe('Dependencies', () => {
                 );
 
                 // Clear resolve calls from previous tests
-                mockDependencyContainer.resolve.mockClear();
+                mockDependencyContainer.jest.clearAllMocks();
 
                 // Instantiate all service factories
                 serviceFactories.forEach(([, FactoryClass]) => {

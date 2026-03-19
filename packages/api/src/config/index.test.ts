@@ -1,13 +1,13 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, mock } from 'bun:test';
 
 // Mock the ConfigService and parsers
-const mockConfigService = vi.fn();
+const mockConfigService = mock();
 const mockParsers = {
-    number: vi.fn(),
-    string: vi.fn(),
+    number: mock(),
+    string: mock(),
 };
 
-vi.mock('@imapps/api-utils', () => ({
+mock.module('@imapps/api-utils', () => ({
     ConfigService: mockConfigService,
     parsers: mockParsers,
 }));

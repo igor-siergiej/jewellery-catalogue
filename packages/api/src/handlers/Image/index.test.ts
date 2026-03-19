@@ -1,19 +1,19 @@
+import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
 import type { Context } from 'koa';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import * as imageHandlers from './index';
 
-const mockDependencyContainer = vi.hoisted(() => ({
-    resolve: vi.fn(),
-}));
+const mockDependencyContainer = {
+    resolve: mock(),
+};
 
-vi.mock('../../dependencies', () => ({
+mock.module('../../dependencies', () => ({
     dependencyContainer: mockDependencyContainer,
 }));
 
 const mockImageService = {
-    getImage: vi.fn(),
-    uploadImage: vi.fn(),
+    getImage: mock(),
+    uploadImage: mock(),
 };
 
 const createMockContext = (overrides: Partial<Context> = {}): Context => {
@@ -22,7 +22,7 @@ const createMockContext = (overrides: Partial<Context> = {}): Context => {
         request: { body: {} } as Context['request'],
         response: { status: 200 } as Context['response'],
         state: {},
-        set: vi.fn(),
+        set: mock(),
         status: 200,
         body: {},
         ...overrides,
@@ -51,7 +51,7 @@ const createMockContext = (overrides: Partial<Context> = {}): Context => {
 
 describe('ImageHandlers', () => {
     beforeEach(() => {
-        vi.clearAllMocks();
+        jest.clearAllMocks();
         mockDependencyContainer.resolve.mockReturnValue(mockImageService);
     });
 
@@ -225,7 +225,7 @@ describe('ImageHandlers', () => {
                 expect(ctx.set).toHaveBeenCalledWith('Content-Type', testCase.contentType);
                 expect(ctx.set).toHaveBeenCalledWith('Cache-Control', 'public, max-age=31536000, immutable');
 
-                vi.clearAllMocks();
+                jest.clearAllMocks();
                 mockDependencyContainer.resolve.mockReturnValue(mockImageService);
             }
         });

@@ -1,23 +1,23 @@
+import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
 import { type FormMaterial, type Material, MaterialType, METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
 import type { Context } from 'koa';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import * as materialHandlers from './index';
 
-const mockDependencyContainer = vi.hoisted(() => ({
-    resolve: vi.fn(),
-}));
+const mockDependencyContainer = {
+    resolve: mock(),
+};
 
-vi.mock('../../dependencies', () => ({
+mock.module('../../dependencies', () => ({
     dependencyContainer: mockDependencyContainer,
 }));
 
 const mockMaterialService = {
-    getMaterialsByUserId: vi.fn(),
-    getMaterial: vi.fn(),
-    addMaterial: vi.fn(),
-    updateMaterial: vi.fn(),
-    deleteMaterial: vi.fn(),
+    getMaterialsByUserId: mock(),
+    getMaterial: mock(),
+    addMaterial: mock(),
+    updateMaterial: mock(),
+    deleteMaterial: mock(),
 };
 
 const createMockContext = (overrides: Partial<Context> = {}): Context => {
@@ -26,7 +26,7 @@ const createMockContext = (overrides: Partial<Context> = {}): Context => {
         request: { body: {} } as Context['request'],
         response: { status: 200 } as Context['response'],
         state: { userId: 'user-123' },
-        set: vi.fn(),
+        set: mock(),
         status: 200,
         body: {},
         ...overrides,
@@ -55,7 +55,7 @@ const createMockContext = (overrides: Partial<Context> = {}): Context => {
 
 describe('MaterialHandlers', () => {
     beforeEach(() => {
-        vi.clearAllMocks();
+        jest.clearAllMocks();
         mockDependencyContainer.resolve.mockReturnValue(mockMaterialService);
     });
 

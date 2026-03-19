@@ -1,31 +1,31 @@
+import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
 import fs from 'node:fs';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import * as designHandlers from './index';
 
-const mockDesignService = vi.hoisted(() => ({
-    getDesignsByUserId: vi.fn(),
-    getDesign: vi.fn(),
-    addDesign: vi.fn(),
-    updateDesign: vi.fn(),
-    deleteDesign: vi.fn(),
-}));
+const mockDesignService = {
+    getDesignsByUserId: mock(),
+    getDesign: mock(),
+    addDesign: mock(),
+    updateDesign: mock(),
+    deleteDesign: mock(),
+};
 
-const mockDependencyContainer = vi.hoisted(() => ({
-    resolve: vi.fn(),
-}));
+const mockDependencyContainer = {
+    resolve: mock(),
+};
 
-vi.mock('../../dependencies', () => ({
+mock.module('../../dependencies', () => ({
     dependencyContainer: mockDependencyContainer,
 }));
 
-vi.mock('../../domain/DesignService', () => ({
-    DesignService: vi.fn(),
+mock.module('../../domain/DesignService', () => ({
+    DesignService: mock(),
 }));
 
-vi.mock('fs', () => ({
+mock.module('fs', () => ({
     default: {
-        readFileSync: vi.fn(),
+        readFileSync: mock(),
     },
 }));
 
@@ -44,7 +44,7 @@ const createMockContext = (overrides: any = {}) => ({
 
 describe('DesignHandlers', () => {
     beforeEach(() => {
-        vi.clearAllMocks();
+        jest.clearAllMocks();
         mockDependencyContainer.resolve.mockReturnValue(mockDesignService);
     });
 

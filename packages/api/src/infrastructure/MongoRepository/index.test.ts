@@ -1,19 +1,19 @@
+import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
 import type { MongoDbConnection } from '@imapps/api-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CollectionNames, type Collections } from '../../dependencies/types';
 import { MongoRepository } from './index';
 
 const mockCollection = {
-    findOne: vi.fn(),
-    find: vi.fn(),
-    insertOne: vi.fn(),
-    findOneAndReplace: vi.fn(),
-    deleteOne: vi.fn(),
+    findOne: mock(),
+    find: mock(),
+    insertOne: mock(),
+    findOneAndReplace: mock(),
+    deleteOne: mock(),
 };
 
 const mockDb = {
-    getCollection: vi.fn().mockReturnValue(mockCollection),
+    getCollection: mock().mockReturnValue(mockCollection),
 } as unknown as MongoDbConnection<Collections>;
 
 interface TestEntity {
@@ -27,7 +27,7 @@ describe('MongoRepository', () => {
     let repository: MongoRepository<TestEntity>;
 
     beforeEach(() => {
-        vi.clearAllMocks();
+        jest.clearAllMocks();
         repository = new MongoRepository<TestEntity>(mockDb, CollectionNames.Materials);
     });
 
@@ -94,7 +94,7 @@ describe('MongoRepository', () => {
                 { id: 'test-2', name: 'Entity 2', value: 20 },
             ];
             const mockCursor = {
-                toArray: vi.fn().mockResolvedValue(testEntities),
+                toArray: mock().mockResolvedValue(testEntities),
             };
 
             mockCollection.find.mockReturnValue(mockCursor);
@@ -108,7 +108,7 @@ describe('MongoRepository', () => {
 
         it('should return empty array when no entities exist', async () => {
             const mockCursor = {
-                toArray: vi.fn().mockResolvedValue([]),
+                toArray: mock().mockResolvedValue([]),
             };
 
             mockCollection.find.mockReturnValue(mockCursor);
@@ -121,7 +121,7 @@ describe('MongoRepository', () => {
         it('should propagate database errors', async () => {
             const mockError = new Error('Database query error');
             const mockCursor = {
-                toArray: vi.fn().mockRejectedValue(mockError),
+                toArray: mock().mockRejectedValue(mockError),
             };
 
             mockCollection.find.mockReturnValue(mockCursor);

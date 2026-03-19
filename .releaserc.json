@@ -23,7 +23,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "yarn workspaces foreach --all version ${nextRelease.version}"
+        "prepareCmd": "node -e \"const fs=require('fs');['packages/api','packages/web','packages/types'].forEach(d=>{const f=d+'/package.json';const p=JSON.parse(fs.readFileSync(f));p.version='${nextRelease.version}';fs.writeFileSync(f,JSON.stringify(p,null,2)+'\\n')})\""
       }
     ],
     [

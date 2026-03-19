@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'bun:test';
 import {
     type FormBead,
     type FormChain,
@@ -6,7 +7,6 @@ import {
     METAL_TYPE,
     WIRE_TYPE,
 } from '@jewellery-catalogue/types';
-import { describe, expect, it } from 'vitest';
 
 import {
     convertFormBeadToMaterial,
