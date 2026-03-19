@@ -75,8 +75,6 @@ jobs:
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GH_TOKEN }}
       - run: bun x semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -103,5 +101,3 @@ jobs:
         run: echo "version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
       - name: Publish Docker images
         run: .github/workflows-utils/pipelines/scripts/publish-images.sh jewellery-catalogue ${{ steps.version.outputs.version }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GH_TOKEN }}
