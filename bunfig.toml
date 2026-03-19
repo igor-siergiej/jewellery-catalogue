@@ -1,2 +1,5 @@
+[install.scopes]
+"@imapps" = { url = "https://npm.pkg.github.com/", token = "$NODE_AUTH_TOKEN" }
+
 [test]
 preload = ["./packages/api/src/test-setup.ts"]
