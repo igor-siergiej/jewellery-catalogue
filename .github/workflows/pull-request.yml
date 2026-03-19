@@ -12,6 +12,7 @@ jobs:
       packages: read
     steps:
       - uses: actions/checkout@v4
+      - run: git submodule update --init --recursive
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
@@ -28,6 +29,7 @@ jobs:
       packages: read
     steps:
       - uses: actions/checkout@v4
+      - run: git submodule update --init --recursive
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
