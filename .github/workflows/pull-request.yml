@@ -39,7 +39,7 @@ jobs:
 
   semgrep:
     runs-on: ubuntu-latest
-    needs: test
+    needs: [lint, test]
     permissions:
       contents: read
     if: (github.actor != 'dependabot[bot]')
