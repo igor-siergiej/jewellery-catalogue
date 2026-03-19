@@ -1,33 +1,33 @@
+import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
 import { ObjectId } from 'mongodb';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { UuidGenerator } from './index';
 
-vi.mock('mongodb', () => ({
-    ObjectId: vi.fn(),
+mock.module('mongodb', () => ({
+    ObjectId: mock(),
 }));
 
 describe('UuidGenerator', () => {
     let uuidGenerator: UuidGenerator;
-    const mockObjectId = vi.mocked(ObjectId);
+    const mockObjectId = ObjectId as ReturnType<typeof mock>;
 
     beforeEach(() => {
-        vi.clearAllMocks();
+        jest.clearAllMocks();
         uuidGenerator = new UuidGenerator();
     });
 
     it('should generate a UUID using MongoDB ObjectId', () => {
         const mockId = '507f1f77bcf86cd799439011';
         const mockObjectIdInstance = {
-            toString: vi.fn().mockReturnValue(mockId),
+            toString: mock().mockReturnValue(mockId),
         };
 
         mockObjectId.mockReturnValue(mockObjectIdInstance as any);
 
         const result = uuidGenerator.generate();
 
-        expect(mockObjectId).toHaveBeenCalledOnce();
-        expect(mockObjectIdInstance.toString).toHaveBeenCalledOnce();
+        expect(mockObjectId).toHaveBeenCalledTimes(1);
+        expect(mockObjectIdInstance.toString).toHaveBeenCalledTimes(1);
         expect(result).toBe(mockId);
     });
 
@@ -36,10 +36,10 @@ describe('UuidGenerator', () => {
         const mockId2 = '507f1f77bcf86cd799439012';
 
         const mockObjectIdInstance1 = {
-            toString: vi.fn().mockReturnValue(mockId1),
+            toString: mock().mockReturnValue(mockId1),
         };
         const mockObjectIdInstance2 = {
-            toString: vi.fn().mockReturnValue(mockId2),
+            toString: mock().mockReturnValue(mockId2),
         };
 
         mockObjectId
@@ -58,7 +58,7 @@ describe('UuidGenerator', () => {
     it('should return string type', () => {
         const mockId = '507f1f77bcf86cd799439013';
         const mockObjectIdInstance = {
-            toString: vi.fn().mockReturnValue(mockId),
+            toString: mock().mockReturnValue(mockId),
         };
 
         mockObjectId.mockReturnValue(mockObjectIdInstance as any);

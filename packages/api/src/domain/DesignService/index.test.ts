@@ -1,5 +1,5 @@
+import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
 import type { Design, RequiredMaterial, UploadDesign } from '@jewellery-catalogue/types';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { DesignRepository } from '../DesignRepository';
 import type { IdGenerator } from '../IdGenerator';
@@ -7,29 +7,29 @@ import type { ImageService } from '../ImageService';
 import { DesignService } from './index';
 
 const mockDesignRepo = {
-    getById: vi.fn(),
-    getByIdAndUserId: vi.fn(),
-    insert: vi.fn(),
-    update: vi.fn(),
-    delete: vi.fn(),
-    getAll: vi.fn(),
+    getById: mock(),
+    getByIdAndUserId: mock(),
+    insert: mock(),
+    update: mock(),
+    delete: mock(),
+    getAll: mock(),
 };
 
 const mockImageService = {
-    uploadImage: vi.fn(),
-    getImage: vi.fn(),
-    deleteImage: vi.fn(),
+    uploadImage: mock(),
+    getImage: mock(),
+    deleteImage: mock(),
 };
 
 const mockIdGenerator = {
-    generate: vi.fn(),
+    generate: mock(),
 };
 
 describe('DesignService', () => {
     let service: DesignService;
 
     beforeEach(() => {
-        vi.clearAllMocks();
+        jest.clearAllMocks();
         service = new DesignService(
             mockDesignRepo as unknown as DesignRepository,
             mockImageService as unknown as ImageService,

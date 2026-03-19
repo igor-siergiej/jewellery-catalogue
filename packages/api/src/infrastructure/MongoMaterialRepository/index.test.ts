@@ -1,27 +1,27 @@
+import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
 import type { MongoDbConnection } from '@imapps/api-utils';
 import { type Material, MaterialType, METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CollectionNames, type Collections } from '../../dependencies/types';
 import { MongoMaterialRepository } from './index';
 
 const mockMaterialsCollection = {
-    findOne: vi.fn(),
-    find: vi.fn(),
-    insertOne: vi.fn(),
-    findOneAndReplace: vi.fn(),
-    deleteOne: vi.fn(),
+    findOne: mock(),
+    find: mock(),
+    insertOne: mock(),
+    findOneAndReplace: mock(),
+    deleteOne: mock(),
 };
 
 const mockDb = {
-    getCollection: vi.fn().mockReturnValue(mockMaterialsCollection),
+    getCollection: mock().mockReturnValue(mockMaterialsCollection),
 } as unknown as MongoDbConnection<Collections>;
 
 describe('MongoMaterialRepository', () => {
     let repository: MongoMaterialRepository;
 
     beforeEach(() => {
-        vi.clearAllMocks();
+        jest.clearAllMocks();
         repository = new MongoMaterialRepository(mockDb);
     });
 
@@ -62,7 +62,7 @@ describe('MongoMaterialRepository', () => {
         it('should get all materials', async () => {
             const materials = [mockMaterial];
             const mockCursor = {
-                toArray: vi.fn().mockResolvedValue(materials),
+                toArray: mock().mockResolvedValue(materials),
             };
 
             mockMaterialsCollection.find.mockReturnValue(mockCursor);

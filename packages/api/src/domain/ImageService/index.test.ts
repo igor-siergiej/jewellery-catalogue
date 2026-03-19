@@ -1,31 +1,31 @@
+import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
 import type { Logger } from '@imapps/api-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ImageService } from './index';
 import type { ImageGenerator, ImageStore } from './types';
 
 const mockStore = {
-    getHeadObject: vi.fn(),
-    getObjectStream: vi.fn(),
-    putObject: vi.fn(),
+    getHeadObject: mock(),
+    getObjectStream: mock(),
+    putObject: mock(),
 };
 
 const mockGenerator = {
-    generateImage: vi.fn(),
+    generateImage: mock(),
 };
 
 const mockLogger = {
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-    debug: vi.fn(),
+    info: mock(),
+    warn: mock(),
+    error: mock(),
+    debug: mock(),
 };
 
 describe('ImageService', () => {
     let service: ImageService;
 
     beforeEach(() => {
-        vi.clearAllMocks();
+        jest.clearAllMocks();
         service = new ImageService(
             mockStore as unknown as ImageStore,
             mockGenerator as unknown as ImageGenerator,

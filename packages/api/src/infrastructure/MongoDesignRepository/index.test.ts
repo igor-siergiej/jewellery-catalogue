@@ -1,27 +1,27 @@
+import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
 import type { MongoDbConnection } from '@imapps/api-utils';
 import type { Design } from '@jewellery-catalogue/types';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CollectionNames, type Collections } from '../../dependencies/types';
 import { MongoDesignRepository } from './index';
 
 const mockDesignsCollection = {
-    findOne: vi.fn(),
-    find: vi.fn(),
-    insertOne: vi.fn(),
-    findOneAndReplace: vi.fn(),
-    deleteOne: vi.fn(),
+    findOne: mock(),
+    find: mock(),
+    insertOne: mock(),
+    findOneAndReplace: mock(),
+    deleteOne: mock(),
 };
 
 const mockDb = {
-    getCollection: vi.fn().mockReturnValue(mockDesignsCollection),
+    getCollection: mock().mockReturnValue(mockDesignsCollection),
 } as unknown as MongoDbConnection<Collections>;
 
 describe('MongoDesignRepository', () => {
     let repository: MongoDesignRepository;
 
     beforeEach(() => {
-        vi.clearAllMocks();
+        jest.clearAllMocks();
         repository = new MongoDesignRepository(mockDb);
     });
 
@@ -60,7 +60,7 @@ describe('MongoDesignRepository', () => {
         it('should get all designs', async () => {
             const designs = [mockDesign];
             const mockCursor = {
-                toArray: vi.fn().mockResolvedValue(designs),
+                toArray: mock().mockResolvedValue(designs),
             };
 
             mockDesignsCollection.find.mockReturnValue(mockCursor);

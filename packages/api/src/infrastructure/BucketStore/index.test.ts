@@ -1,19 +1,19 @@
+import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
 import type { ObjectStoreConnection } from '@imapps/api-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { BucketStore } from './index';
 
 const mockBucket = {
-    statObject: vi.fn(),
-    getObjectStream: vi.fn(),
-    putObject: vi.fn(),
+    statObject: mock(),
+    getObjectStream: mock(),
+    putObject: mock(),
 };
 
 describe('BucketStore', () => {
     let bucketStore: BucketStore;
 
     beforeEach(() => {
-        vi.clearAllMocks();
+        jest.clearAllMocks();
         bucketStore = new BucketStore(mockBucket as unknown as ObjectStoreConnection);
     });
 
