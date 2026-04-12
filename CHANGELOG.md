@@ -1,3 +1,10 @@
+## [1.14.2](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.14.1...v1.14.2) (2026-04-12)
+
+
+### Bug Fixes
+
+* **docker:** preserve workspace symlinks in api runner ([741586a](https://github.com/igor-siergiej/jewellery-catalogue/commit/741586a6083748b092c9e45641cc3128280ff3b0))
+
 ## [1.14.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.14.0...v1.14.1) (2026-03-12)
 
 
