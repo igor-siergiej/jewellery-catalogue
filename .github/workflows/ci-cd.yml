@@ -16,8 +16,6 @@ jobs:
         with:
           bun-version: latest
       - run: bun install
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GH_TOKEN }}
       - run: bun run lint
 
   semgrep:
@@ -56,8 +54,6 @@ jobs:
         with:
           bun-version: latest
       - run: bun install
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GH_TOKEN }}
       - run: bun run tsc --noEmit
       - run: bun run --filter @jewellery-catalogue/api test
 
@@ -76,8 +72,6 @@ jobs:
         with:
           bun-version: latest
       - run: bun install
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GH_TOKEN }}
       - run: bunx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -108,8 +102,6 @@ jobs:
         run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
       - name: Publish Docker images
         run: bash .github/workflows-utils/pipelines/scripts/publish-images.sh jewellery-catalogue ${{ steps.version.outputs.version }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GH_TOKEN }}
 
   deploy:
     runs-on: ubuntu-latest

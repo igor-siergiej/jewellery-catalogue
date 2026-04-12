@@ -5,12 +5,10 @@ ENV APP_VERSION=$APP_VERSION
 
 WORKDIR /app
 
-ARG NODE_AUTH_TOKEN
-
 COPY package.json bun.lock bunfig.toml ./
 COPY packages packages/
 
-RUN NODE_AUTH_TOKEN=${NODE_AUTH_TOKEN} bun install --frozen-lockfile
+RUN bun install --frozen-lockfile
 
 COPY . .
 
