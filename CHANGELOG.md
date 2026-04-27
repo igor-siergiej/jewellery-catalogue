@@ -1,3 +1,10 @@
+## [1.14.3](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.14.2...v1.14.3) (2026-04-27)
+
+
+### Bug Fixes
+
+* replace yarn with bun in web start scripts ([194e49e](https://github.com/igor-siergiej/jewellery-catalogue/commit/194e49efa6a11df50287267613a643c1cf205317))
+
 ## [1.14.2](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.14.1...v1.14.2) (2026-04-12)
 
 
