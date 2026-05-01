@@ -1,3 +1,10 @@
+# [1.15.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.14.3...v1.15.0) (2026-05-01)
+
+
+### Features
+
+* **web:** add delete design from catalogue ([#7](https://github.com/igor-siergiej/jewellery-catalogue/issues/7)) ([4cbabf9](https://github.com/igor-siergiej/jewellery-catalogue/commit/4cbabf9fe0d8306853b8c005eda32b73c8677d29))
+
 ## [1.14.3](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.14.2...v1.14.3) (2026-04-27)
 
 
