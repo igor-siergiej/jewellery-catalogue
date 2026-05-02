@@ -247,7 +247,9 @@ const AddDesign: React.FC = () => {
                                                             value={field.value ?? ''}
                                                             onChange={(e) => {
                                                                 const value = e.target.value;
-                                                                field.onChange(value === '' ? undefined : Number(value));
+                                                                field.onChange(
+                                                                    value === '' ? undefined : Number(value)
+                                                                );
                                                             }}
                                                         />
                                                     </InputGroup>

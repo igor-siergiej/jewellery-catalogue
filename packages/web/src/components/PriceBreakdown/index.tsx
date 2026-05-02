@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 
-import { Input } from '@/components/ui/input';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -22,7 +21,7 @@ const formatTime = (timeRequired: string): string => {
     const hours = parseInt(hoursStr, 10);
     const minutes = parseInt(minutesStr, 10);
 
-    if (isNaN(hours) || isNaN(minutes)) return '0 min';
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) return '0 min';
 
     const parts: string[] = [];
     if (hours > 0) parts.push(`${hours} hr`);
@@ -64,7 +63,7 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
                             value={hourlyWage}
                             onChange={(e) => {
                                 const v = parseFloat(e.target.value);
-                                if (!isNaN(v) && v >= 0) onHourlyWageChange(v);
+                                if (!Number.isNaN(v) && v >= 0) onHourlyWageChange(v);
                             }}
                         />
                         <InputGroupAddon align="inline-end">
@@ -82,7 +81,7 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
                             value={profitMargin}
                             onChange={(e) => {
                                 const v = parseFloat(e.target.value);
-                                if (!isNaN(v) && v >= 0) onProfitMarginChange(v);
+                                if (!Number.isNaN(v) && v >= 0) onProfitMarginChange(v);
                             }}
                         />
                         <InputGroupAddon align="inline-end">

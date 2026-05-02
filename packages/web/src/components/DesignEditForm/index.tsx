@@ -251,9 +251,7 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                                                     />
                                                 </InputGroup>
                                             </FormControl>
-                                            <FormDescription>
-                                                Auto-calculated above. Edit to override.
-                                            </FormDescription>
+                                            <FormDescription>Auto-calculated above. Edit to override.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}

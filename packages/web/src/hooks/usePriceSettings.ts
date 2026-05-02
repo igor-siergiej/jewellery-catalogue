@@ -10,7 +10,7 @@ const readFloat = (key: string, fallback: number): number => {
     const stored = localStorage.getItem(key);
     if (stored === null) return fallback;
     const parsed = parseFloat(stored);
-    return isNaN(parsed) ? fallback : parsed;
+    return Number.isNaN(parsed) ? fallback : parsed;
 };
 
 export const usePriceSettings = () => {
