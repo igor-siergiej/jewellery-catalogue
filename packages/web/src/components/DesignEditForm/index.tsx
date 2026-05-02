@@ -15,15 +15,14 @@ import makeEditDesignRequest from '../../api/endpoints/editDesign';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
 import { AddMaterialsTable } from '../../components/AddMaterialsTable';
 import ImageUpload from '../../components/ImageUpload';
+import PriceBreakdown from '../../components/PriceBreakdown';
 import RichTextEditor from '../../components/RichTextEditor';
 import TimeInput from '../../components/TimeInput';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
+import { usePriceSettings } from '../../hooks/usePriceSettings';
 import { getTotalMaterialCosts } from '../../utils/getPriceOfMaterials';
 import { getWageCosts } from '../../utils/getWageCost';
-
-const PROFIT_COEFFICIENT = 1.15;
-const HOURLY_WAGE = 10;
 
 interface DesignEditFormProps {
     design: Design;
@@ -49,6 +48,7 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
 
     const { accessToken, login, logout } = useAuth();
     const [isMakingRequest, setIsMakingRequest] = useState(false);
+    const { hourlyWage, profitMargin, updateHourlyWage, updateProfitMargin } = usePriceSettings();
 
     const { data } = useQuery({
         ...getMaterialsQuery(() => accessToken, login, logout),
@@ -97,15 +97,13 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
         if (!data) return;
 
         const materialsCost = selectedMaterials.length > 0 ? getTotalMaterialCosts(selectedMaterials) : 0;
-
-        const timeSpentCost = parseFloat((getWageCosts(currentTimeRequired) * HOURLY_WAGE).toFixed(2));
-
-        const totalCosts = materialsCost + timeSpentCost;
-        const finalPrice = parseFloat((totalCosts * PROFIT_COEFFICIENT).toFixed(2));
+        const timeSpentCost = parseFloat((getWageCosts(currentTimeRequired) * hourlyWage).toFixed(2));
+        const subtotal = materialsCost + timeSpentCost;
+        const finalPrice = parseFloat((subtotal * (1 + profitMargin / 100)).toFixed(2));
 
         form.setValue('totalMaterialCosts', materialsCost);
         form.setValue('price', finalPrice);
-    }, [selectedMaterials, currentTimeRequired, data, form]);
+    }, [selectedMaterials, currentTimeRequired, hourlyWage, profitMargin, data, form]);
 
     if (!data) {
         return null;
@@ -221,34 +219,44 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                         <h2 className="text-lg font-medium text-center">Set Price</h2>
                     </div>
                     <div className="col-span-8">
-                        <FormField
-                            control={form.control}
-                            name="price"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Price</FormLabel>
-                                    <FormControl>
-                                        <InputGroup className="max-w-[180px]">
-                                            <InputGroupAddon align="inline-start">
-                                                <InputGroupText>£</InputGroupText>
-                                            </InputGroupAddon>
-                                            <InputGroupInput
-                                                type="number"
-                                                step="0.01"
-                                                placeholder="0.00"
-                                                {...field}
-                                                value={field.value ?? ''}
-                                                onChange={(e) => {
-                                                    const value = e.target.value;
-
-                                                    field.onChange(value === '' ? undefined : Number(value));
-                                                }}
-                                            />
-                                        </InputGroup>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
+                        <PriceBreakdown
+                            materialsCost={form.watch('totalMaterialCosts') ?? 0}
+                            timeRequired={currentTimeRequired}
+                            hourlyWage={hourlyWage}
+                            profitMargin={profitMargin}
+                            onHourlyWageChange={updateHourlyWage}
+                            onProfitMarginChange={updateProfitMargin}
+                            priceField={
+                                <FormField
+                                    control={form.control}
+                                    name="price"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Final Price</FormLabel>
+                                            <FormControl>
+                                                <InputGroup className="max-w-[180px]">
+                                                    <InputGroupAddon align="inline-start">
+                                                        <InputGroupText>£</InputGroupText>
+                                                    </InputGroupAddon>
+                                                    <InputGroupInput
+                                                        type="number"
+                                                        step="0.01"
+                                                        placeholder="0.00"
+                                                        {...field}
+                                                        value={field.value ?? ''}
+                                                        onChange={(e) => {
+                                                            const value = e.target.value;
+                                                            field.onChange(value === '' ? undefined : Number(value));
+                                                        }}
+                                                    />
+                                                </InputGroup>
+                                            </FormControl>
+                                            <FormDescription>Auto-calculated above. Edit to override.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            }
                         />
                     </div>
                 </div>
