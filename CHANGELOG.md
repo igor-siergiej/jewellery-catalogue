@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.15.0...v1.16.0) (2026-05-02)
+
+
+### Features
+
+* add price calculation breakdown with editable margin and wage ([#8](https://github.com/igor-siergiej/jewellery-catalogue/issues/8)) ([2770a1e](https://github.com/igor-siergiej/jewellery-catalogue/commit/2770a1ea2bb725c66225b80201d4a8f035e19b98))
+
 # [1.15.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.14.3...v1.15.0) (2026-05-01)
 
 
