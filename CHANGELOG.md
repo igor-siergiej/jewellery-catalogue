@@ -1,3 +1,10 @@
+# [1.17.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.16.0...v1.17.0) (2026-05-03)
+
+
+### Features
+
+* add design variations with per-variant stock and pricing ([9c2cd07](https://github.com/igor-siergiej/jewellery-catalogue/commit/9c2cd07dcbb854f75c48ab186d113e837a7fc2f7))
+
 # [1.16.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.15.0...v1.16.0) (2026-05-02)
 
 
