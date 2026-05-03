@@ -19,7 +19,10 @@ const makeEditDesignRequest = async (
             if (key === 'image' && value instanceof File) {
                 formData.append('file', value);
             } else if (key === 'image' && typeof value === 'string') {
-            } else if (key === 'materials' && Array.isArray(value)) {
+            } else if (
+                (key === 'materials' || key === 'variationGroups' || key === 'variants') &&
+                Array.isArray(value)
+            ) {
                 formData.append(key, JSON.stringify(value));
             } else if (typeof value === 'string' || typeof value === 'number') {
                 formData.append(key, value.toString());

@@ -18,6 +18,7 @@ import ImageUpload from '../../components/ImageUpload';
 import PriceBreakdown from '../../components/PriceBreakdown';
 import RichTextEditor from '../../components/RichTextEditor';
 import TimeInput from '../../components/TimeInput';
+import { computeVariants, VariationGroupBuilder } from '../../components/VariationGroupBuilder';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
 import { usePriceSettings } from '../../hooks/usePriceSettings';
@@ -43,6 +44,8 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
             price: design.price,
             image: design.imageId,
             lowStockThreshold: design.lowStockThreshold,
+            variationGroups: design.variationGroups ?? [],
+            variants: design.variants ?? [],
         },
     });
 
@@ -57,13 +60,21 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
 
     const selectedMaterials = form.watch('materials');
     const currentTimeRequired = form.watch('timeRequired');
+    const variationGroups = form.watch('variationGroups') ?? [];
 
     const { dispatch } = useAlert();
 
-    const onSubmit: SubmitHandler<FormDesign> = async (data) => {
+    const onSubmit: SubmitHandler<FormDesign> = async (formData) => {
         setIsMakingRequest(true);
         try {
-            await makeEditDesignRequest(design.id, data, () => accessToken, login, logout);
+            const variants = computeVariants(
+                variationGroups,
+                selectedMaterials,
+                hourlyWage,
+                profitMargin,
+                currentTimeRequired
+            );
+            await makeEditDesignRequest(design.id, { ...formData, variants }, () => accessToken, login, logout);
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
@@ -96,14 +107,28 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
     useEffect(() => {
         if (!data) return;
 
-        const materialsCost = selectedMaterials.length > 0 ? getTotalMaterialCosts(selectedMaterials) : 0;
-        const timeSpentCost = parseFloat((getWageCosts(currentTimeRequired) * hourlyWage).toFixed(2));
+        const materialsCost = selectedMaterials.length > 0 ? getTotalMaterialCosts(selectedMaterials, []) : 0;
+        const rawWage = getWageCosts(currentTimeRequired) * hourlyWage;
+        const timeSpentCost = Number.isFinite(rawWage) ? parseFloat(rawWage.toFixed(2)) : 0;
         const subtotal = materialsCost + timeSpentCost;
         const finalPrice = parseFloat((subtotal * (1 + profitMargin / 100)).toFixed(2));
 
         form.setValue('totalMaterialCosts', materialsCost);
-        form.setValue('price', finalPrice);
-    }, [selectedMaterials, currentTimeRequired, hourlyWage, profitMargin, data, form]);
+
+        if (variationGroups.length > 0) {
+            const variants = computeVariants(
+                variationGroups,
+                selectedMaterials,
+                hourlyWage,
+                profitMargin,
+                currentTimeRequired
+            );
+            const minPrice = variants.length > 0 ? Math.min(...variants.map((v) => v.price)) : 0.01;
+            form.setValue('price', minPrice > 0 ? minPrice : 0.01);
+        } else {
+            form.setValue('price', finalPrice > 0 ? finalPrice : 0.01);
+        }
+    }, [selectedMaterials, currentTimeRequired, hourlyWage, profitMargin, data, variationGroups, form.setValue]);
 
     if (!data) {
         return null;
@@ -114,6 +139,8 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
             e.preventDefault();
         }
     };
+
+    const hasVariationGroups = variationGroups.length > 0;
 
     return (
         <Form {...form}>
@@ -183,7 +210,12 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                 {/* Add Materials Section */}
                 <div className="grid grid-cols-12 gap-4">
                     <div className="col-span-4">
-                        <h2 className="text-lg font-medium text-center">Add Materials</h2>
+                        <h2 className="text-lg font-medium text-center">
+                            {hasVariationGroups ? 'Shared Materials' : 'Add Materials'}
+                        </h2>
+                        {hasVariationGroups && (
+                            <p className="text-xs text-muted-foreground text-center mt-1">Used in every variant</p>
+                        )}
                     </div>
                     <div className="col-span-8">
                         <FormField
@@ -213,6 +245,40 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
 
                 <hr className="border-t border-border" />
 
+                {/* Variation Groups Section */}
+                <div className="grid grid-cols-12 gap-4">
+                    <div className="col-span-4">
+                        <h2 className="text-lg font-medium text-center">Variations</h2>
+                        <p className="text-xs text-muted-foreground text-center mt-1">
+                            Optional — define selectable options like gemstone or wire type
+                        </p>
+                    </div>
+                    <div className="col-span-8">
+                        <FormField
+                            control={form.control}
+                            name="variationGroups"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <VariationGroupBuilder
+                                            availableMaterials={data}
+                                            value={field.value ?? []}
+                                            onChange={field.onChange}
+                                            sharedMaterials={selectedMaterials}
+                                            hourlyWage={hourlyWage}
+                                            profitMargin={profitMargin}
+                                            timeRequired={currentTimeRequired}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                </div>
+
+                <hr className="border-t border-border" />
+
                 {/* Set Price Section */}
                 <div className="grid grid-cols-12 gap-4">
                     <div className="col-span-4">
@@ -220,42 +286,69 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                     </div>
                     <div className="col-span-8">
                         <PriceBreakdown
-                            materialsCost={form.watch('totalMaterialCosts') ?? 0}
+                            materialsCost={(() => {
+                                if (hasVariationGroups) {
+                                    const variants = computeVariants(
+                                        variationGroups,
+                                        selectedMaterials,
+                                        hourlyWage,
+                                        profitMargin,
+                                        currentTimeRequired
+                                    );
+                                    return variants.length > 0
+                                        ? Math.min(...variants.map((v) => v.totalMaterialCosts))
+                                        : 0;
+                                }
+                                return form.watch('totalMaterialCosts') ?? 0;
+                            })()}
                             timeRequired={currentTimeRequired}
                             hourlyWage={hourlyWage}
                             profitMargin={profitMargin}
                             onHourlyWageChange={updateHourlyWage}
                             onProfitMarginChange={updateProfitMargin}
                             priceField={
-                                <FormField
-                                    control={form.control}
-                                    name="price"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Final Price</FormLabel>
-                                            <FormControl>
-                                                <InputGroup className="max-w-[180px]">
-                                                    <InputGroupAddon align="inline-start">
-                                                        <InputGroupText>£</InputGroupText>
-                                                    </InputGroupAddon>
-                                                    <InputGroupInput
-                                                        type="number"
-                                                        step="0.01"
-                                                        placeholder="0.00"
-                                                        {...field}
-                                                        value={field.value ?? ''}
-                                                        onChange={(e) => {
-                                                            const value = e.target.value;
-                                                            field.onChange(value === '' ? undefined : Number(value));
-                                                        }}
-                                                    />
-                                                </InputGroup>
-                                            </FormControl>
-                                            <FormDescription>Auto-calculated above. Edit to override.</FormDescription>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                hasVariationGroups ? (
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-medium">Final Price</p>
+                                        <p className="text-sm text-muted-foreground">
+                                            Varies per variant — see prices in Variations preview above.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <FormField
+                                        control={form.control}
+                                        name="price"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Final Price</FormLabel>
+                                                <FormControl>
+                                                    <InputGroup className="max-w-[180px]">
+                                                        <InputGroupAddon align="inline-start">
+                                                            <InputGroupText>£</InputGroupText>
+                                                        </InputGroupAddon>
+                                                        <InputGroupInput
+                                                            type="number"
+                                                            step="0.01"
+                                                            placeholder="0.00"
+                                                            {...field}
+                                                            value={field.value ?? ''}
+                                                            onChange={(e) => {
+                                                                const value = e.target.value;
+                                                                field.onChange(
+                                                                    value === '' ? undefined : Number(value)
+                                                                );
+                                                            }}
+                                                        />
+                                                    </InputGroup>
+                                                </FormControl>
+                                                <FormDescription>
+                                                    Auto-calculated above. Edit to override.
+                                                </FormDescription>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )
                             }
                         />
                     </div>

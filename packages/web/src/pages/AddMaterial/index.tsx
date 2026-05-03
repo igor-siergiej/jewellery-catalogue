@@ -81,9 +81,7 @@ const AddMaterial = () => {
 
                         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
                             <div className="lg:w-1/4">
-                                <h2 className="text-lg lg:text-xl font-semibold lg:text-right lg:pt-1.5">
-                                    Material Details
-                                </h2>
+                                <h2 className="text-lg font-medium lg:text-right lg:pt-1.5">Material Details</h2>
                             </div>
 
                             <div className="lg:w-3/4 space-y-4 lg:space-y-5">
@@ -210,7 +208,7 @@ const AddMaterial = () => {
 
                         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
                             <div className="lg:w-1/4">
-                                <h2 className="text-lg lg:text-xl font-semibold lg:text-right">Material Type</h2>
+                                <h2 className="text-lg font-medium lg:text-right">Material Type</h2>
                             </div>
 
                             <div className="lg:w-3/4 space-y-4 lg:space-y-5">

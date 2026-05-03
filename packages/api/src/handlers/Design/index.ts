@@ -50,8 +50,17 @@ export const addDesign = async (ctx: Context) => {
         return;
     }
 
-    const { name, description, timeRequired, materials, totalMaterialCosts, price } = ctx.request
-        .body as Partial<UploadDesign>;
+    const {
+        name,
+        description,
+        timeRequired,
+        materials,
+        totalMaterialCosts,
+        price,
+        lowStockThreshold,
+        variationGroups,
+        variants,
+    } = ctx.request.body as Partial<UploadDesign>;
 
     try {
         // Read the file from filesystem and convert to Buffer
@@ -66,6 +75,9 @@ export const addDesign = async (ctx: Context) => {
             totalMaterialCosts: Number(totalMaterialCosts),
             price: Number(price),
             image: file,
+            lowStockThreshold: lowStockThreshold !== undefined ? Number(lowStockThreshold) : undefined,
+            variationGroups,
+            variants,
         };
 
         const design = await getDesignService().addDesign(designData, fileBuffer, contentType, userId);
@@ -102,14 +114,13 @@ export const editDesignProperties = async (ctx: Context) => {
     const { id } = ctx.params;
     const file = ctx.request.files?.file as unknown as PersistentFile | undefined;
 
-    const { name, description, timeRequired, materials, totalMaterialCosts, price } = ctx.request
-        .body as Partial<EditDesign>;
+    const { name, description, timeRequired, materials, totalMaterialCosts, price, variationGroups, variants } = ctx
+        .request.body as Partial<EditDesign> & { variationGroups?: string; variants?: string };
 
     try {
         let fileBuffer: Buffer | null = null;
         let contentType: string | null = null;
 
-        // If a file is provided, read it
         if (file) {
             fileBuffer = fs.readFileSync(file.filepath);
             contentType = file.mimetype || 'application/octet-stream';
@@ -123,6 +134,13 @@ export const editDesignProperties = async (ctx: Context) => {
         if (materials) updates.materials = materials;
         if (totalMaterialCosts !== undefined) updates.totalMaterialCosts = Number(totalMaterialCosts);
         if (price !== undefined) updates.price = Number(price);
+        if (variationGroups !== undefined) {
+            updates.variationGroups =
+                typeof variationGroups === 'string' ? JSON.parse(variationGroups) : variationGroups;
+        }
+        if (variants !== undefined) {
+            updates.variants = typeof variants === 'string' ? JSON.parse(variants) : variants;
+        }
 
         const design = await getDesignService().editDesignProperties(id, updates, fileBuffer, contentType, userId);
 

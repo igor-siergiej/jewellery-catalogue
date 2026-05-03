@@ -33,8 +33,18 @@ const ViewDesign = () => {
         enabled: !!id && !!accessToken && !!user?.id,
     });
 
-    const { timeRequired, imageId, name, materials, totalMaterialCosts, price, dateAdded, totalQuantity } =
-        design ?? {};
+    const {
+        timeRequired,
+        imageId,
+        name,
+        materials,
+        totalMaterialCosts,
+        price,
+        dateAdded,
+        totalQuantity,
+        variants,
+        variationGroups,
+    } = design ?? {};
 
     const handleEditClick = () => {
         setEditDialogOpen(true);
@@ -124,9 +134,37 @@ const ViewDesign = () => {
                                 </div>
                             </div>
 
+                            {variants && variants.length > 0 && (
+                                <div className="pt-4">
+                                    <h2 className="text-xl font-semibold mb-2">Variants</h2>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Variant</TableHead>
+                                                <TableHead>Material Costs</TableHead>
+                                                <TableHead>Price</TableHead>
+                                                <TableHead>In Stock</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {variants.map((variant) => (
+                                                <TableRow key={variant.id}>
+                                                    <TableCell className="font-medium">{variant.name}</TableCell>
+                                                    <TableCell>£{variant.totalMaterialCosts.toFixed(2)}</TableCell>
+                                                    <TableCell>£{variant.price.toFixed(2)}</TableCell>
+                                                    <TableCell>{variant.totalQuantity}</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            )}
+
                             {materials && materials.length > 0 && (
                                 <div className="pt-4">
-                                    <h2 className="text-xl font-semibold mb-2">Materials</h2>
+                                    <h2 className="text-xl font-semibold mb-2">
+                                        {variants && variants.length > 0 ? 'Shared Materials' : 'Materials'}
+                                    </h2>
                                     <Table>
                                         <TableHeader>
                                             <TableRow>

@@ -9,3 +9,4 @@ export * from './requiredMaterial/index';
 export * from './updateDesign/index';
 export * from './updateMaterial/index';
 export * from './util/index';
+export * from './variationGroup/index';

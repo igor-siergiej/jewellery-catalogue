@@ -118,7 +118,9 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated 
 
                             <div className="flex items-center gap-1">
                                 <PackageOpen className="h-4 w-4" />
-                                {totalQuantity} in stock
+                                {design.variants && design.variants.length > 0
+                                    ? `${design.variants.length} variants · ${totalQuantity} in stock`
+                                    : `${totalQuantity} in stock`}
                             </div>
                         </div>
                     </ItemFooter>

@@ -2,6 +2,7 @@ export type { RequiredMaterial as RequiredMaterialLegacy } from '../requiredMate
 
 import z from 'zod';
 import { requiredMaterialSchema } from '../requiredMaterial';
+import { designVariantSchema, variationGroupSchema } from '../variationGroup';
 
 export const designSchema = z.object({
     id: z.string(),
@@ -16,6 +17,8 @@ export const designSchema = z.object({
     dateAdded: z.date(),
     totalQuantity: z.number().default(0),
     lowStockThreshold: z.number().int().nonnegative().optional(),
+    variationGroups: z.array(variationGroupSchema).optional(),
+    variants: z.array(designVariantSchema).optional(),
 });
 
 export type Design = z.infer<typeof designSchema>;

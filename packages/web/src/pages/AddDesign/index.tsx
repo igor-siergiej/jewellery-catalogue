@@ -19,6 +19,7 @@ import ImageUpload from '../../components/ImageUpload';
 import PriceBreakdown from '../../components/PriceBreakdown';
 import RichTextEditor from '../../components/RichTextEditor';
 import TimeInput from '../../components/TimeInput';
+import { computeVariants, VariationGroupBuilder } from '../../components/VariationGroupBuilder';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
 import { usePriceSettings } from '../../hooks/usePriceSettings';
@@ -37,6 +38,8 @@ const AddDesign: React.FC = () => {
             totalMaterialCosts: 0,
             image: undefined,
             lowStockThreshold: undefined,
+            variationGroups: [],
+            variants: [],
         },
     });
 
@@ -51,13 +54,21 @@ const AddDesign: React.FC = () => {
 
     const selectedMaterials = form.watch('materials');
     const currentTimeRequired = form.watch('timeRequired');
+    const variationGroups = form.watch('variationGroups') ?? [];
 
     const { dispatch } = useAlert();
 
-    const onSubmit: SubmitHandler<FormDesign> = async (data) => {
+    const onSubmit: SubmitHandler<FormDesign> = async (formData) => {
         setIsMakingRequest(true);
         try {
-            await makeAddDesignRequest(data, () => accessToken, login, logout);
+            const variants = computeVariants(
+                variationGroups,
+                selectedMaterials,
+                hourlyWage,
+                profitMargin,
+                currentTimeRequired
+            );
+            await makeAddDesignRequest({ ...formData, variants }, () => accessToken, login, logout);
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
@@ -90,14 +101,28 @@ const AddDesign: React.FC = () => {
     useEffect(() => {
         if (!data) return;
 
-        const materialsCost = selectedMaterials.length > 0 ? getTotalMaterialCosts(selectedMaterials) : 0;
-        const timeSpentCost = parseFloat((getWageCosts(currentTimeRequired) * hourlyWage).toFixed(2));
+        const materialsCost = selectedMaterials.length > 0 ? getTotalMaterialCosts(selectedMaterials, []) : 0;
+        const rawWage = getWageCosts(currentTimeRequired) * hourlyWage;
+        const timeSpentCost = Number.isFinite(rawWage) ? parseFloat(rawWage.toFixed(2)) : 0;
         const subtotal = materialsCost + timeSpentCost;
         const finalPrice = parseFloat((subtotal * (1 + profitMargin / 100)).toFixed(2));
 
         form.setValue('totalMaterialCosts', materialsCost);
-        form.setValue('price', finalPrice);
-    }, [selectedMaterials, currentTimeRequired, hourlyWage, profitMargin, data, form.setValue]);
+
+        if (variationGroups.length > 0) {
+            const variants = computeVariants(
+                variationGroups,
+                selectedMaterials,
+                hourlyWage,
+                profitMargin,
+                currentTimeRequired
+            );
+            const minPrice = variants.length > 0 ? Math.min(...variants.map((v) => v.price)) : 0.01;
+            form.setValue('price', minPrice > 0 ? minPrice : 0.01);
+        } else {
+            form.setValue('price', finalPrice > 0 ? finalPrice : 0.01);
+        }
+    }, [selectedMaterials, currentTimeRequired, hourlyWage, profitMargin, data, variationGroups, form.setValue]);
 
     if (!data) {
         return null;
@@ -109,242 +134,312 @@ const AddDesign: React.FC = () => {
         }
     };
 
-    return (
-        <Card className="p-6 max-w-5xl mx-auto">
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} onKeyDown={handleFormKeyDown} className="space-y-8">
-                    {/* Header */}
-                    <div className="space-y-4">
-                        <h1 className="text-2xl font-semibold text-left pl-2 leading-[50px]">Adding New Design</h1>
-                        <hr className="border-t border-border" />
-                    </div>
+    const hasVariationGroups = variationGroups.length > 0;
 
-                    {/* Design Details Section */}
-                    <div className="grid grid-cols-12 gap-4">
-                        <div className="col-span-4">
-                            <h2 className="text-lg font-medium text-center pt-1.5">Design Details</h2>
+    return (
+        <div className="container mx-auto max-w-5xl px-4 py-8">
+            <Card className="p-6 md:p-8">
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} onKeyDown={handleFormKeyDown} className="space-y-8">
+                        <div>
+                            <h1 className="text-2xl font-bold leading-[50px] truncate">Adding New Design</h1>
+                            <div className="border-b border-border mt-2" />
                         </div>
-                        <div className="col-span-8">
-                            <div className="flex gap-4">
-                                <div className="flex-1">
-                                    <FormField
-                                        control={form.control}
-                                        name="name"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Name</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder="Enter design name"
-                                                        className="max-w-[300px]"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className="flex-1">
-                                    <TimeInput form={form} />
+
+                        {/* Design Details Section */}
+                        <div className="grid grid-cols-12 gap-4">
+                            <div className="col-span-4">
+                                <h2 className="text-lg font-medium text-center pt-1.5">Design Details</h2>
+                            </div>
+                            <div className="col-span-8">
+                                <div className="flex gap-4">
+                                    <div className="flex-1">
+                                        <FormField
+                                            control={form.control}
+                                            name="name"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Name</FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            placeholder="Enter design name"
+                                                            className="max-w-[300px]"
+                                                            {...field}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <TimeInput form={form} />
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <hr className="border-t border-border" />
+                        <hr className="border-t border-border" />
 
-                    {/* Upload Image Section */}
-                    <div className="grid grid-cols-12 gap-4">
-                        <div className="col-span-4">
-                            <h2 className="text-lg font-medium text-center h-[30px] leading-[30px]">Upload Image</h2>
+                        {/* Upload Image Section */}
+                        <div className="grid grid-cols-12 gap-4">
+                            <div className="col-span-4">
+                                <h2 className="text-lg font-medium text-center h-[30px] leading-[30px]">
+                                    Upload Image
+                                </h2>
+                            </div>
+                            <div className="col-span-8">
+                                <FormField
+                                    control={form.control}
+                                    name="image"
+                                    render={({ field, fieldState }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <ImageUpload
+                                                    setImage={form.setValue}
+                                                    hasError={!!fieldState.error}
+                                                    value={field.value}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </div>
-                        <div className="col-span-8">
-                            <FormField
-                                control={form.control}
-                                name="image"
-                                render={({ field, fieldState }) => (
-                                    <FormItem>
-                                        <FormControl>
-                                            <ImageUpload
-                                                setImage={form.setValue}
-                                                hasError={!!fieldState.error}
-                                                value={field.value}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
+
+                        <hr className="border-t border-border" />
+
+                        {/* Add Materials Section */}
+                        <div className="grid grid-cols-12 gap-4">
+                            <div className="col-span-4">
+                                <h2 className="text-lg font-medium text-center">
+                                    {hasVariationGroups ? 'Shared Materials' : 'Add Materials'}
+                                </h2>
+                                {hasVariationGroups && (
+                                    <p className="text-xs text-muted-foreground text-center mt-1">
+                                        Used in every variant
+                                    </p>
                                 )}
-                            />
+                            </div>
+                            <div className="col-span-8">
+                                <FormField
+                                    control={form.control}
+                                    name="materials"
+                                    render={({ field, fieldState }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <AddMaterialsTable
+                                                    availableMaterials={data}
+                                                    setValue={form.setValue}
+                                                    hasError={!!fieldState.error}
+                                                    value={field.value}
+                                                />
+                                            </FormControl>
+                                            {fieldState.error && (
+                                                <p className="text-sm font-medium text-destructive mt-2">
+                                                    {fieldState.error.message ||
+                                                        JSON.stringify(fieldState.error, null, 2)}
+                                                </p>
+                                            )}
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    <hr className="border-t border-border" />
+                        <hr className="border-t border-border" />
 
-                    {/* Add Materials Section */}
-                    <div className="grid grid-cols-12 gap-4">
-                        <div className="col-span-4">
-                            <h2 className="text-lg font-medium text-center">Add Materials</h2>
+                        {/* Variation Groups Section */}
+                        <div className="grid grid-cols-12 gap-4">
+                            <div className="col-span-4">
+                                <h2 className="text-lg font-medium text-center">Variations</h2>
+                                <p className="text-xs text-muted-foreground text-center mt-1">
+                                    Optional — define selectable options like gemstone or wire type
+                                </p>
+                            </div>
+                            <div className="col-span-8">
+                                <FormField
+                                    control={form.control}
+                                    name="variationGroups"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <VariationGroupBuilder
+                                                    availableMaterials={data}
+                                                    value={field.value ?? []}
+                                                    onChange={field.onChange}
+                                                    sharedMaterials={selectedMaterials}
+                                                    hourlyWage={hourlyWage}
+                                                    profitMargin={profitMargin}
+                                                    timeRequired={currentTimeRequired}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </div>
-                        <div className="col-span-8">
-                            <FormField
-                                control={form.control}
-                                name="materials"
-                                render={({ field, fieldState }) => (
-                                    <FormItem>
-                                        <FormControl>
-                                            <AddMaterialsTable
-                                                availableMaterials={data}
-                                                setValue={form.setValue}
-                                                hasError={!!fieldState.error}
-                                                value={field.value}
+
+                        <hr className="border-t border-border" />
+
+                        {/* Set Price Section */}
+                        <div className="grid grid-cols-12 gap-4">
+                            <div className="col-span-4">
+                                <h2 className="text-lg font-medium text-center">Set Price</h2>
+                            </div>
+                            <div className="col-span-8">
+                                <PriceBreakdown
+                                    materialsCost={(() => {
+                                        if (hasVariationGroups) {
+                                            const variants = computeVariants(
+                                                variationGroups,
+                                                selectedMaterials,
+                                                hourlyWage,
+                                                profitMargin,
+                                                currentTimeRequired
+                                            );
+                                            return variants.length > 0
+                                                ? Math.min(...variants.map((v) => v.totalMaterialCosts))
+                                                : 0;
+                                        }
+                                        return form.watch('totalMaterialCosts') ?? 0;
+                                    })()}
+                                    timeRequired={currentTimeRequired}
+                                    hourlyWage={hourlyWage}
+                                    profitMargin={profitMargin}
+                                    onHourlyWageChange={updateHourlyWage}
+                                    onProfitMarginChange={updateProfitMargin}
+                                    priceField={
+                                        hasVariationGroups ? (
+                                            <div className="space-y-1">
+                                                <p className="text-sm font-medium">Final Price</p>
+                                                <p className="text-sm text-muted-foreground">
+                                                    Varies per variant — see prices in Variations preview above.
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <FormField
+                                                control={form.control}
+                                                name="price"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Final Price</FormLabel>
+                                                        <FormControl>
+                                                            <InputGroup className="max-w-[180px]">
+                                                                <InputGroupAddon align="inline-start">
+                                                                    <InputGroupText>£</InputGroupText>
+                                                                </InputGroupAddon>
+                                                                <InputGroupInput
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    placeholder="0.00"
+                                                                    {...field}
+                                                                    value={field.value ?? ''}
+                                                                    onChange={(e) => {
+                                                                        const value = e.target.value;
+                                                                        field.onChange(
+                                                                            value === '' ? undefined : Number(value)
+                                                                        );
+                                                                    }}
+                                                                />
+                                                            </InputGroup>
+                                                        </FormControl>
+                                                        <FormDescription>
+                                                            Auto-calculated above. Edit to override.
+                                                        </FormDescription>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
                                             />
-                                        </FormControl>
-                                        {fieldState.error && (
-                                            <p className="text-sm font-medium text-destructive mt-2">
-                                                {fieldState.error.message || JSON.stringify(fieldState.error, null, 2)}
-                                            </p>
-                                        )}
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                                        )
+                                    }
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    <hr className="border-t border-border" />
+                        <hr className="border-t border-border" />
 
-                    {/* Set Price Section */}
-                    <div className="grid grid-cols-12 gap-4">
-                        <div className="col-span-4">
-                            <h2 className="text-lg font-medium text-center">Set Price</h2>
+                        {/* Add Description Section */}
+                        <div className="grid grid-cols-12 gap-4">
+                            <div className="col-span-4">
+                                <h2 className="text-lg font-medium text-center">Add Description</h2>
+                            </div>
+                            <div className="col-span-8">
+                                <FormField
+                                    control={form.control}
+                                    name="description"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Description (Optional)</FormLabel>
+                                            <FormControl>
+                                                <RichTextEditor
+                                                    value={field.value || ''}
+                                                    onChange={field.onChange}
+                                                    placeholder="Add notes about how to create this design..."
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </div>
-                        <div className="col-span-8">
-                            <PriceBreakdown
-                                materialsCost={form.watch('totalMaterialCosts') ?? 0}
-                                timeRequired={currentTimeRequired}
-                                hourlyWage={hourlyWage}
-                                profitMargin={profitMargin}
-                                onHourlyWageChange={updateHourlyWage}
-                                onProfitMarginChange={updateProfitMargin}
-                                priceField={
-                                    <FormField
-                                        control={form.control}
-                                        name="price"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Final Price</FormLabel>
-                                                <FormControl>
-                                                    <InputGroup className="max-w-[180px]">
-                                                        <InputGroupAddon align="inline-start">
-                                                            <InputGroupText>£</InputGroupText>
-                                                        </InputGroupAddon>
-                                                        <InputGroupInput
-                                                            type="number"
-                                                            step="0.01"
-                                                            placeholder="0.00"
-                                                            {...field}
-                                                            value={field.value ?? ''}
-                                                            onChange={(e) => {
-                                                                const value = e.target.value;
-                                                                field.onChange(
-                                                                    value === '' ? undefined : Number(value)
-                                                                );
-                                                            }}
-                                                        />
-                                                    </InputGroup>
-                                                </FormControl>
-                                                <FormDescription>
-                                                    Auto-calculated above. Edit to override.
-                                                </FormDescription>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                }
-                            />
+
+                        <hr className="border-t border-border" />
+
+                        {/* Low Stock Threshold Section */}
+                        <div className="grid grid-cols-12 gap-4">
+                            <div className="col-span-4">
+                                <h2 className="text-lg font-medium text-center">Stock Alert</h2>
+                            </div>
+                            <div className="col-span-8">
+                                <FormField
+                                    control={form.control}
+                                    name="lowStockThreshold"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Low Stock Threshold (Optional)</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="e.g., 5"
+                                                    className="max-w-[300px]"
+                                                    type="number"
+                                                    step="1"
+                                                    min="0"
+                                                    {...field}
+                                                    value={field.value ?? ''}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        field.onChange(value === '' ? undefined : Number(value));
+                                                    }}
+                                                />
+                                            </FormControl>
+                                            <FormDescription>
+                                                Alert when finished items drop below this quantity
+                                            </FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    <hr className="border-t border-border" />
+                        <hr className="border-t border-border" />
 
-                    {/* Add Description Section */}
-                    <div className="grid grid-cols-12 gap-4">
-                        <div className="col-span-4">
-                            <h2 className="text-lg font-medium text-center">Add Description</h2>
+                        {/* Submit Button */}
+                        <div className="flex justify-end">
+                            <Button type="submit" disabled={isMakingRequest} className="min-w-[140px]">
+                                {isMakingRequest && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Create Design
+                            </Button>
                         </div>
-                        <div className="col-span-8">
-                            <FormField
-                                control={form.control}
-                                name="description"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Description (Optional)</FormLabel>
-                                        <FormControl>
-                                            <RichTextEditor
-                                                value={field.value || ''}
-                                                onChange={field.onChange}
-                                                placeholder="Add notes about how to create this design..."
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                    </div>
-
-                    <hr className="border-t border-border" />
-
-                    {/* Low Stock Threshold Section */}
-                    <div className="grid grid-cols-12 gap-4">
-                        <div className="col-span-4">
-                            <h2 className="text-lg font-medium text-center">Stock Alert</h2>
-                        </div>
-                        <div className="col-span-8">
-                            <FormField
-                                control={form.control}
-                                name="lowStockThreshold"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Low Stock Threshold (Optional)</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="e.g., 5"
-                                                className="max-w-[300px]"
-                                                type="number"
-                                                step="1"
-                                                min="0"
-                                                {...field}
-                                                value={field.value ?? ''}
-                                                onChange={(e) => {
-                                                    const value = e.target.value;
-                                                    field.onChange(value === '' ? undefined : Number(value));
-                                                }}
-                                            />
-                                        </FormControl>
-                                        <FormDescription>
-                                            Alert when finished items drop below this quantity
-                                        </FormDescription>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                    </div>
-
-                    <hr className="border-t border-border" />
-
-                    {/* Submit Button */}
-                    <div className="flex justify-end">
-                        <Button type="submit" disabled={isMakingRequest} className="min-w-[140px]">
-                            {isMakingRequest && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Create Design
-                        </Button>
-                    </div>
-                </form>
-            </Form>
-        </Card>
+                    </form>
+                </Form>
+            </Card>
+        </div>
     );
 };
 

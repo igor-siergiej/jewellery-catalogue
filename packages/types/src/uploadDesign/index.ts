@@ -9,4 +9,6 @@ export interface UploadDesign {
     totalMaterialCosts: number;
     price: number;
     lowStockThreshold?: number;
+    variationGroups?: string;
+    variants?: string;
 }

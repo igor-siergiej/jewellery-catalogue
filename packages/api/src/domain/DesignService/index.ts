@@ -1,10 +1,12 @@
 import type {
     Design,
+    DesignVariant,
     EditDesign,
     Material,
     RequiredMaterial,
     UpdateDesign,
     UploadDesign,
+    VariationGroup,
 } from '@jewellery-catalogue/types';
 import { MaterialType } from '@jewellery-catalogue/types';
 
@@ -53,14 +55,11 @@ export class DesignService {
             throw Object.assign(new Error('User ID is required'), { status: 400 });
         }
 
-        // Generate IDs
         const designId = this.idGenerator.generate();
         const imageId = this.idGenerator.generate();
 
-        // Upload image
         await this.imageService.uploadImage(imageId, imageBuffer, contentType);
 
-        // Parse materials if needed
         let materials: Array<RequiredMaterial>;
 
         try {
@@ -68,6 +67,30 @@ export class DesignService {
                 typeof designData.materials === 'string' ? JSON.parse(designData.materials) : designData.materials;
         } catch {
             throw Object.assign(new Error('Invalid materials format'), { status: 400 });
+        }
+
+        let variationGroups: VariationGroup[] | undefined;
+        let variants: DesignVariant[] | undefined;
+
+        if (designData.variationGroups) {
+            try {
+                variationGroups =
+                    typeof designData.variationGroups === 'string'
+                        ? JSON.parse(designData.variationGroups)
+                        : designData.variationGroups;
+            } catch {
+                throw Object.assign(new Error('Invalid variationGroups format'), { status: 400 });
+            }
+        }
+
+        if (designData.variants) {
+            try {
+                const parsed: DesignVariant[] =
+                    typeof designData.variants === 'string' ? JSON.parse(designData.variants) : designData.variants;
+                variants = parsed.map((v) => ({ ...v, totalQuantity: 0 }));
+            } catch {
+                throw Object.assign(new Error('Invalid variants format'), { status: 400 });
+            }
         }
 
         const design: Design = {
@@ -83,6 +106,8 @@ export class DesignService {
             dateAdded: new Date(),
             totalQuantity: 0,
             lowStockThreshold: designData.lowStockThreshold,
+            variationGroups,
+            variants,
         };
 
         await this.designRepo.insert(design);
@@ -101,13 +126,11 @@ export class DesignService {
             throw Object.assign(new Error('Design not found'), { status: 404 });
         }
 
-        // If adding quantity, produce designs
         if (updates.addQuantity && updates.addQuantity > 0) {
-            return this.produceDesigns(id, updates.addQuantity, userId);
+            return this.produceDesigns(id, updates.addQuantity, userId, updates.variantId);
         }
 
-        // Otherwise, just update basic fields
-        const { addQuantity, ...basicUpdates } = updates;
+        const { addQuantity, variantId, ...basicUpdates } = updates;
         const updated = { ...existing, ...basicUpdates };
 
         await this.designRepo.update(id, updated);
@@ -134,17 +157,26 @@ export class DesignService {
 
         let imageId = existing.imageId;
 
-        // If new image is provided, upload it
         if (imageBuffer && contentType) {
             const newImageId = this.idGenerator.generate();
             await this.imageService.uploadImage(newImageId, imageBuffer, contentType);
             imageId = newImageId;
         }
 
-        // Parse materials if needed
         let materials = existing.materials;
         if (updates.materials) {
             materials = typeof updates.materials === 'string' ? JSON.parse(updates.materials) : updates.materials;
+        }
+
+        let variationGroups = existing.variationGroups;
+        let variants = existing.variants;
+
+        if (updates.variationGroups !== undefined) {
+            variationGroups = updates.variationGroups;
+        }
+
+        if (updates.variants !== undefined) {
+            variants = mergeVariants(existing.variants ?? [], updates.variants);
         }
 
         const updated: Design = {
@@ -152,6 +184,8 @@ export class DesignService {
             ...updates,
             materials,
             imageId,
+            variationGroups,
+            variants,
         };
 
         await this.designRepo.update(id, updated);
@@ -159,25 +193,34 @@ export class DesignService {
         return updated;
     }
 
-    async produceDesigns(designId: string, quantity: number, userId: string): Promise<Design> {
-        // Get the design
+    async produceDesigns(designId: string, quantity: number, userId: string, variantId?: string): Promise<Design> {
         const design = await this.designRepo.getByIdAndUserId(designId, userId);
 
         if (!design) {
             throw Object.assign(new Error('Design not found'), { status: 404 });
         }
 
-        // Check material availability and calculate requirements
+        // Collect all materials to deduct: shared + variant-specific
+        const materialsToDeduct: Array<RequiredMaterial> = [...design.materials];
+
+        if (variantId) {
+            const variant = design.variants?.find((v) => v.id === variantId);
+            if (!variant) {
+                throw Object.assign(new Error('Variant not found'), { status: 404 });
+            }
+            const optionMaterials = resolveVariantMaterials(variant, design.variationGroups ?? []);
+            materialsToDeduct.push(...optionMaterials);
+        }
+
         const materialUpdates: Array<{ material: Material; newQuantity: number; newLength: number }> = [];
 
-        for (const requiredMaterial of design.materials) {
+        for (const requiredMaterial of materialsToDeduct) {
             const material = await this.materialRepo.getByIdAndUserId(requiredMaterial.id, userId);
 
             if (!material) {
                 throw Object.assign(new Error(`Material '${requiredMaterial.name}' not found`), { status: 404 });
             }
 
-            // Calculate total requirement
             let totalRequired: number;
             let currentStock: number;
 
@@ -198,7 +241,6 @@ export class DesignService {
                     throw Object.assign(new Error(`Unknown material type: ${material.type}`), { status: 400 });
             }
 
-            // Check if sufficient stock
             if (currentStock < totalRequired) {
                 throw Object.assign(
                     new Error(
@@ -208,7 +250,6 @@ export class DesignService {
                 );
             }
 
-            // Store the update
             materialUpdates.push({
                 material,
                 newQuantity: (material as any).totalQuantity ? (material as any).totalQuantity - totalRequired : 0,
@@ -216,7 +257,6 @@ export class DesignService {
             });
         }
 
-        // All materials are available, proceed with updates
         for (const update of materialUpdates) {
             const { material, newQuantity, newLength } = update;
 
@@ -240,10 +280,17 @@ export class DesignService {
             await this.materialRepo.update(material.id, updatedMaterial);
         }
 
-        // Update design quantity
+        let updatedVariants = design.variants;
+        if (variantId && updatedVariants) {
+            updatedVariants = updatedVariants.map((v) =>
+                v.id === variantId ? { ...v, totalQuantity: v.totalQuantity + quantity } : v
+            );
+        }
+
         const updatedDesign = {
             ...design,
             totalQuantity: design.totalQuantity + quantity,
+            variants: updatedVariants,
         };
 
         await this.designRepo.update(designId, updatedDesign);
@@ -264,4 +311,29 @@ export class DesignService {
 
         await this.designRepo.delete(id);
     }
+}
+
+function resolveVariantMaterials(variant: DesignVariant, groups: VariationGroup[]): RequiredMaterial[] {
+    const materials: RequiredMaterial[] = [];
+    for (const optionId of variant.optionIds) {
+        for (const group of groups) {
+            const option = group.options.find((o) => o.id === optionId);
+            if (option) {
+                materials.push(option.material);
+                break;
+            }
+        }
+    }
+    return materials;
+}
+
+function mergeVariants(existing: DesignVariant[], incoming: DesignVariant[]): DesignVariant[] {
+    return incoming.map((newVariant) => {
+        const match = existing.find(
+            (e) =>
+                e.optionIds.length === newVariant.optionIds.length &&
+                e.optionIds.every((id, i) => id === newVariant.optionIds[i])
+        );
+        return match ? { ...newVariant, totalQuantity: match.totalQuantity } : { ...newVariant, totalQuantity: 0 };
+    });
 }
