@@ -1,9 +1,12 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 export default defineConfig(({ mode }) => {
     const isDev = mode === 'development';
+    const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+    const appVersion = process.env.APP_VERSION || packageJson.version || (isDev ? 'localhost' : '');
 
     return {
         plugins: [react()],
@@ -14,7 +17,7 @@ export default defineConfig(({ mode }) => {
             },
         },
         define: {
-            __APP_VERSION__: JSON.stringify(process.env.APP_VERSION || (isDev ? 'localhost' : '')),
+            __APP_VERSION__: JSON.stringify(appVersion),
             __IS_PROD__: JSON.stringify(!isDev),
         },
         build: {
