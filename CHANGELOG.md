@@ -1,3 +1,10 @@
+## [1.17.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.17.0...v1.17.1) (2026-05-05)
+
+
+### Bug Fixes
+
+* convert requiredLength from cm to metres before stock deduction ([#9](https://github.com/igor-siergiej/jewellery-catalogue/issues/9)) ([7a6bab2](https://github.com/igor-siergiej/jewellery-catalogue/commit/7a6bab266dd95d11aa2372130e5f2e87f623f222))
+
 # [1.17.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.16.0...v1.17.0) (2026-05-03)
 
 
