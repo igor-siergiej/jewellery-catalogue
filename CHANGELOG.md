@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.17.2...v1.18.0) (2026-05-05)
+
+
+### Features
+
+* display app version next to logo and title in NavBar ([#10](https://github.com/igor-siergiej/jewellery-catalogue/issues/10)) ([ad637be](https://github.com/igor-siergiej/jewellery-catalogue/commit/ad637be6556e77040efd8bd1b02c69fe536e3c41))
+
 ## [1.17.2](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.17.1...v1.17.2) (2026-05-05)
 
 
