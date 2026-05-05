@@ -1,3 +1,10 @@
+## [1.17.2](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.17.1...v1.17.2) (2026-05-05)
+
+
+### Bug Fixes
+
+* convert requiredLength from cm to metres in frontend availability calculations ([#11](https://github.com/igor-siergiej/jewellery-catalogue/issues/11)) ([4b5f9f6](https://github.com/igor-siergiej/jewellery-catalogue/commit/4b5f9f6e2dca5c51278d4e306289ab2ff085c30c))
+
 ## [1.17.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.17.0...v1.17.1) (2026-05-05)
 
 
