@@ -35,7 +35,12 @@ const NavBar = () => {
                         className="w-16 h-16 object-scale-down cursor-pointer"
                         onClick={() => navigate(HOME_PAGE.route)}
                     />
-                    <h1 className="text-3xl font-bold leading-[80px] truncate">Jewellery Catalogue</h1>
+                    <div className="flex flex-col justify-center">
+                        <h1 className="text-3xl font-bold truncate">Jewellery Catalogue</h1>
+                        {typeof __APP_VERSION__ !== 'undefined' && __APP_VERSION__ && (
+                            <span className="text-xs text-muted-foreground select-none">v{__APP_VERSION__}</span>
+                        )}
+                    </div>
                 </div>
             </header>
 
