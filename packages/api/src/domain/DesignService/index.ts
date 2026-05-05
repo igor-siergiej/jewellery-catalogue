@@ -227,7 +227,7 @@ export class DesignService {
             switch (material.type) {
                 case MaterialType.WIRE:
                 case MaterialType.CHAIN: {
-                    totalRequired = (requiredMaterial as any).requiredLength * quantity;
+                    totalRequired = ((requiredMaterial as any).requiredLength / 100) * quantity;
                     currentStock = (material as any).totalLength;
                     break;
                 }
