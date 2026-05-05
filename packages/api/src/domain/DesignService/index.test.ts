@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
-import type { Design, RequiredMaterial, UploadDesign } from '@jewellery-catalogue/types';
+import type { Chain, Design, RequiredMaterial, UploadDesign, Wire } from '@jewellery-catalogue/types';
+import { MaterialType, METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
 
 import type { DesignRepository } from '../DesignRepository';
 import type { IdGenerator } from '../IdGenerator';
 import type { ImageService } from '../ImageService';
+import type { MaterialRepository } from '../MaterialRepository';
 import { DesignService } from './index';
 
 const mockDesignRepo = {
@@ -25,6 +27,16 @@ const mockIdGenerator = {
     generate: mock(),
 };
 
+const mockMaterialRepo = {
+    getById: mock(),
+    getByIdAndUserId: mock(),
+    getByUserId: mock(),
+    getAll: mock(),
+    insert: mock(),
+    update: mock(),
+    delete: mock(),
+};
+
 describe('DesignService', () => {
     let service: DesignService;
 
@@ -33,7 +45,8 @@ describe('DesignService', () => {
         service = new DesignService(
             mockDesignRepo as unknown as DesignRepository,
             mockImageService as unknown as ImageService,
-            mockIdGenerator as unknown as IdGenerator
+            mockIdGenerator as unknown as IdGenerator,
+            mockMaterialRepo as unknown as MaterialRepository
         );
     });
 
@@ -387,6 +400,128 @@ describe('DesignService', () => {
 
             mockDesignRepo.getByIdAndUserId.mockRejectedValue(connectionError);
             await expect(service.deleteDesign('design-1', 'user-123')).rejects.toThrow('Database unavailable');
+        });
+    });
+
+    describe('produceDesigns', () => {
+        const designId = 'design-123';
+        const userId = 'user-123';
+
+        const wireMaterial: Wire = {
+            id: 'wire-mat-1',
+            userId,
+            name: 'Gold Wire',
+            brand: 'WireCo',
+            purchaseUrl: 'https://example.com/wire',
+            type: MaterialType.WIRE,
+            dateAdded: new Date('2025-01-01').toISOString(),
+            diameter: 0.8,
+            wireType: WIRE_TYPE.FULL,
+            metalType: METAL_TYPE.GOLD,
+            lengthPerPack: 5,
+            pricePerPack: 10,
+            totalLength: 5,
+            pricePerMeter: 2,
+        };
+
+        const chainMaterial: Chain = {
+            id: 'chain-mat-1',
+            userId,
+            name: 'Silver Chain',
+            brand: 'ChainCo',
+            purchaseUrl: 'https://example.com/chain',
+            type: MaterialType.CHAIN,
+            dateAdded: new Date('2025-01-01').toISOString(),
+            diameter: 1.0,
+            wireType: WIRE_TYPE.FILLED,
+            metalType: METAL_TYPE.SILVER,
+            lengthPerPack: 5,
+            pricePerPack: 8,
+            totalLength: 5,
+            pricePerMeter: 1.6,
+        };
+
+        const makeDesign = (material: RequiredMaterial): Design => ({
+            id: designId,
+            userId,
+            name: 'Test Design',
+            description: 'desc',
+            timeRequired: '30',
+            totalMaterialCosts: 5,
+            price: 20,
+            imageId: 'img-1',
+            materials: [material],
+            dateAdded: new Date('2025-01-01'),
+            totalQuantity: 0,
+        });
+
+        it('should deduct 0.2m from wire stock when required length is 20cm', async () => {
+            const requiredWire = { ...wireMaterial, requiredLength: 20 };
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign(requiredWire as unknown as RequiredMaterial));
+            mockMaterialRepo.getByIdAndUserId.mockResolvedValue(wireMaterial);
+            mockMaterialRepo.update.mockResolvedValue(undefined);
+            mockDesignRepo.update.mockResolvedValue(undefined);
+
+            await service.produceDesigns(designId, 1, userId);
+
+            expect(mockMaterialRepo.update).toHaveBeenCalledWith(
+                wireMaterial.id,
+                expect.objectContaining({ totalLength: 4.8 })
+            );
+        });
+
+        it('should apply quantity multiplier after cm-to-m conversion for wire', async () => {
+            // 20 cm × 3 = 60 cm = 0.6 m → 5 - 0.6 = 4.4 m remaining
+            const requiredWire = { ...wireMaterial, requiredLength: 20 };
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign(requiredWire as unknown as RequiredMaterial));
+            mockMaterialRepo.getByIdAndUserId.mockResolvedValue(wireMaterial);
+            mockMaterialRepo.update.mockResolvedValue(undefined);
+            mockDesignRepo.update.mockResolvedValue(undefined);
+
+            await service.produceDesigns(designId, 3, userId);
+
+            expect(mockMaterialRepo.update).toHaveBeenCalledWith(
+                wireMaterial.id,
+                expect.objectContaining({ totalLength: 4.4 })
+            );
+        });
+
+        it('should deduct 0.2m from chain stock when required length is 20cm', async () => {
+            const requiredChain = { ...chainMaterial, requiredLength: 20 };
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign(requiredChain as unknown as RequiredMaterial));
+            mockMaterialRepo.getByIdAndUserId.mockResolvedValue(chainMaterial);
+            mockMaterialRepo.update.mockResolvedValue(undefined);
+            mockDesignRepo.update.mockResolvedValue(undefined);
+
+            await service.produceDesigns(designId, 1, userId);
+
+            expect(mockMaterialRepo.update).toHaveBeenCalledWith(
+                chainMaterial.id,
+                expect.objectContaining({ totalLength: 4.8 })
+            );
+        });
+
+        it('should not throw when required length in metres is within stock', async () => {
+            // 300 cm = 3 m, stock = 5 m → should succeed
+            const requiredWire = { ...wireMaterial, requiredLength: 300 };
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign(requiredWire as unknown as RequiredMaterial));
+            mockMaterialRepo.getByIdAndUserId.mockResolvedValue(wireMaterial);
+            mockMaterialRepo.update.mockResolvedValue(undefined);
+            mockDesignRepo.update.mockResolvedValue(undefined);
+
+            await expect(service.produceDesigns(designId, 1, userId)).resolves.toBeDefined();
+        });
+
+        it('should throw insufficient stock when required length in metres exceeds stock', async () => {
+            // 600 cm = 6 m, stock = 5 m → should throw
+            const requiredWire = { ...wireMaterial, requiredLength: 600 };
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign(requiredWire as unknown as RequiredMaterial));
+            mockMaterialRepo.getByIdAndUserId.mockResolvedValue(wireMaterial);
+
+            await expect(service.produceDesigns(designId, 1, userId)).rejects.toMatchObject({
+                message: expect.stringContaining('Insufficient stock'),
+                status: 400,
+            });
         });
     });
 });
