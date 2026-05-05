@@ -12,7 +12,7 @@ const baseUpdateMaterialSchema = z.object({
         .positive('Price must be greater than 0')
         .optional(),
     addPacks: z.number().int().positive('Number of packs must be at least 1').optional(),
-    lowStockThreshold: z.number().int().nonnegative().optional(),
+    lowStockThreshold: z.number().nonnegative().optional(),
 });
 
 // Wire update schema

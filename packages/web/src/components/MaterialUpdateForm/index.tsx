@@ -240,9 +240,9 @@ const MaterialUpdateForm: React.FC<IMaterialUpdateFormProps> = ({ material, onSu
                                         <Input
                                             className="max-w-[150px]"
                                             type="number"
-                                            step="1"
+                                            step="any"
                                             min="0"
-                                            placeholder="e.g., 2"
+                                            placeholder="e.g., 1.5"
                                             {...field}
                                             value={field.value ?? ''}
                                             onChange={(e) => {

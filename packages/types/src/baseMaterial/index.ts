@@ -10,7 +10,7 @@ export const baseMaterialSchema = z.object({
     materialCode: z.string().optional(),
     type: z.enum(MaterialType),
     dateAdded: z.string().datetime(),
-    lowStockThreshold: z.number().int().nonnegative().optional(),
+    lowStockThreshold: z.number().nonnegative().optional(),
 });
 
 export type BaseMaterial = z.infer<typeof baseMaterialSchema>;

@@ -85,9 +85,9 @@ const AddBeadForm: React.FC<IMaterialFormProps> = ({ form }) => {
                             <InputGroup className="max-w-[150px]">
                                 <InputGroupInput
                                     type="number"
-                                    step="1"
+                                    step="any"
                                     min="0"
-                                    placeholder="e.g., 2"
+                                    placeholder="e.g., 1.5"
                                     {...field}
                                     value={field.value ?? ''}
                                     onChange={(e) => {
