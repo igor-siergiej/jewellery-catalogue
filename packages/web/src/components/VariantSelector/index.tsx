@@ -22,7 +22,7 @@ function getRequiredAndAvailable(
         case MaterialType.WIRE:
         case MaterialType.CHAIN:
             return {
-                required: (requiredMaterial as any).requiredLength,
+                required: (requiredMaterial as any).requiredLength / 100,
                 available: (material as any).totalLength,
                 unit: 'm',
             };

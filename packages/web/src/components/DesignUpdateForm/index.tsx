@@ -91,7 +91,7 @@ const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess,
             switch (material.type) {
                 case MaterialType.WIRE:
                 case MaterialType.CHAIN: {
-                    required = (requiredMaterial as any).requiredLength;
+                    required = (requiredMaterial as any).requiredLength / 100;
                     available = (material as any).totalLength;
                     unit = 'm';
                     break;
@@ -158,7 +158,7 @@ const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess,
             switch (material.type) {
                 case MaterialType.WIRE:
                 case MaterialType.CHAIN: {
-                    required = (requiredMaterial as any).requiredLength;
+                    required = (requiredMaterial as any).requiredLength / 100;
                     available = (material as any).totalLength;
                     unit = 'm';
                     break;
