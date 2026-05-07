@@ -2,8 +2,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@imapps/web-utils';
 import { type FormMaterial, formMaterialSchema, MaterialType } from '@jewellery-catalogue/types';
 import { Link, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useSearchParams } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
@@ -11,11 +12,14 @@ import { Card } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
-
+import { DRAFTS_ENDPOINT } from '../../api/endpoints';
 import makeAddMaterialRequest from '../../api/endpoints/addMaterial';
+import { makeDeleteDraftRequest } from '../../api/endpoints/drafts';
 import MaterialFormResolver from '../../components/MaterialFormResolver';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
+import { useDraftStatus } from '../../context/DraftStatus';
+import { useDraftAutosave } from '../../hooks/useDraftAutosave';
 import { MATERIAL_TYPE_LABELS } from '../../lib/materialLabels';
 
 const AddMaterial = () => {
@@ -32,15 +36,55 @@ const AddMaterial = () => {
     });
 
     const [isMakingRequest, setIsMakingRequest] = useState(false);
+    const [isLoadingDraft, setIsLoadingDraft] = useState(false);
     const { accessToken, login, logout } = useAuth();
     const { dispatch } = useAlert();
+    const { setDraftStatus, clearDraftStatus } = useDraftStatus();
+    const [searchParams] = useSearchParams();
+    const draftIdParam = searchParams.get('draftId');
 
     const currentMaterialType = form.watch('type');
+
+    const { draftId, clearDraft } = useDraftAutosave({
+        form,
+        type: 'material',
+        initialDraftId: draftIdParam,
+        getAccessToken: () => accessToken,
+        onTokenRefresh: login,
+        onTokenClear: logout,
+        onStatusChange: setDraftStatus,
+    });
+
+    // Clear header status when leaving this page
+    useEffect(() => () => clearDraftStatus(), [clearDraftStatus]);
+
+    // Load draft on mount if draftId param present
+    useEffect(() => {
+        if (!draftIdParam || !accessToken) return;
+
+        setIsLoadingDraft(true);
+
+        fetch(`${DRAFTS_ENDPOINT}/${draftIdParam}`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        })
+            .then((res) => res.json())
+            .then((draft) => {
+                if (draft?.data) {
+                    form.reset(draft.data);
+                }
+            })
+            .catch(() => {})
+            .finally(() => setIsLoadingDraft(false));
+    }, [draftIdParam, accessToken, form.reset]);
 
     const onSubmit = async (data: FormMaterial) => {
         setIsMakingRequest(true);
         try {
             await makeAddMaterialRequest(data, () => accessToken, login, logout);
+
+            if (draftId) {
+                await makeDeleteDraftRequest(draftId, () => accessToken, login, logout).catch(() => {});
+            }
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
@@ -52,6 +96,7 @@ const AddMaterial = () => {
                 },
             });
             form.reset();
+            clearDraft();
         } catch (e) {
             const message = e instanceof Error ? e.message : 'Unknown Error';
 
@@ -68,6 +113,14 @@ const AddMaterial = () => {
             setIsMakingRequest(false);
         }
     };
+
+    if (isLoadingDraft) {
+        return (
+            <div className="container mx-auto max-w-5xl px-4 py-8 flex justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+        );
+    }
 
     return (
         <div className="container mx-auto max-w-5xl px-4 py-8">

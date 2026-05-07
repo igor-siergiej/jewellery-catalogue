@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import type { EditDesign, PersistentFile, UploadDesign } from '@jewellery-catalogue/types';
+import type { Design, EditDesign, PersistentFile, UploadDesign } from '@jewellery-catalogue/types';
 import type { Context } from 'koa';
 
 import { dependencyContainer } from '../../dependencies';
@@ -41,14 +41,7 @@ export const getDesign = async (ctx: Context) => {
 
 export const addDesign = async (ctx: Context) => {
     const userId = ctx.state.userId;
-    const file = ctx.request.files?.file as unknown as PersistentFile;
-
-    if (!file) {
-        ctx.status = 400;
-        ctx.body = { error: 'File is required' };
-
-        return;
-    }
+    const file = ctx.request.files?.file as unknown as PersistentFile | undefined;
 
     const {
         name,
@@ -60,13 +53,17 @@ export const addDesign = async (ctx: Context) => {
         lowStockThreshold,
         variationGroups,
         variants,
-    } = ctx.request.body as Partial<UploadDesign>;
+        imageId: existingImageId,
+    } = ctx.request.body as Partial<UploadDesign> & { imageId?: string };
+
+    if (!file && !existingImageId) {
+        ctx.status = 400;
+        ctx.body = { error: 'File or imageId is required' };
+
+        return;
+    }
 
     try {
-        // Read the file from filesystem and convert to Buffer
-        const fileBuffer = fs.readFileSync(file.filepath);
-        const contentType = file.mimetype || 'application/octet-stream';
-
         const designData: UploadDesign = {
             name: name!,
             description: description!,
@@ -74,13 +71,22 @@ export const addDesign = async (ctx: Context) => {
             materials: materials!,
             totalMaterialCosts: Number(totalMaterialCosts),
             price: Number(price),
-            image: file,
+            image: file!,
             lowStockThreshold: lowStockThreshold !== undefined ? Number(lowStockThreshold) : undefined,
             variationGroups,
             variants,
         };
 
-        const design = await getDesignService().addDesign(designData, fileBuffer, contentType, userId);
+        let design: Design;
+
+        if (file) {
+            const fileBuffer = fs.readFileSync(file.filepath);
+            const contentType = file.mimetype || 'application/octet-stream';
+
+            design = await getDesignService().addDesign(designData, fileBuffer, contentType, userId);
+        } else {
+            design = await getDesignService().addDesignWithImageId(designData, existingImageId!, userId);
+        }
 
         ctx.status = 200;
         ctx.body = design;

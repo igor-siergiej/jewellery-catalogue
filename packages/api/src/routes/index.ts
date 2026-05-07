@@ -3,6 +3,7 @@ import Router from 'koa-router';
 import { dependencyContainer } from '../dependencies';
 import { DependencyToken } from '../dependencies/types';
 import { addDesign, deleteDesign, editDesignProperties, getDesign, getDesigns, updateDesign } from '../handlers/Design';
+import { createDraft, deleteDraft, getDraft, getDrafts, updateDraft, uploadDraftImage } from '../handlers/Draft';
 import { getImage } from '../handlers/Image';
 import { addMaterial, deleteMaterial, getMaterial, getMaterials, updateMaterial } from '../handlers/Material';
 import { authenticate } from '../middleware/auth';
@@ -33,6 +34,14 @@ router.post('/api/materials', authenticate, addMaterial);
 router.get('/api/materials/:id', authenticate, getMaterial);
 router.put('/api/materials/:id', authenticate, updateMaterial);
 router.delete('/api/materials/:id', authenticate, deleteMaterial);
+
+// Draft routes
+router.get('/api/drafts', authenticate, getDrafts);
+router.post('/api/drafts', authenticate, createDraft);
+router.get('/api/drafts/:id', authenticate, getDraft);
+router.put('/api/drafts/:id', authenticate, updateDraft);
+router.post('/api/drafts/:id/image', authenticate, uploadDraftImage);
+router.delete('/api/drafts/:id', authenticate, deleteDraft);
 
 // Image routes
 router.get('/api/image/:name', getImage);

@@ -1,8 +1,10 @@
 import type { Logger, MongoDbConnection, ObjectStoreConnection } from '@imapps/api-utils';
-import type { Design, Material } from '@jewellery-catalogue/types';
+import type { Design, Draft, Material } from '@jewellery-catalogue/types';
 
 import type { DesignRepository } from '../domain/DesignRepository';
 import type { DesignService } from '../domain/DesignService';
+import type { DraftRepository } from '../domain/DraftRepository';
+import type { DraftService } from '../domain/DraftService';
 import type { IdGenerator } from '../domain/IdGenerator';
 import type { ImageService } from '../domain/ImageService';
 import type { ImageStore } from '../domain/ImageService/types';
@@ -13,6 +15,7 @@ import type { MaterialService } from '../domain/MaterialService';
 export type Collections = {
     [CollectionNames.Designs]: Design;
     [CollectionNames.Materials]: Material;
+    [CollectionNames.Drafts]: Draft;
 };
 
 export enum DependencyToken {
@@ -22,10 +25,12 @@ export enum DependencyToken {
     // Repositories
     DesignRepository = 'DesignRepository',
     MaterialRepository = 'MaterialRepository',
+    DraftRepository = 'DraftRepository',
     // Services
     DesignService = 'DesignService',
     MaterialService = 'MaterialService',
     ImageService = 'ImageService',
+    DraftService = 'DraftService',
     // Infrastructure
     IdGenerator = 'IdGenerator',
     ImageStore = 'ImageStore',
@@ -39,10 +44,12 @@ export type Dependencies = {
     // Repositories
     [DependencyToken.DesignRepository]: DesignRepository;
     [DependencyToken.MaterialRepository]: MaterialRepository;
+    [DependencyToken.DraftRepository]: DraftRepository;
     // Services
     [DependencyToken.DesignService]: DesignService;
     [DependencyToken.MaterialService]: MaterialService;
     [DependencyToken.ImageService]: ImageService;
+    [DependencyToken.DraftService]: DraftService;
     // Infrastructure
     [DependencyToken.IdGenerator]: IdGenerator;
     [DependencyToken.ImageStore]: ImageStore;
@@ -51,4 +58,5 @@ export type Dependencies = {
 export enum CollectionNames {
     Designs = 'designs',
     Materials = 'materials',
+    Drafts = 'drafts',
 }

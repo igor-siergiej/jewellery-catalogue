@@ -4,7 +4,7 @@ import { DESIGNS_ENDPOINT } from '../../endpoints';
 import { makeRequestWithAutoRefresh } from '../../makeRequest';
 
 const makeAddDesignRequest = async (
-    formDesign: FormDesign,
+    formDesign: FormDesign & { imageId?: string },
     getAccessToken: () => string,
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
@@ -13,10 +13,12 @@ const makeAddDesignRequest = async (
 
     for (const key in formDesign) {
         if (Object.hasOwn(formDesign, key)) {
-            const value = formDesign[key as keyof FormDesign];
+            const value = formDesign[key as keyof typeof formDesign];
 
             if (key === 'image' && value instanceof File) {
                 formData.append('file', value);
+            } else if (key === 'image') {
+                // string imageId already handled via imageId field
             } else if (
                 (key === 'materials' || key === 'variationGroups' || key === 'variants') &&
                 Array.isArray(value)
@@ -35,7 +37,7 @@ const makeAddDesignRequest = async (
             headers: {},
             operationString: 'add design',
             body: formData,
-            accessToken: '', // Will be replaced by getAccessToken()
+            accessToken: '',
         },
         getAccessToken,
         onTokenRefresh,

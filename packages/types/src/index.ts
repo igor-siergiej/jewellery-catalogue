@@ -1,5 +1,6 @@
 export * from './baseMaterial/index';
 export * from './design/index';
+export * from './draft/index';
 export * from './editDesign/index';
 export * from './formDesign/index';
 export * from './formMaterial/index';

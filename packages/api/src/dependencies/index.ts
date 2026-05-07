@@ -2,10 +2,12 @@
 import { DependencyContainer, Logger, MongoDbConnection, ObjectStoreConnection } from '@imapps/api-utils';
 
 import { DesignService } from '../domain/DesignService';
+import { DraftService } from '../domain/DraftService';
 import { ImageService } from '../domain/ImageService';
 import { MaterialService } from '../domain/MaterialService';
 import { BucketStore } from '../infrastructure/BucketStore';
 import { MongoDesignRepository } from '../infrastructure/MongoDesignRepository';
+import { MongoDraftRepository } from '../infrastructure/MongoDraftRepository';
 import { MongoMaterialRepository } from '../infrastructure/MongoMaterialRepository';
 import { UuidGenerator } from '../infrastructure/UuidGenerator';
 import { type Dependencies, DependencyToken } from './types';
@@ -84,6 +86,28 @@ export const registerDepdendencies = () => {
                     dependencyContainer.resolve(DependencyToken.ImageService),
                     dependencyContainer.resolve(DependencyToken.IdGenerator),
                     dependencyContainer.resolve(DependencyToken.MaterialRepository)
+                );
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.DraftRepository,
+        class {
+            constructor() {
+                return new MongoDraftRepository(dependencyContainer.resolve(DependencyToken.Database));
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.DraftService,
+        class {
+            constructor() {
+                return new DraftService(
+                    dependencyContainer.resolve(DependencyToken.DraftRepository),
+                    dependencyContainer.resolve(DependencyToken.ImageService),
+                    dependencyContainer.resolve(DependencyToken.IdGenerator)
                 );
             }
         } as any
