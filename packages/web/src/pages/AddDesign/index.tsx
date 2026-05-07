@@ -5,14 +5,16 @@ import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { type SubmitHandler, useForm } from 'react-hook-form';
+import { useSearchParams } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
-
+import { DRAFTS_ENDPOINT } from '../../api/endpoints';
 import makeAddDesignRequest from '../../api/endpoints/addDesign';
+import { makeDeleteDraftRequest } from '../../api/endpoints/drafts';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
 import { AddMaterialsTable } from '../../components/AddMaterialsTable';
 import ImageUpload from '../../components/ImageUpload';
@@ -22,6 +24,8 @@ import TimeInput from '../../components/TimeInput';
 import { computeVariants, VariationGroupBuilder } from '../../components/VariationGroupBuilder';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
+import { useDraftStatus } from '../../context/DraftStatus';
+import { useDraftAutosave } from '../../hooks/useDraftAutosave';
 import { usePriceSettings } from '../../hooks/usePriceSettings';
 import { getTotalMaterialCosts } from '../../utils/getPriceOfMaterials';
 import { getWageCosts } from '../../utils/getWageCost';
@@ -45,7 +49,10 @@ const AddDesign: React.FC = () => {
 
     const { accessToken, login, logout } = useAuth();
     const [isMakingRequest, setIsMakingRequest] = useState(false);
+    const [isLoadingDraft, setIsLoadingDraft] = useState(false);
     const { hourlyWage, profitMargin, updateHourlyWage, updateProfitMargin } = usePriceSettings();
+    const [searchParams] = useSearchParams();
+    const draftIdParam = searchParams.get('draftId');
 
     const { data } = useQuery({
         ...getMaterialsQuery(() => accessToken, login, logout),
@@ -57,6 +64,41 @@ const AddDesign: React.FC = () => {
     const variationGroups = form.watch('variationGroups') ?? [];
 
     const { dispatch } = useAlert();
+    const { setDraftStatus, clearDraftStatus } = useDraftStatus();
+
+    const { draftId, uploadedImageId, clearDraft } = useDraftAutosave({
+        form,
+        type: 'design',
+        initialDraftId: draftIdParam,
+        getAccessToken: () => accessToken,
+        onTokenRefresh: login,
+        onTokenClear: logout,
+        onStatusChange: setDraftStatus,
+    });
+
+    useEffect(() => () => clearDraftStatus(), [clearDraftStatus]);
+
+    // Load draft on mount if draftId param present
+    useEffect(() => {
+        if (!draftIdParam || !accessToken) return;
+
+        setIsLoadingDraft(true);
+
+        fetch(`${DRAFTS_ENDPOINT}/${draftIdParam}`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        })
+            .then((res) => res.json())
+            .then((draft) => {
+                if (draft?.data) {
+                    form.reset(draft.data);
+                }
+                if (draft?.imageId) {
+                    form.setValue('image', draft.imageId);
+                }
+            })
+            .catch(() => {})
+            .finally(() => setIsLoadingDraft(false));
+    }, [draftIdParam, accessToken, form.reset, form.setValue]);
 
     const onSubmit: SubmitHandler<FormDesign> = async (formData) => {
         setIsMakingRequest(true);
@@ -68,7 +110,17 @@ const AddDesign: React.FC = () => {
                 profitMargin,
                 currentTimeRequired
             );
-            await makeAddDesignRequest({ ...formData, variants }, () => accessToken, login, logout);
+
+            // If image is a string it's a draft imageId already on server
+            const imageIdFromDraft =
+                typeof formData.image === 'string' ? formData.image : (uploadedImageId ?? undefined);
+            const submitData = { ...formData, variants, imageId: imageIdFromDraft };
+
+            await makeAddDesignRequest(submitData, () => accessToken, login, logout);
+
+            if (draftId) {
+                await makeDeleteDraftRequest(draftId, () => accessToken, login, logout).catch(() => {});
+            }
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
@@ -80,6 +132,7 @@ const AddDesign: React.FC = () => {
                 },
             });
             form.reset();
+            clearDraft();
         } catch (e) {
             console.error('[AddDesign] Error adding design:', e);
             const message = e instanceof Error ? e.message : 'Unknown Error';
@@ -124,7 +177,7 @@ const AddDesign: React.FC = () => {
         }
     }, [selectedMaterials, currentTimeRequired, hourlyWage, profitMargin, data, variationGroups, form.setValue]);
 
-    if (!data) {
+    if (isLoadingDraft || !data) {
         return null;
     }
 
@@ -197,6 +250,7 @@ const AddDesign: React.FC = () => {
                                             <FormControl>
                                                 <ImageUpload
                                                     setImage={form.setValue}
+                                                    onChange={field.onChange}
                                                     hasError={!!fieldState.error}
                                                     value={field.value}
                                                 />

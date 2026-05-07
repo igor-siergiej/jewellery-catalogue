@@ -9,171 +9,99 @@ import { cn } from '@/lib/utils';
 
 interface ImageUploadProps {
     setImage: UseFormSetValue<FormDesign>;
+    onChange?: (value: File | undefined) => void;
     hasError?: boolean;
     value?: File | string;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ setImage, hasError = false, value }) => {
+const baseClass =
+    'border-2 rounded-lg w-[300px] h-[300px] flex items-center justify-center overflow-hidden relative transition-colors';
+
+const ImageUpload: React.FC<ImageUploadProps> = ({ setImage, onChange, hasError = false, value }) => {
     const [preview, setPreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDragging, setIsDragging] = useState(false);
-    const [isEditingImage, setIsEditingImage] = useState(false);
 
-    // Handle initial value (existing image or new file)
     useEffect(() => {
         if (value instanceof File) {
-            // New file selected - show preview
             const reader = new FileReader();
-            reader.onload = () => {
-                setPreview(reader.result as string);
-            };
+            reader.onload = () => setPreview(reader.result as string);
             reader.readAsDataURL(value);
-            setIsEditingImage(false);
-        } else if (typeof value === 'string' && value) {
-            // Existing image ID - don't show preview, show the existing image
-            setPreview(null);
-            setIsEditingImage(false);
         } else {
-            // No value - show upload UI
             setPreview(null);
-            setIsEditingImage(false);
         }
     }, [value]);
 
     const handleFile = (file: File) => {
         if (!file.type.startsWith('image/')) return;
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            setPreview(reader.result as string);
-        };
-
-        reader.readAsDataURL(file);
-        setImage('image', file);
-        setIsEditingImage(false);
+        setImage('image', file, { shouldDirty: true });
+        onChange?.(file);
     };
 
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
         setIsDragging(false);
-        if (e.dataTransfer.files?.[0]) {
-            handleFile(e.dataTransfer.files[0]);
-        }
-    };
-
-    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        setIsDragging(true);
-    };
-
-    const handleDragLeave = () => {
-        setIsDragging(false);
-    };
-
-    const handleClick = () => {
-        fileInputRef.current?.click();
+        if (e.dataTransfer.files?.[0]) handleFile(e.dataTransfer.files[0]);
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files?.[0]) {
-            handleFile(e.target.files[0]);
-        }
+        if (e.target.files?.[0]) handleFile(e.target.files[0]);
     };
+
+    const handleAreaClick = () => fileInputRef.current?.click();
 
     const clearImage = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         e.stopPropagation();
         setPreview(null);
-        setImage('image', undefined as any);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
+        setImage('image', undefined as any, { shouldDirty: true });
+        onChange?.(undefined);
+        if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
-    const startEditing = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const changeImage = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         e.stopPropagation();
-        setIsEditingImage(true);
+        fileInputRef.current?.click();
     };
 
-    // Show existing image (from edit mode)
-    const hasExistingImage = typeof value === 'string' && value;
-    const showEditButton = hasExistingImage && !isEditingImage;
+    const hasImage = value instanceof File ? !!preview : !!value;
 
-    return (
-        <div
-            role="button"
-            tabIndex={showEditButton ? -1 : 0}
-            onDrop={!showEditButton ? handleDrop : undefined}
-            onDragOver={!showEditButton ? handleDragOver : undefined}
-            onDragLeave={!showEditButton ? handleDragLeave : undefined}
-            onClick={!showEditButton ? handleClick : undefined}
-            onKeyDown={(e) => {
-                if (!showEditButton && (e.key === 'Enter' || e.key === ' ')) {
-                    e.preventDefault();
-                    handleClick();
-                }
-            }}
-            className={cn(
-                'border-2 border-dashed rounded-lg w-[300px] h-[300px] cursor-pointer flex items-center justify-center overflow-hidden relative transition-colors',
-                showEditButton ? 'border-solid border-border cursor-default' : '',
-                isDragging && !showEditButton
-                    ? 'border-primary bg-muted/50'
-                    : hasError
-                      ? 'border-destructive bg-card'
-                      : 'border-border bg-card'
-            )}
-        >
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleChange} />
+    const hiddenInput = (
+        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleChange} />
+    );
 
-            {/* Show new file preview */}
-            {preview ? (
-                <img src={preview} alt="Preview" className="w-full h-full object-cover absolute top-0 left-0" />
-            ) : showEditButton ? (
-                // Show existing image for edit mode
-                <div className="w-full h-full">
-                    <Image imageId={value as string} />
-                </div>
-            ) : isEditingImage ? (
-                // Show upload UI when editing existing image
-                <div className="flex flex-col items-center justify-center w-full">
-                    <ImagePlus className="w-8 h-8 text-gray-600 mb-2" />
-                    <span className="text-gray-600 text-center">Drag & Drop or Click to Upload</span>
-                </div>
-            ) : (
-                // Show upload UI for new images
-                <div className="flex flex-col items-center justify-center w-full">
-                    <ImagePlus className="w-8 h-8 text-gray-600 mb-2" />
-                    <span className="text-gray-600 text-center">Drag & Drop or Click to Upload</span>
-                </div>
-            )}
-
-            {/* Clear button for new preview */}
-            {preview && (
-                <Button
-                    variant="destructive"
-                    size="icon"
-                    onClick={clearImage}
-                    className="w-9 h-9 z-10 absolute top-0 right-0"
-                >
-                    <X className="w-4 h-4" />
-                </Button>
-            )}
-
-            {/* Edit/Clear buttons for existing image */}
-            {showEditButton && (
+    if (hasImage) {
+        return (
+            <div
+                className={cn(
+                    baseClass,
+                    'border-solid border-border cursor-default',
+                    hasError ? 'border-destructive' : 'border-border'
+                )}
+            >
+                {hiddenInput}
+                {preview ? (
+                    <img src={preview} alt="Preview" className="w-full h-full object-cover absolute inset-0" />
+                ) : (
+                    <div className="w-full h-full">
+                        <Image imageId={value as string} />
+                    </div>
+                )}
                 <div className="flex gap-2 z-10 absolute bottom-3 right-3">
                     <Button
+                        type="button"
                         variant="outline"
                         size="icon"
-                        onClick={startEditing}
+                        onClick={changeImage}
                         className="w-9 h-9 bg-card/80 backdrop-blur-sm"
                         title="Change image"
                     >
                         <ImagePlus className="w-4 h-4" />
                     </Button>
                     <Button
+                        type="button"
                         variant="destructive"
                         size="icon"
                         onClick={clearImage}
@@ -183,7 +111,42 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ setImage, hasError = false, v
                         <X className="w-4 h-4" />
                     </Button>
                 </div>
+            </div>
+        );
+    }
+
+    return (
+        <div
+            role="button"
+            tabIndex={0}
+            onDrop={handleDrop}
+            onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragging(true);
+            }}
+            onDragLeave={() => setIsDragging(false)}
+            onClick={handleAreaClick}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleAreaClick();
+                }
+            }}
+            className={cn(
+                baseClass,
+                'border-dashed cursor-pointer',
+                isDragging
+                    ? 'border-primary bg-muted/50'
+                    : hasError
+                      ? 'border-destructive bg-card'
+                      : 'border-border bg-card'
             )}
+        >
+            {hiddenInput}
+            <div className="flex flex-col items-center justify-center w-full">
+                <ImagePlus className="w-8 h-8 text-gray-600 mb-2" />
+                <span className="text-gray-600 text-center">Drag & Drop or Click to Upload</span>
+            </div>
         </div>
     );
 };

@@ -19,6 +19,7 @@ import {
     VIEW_DESIGN_PAGE,
 } from './constants/routes';
 import { AlertProvider } from './context/Alert';
+import { DraftStatusProvider } from './context/DraftStatus';
 import AddDesign from './pages/AddDesign';
 import AddMaterial from './pages/AddMaterial';
 import Designs from './pages/Designs';
@@ -128,8 +129,10 @@ const initializeApp = async () => {
                             <AuthProvider>
                                 <AppInitializer>
                                     <AlertProvider>
-                                        <GlobalAlert />
-                                        <App />
+                                        <DraftStatusProvider>
+                                            <GlobalAlert />
+                                            <App />
+                                        </DraftStatusProvider>
                                     </AlertProvider>
                                 </AppInitializer>
                             </AuthProvider>

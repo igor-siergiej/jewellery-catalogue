@@ -138,6 +138,9 @@ export const onStartup = async () => {
         await designsCollection.createIndex({ id: 1, userId: 1 });
         await materialsCollection.createIndex({ userId: 1 });
         await materialsCollection.createIndex({ id: 1, userId: 1 });
+        const draftsCollection = database.getCollection('drafts' as any);
+        await draftsCollection.createIndex({ userId: 1 });
+        await draftsCollection.createIndex({ id: 1, userId: 1 });
         appLogger.info('Database indexes created');
 
         app.use(routes.routes());

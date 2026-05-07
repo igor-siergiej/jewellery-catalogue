@@ -115,6 +115,68 @@ export class DesignService {
         return design;
     }
 
+    async addDesignWithImageId(designData: UploadDesign, imageId: string, userId: string): Promise<Design> {
+        if (!userId) {
+            throw Object.assign(new Error('User ID is required'), { status: 400 });
+        }
+
+        const designId = this.idGenerator.generate();
+
+        let materials: Array<RequiredMaterial>;
+
+        try {
+            materials =
+                typeof designData.materials === 'string' ? JSON.parse(designData.materials) : designData.materials;
+        } catch {
+            throw Object.assign(new Error('Invalid materials format'), { status: 400 });
+        }
+
+        let variationGroups: VariationGroup[] | undefined;
+        let variants: DesignVariant[] | undefined;
+
+        if (designData.variationGroups) {
+            try {
+                variationGroups =
+                    typeof designData.variationGroups === 'string'
+                        ? JSON.parse(designData.variationGroups)
+                        : designData.variationGroups;
+            } catch {
+                throw Object.assign(new Error('Invalid variationGroups format'), { status: 400 });
+            }
+        }
+
+        if (designData.variants) {
+            try {
+                const parsed: DesignVariant[] =
+                    typeof designData.variants === 'string' ? JSON.parse(designData.variants) : designData.variants;
+                variants = parsed.map((v) => ({ ...v, totalQuantity: 0 }));
+            } catch {
+                throw Object.assign(new Error('Invalid variants format'), { status: 400 });
+            }
+        }
+
+        const design: Design = {
+            id: designId,
+            userId,
+            name: designData.name,
+            description: designData.description,
+            timeRequired: designData.timeRequired,
+            totalMaterialCosts: designData.totalMaterialCosts,
+            price: designData.price,
+            imageId,
+            materials,
+            dateAdded: new Date(),
+            totalQuantity: 0,
+            lowStockThreshold: designData.lowStockThreshold,
+            variationGroups,
+            variants,
+        };
+
+        await this.designRepo.insert(design);
+
+        return design;
+    }
+
     async updateDesign(id: string, updates: UpdateDesign, userId: string): Promise<Design> {
         if (!id) {
             throw Object.assign(new Error('Design ID is required'), { status: 400 });
