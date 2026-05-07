@@ -1,3 +1,10 @@
+# [1.19.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.18.0...v1.19.0) (2026-05-07)
+
+
+### Features
+
+* add draft autosave for material and design forms ([#13](https://github.com/igor-siergiej/jewellery-catalogue/issues/13)) ([87f6d7d](https://github.com/igor-siergiej/jewellery-catalogue/commit/87f6d7d8ebbd149cc06345b8be3ec0d05330b602))
+
 # [1.18.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.17.2...v1.18.0) (2026-05-05)
 
 
