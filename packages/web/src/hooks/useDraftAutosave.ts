@@ -1,8 +1,14 @@
 import type { DraftType } from '@jewellery-catalogue/types';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 
-import { makeCreateDraftRequest, makeUpdateDraftRequest, makeUploadDraftImageRequest } from '../api/endpoints/drafts';
+import {
+    makeCreateDraftRequest,
+    makeDeleteDraftRequest,
+    makeUpdateDraftRequest,
+    makeUploadDraftImageRequest,
+} from '../api/endpoints/drafts';
 
 const DEBOUNCE_MS = 2000;
 
@@ -23,6 +29,11 @@ interface UseDraftAutosaveResult {
     saveError: boolean;
     uploadedImageId: string | null;
     clearDraft: () => void;
+    deleteAndClearDraft: (
+        getAccessToken: () => string,
+        onTokenRefresh: (token: string) => void,
+        onTokenClear: () => void
+    ) => Promise<void>;
 }
 
 export const useDraftAutosave = ({
@@ -35,6 +46,7 @@ export const useDraftAutosave = ({
     onTokenClear,
     onStatusChange,
 }: UseDraftAutosaveOptions): UseDraftAutosaveResult => {
+    const queryClient = useQueryClient();
     const [draftId, setDraftId] = useState<string | null>(initialDraftId);
     const [isSaving, setIsSaving] = useState(false);
     const [saveError, setSaveError] = useState(false);
@@ -61,6 +73,18 @@ export const useDraftAutosave = ({
         pendingFileRef.current = null;
         onStatusChangeRef.current?.({ isSaving: false, saveError: false, hasDraft: false });
     }, []);
+
+    const deleteAndClearDraft = useCallback(
+        async (getAt: () => string, onRefresh: (token: string) => void, onClear: () => void) => {
+            const id = draftIdRef.current;
+            if (id) {
+                await makeDeleteDraftRequest(id, getAt, onRefresh, onClear).catch(() => {});
+            }
+            queryClient.invalidateQueries({ queryKey: ['drafts', type] });
+            clearDraft();
+        },
+        [clearDraft, queryClient, type]
+    );
 
     const save = useCallback(
         async (values: Record<string, unknown>) => {
@@ -149,5 +173,6 @@ export const useDraftAutosave = ({
         saveError,
         uploadedImageId: uploadedImageIdRef.current,
         clearDraft,
+        deleteAndClearDraft,
     };
 };

@@ -14,7 +14,6 @@ import { Input } from '@/components/ui/input';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
 import { DRAFTS_ENDPOINT } from '../../api/endpoints';
 import makeAddDesignRequest from '../../api/endpoints/addDesign';
-import { makeDeleteDraftRequest } from '../../api/endpoints/drafts';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
 import { AddMaterialsTable } from '../../components/AddMaterialsTable';
 import ImageUpload from '../../components/ImageUpload';
@@ -66,7 +65,7 @@ const AddDesign: React.FC = () => {
     const { dispatch } = useAlert();
     const { setDraftStatus, clearDraftStatus } = useDraftStatus();
 
-    const { draftId, uploadedImageId, clearDraft } = useDraftAutosave({
+    const { draftId, uploadedImageId, clearDraft, deleteAndClearDraft } = useDraftAutosave({
         form,
         type: 'design',
         initialDraftId: draftIdParam,
@@ -117,10 +116,7 @@ const AddDesign: React.FC = () => {
             const submitData = { ...formData, variants, imageId: imageIdFromDraft };
 
             await makeAddDesignRequest(submitData, () => accessToken, login, logout);
-
-            if (draftId) {
-                await makeDeleteDraftRequest(draftId, () => accessToken, login, logout).catch(() => {});
-            }
+            await deleteAndClearDraft(() => accessToken, login, logout);
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
@@ -132,7 +128,6 @@ const AddDesign: React.FC = () => {
                 },
             });
             form.reset();
-            clearDraft();
         } catch (e) {
             console.error('[AddDesign] Error adding design:', e);
             const message = e instanceof Error ? e.message : 'Unknown Error';

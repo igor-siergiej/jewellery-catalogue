@@ -14,7 +14,6 @@ import { Input } from '@/components/ui/input';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
 import { DRAFTS_ENDPOINT } from '../../api/endpoints';
 import makeAddMaterialRequest from '../../api/endpoints/addMaterial';
-import { makeDeleteDraftRequest } from '../../api/endpoints/drafts';
 import MaterialFormResolver from '../../components/MaterialFormResolver';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
@@ -45,7 +44,7 @@ const AddMaterial = () => {
 
     const currentMaterialType = form.watch('type');
 
-    const { draftId, clearDraft } = useDraftAutosave({
+    const { deleteAndClearDraft } = useDraftAutosave({
         form,
         type: 'material',
         initialDraftId: draftIdParam,
@@ -81,10 +80,7 @@ const AddMaterial = () => {
         setIsMakingRequest(true);
         try {
             await makeAddMaterialRequest(data, () => accessToken, login, logout);
-
-            if (draftId) {
-                await makeDeleteDraftRequest(draftId, () => accessToken, login, logout).catch(() => {});
-            }
+            await deleteAndClearDraft(() => accessToken, login, logout);
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
@@ -96,7 +92,6 @@ const AddMaterial = () => {
                 },
             });
             form.reset();
-            clearDraft();
         } catch (e) {
             const message = e instanceof Error ? e.message : 'Unknown Error';
 
