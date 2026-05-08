@@ -1,3 +1,10 @@
+# [1.20.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.19.0...v1.20.0) (2026-05-08)
+
+
+### Features
+
+* add user settings with hourly wage and profit margin ([#14](https://github.com/igor-siergiej/jewellery-catalogue/issues/14)) ([539a696](https://github.com/igor-siergiej/jewellery-catalogue/commit/539a69675c2ea80768113930a4b1d0c07702abe4))
+
 # [1.19.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.18.0...v1.19.0) (2026-05-07)
 
 
