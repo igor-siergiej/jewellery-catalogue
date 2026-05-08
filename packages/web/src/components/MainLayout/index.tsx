@@ -8,6 +8,7 @@ import { DESIGNS_PAGE } from '../../constants/routes';
 import { useDraftStatus } from '../../context/DraftStatus';
 import { SearchProvider, useSearch } from '../../context/SearchContext';
 import AppSidebar from '../AppSidebar';
+import { UserSettingsDialog } from '../UserSettingsDialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Separator } from '../ui/separator';
@@ -71,6 +72,9 @@ const MainLayoutContent = ({ children }: MainLayoutProps) => {
                             Back to Designs
                         </Button>
                     )}
+                    <div className="ml-auto">
+                        <UserSettingsDialog />
+                    </div>
                 </header>
                 <div className="flex flex-1 flex-col gap-4 p-4">
                     <main>{children ?? <Outlet />}</main>

@@ -76,7 +76,7 @@ describe('Dependencies', () => {
             registerDepdendencies();
             const container = dependencyContainer as any;
             const registeredCount = Object.keys(container.constructors || {}).length;
-            expect(registeredCount).toBe(12);
+            expect(registeredCount).toBe(14);
         });
 
         it('should register all expected tokens', () => {

@@ -9,5 +9,6 @@ export * from './material/index';
 export * from './requiredMaterial/index';
 export * from './updateDesign/index';
 export * from './updateMaterial/index';
+export * from './userSettings/index';
 export * from './util/index';
 export * from './variationGroup/index';
