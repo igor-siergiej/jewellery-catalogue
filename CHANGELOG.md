@@ -1,3 +1,10 @@
+## [1.20.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.20.0...v1.20.1) (2026-05-08)
+
+
+### Bug Fixes
+
+* delete materials, draft cleanup race condition, per-unit price on update ([#15](https://github.com/igor-siergiej/jewellery-catalogue/issues/15)) ([0676abd](https://github.com/igor-siergiej/jewellery-catalogue/commit/0676abd7d20b1d1f0e5ef94cd043d48d45f20fb5))
+
 # [1.20.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.19.0...v1.20.0) (2026-05-08)
 
 
