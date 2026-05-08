@@ -21,7 +21,7 @@ import TimeInput from '../../components/TimeInput';
 import { computeVariants, VariationGroupBuilder } from '../../components/VariationGroupBuilder';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-import { usePriceSettings } from '../../hooks/usePriceSettings';
+import { useUserSettings } from '../../hooks/useUserSettings';
 import { getTotalMaterialCosts } from '../../utils/getPriceOfMaterials';
 import { getWageCosts } from '../../utils/getWageCost';
 
@@ -51,7 +51,7 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
 
     const { accessToken, login, logout } = useAuth();
     const [isMakingRequest, setIsMakingRequest] = useState(false);
-    const { hourlyWage, profitMargin, updateHourlyWage, updateProfitMargin } = usePriceSettings();
+    const { hourlyWage, profitMargin } = useUserSettings();
 
     const { data } = useQuery({
         ...getMaterialsQuery(() => accessToken, login, logout),
@@ -304,8 +304,6 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                             timeRequired={currentTimeRequired}
                             hourlyWage={hourlyWage}
                             profitMargin={profitMargin}
-                            onHourlyWageChange={updateHourlyWage}
-                            onProfitMarginChange={updateProfitMargin}
                             priceField={
                                 hasVariationGroups ? (
                                     <div className="space-y-1">

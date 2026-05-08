@@ -5,10 +5,12 @@ import { DesignService } from '../domain/DesignService';
 import { DraftService } from '../domain/DraftService';
 import { ImageService } from '../domain/ImageService';
 import { MaterialService } from '../domain/MaterialService';
+import { UserSettingsService } from '../domain/UserSettingsService';
 import { BucketStore } from '../infrastructure/BucketStore';
 import { MongoDesignRepository } from '../infrastructure/MongoDesignRepository';
 import { MongoDraftRepository } from '../infrastructure/MongoDraftRepository';
 import { MongoMaterialRepository } from '../infrastructure/MongoMaterialRepository';
+import { MongoUserSettingsRepository } from '../infrastructure/MongoUserSettingsRepository';
 import { UuidGenerator } from '../infrastructure/UuidGenerator';
 import { type Dependencies, DependencyToken } from './types';
 
@@ -108,6 +110,27 @@ export const registerDepdendencies = () => {
                     dependencyContainer.resolve(DependencyToken.DraftRepository),
                     dependencyContainer.resolve(DependencyToken.ImageService),
                     dependencyContainer.resolve(DependencyToken.IdGenerator)
+                );
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.UserSettingsRepository,
+        class {
+            constructor() {
+                return new MongoUserSettingsRepository(dependencyContainer.resolve(DependencyToken.Database));
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.UserSettingsService,
+        class {
+            constructor() {
+                return new UserSettingsService(
+                    dependencyContainer.resolve(DependencyToken.UserSettingsRepository),
+                    dependencyContainer.resolve(DependencyToken.DesignRepository)
                 );
             }
         } as any

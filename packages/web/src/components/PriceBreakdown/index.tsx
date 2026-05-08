@@ -1,7 +1,5 @@
 import type { ReactNode } from 'react';
 
-import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
-import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 
 import { getWageCosts } from '../../utils/getWageCost';
@@ -11,8 +9,6 @@ interface PriceBreakdownProps {
     timeRequired: string;
     hourlyWage: number;
     profitMargin: number;
-    onHourlyWageChange: (value: number) => void;
-    onProfitMarginChange: (value: number) => void;
     priceField: ReactNode;
 }
 
@@ -34,8 +30,6 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
     timeRequired,
     hourlyWage,
     profitMargin,
-    onHourlyWageChange,
-    onProfitMarginChange,
     priceField,
 }) => {
     const labourHours = timeRequired ? getWageCosts(timeRequired) : 0;
@@ -48,49 +42,6 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
 
     return (
         <div className="space-y-4">
-            {/* Editable settings row */}
-            <div className="flex gap-6">
-                <div className="space-y-1.5">
-                    <Label className="text-sm">Hourly Wage</Label>
-                    <InputGroup className="max-w-[140px]">
-                        <InputGroupAddon align="inline-start">
-                            <InputGroupText>£</InputGroupText>
-                        </InputGroupAddon>
-                        <InputGroupInput
-                            type="number"
-                            min="0"
-                            step="0.50"
-                            value={hourlyWage}
-                            onChange={(e) => {
-                                const v = parseFloat(e.target.value);
-                                if (!Number.isNaN(v) && v >= 0) onHourlyWageChange(v);
-                            }}
-                        />
-                        <InputGroupAddon align="inline-end">
-                            <InputGroupText>/hr</InputGroupText>
-                        </InputGroupAddon>
-                    </InputGroup>
-                </div>
-                <div className="space-y-1.5">
-                    <Label className="text-sm">Profit Margin</Label>
-                    <InputGroup className="max-w-[120px]">
-                        <InputGroupInput
-                            type="number"
-                            min="0"
-                            step="1"
-                            value={profitMargin}
-                            onChange={(e) => {
-                                const v = parseFloat(e.target.value);
-                                if (!Number.isNaN(v) && v >= 0) onProfitMarginChange(v);
-                            }}
-                        />
-                        <InputGroupAddon align="inline-end">
-                            <InputGroupText>%</InputGroupText>
-                        </InputGroupAddon>
-                    </InputGroup>
-                </div>
-            </div>
-
             {/* Step-by-step breakdown */}
             <div className="rounded-md border bg-muted/50 p-4 text-sm space-y-2">
                 <div className="flex justify-between">

@@ -26,7 +26,7 @@ import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
 import { useDraftStatus } from '../../context/DraftStatus';
 import { useDraftAutosave } from '../../hooks/useDraftAutosave';
-import { usePriceSettings } from '../../hooks/usePriceSettings';
+import { useUserSettings } from '../../hooks/useUserSettings';
 import { getTotalMaterialCosts } from '../../utils/getPriceOfMaterials';
 import { getWageCosts } from '../../utils/getWageCost';
 
@@ -50,7 +50,7 @@ const AddDesign: React.FC = () => {
     const { accessToken, login, logout } = useAuth();
     const [isMakingRequest, setIsMakingRequest] = useState(false);
     const [isLoadingDraft, setIsLoadingDraft] = useState(false);
-    const { hourlyWage, profitMargin, updateHourlyWage, updateProfitMargin } = usePriceSettings();
+    const { hourlyWage, profitMargin } = useUserSettings();
     const [searchParams] = useSearchParams();
     const draftIdParam = searchParams.get('draftId');
 
@@ -364,8 +364,6 @@ const AddDesign: React.FC = () => {
                                     timeRequired={currentTimeRequired}
                                     hourlyWage={hourlyWage}
                                     profitMargin={profitMargin}
-                                    onHourlyWageChange={updateHourlyWage}
-                                    onProfitMarginChange={updateProfitMargin}
                                     priceField={
                                         hasVariationGroups ? (
                                             <div className="space-y-1">

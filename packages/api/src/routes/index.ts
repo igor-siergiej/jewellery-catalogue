@@ -6,6 +6,7 @@ import { addDesign, deleteDesign, editDesignProperties, getDesign, getDesigns, u
 import { createDraft, deleteDraft, getDraft, getDrafts, updateDraft, uploadDraftImage } from '../handlers/Draft';
 import { getImage } from '../handlers/Image';
 import { addMaterial, deleteMaterial, getMaterial, getMaterials, updateMaterial } from '../handlers/Material';
+import { getUserSettings, recalculatePrices, updateUserSettings } from '../handlers/UserSettings';
 import { authenticate } from '../middleware/auth';
 
 const router = new Router();
@@ -22,8 +23,12 @@ router.get('/api/health', async (ctx) => {
     ctx.status = 200;
 });
 
+router.get('/api/user-settings', authenticate, getUserSettings);
+router.put('/api/user-settings', authenticate, updateUserSettings);
+
 router.get('/api/designs', authenticate, getDesigns);
 router.post('/api/designs', authenticate, addDesign);
+router.post('/api/designs/recalculate-prices', authenticate, recalculatePrices);
 router.get('/api/designs/:id', authenticate, getDesign);
 router.put('/api/designs/:id', authenticate, updateDesign);
 router.patch('/api/designs/:id', authenticate, editDesignProperties);
