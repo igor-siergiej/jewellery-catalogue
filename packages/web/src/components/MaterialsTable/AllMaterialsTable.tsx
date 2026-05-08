@@ -1,8 +1,20 @@
+import { useAuth } from '@imapps/web-utils';
 import type { Material } from '@jewellery-catalogue/types';
-import { Edit, ShoppingBasket } from 'lucide-react';
+import { Edit, ShoppingBasket, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
+import makeDeleteMaterialRequest from '@/api/endpoints/deleteMaterial';
 import MaterialUpdateForm from '@/components/MaterialUpdateForm';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -16,6 +28,9 @@ export interface IAllMaterialsTableProps {
 const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({ materials, onMaterialUpdated }) => {
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
+    const [materialToDelete, setMaterialToDelete] = useState<Material | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const { accessToken, login, logout } = useAuth();
 
     const formatPrice = (value: number | null | undefined) => {
         if (value == null) return '';
@@ -44,6 +59,20 @@ const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({ materials, onMat
     const handleOpenPurchaseUrl = (url: string | null | undefined) => {
         if (url) {
             window.open(url, '_blank', 'noopener,noreferrer');
+        }
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!materialToDelete) return;
+        setIsDeleting(true);
+        try {
+            await makeDeleteMaterialRequest(materialToDelete.id, () => accessToken, login, logout);
+            setMaterialToDelete(null);
+            if (onMaterialUpdated) {
+                onMaterialUpdated();
+            }
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -142,6 +171,15 @@ const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({ materials, onMat
                                                     <Edit className="h-4 w-4" />
                                                     <span className="sr-only">Edit material</span>
                                                 </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => setMaterialToDelete(material)}
+                                                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                    <span className="sr-only">Delete material</span>
+                                                </Button>
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -163,6 +201,27 @@ const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({ materials, onMat
                     )}
                 </DialogContent>
             </Dialog>
+
+            <AlertDialog open={!!materialToDelete} onOpenChange={(open) => !open && setMaterialToDelete(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Material</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Delete "{materialToDelete?.name}"? This cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDeleteConfirm}
+                            disabled={isDeleting}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            Delete
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 };

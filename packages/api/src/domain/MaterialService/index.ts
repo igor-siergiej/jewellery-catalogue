@@ -176,40 +176,57 @@ export class MaterialService {
     private recalculatePerUnitPrice(material: Material): Material {
         switch (material.type) {
             case MaterialType.WIRE: {
-                const wire = material as Material & { totalLength: number; pricePerMeter: number };
-                const totalCost = (wire as any)._totalCost || wire.totalLength * wire.pricePerMeter;
-                const newPricePerMeter = wire.totalLength > 0 ? totalCost / wire.totalLength : wire.pricePerMeter;
+                const wire = material as Material & {
+                    totalLength: number;
+                    pricePerMeter: number;
+                    pricePerPack: number;
+                    lengthPerPack: number;
+                };
+                const newPricePerMeter = (wire as any)._totalCost
+                    ? (wire as any)._totalCost / wire.totalLength
+                    : wire.pricePerPack / wire.lengthPerPack;
 
                 const { _totalCost, ...cleanWire } = wire as any;
                 return { ...cleanWire, pricePerMeter: newPricePerMeter };
             }
             case MaterialType.BEAD: {
-                const bead = material as Material & { totalQuantity: number; pricePerBead: number };
-                const totalCost = (bead as any)._totalCost || bead.totalQuantity * bead.pricePerBead;
-                const newPricePerBead = bead.totalQuantity > 0 ? totalCost / bead.totalQuantity : bead.pricePerBead;
+                const bead = material as Material & {
+                    totalQuantity: number;
+                    pricePerBead: number;
+                    pricePerPack: number;
+                    quantityPerPack: number;
+                };
+                const newPricePerBead = (bead as any)._totalCost
+                    ? (bead as any)._totalCost / bead.totalQuantity
+                    : bead.pricePerPack / bead.quantityPerPack;
 
                 const { _totalCost, ...cleanBead } = bead as any;
                 return { ...cleanBead, pricePerBead: newPricePerBead };
             }
             case MaterialType.CHAIN: {
-                const chain = material as Material & { totalLength: number; pricePerMeter?: number };
-                const totalCost =
-                    (chain as any)._totalCost || (chain.pricePerMeter ? chain.totalLength * chain.pricePerMeter : 0);
-                const newPricePerMeter =
-                    chain.totalLength > 0 && totalCost > 0 ? totalCost / chain.totalLength : chain.pricePerMeter;
+                const chain = material as Material & {
+                    totalLength: number;
+                    pricePerMeter?: number;
+                    pricePerPack: number;
+                    lengthPerPack: number;
+                };
+                const newPricePerMeter = (chain as any)._totalCost
+                    ? (chain as any)._totalCost / chain.totalLength
+                    : chain.pricePerPack / chain.lengthPerPack;
 
                 const { _totalCost, ...cleanChain } = chain as any;
                 return { ...cleanChain, pricePerMeter: newPricePerMeter };
             }
             case MaterialType.EAR_HOOK: {
-                const earHook = material as Material & { totalQuantity: number; pricePerPiece?: number };
-                const totalCost =
-                    (earHook as any)._totalCost ||
-                    (earHook.pricePerPiece ? earHook.totalQuantity * earHook.pricePerPiece : 0);
-                const newPricePerPiece =
-                    earHook.totalQuantity > 0 && totalCost > 0
-                        ? totalCost / earHook.totalQuantity
-                        : earHook.pricePerPiece;
+                const earHook = material as Material & {
+                    totalQuantity: number;
+                    pricePerPiece?: number;
+                    pricePerPack: number;
+                    quantityPerPack: number;
+                };
+                const newPricePerPiece = (earHook as any)._totalCost
+                    ? (earHook as any)._totalCost / earHook.totalQuantity
+                    : earHook.pricePerPack / earHook.quantityPerPack;
 
                 const { _totalCost, ...cleanEarHook } = earHook as any;
                 return { ...cleanEarHook, pricePerPiece: newPricePerPiece };
