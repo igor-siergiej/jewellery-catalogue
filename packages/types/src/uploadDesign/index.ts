@@ -1,3 +1,4 @@
+import type { DesignType } from '../design/enum';
 import type { PersistentFile } from '../util';
 
 export interface UploadDesign {
@@ -11,4 +12,5 @@ export interface UploadDesign {
     lowStockThreshold?: number;
     variationGroups?: string;
     variants?: string;
+    designType?: DesignType;
 }

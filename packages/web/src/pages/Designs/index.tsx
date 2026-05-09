@@ -1,5 +1,5 @@
 import { useAuth } from '@imapps/web-utils';
-import type { Draft } from '@jewellery-catalogue/types';
+import { DesignType, type Draft } from '@jewellery-catalogue/types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Fuse from 'fuse.js';
 import { FileEdit, Sparkles, Trash2 } from 'lucide-react';
@@ -20,6 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { Item, ItemContent, ItemFooter, ItemHeader, ItemTitle } from '@/components/ui/item';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { getDraftsQuery, makeDeleteDraftRequest } from '../../api/endpoints/drafts';
 import { getDesignsQuery } from '../../api/endpoints/getDesigns';
@@ -27,6 +28,7 @@ import { DesignCard } from '../../components/DesignCard';
 import LoadingScreen from '../../components/Loading';
 import { ADD_DESIGN_PAGE } from '../../constants/routes';
 import { useSearch } from '../../context/SearchContext';
+import { DESIGN_TYPE_LABELS } from '../../lib/materialLabels';
 
 const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, onDeleted }) => {
     const { accessToken, login, logout } = useAuth();
@@ -114,6 +116,7 @@ const Designs = () => {
     const { accessToken, login, logout } = useAuth();
     const { searchQuery } = useSearch();
     const queryClient = useQueryClient();
+    const [typeFilter, setTypeFilter] = useState<DesignType | 'all'>('all');
 
     const { data, isError, refetch } = useQuery({
         ...getDesignsQuery(() => accessToken, login, logout),
@@ -147,10 +150,13 @@ const Designs = () => {
         return <LoadingScreen />;
     }
 
-    const filteredData = searchQuery && fuse ? fuse.search(searchQuery).map((result) => result.item) : data;
-    const filteredDrafts = searchQuery
+    const searchedData = searchQuery && fuse ? fuse.search(searchQuery).map((result) => result.item) : data;
+    const filteredData = typeFilter === 'all' ? searchedData : searchedData.filter((d) => d.designType === typeFilter);
+
+    const searchedDrafts = searchQuery
         ? (drafts ?? []).filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()))
         : (drafts ?? []);
+    const filteredDrafts = typeFilter === 'all' ? searchedDrafts : [];
 
     const designs = filteredData.map((design) => {
         return <DesignCard key={design.id} design={design} onDesignUpdated={() => refetch()} />;
@@ -163,7 +169,18 @@ const Designs = () => {
     const isEmpty = filteredData.length === 0 && filteredDrafts.length === 0;
 
     return (
-        <div>
+        <div className="space-y-4">
+            <Tabs value={typeFilter} onValueChange={(v) => setTypeFilter(v as DesignType | 'all')}>
+                <TabsList>
+                    <TabsTrigger value="all">All ({data.length})</TabsTrigger>
+                    {(Object.keys(DesignType) as Array<DesignType>).map((type) => (
+                        <TabsTrigger key={type} value={type}>
+                            {DESIGN_TYPE_LABELS[type]} ({data.filter((d) => d.designType === type).length})
+                        </TabsTrigger>
+                    ))}
+                </TabsList>
+            </Tabs>
+
             {isEmpty ? (
                 <Empty>
                     <EmptyHeader>

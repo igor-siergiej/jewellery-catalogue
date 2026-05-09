@@ -1,4 +1,4 @@
-import { MaterialType, METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
+import { DesignType, MaterialType, METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
 
 // User-friendly labels for Material Types
 export const MATERIAL_TYPE_LABELS: Record<MaterialType, string> = {
@@ -13,6 +13,14 @@ export const WIRE_TYPE_LABELS: Record<WIRE_TYPE, string> = {
     [WIRE_TYPE.FULL]: 'Solid',
     [WIRE_TYPE.FILLED]: 'Filled',
     [WIRE_TYPE.PLATED]: 'Plated',
+};
+
+export const DESIGN_TYPE_LABELS: Record<DesignType, string> = {
+    [DesignType.EARRINGS]: 'Earrings',
+    [DesignType.EARCUFF]: 'Ear Cuff',
+    [DesignType.RING]: 'Ring',
+    [DesignType.NECKLACE]: 'Necklace',
+    [DesignType.BRACELET]: 'Bracelet',
 };
 
 // User-friendly labels for Metal Types

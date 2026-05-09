@@ -53,6 +53,7 @@ export const addDesign = async (ctx: Context) => {
         lowStockThreshold,
         variationGroups,
         variants,
+        designType,
         imageId: existingImageId,
     } = ctx.request.body as Partial<UploadDesign> & { imageId?: string };
 
@@ -75,6 +76,7 @@ export const addDesign = async (ctx: Context) => {
             lowStockThreshold: lowStockThreshold !== undefined ? Number(lowStockThreshold) : undefined,
             variationGroups,
             variants,
+            designType,
         };
 
         let design: Design;
@@ -120,8 +122,17 @@ export const editDesignProperties = async (ctx: Context) => {
     const { id } = ctx.params;
     const file = ctx.request.files?.file as unknown as PersistentFile | undefined;
 
-    const { name, description, timeRequired, materials, totalMaterialCosts, price, variationGroups, variants } = ctx
-        .request.body as Partial<EditDesign> & { variationGroups?: string; variants?: string };
+    const {
+        name,
+        description,
+        timeRequired,
+        materials,
+        totalMaterialCosts,
+        price,
+        variationGroups,
+        variants,
+        designType,
+    } = ctx.request.body as Partial<EditDesign> & { variationGroups?: string; variants?: string };
 
     try {
         let fileBuffer: Buffer | null = null;
@@ -147,6 +158,7 @@ export const editDesignProperties = async (ctx: Context) => {
         if (variants !== undefined) {
             updates.variants = typeof variants === 'string' ? JSON.parse(variants) : variants;
         }
+        if (designType !== undefined) updates.designType = designType;
 
         const design = await getDesignService().editDesignProperties(id, updates, fileBuffer, contentType, userId);
 

@@ -108,6 +108,7 @@ export class DesignService {
             lowStockThreshold: designData.lowStockThreshold,
             variationGroups,
             variants,
+            designType: designData.designType,
         };
 
         await this.designRepo.insert(design);
@@ -170,6 +171,7 @@ export class DesignService {
             lowStockThreshold: designData.lowStockThreshold,
             variationGroups,
             variants,
+            designType: designData.designType,
         };
 
         await this.designRepo.insert(design);

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { DesignType } from '../design/enum';
 import { requiredMaterialSchema } from '../requiredMaterial';
 import { designVariantSchema, variationGroupSchema } from '../variationGroup';
 
@@ -14,6 +15,7 @@ export const editDesignSchema = z.object({
     lowStockThreshold: z.number().int().nonnegative().optional(),
     variationGroups: z.array(variationGroupSchema).optional(),
     variants: z.array(designVariantSchema).optional(),
+    designType: z.nativeEnum(DesignType).optional(),
 });
 
 export type EditDesign = z.infer<typeof editDesignSchema>;

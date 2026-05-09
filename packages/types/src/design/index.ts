@@ -3,6 +3,9 @@ export type { RequiredMaterial as RequiredMaterialLegacy } from '../requiredMate
 import z from 'zod';
 import { requiredMaterialSchema } from '../requiredMaterial';
 import { designVariantSchema, variationGroupSchema } from '../variationGroup';
+import { DesignType } from './enum';
+
+export { DesignType } from './enum';
 
 export const designSchema = z.object({
     id: z.string(),
@@ -19,6 +22,7 @@ export const designSchema = z.object({
     lowStockThreshold: z.number().int().nonnegative().optional(),
     variationGroups: z.array(variationGroupSchema).optional(),
     variants: z.array(designVariantSchema).optional(),
+    designType: z.nativeEnum(DesignType).optional(),
 });
 
 export type Design = z.infer<typeof designSchema>;
