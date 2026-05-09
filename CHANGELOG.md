@@ -1,3 +1,10 @@
+# [1.22.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.21.0...v1.22.0) (2026-05-09)
+
+
+### Features
+
+* add DesignType filter and fix material price propagation to designs ([#17](https://github.com/igor-siergiej/jewellery-catalogue/issues/17)) ([66cef1c](https://github.com/igor-siergiej/jewellery-catalogue/commit/66cef1cd8aed67d51240ed3184e186686a152679))
+
 # [1.21.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.20.1...v1.21.0) (2026-05-09)
 
 
