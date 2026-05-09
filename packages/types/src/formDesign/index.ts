@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { DesignType } from '../design/enum';
 import { requiredMaterialSchema } from '../requiredMaterial';
 import { designVariantSchema, variationGroupSchema } from '../variationGroup';
 
@@ -8,12 +9,13 @@ export const formDesignSchema = z
         timeRequired: z.string().min(1, 'Please enter the time required'),
         materials: z.array(requiredMaterialSchema),
         image: z.union([z.instanceof(File), z.string()], { message: 'Please upload an image' }).optional(),
-        price: z.number({ message: 'Please enter the price' }).positive('Price must be greater than 0'),
+        price: z.number({ message: 'Please enter the price' }).nonnegative('Price must be 0 or greater'),
         description: z.string(),
         totalMaterialCosts: z.number(),
         lowStockThreshold: z.number().int().nonnegative().optional(),
         variationGroups: z.array(variationGroupSchema).optional().default([]),
         variants: z.array(designVariantSchema).optional().default([]),
+        designType: z.nativeEnum(DesignType).optional(),
     })
     .superRefine((data, ctx) => {
         const hasSharedMaterials = data.materials.length > 0;

@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@imapps/web-utils';
-import { type FormDesign, formDesignSchema } from '@jewellery-catalogue/types';
+import { DesignType, type FormDesign, formDesignSchema } from '@jewellery-catalogue/types';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -8,6 +8,7 @@ import { type SubmitHandler, useForm } from 'react-hook-form';
 import { useSearchParams } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
+import { ButtonGroup } from '@/components/ui/button-group';
 import { Card } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -26,6 +27,7 @@ import { AlertStoreActions } from '../../context/Alert/types';
 import { useDraftStatus } from '../../context/DraftStatus';
 import { useDraftAutosave } from '../../hooks/useDraftAutosave';
 import { useUserSettings } from '../../hooks/useUserSettings';
+import { DESIGN_TYPE_LABELS } from '../../lib/materialLabels';
 import { getTotalMaterialCosts } from '../../utils/getPriceOfMaterials';
 import { getWageCosts } from '../../utils/getWageCost';
 
@@ -165,10 +167,10 @@ const AddDesign: React.FC = () => {
                 profitMargin,
                 currentTimeRequired
             );
-            const minPrice = variants.length > 0 ? Math.min(...variants.map((v) => v.price)) : 0.01;
-            form.setValue('price', minPrice > 0 ? minPrice : 0.01);
+            const minPrice = variants.length > 0 ? Math.min(...variants.map((v) => v.price)) : 0;
+            form.setValue('price', minPrice >= 0 ? minPrice : 0);
         } else {
-            form.setValue('price', finalPrice > 0 ? finalPrice : 0.01);
+            form.setValue('price', finalPrice >= 0 ? finalPrice : 0);
         }
     }, [selectedMaterials, currentTimeRequired, hourlyWage, profitMargin, data, variationGroups, form.setValue]);
 
@@ -224,6 +226,43 @@ const AddDesign: React.FC = () => {
                                         <TimeInput form={form} />
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <hr className="border-t border-border" />
+
+                        {/* Design Type Section */}
+                        <div className="grid grid-cols-12 gap-4">
+                            <div className="col-span-4">
+                                <h2 className="text-lg font-medium text-center pt-1.5">Design Type</h2>
+                            </div>
+                            <div className="col-span-8">
+                                <FormField
+                                    control={form.control}
+                                    name="designType"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Type</FormLabel>
+                                            <FormControl>
+                                                <ButtonGroup className="flex-wrap">
+                                                    {(Object.keys(DesignType) as Array<DesignType>).map((type) => (
+                                                        <Button
+                                                            key={type}
+                                                            type="button"
+                                                            variant={field.value === type ? 'secondary' : 'outline'}
+                                                            onClick={() =>
+                                                                field.onChange(field.value === type ? undefined : type)
+                                                            }
+                                                        >
+                                                            {DESIGN_TYPE_LABELS[type]}
+                                                        </Button>
+                                                    ))}
+                                                </ButtonGroup>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                             </div>
                         </div>
 
