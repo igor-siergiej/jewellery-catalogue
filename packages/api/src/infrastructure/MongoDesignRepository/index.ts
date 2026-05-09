@@ -28,7 +28,7 @@ export class MongoDesignRepository extends MongoRepository<Design> implements De
         return this.collection()
             .find(
                 {
-                    'materials.materialId': materialId,
+                    'materials.id': materialId,
                 },
                 { projection: { _id: 0 } }
             )
