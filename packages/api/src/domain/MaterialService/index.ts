@@ -3,17 +3,20 @@ import {
     FormMaterialSchemas,
     type Material,
     MaterialType,
+    type RequiredMaterial,
     type UpdateMaterial,
 } from '@jewellery-catalogue/types';
 
 import { convertFormDataToMaterial } from '../../utils/material-conversion';
+import type { DesignRepository } from '../DesignRepository';
 import type { IdGenerator } from '../IdGenerator';
 import type { MaterialRepository } from '../MaterialRepository';
 
 export class MaterialService {
     constructor(
         private readonly materialRepo: MaterialRepository,
-        private readonly idGenerator: IdGenerator
+        private readonly idGenerator: IdGenerator,
+        private readonly designRepo: DesignRepository
     ) {}
 
     async getMaterialsByUserId(userId: string): Promise<Array<Material>> {
@@ -75,7 +78,55 @@ export class MaterialService {
 
         await this.materialRepo.update(id, processed);
 
+        await this.propagateMaterialUpdateToDesigns(id, processed, userId);
+
         return processed;
+    }
+
+    private async propagateMaterialUpdateToDesigns(
+        materialId: string,
+        updatedMaterial: Material,
+        userId: string
+    ): Promise<void> {
+        const designs = await this.designRepo.findByMaterialId(materialId);
+
+        for (const design of designs) {
+            if (design.userId !== userId) continue;
+
+            const updatedMaterials = design.materials.map((rm) => {
+                if (rm.id !== materialId) return rm;
+                return { ...rm, ...updatedMaterial };
+            });
+
+            const totalMaterialCosts = updatedMaterials.reduce((sum, rm) => {
+                return sum + this.calculateRequiredMaterialCost(rm);
+            }, 0);
+
+            await this.designRepo.update(design.id, {
+                ...design,
+                materials: updatedMaterials,
+                totalMaterialCosts: parseFloat(totalMaterialCosts.toFixed(2)),
+            });
+        }
+    }
+
+    private calculateRequiredMaterialCost(rm: RequiredMaterial): number {
+        switch (rm.type) {
+            case MaterialType.WIRE:
+                return parseFloat((((rm as any).requiredLength / 100) * rm.pricePerMeter).toFixed(2));
+            case MaterialType.BEAD:
+                return parseFloat(((rm as any).requiredQuantity * rm.pricePerBead).toFixed(2));
+            case MaterialType.CHAIN: {
+                if (!rm.pricePerMeter) return 0;
+                return parseFloat((((rm as any).requiredLength / 100) * rm.pricePerMeter).toFixed(2));
+            }
+            case MaterialType.EAR_HOOK: {
+                if (!rm.pricePerPiece) return 0;
+                return parseFloat(((rm as any).requiredQuantity * rm.pricePerPiece).toFixed(2));
+            }
+            default:
+                return 0;
+        }
     }
 
     private processUpdateMaterial(existing: Material, updates: UpdateMaterial): Material {

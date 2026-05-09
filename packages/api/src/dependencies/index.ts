@@ -60,7 +60,8 @@ export const registerDepdendencies = () => {
             constructor() {
                 return new MaterialService(
                     dependencyContainer.resolve(DependencyToken.MaterialRepository),
-                    dependencyContainer.resolve(DependencyToken.IdGenerator)
+                    dependencyContainer.resolve(DependencyToken.IdGenerator),
+                    dependencyContainer.resolve(DependencyToken.DesignRepository)
                 );
             }
         } as any
