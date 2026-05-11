@@ -1,3 +1,10 @@
+# [1.23.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.22.0...v1.23.0) (2026-05-11)
+
+
+### Features
+
+* **designs:** redesign view design page with editorial layout + description ([#18](https://github.com/igor-siergiej/jewellery-catalogue/issues/18)) ([183d489](https://github.com/igor-siergiej/jewellery-catalogue/commit/183d4894cfa2abca9221e9a237afea3b5729f132))
+
 # [1.22.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.21.0...v1.22.0) (2026-05-09)
 
 
