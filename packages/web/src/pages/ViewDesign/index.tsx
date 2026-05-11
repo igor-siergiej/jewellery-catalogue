@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { getDesignQuery } from '../../api/endpoints/getDesign';
+import DesignDescription from '../../components/DesignDescription';
 import DesignEditForm from '../../components/DesignEditForm';
 import DesignUpdateForm from '../../components/DesignUpdateForm';
 import { Image } from '../../components/Image';
@@ -14,7 +15,12 @@ import { Button } from '../../components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { MATERIALS_PAGE } from '../../constants/routes';
-import { MATERIAL_TYPE_LABELS, METAL_TYPE_LABELS, WIRE_TYPE_LABELS } from '../../lib/materialLabels';
+import {
+    DESIGN_TYPE_LABELS,
+    MATERIAL_TYPE_LABELS,
+    METAL_TYPE_LABELS,
+    WIRE_TYPE_LABELS,
+} from '../../lib/materialLabels';
 
 const ViewDesign = () => {
     const { id } = useParams<{ id: string }>();
@@ -43,12 +49,12 @@ const ViewDesign = () => {
         dateAdded,
         totalQuantity,
         variants,
-        variationGroups,
+        description,
+        lowStockThreshold,
+        designType,
     } = design ?? {};
 
-    const handleEditClick = () => {
-        setEditDialogOpen(true);
-    };
+    const hasDescription = description && description !== '<p></p>';
 
     const handleSuccess = () => {
         setEditDialogOpen(false);
@@ -57,10 +63,6 @@ const ViewDesign = () => {
 
     const handleCancel = () => {
         setEditDialogOpen(false);
-    };
-
-    const handleEditPropertiesClick = () => {
-        setEditPropertiesDialogOpen(true);
     };
 
     const handlePropertiesSuccess = () => {
@@ -82,152 +84,213 @@ const ViewDesign = () => {
 
     return (
         <>
-            <div className="flex justify-center items-start p-8">
-                <div className="bg-card rounded-lg border border-border shadow-lg overflow-hidden max-w-2xl w-full">
-                    <div className="w-full h-96 relative">
-                        <Image imageId={imageId} />
-                        <div className="absolute top-4 right-4 flex gap-2">
-                            <Button
-                                variant="outline"
-                                onClick={handleEditPropertiesClick}
-                                title="Edit Design Properties"
-                                className="text-black"
-                            >
-                                <Edit className="h-4 w-4 mr-2" />
-                                Edit Details
-                            </Button>
-                            <Button
-                                variant="outline"
-                                onClick={handleEditClick}
-                                title="Manage Inventory"
-                                className="text-black"
-                            >
-                                <PackageOpen className="h-4 w-4 mr-2" />
-                                Manage Inventory
-                            </Button>
+            <div className="max-w-6xl mx-auto px-6 py-8">
+                {/* Page header */}
+                <div className="flex items-center justify-between mb-8">
+                    <Link
+                        to="/designs"
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                        ← All Designs
+                    </Link>
+                    <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => setEditPropertiesDialogOpen(true)}
+                            title="Edit Design Properties"
+                        >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit Details
+                        </Button>
+                        <Button variant="outline" onClick={() => setEditDialogOpen(true)} title="Manage Inventory">
+                            <PackageOpen className="h-4 w-4 mr-2" />
+                            Manage Inventory
+                        </Button>
+                    </div>
+                </div>
+
+                {/* 2-column layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-12 items-start">
+                    {/* LEFT: sticky image */}
+                    <div className="lg:sticky lg:top-8">
+                        <div className="rounded-xl overflow-hidden border border-border shadow-lg aspect-[3/4] bg-card">
+                            <Image imageId={imageId} />
                         </div>
                     </div>
-                    <div className="p-6 space-y-4">
-                        <h1 className="text-3xl font-bold">{name}</h1>
 
-                        <div className="space-y-2">
-                            <div className="grid grid-cols-2 gap-4 pt-4">
-                                <div>
-                                    <span className="text-sm font-semibold">Time Required:</span>
-                                    <p className="text-lg">{timeRequired} minutes</p>
-                                </div>
-                                <div>
-                                    <span className="text-sm font-semibold">Material Costs:</span>
-                                    <p className="text-lg">£{totalMaterialCosts.toFixed(2)}</p>
-                                </div>
-                                <div>
-                                    <span className="text-sm font-semibold">Price:</span>
-                                    <p className="text-lg">£{price.toFixed(2)}</p>
-                                </div>
-                                <div>
-                                    <span className="text-sm font-semibold">In Stock:</span>
-                                    <p className="text-lg">{totalQuantity ?? 0} designs</p>
-                                </div>
-                                <div>
-                                    <span className="text-sm font-semibold">Date Added:</span>
-                                    <p className="text-lg">{new Date(dateAdded).toLocaleDateString()}</p>
-                                </div>
-                            </div>
-
-                            {variants && variants.length > 0 && (
-                                <div className="pt-4">
-                                    <h2 className="text-xl font-semibold mb-2">Variants</h2>
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Variant</TableHead>
-                                                <TableHead>Material Costs</TableHead>
-                                                <TableHead>Price</TableHead>
-                                                <TableHead>In Stock</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {variants.map((variant) => (
-                                                <TableRow key={variant.id}>
-                                                    <TableCell className="font-medium">{variant.name}</TableCell>
-                                                    <TableCell>£{variant.totalMaterialCosts.toFixed(2)}</TableCell>
-                                                    <TableCell>£{variant.price.toFixed(2)}</TableCell>
-                                                    <TableCell>{variant.totalQuantity}</TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
+                    {/* RIGHT: detail panel */}
+                    <div className="flex flex-col gap-8">
+                        {/* Identity */}
+                        <div className="flex flex-col gap-2">
+                            {designType && (
+                                <Badge variant="outline" className="w-fit text-xs tracking-widest uppercase">
+                                    {DESIGN_TYPE_LABELS[designType]}
+                                </Badge>
                             )}
+                            <h1 className="text-4xl font-bold leading-tight">{name}</h1>
+                            <div className="flex items-baseline gap-3 flex-wrap">
+                                <span className="text-3xl font-semibold">£{price.toFixed(2)}</span>
+                                <Badge variant="secondary" className="text-xs">
+                                    {totalQuantity ?? 0} in stock
+                                </Badge>
+                            </div>
+                        </div>
 
-                            {materials && materials.length > 0 && (
-                                <div className="pt-4">
-                                    <h2 className="text-xl font-semibold mb-2">
-                                        {variants && variants.length > 0 ? 'Shared Materials' : 'Materials'}
-                                    </h2>
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Material</TableHead>
-                                                <TableHead>Type</TableHead>
-                                                <TableHead>Attributes</TableHead>
-                                                <TableHead>Required</TableHead>
+                        <div className="h-px bg-border" />
+
+                        {/* Stat cards */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-1">
+                                <span className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
+                                    Time
+                                </span>
+                                <span className="text-lg font-semibold">{timeRequired} min</span>
+                                <span className="text-xs text-muted-foreground">to make</span>
+                            </div>
+                            <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-1">
+                                <span className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
+                                    Materials
+                                </span>
+                                <span className="text-lg font-semibold">£{totalMaterialCosts.toFixed(2)}</span>
+                                <span className="text-xs text-muted-foreground">cost</span>
+                            </div>
+                            <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-1">
+                                <span className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
+                                    Added
+                                </span>
+                                <span className="text-lg font-semibold">
+                                    {new Date(dateAdded).toLocaleDateString('en-GB', {
+                                        month: 'short',
+                                        year: 'numeric',
+                                    })}
+                                </span>
+                                <span className="text-xs text-muted-foreground">date</span>
+                            </div>
+                            <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-1">
+                                <span className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
+                                    Low Stock
+                                </span>
+                                <span className="text-lg font-semibold">{lowStockThreshold ?? '—'}</span>
+                                <span className="text-xs text-muted-foreground">threshold</span>
+                            </div>
+                        </div>
+
+                        {/* Description */}
+                        {hasDescription && (
+                            <div className="flex flex-col gap-3">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-xs uppercase tracking-widest font-semibold text-primary whitespace-nowrap">
+                                        About this design
+                                    </span>
+                                    <div className="flex-1 h-px bg-border" />
+                                </div>
+                                <DesignDescription html={description} />
+                            </div>
+                        )}
+
+                        {/* Variants */}
+                        {variants && variants.length > 0 && (
+                            <div className="flex flex-col gap-3">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-xs uppercase tracking-widest font-semibold text-primary">
+                                        Variants
+                                    </span>
+                                    <div className="flex-1 h-px bg-border" />
+                                </div>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Variant</TableHead>
+                                            <TableHead>Material Costs</TableHead>
+                                            <TableHead>Price</TableHead>
+                                            <TableHead>In Stock</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {variants.map((variant) => (
+                                            <TableRow key={variant.id}>
+                                                <TableCell className="font-medium">{variant.name}</TableCell>
+                                                <TableCell>£{variant.totalMaterialCosts.toFixed(2)}</TableCell>
+                                                <TableCell>£{variant.price.toFixed(2)}</TableCell>
+                                                <TableCell>{variant.totalQuantity}</TableCell>
                                             </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {materials.map((material) => (
-                                                <TableRow key={material.id}>
-                                                    <TableCell>
-                                                        <Link
-                                                            to={MATERIALS_PAGE.route}
-                                                            className="text-primary hover:underline"
-                                                        >
-                                                            {material.name}
-                                                        </Link>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Badge variant="secondary" className="capitalize">
-                                                            {MATERIAL_TYPE_LABELS[material.type]}
-                                                        </Badge>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="flex gap-1.5 flex-wrap">
-                                                            {material.type === 'BEAD' && material.colour && (
-                                                                <Badge variant="secondary" className="capitalize">
-                                                                    {material.colour}
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        )}
+
+                        {/* Materials */}
+                        {materials && materials.length > 0 && (
+                            <div className="flex flex-col gap-3">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-xs uppercase tracking-widest font-semibold text-primary">
+                                        {variants && variants.length > 0 ? 'Shared Materials' : 'Materials'}
+                                    </span>
+                                    <div className="flex-1 h-px bg-border" />
+                                </div>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Material</TableHead>
+                                            <TableHead>Type</TableHead>
+                                            <TableHead>Attributes</TableHead>
+                                            <TableHead>Required</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {materials.map((material) => (
+                                            <TableRow key={material.id}>
+                                                <TableCell>
+                                                    <Link
+                                                        to={MATERIALS_PAGE.route}
+                                                        className="text-primary hover:underline"
+                                                    >
+                                                        {material.name}
+                                                    </Link>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant="secondary" className="capitalize">
+                                                        {MATERIAL_TYPE_LABELS[material.type]}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex gap-1.5 flex-wrap">
+                                                        {material.type === 'BEAD' && material.colour && (
+                                                            <Badge variant="secondary" className="capitalize">
+                                                                {material.colour}
+                                                            </Badge>
+                                                        )}
+                                                        {(material.type === 'WIRE' ||
+                                                            material.type === 'CHAIN' ||
+                                                            material.type === 'EAR_HOOK') &&
+                                                            material.metalType && (
+                                                                <Badge variant="outline">
+                                                                    {METAL_TYPE_LABELS[material.metalType]}
                                                                 </Badge>
                                                             )}
-                                                            {(material.type === 'WIRE' ||
-                                                                material.type === 'CHAIN' ||
-                                                                material.type === 'EAR_HOOK') &&
-                                                                material.metalType && (
-                                                                    <Badge variant="outline">
-                                                                        {METAL_TYPE_LABELS[material.metalType]}
-                                                                    </Badge>
-                                                                )}
-                                                            {(material.type === 'WIRE' ||
-                                                                material.type === 'CHAIN' ||
-                                                                material.type === 'EAR_HOOK') &&
-                                                                material.wireType && (
-                                                                    <Badge variant="secondary">
-                                                                        {WIRE_TYPE_LABELS[material.wireType]}
-                                                                    </Badge>
-                                                                )}
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {('requiredLength' in material &&
-                                                            `${material.requiredLength} cm`) ||
-                                                            ('requiredQuantity' in material &&
-                                                                `${material.requiredQuantity} pcs`)}
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
-                            )}
-                        </div>
+                                                        {(material.type === 'WIRE' ||
+                                                            material.type === 'CHAIN' ||
+                                                            material.type === 'EAR_HOOK') &&
+                                                            material.wireType && (
+                                                                <Badge variant="secondary">
+                                                                    {WIRE_TYPE_LABELS[material.wireType]}
+                                                                </Badge>
+                                                            )}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    {('requiredLength' in material &&
+                                                        `${material.requiredLength} cm`) ||
+                                                        ('requiredQuantity' in material &&
+                                                            `${material.requiredQuantity} pcs`)}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
