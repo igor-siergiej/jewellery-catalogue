@@ -149,6 +149,7 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
         return fuse.search(searchQuery).map((r) => r.item);
     }, [searchQuery, fuse, materials]);
 
+    // Reset page when search changes so results start from page 1
     useEffect(() => {
         setCurrentPage(0);
     }, []);
