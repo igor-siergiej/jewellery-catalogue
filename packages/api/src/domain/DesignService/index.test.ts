@@ -62,7 +62,7 @@ describe('DesignService', () => {
                 timeRequired: '45',
                 totalMaterialCosts: 20.0,
                 price: 35.0,
-                imageId: 'image-123',
+                imageIds: ['image-123'],
                 materials: [],
                 dateAdded: new Date('2025-01-01'),
             };
@@ -87,7 +87,7 @@ describe('DesignService', () => {
                 userId: wrongUserId,
                 totalMaterialCosts: 20.0,
                 price: 35.0,
-                imageId: 'image-123',
+                imageIds: ['image-123'],
                 materials: [],
                 dateAdded: new Date('2025-01-01'),
             };
@@ -138,6 +138,7 @@ describe('DesignService', () => {
 
         const mockImageBuffer = Buffer.from('image data');
         const mockContentType = 'image/jpeg';
+        const mockImageBuffers = [{ buffer: mockImageBuffer, contentType: mockContentType }];
 
         beforeEach(() => {
             mockIdGenerator.generate.mockReturnValueOnce('design-id-123').mockReturnValueOnce('image-id-123');
@@ -147,7 +148,7 @@ describe('DesignService', () => {
             mockImageService.uploadImage.mockResolvedValue(undefined);
             mockDesignRepo.insert.mockResolvedValue(undefined);
 
-            const result = await service.addDesign(mockDesignData, mockImageBuffer, mockContentType, userId);
+            const result = await service.addDesign(mockDesignData, mockImageBuffers, [], userId);
 
             expect(mockImageService.uploadImage).toHaveBeenCalledWith('image-id-123', mockImageBuffer, mockContentType);
             expect(mockDesignRepo.insert).toHaveBeenCalledWith(
@@ -159,7 +160,7 @@ describe('DesignService', () => {
                     timeRequired: '6',
                     totalMaterialCosts: 30.0,
                     price: 50.0,
-                    imageId: 'image-id-123',
+                    imageIds: ['image-id-123'],
                     materials: [],
                     dateAdded: expect.any(Date),
                 })
@@ -182,12 +183,7 @@ describe('DesignService', () => {
             mockImageService.uploadImage.mockResolvedValue(undefined);
             mockDesignRepo.insert.mockResolvedValue(undefined);
 
-            const result = await service.addDesign(
-                designDataWithStringMaterials,
-                mockImageBuffer,
-                mockContentType,
-                userId
-            );
+            const result = await service.addDesign(designDataWithStringMaterials, mockImageBuffers, [], userId);
 
             expect(result.materials).toEqual(materials);
         });
@@ -203,12 +199,7 @@ describe('DesignService', () => {
             mockImageService.uploadImage.mockResolvedValue(undefined);
             mockDesignRepo.insert.mockResolvedValue(undefined);
 
-            const result = await service.addDesign(
-                designDataWithArrayMaterials,
-                mockImageBuffer,
-                mockContentType,
-                userId
-            );
+            const result = await service.addDesign(designDataWithArrayMaterials, mockImageBuffers, [], userId);
 
             expect(result.materials).toEqual(materials);
         });
@@ -220,7 +211,7 @@ describe('DesignService', () => {
             };
 
             await expect(
-                service.addDesign(designDataWithInvalidMaterials, mockImageBuffer, mockContentType, userId)
+                service.addDesign(designDataWithInvalidMaterials, mockImageBuffers, [], userId)
             ).rejects.toMatchObject({
                 message: 'Invalid materials format',
                 status: 400,
@@ -232,7 +223,7 @@ describe('DesignService', () => {
         it('should propagate image service errors', async () => {
             mockImageService.uploadImage.mockRejectedValue(new Error('Upload failed'));
 
-            await expect(service.addDesign(mockDesignData, mockImageBuffer, mockContentType, userId)).rejects.toThrow(
+            await expect(service.addDesign(mockDesignData, mockImageBuffers, [], userId)).rejects.toThrow(
                 'Upload failed'
             );
 
@@ -251,7 +242,7 @@ describe('DesignService', () => {
             timeRequired: '30',
             totalMaterialCosts: 15.0,
             price: 25.0,
-            imageId: 'image-123',
+            imageIds: ['image-123'],
             materials: [],
             dateAdded: new Date('2025-01-01'),
         };
@@ -316,7 +307,7 @@ describe('DesignService', () => {
             timeRequired: '30',
             totalMaterialCosts: 15.0,
             price: 25.0,
-            imageId: 'image-123',
+            imageIds: ['image-123'],
             materials: [],
             dateAdded: new Date('2025-01-01'),
         };
@@ -449,7 +440,7 @@ describe('DesignService', () => {
             timeRequired: '30',
             totalMaterialCosts: 5,
             price: 20,
-            imageId: 'img-1',
+            imageIds: ['img-1'],
             materials: [material],
             dateAdded: new Date('2025-01-01'),
             totalQuantity: 0,

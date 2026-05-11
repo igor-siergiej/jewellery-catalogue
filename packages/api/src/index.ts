@@ -61,6 +61,7 @@ const bodyOptions = {
     multipart: true,
     formidable: {
         keepExtensions: true,
+        multiples: true,
     },
 };
 

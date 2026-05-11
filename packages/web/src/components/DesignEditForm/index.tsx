@@ -15,7 +15,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/
 import makeEditDesignRequest from '../../api/endpoints/editDesign';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
 import { AddMaterialsTable } from '../../components/AddMaterialsTable';
-import ImageUpload from '../../components/ImageUpload';
+import MultiImageUpload from '../../components/MultiImageUpload';
 import PriceBreakdown from '../../components/PriceBreakdown';
 import RichTextEditor from '../../components/RichTextEditor';
 import TimeInput from '../../components/TimeInput';
@@ -44,7 +44,7 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
             description: design.description,
             totalMaterialCosts: design.totalMaterialCosts,
             price: design.price,
-            image: design.imageId,
+            images: design.imageIds,
             lowStockThreshold: design.lowStockThreshold,
             variationGroups: design.variationGroups ?? [],
             variants: design.variants ?? [],
@@ -220,22 +220,22 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
 
                 <hr className="border-t border-border" />
 
-                {/* Upload Image Section */}
+                {/* Upload Images Section */}
                 <div className="grid grid-cols-12 gap-4">
                     <div className="col-span-4">
-                        <h2 className="text-lg font-medium text-center h-[30px] leading-[30px]">Upload Image</h2>
+                        <h2 className="text-lg font-medium text-center h-[30px] leading-[30px]">Upload Images</h2>
                     </div>
                     <div className="col-span-8">
                         <FormField
                             control={form.control}
-                            name="image"
+                            name="images"
                             render={({ field, fieldState }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <ImageUpload
-                                            setImage={form.setValue}
+                                        <MultiImageUpload
+                                            value={field.value ?? []}
+                                            onChange={field.onChange}
                                             hasError={!!fieldState.error}
-                                            value={field.value}
                                         />
                                     </FormControl>
                                     <FormMessage />

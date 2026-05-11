@@ -12,13 +12,22 @@ const makeEditDesignRequest = async (
 ) => {
     const formData = new FormData();
 
+    const images = formDesign.images ?? [];
+    const keepImageIds = images.filter((v): v is string => typeof v === 'string');
+    const newFiles = images.filter((v): v is File => v instanceof File);
+
+    for (const file of newFiles) {
+        formData.append('files', file);
+    }
+
+    formData.append('keepImageIds', JSON.stringify(keepImageIds));
+
     for (const key in formDesign) {
         if (Object.hasOwn(formDesign, key)) {
             const value = formDesign[key as keyof FormDesign];
 
-            if (key === 'image' && value instanceof File) {
-                formData.append('file', value);
-            } else if (key === 'image' && typeof value === 'string') {
+            if (key === 'images') {
+                // handled above
             } else if (
                 (key === 'materials' || key === 'variationGroups' || key === 'variants') &&
                 Array.isArray(value)
@@ -37,7 +46,7 @@ const makeEditDesignRequest = async (
             headers: {},
             operationString: 'edit design',
             body: formData,
-            accessToken: '', // Will be replaced by getAccessToken()
+            accessToken: '',
         },
         getAccessToken,
         onTokenRefresh,

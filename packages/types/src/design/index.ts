@@ -13,7 +13,7 @@ export const designSchema = z.object({
     name: z.string(),
     timeRequired: z.string(),
     materials: z.array(requiredMaterialSchema),
-    imageId: z.string(),
+    imageIds: z.array(z.string()),
     price: z.number(),
     description: z.string(),
     totalMaterialCosts: z.number(),

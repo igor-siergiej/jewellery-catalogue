@@ -1,6 +1,6 @@
 import { useAuth, useUser } from '@imapps/web-utils';
 import { useQuery } from '@tanstack/react-query';
-import { Edit, PackageOpen } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Edit, PackageOpen } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
@@ -28,6 +28,7 @@ const ViewDesign = () => {
     const { user } = useUser();
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [editPropertiesDialogOpen, setEditPropertiesDialogOpen] = useState(false);
+    const [imageIndex, setImageIndex] = useState(0);
 
     const {
         data: design,
@@ -41,7 +42,7 @@ const ViewDesign = () => {
 
     const {
         timeRequired,
-        imageId,
+        imageIds,
         name,
         materials,
         totalMaterialCosts,
@@ -67,6 +68,7 @@ const ViewDesign = () => {
 
     const handlePropertiesSuccess = () => {
         setEditPropertiesDialogOpen(false);
+        setImageIndex(0);
         refetch();
     };
 
@@ -112,10 +114,33 @@ const ViewDesign = () => {
                 {/* 2-column layout */}
                 <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-12 items-start">
                     {/* LEFT: sticky image */}
-                    <div className="lg:sticky lg:top-8">
+                    <div className="lg:sticky lg:top-8 relative">
                         <div className="rounded-xl overflow-hidden border border-border shadow-lg aspect-[3/4] bg-card">
-                            <Image imageId={imageId} />
+                            <Image imageId={imageIds?.[imageIndex] ?? ''} />
                         </div>
+                        {imageIds && imageIds.length > 1 && (
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={() => setImageIndex((i) => Math.max(0, i - 1))}
+                                    disabled={imageIndex === 0}
+                                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 disabled:opacity-20 text-white rounded-full p-1 transition-colors"
+                                >
+                                    <ChevronLeft className="h-5 w-5" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setImageIndex((i) => Math.min(imageIds.length - 1, i + 1))}
+                                    disabled={imageIndex === imageIds.length - 1}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 disabled:opacity-20 text-white rounded-full p-1 transition-colors"
+                                >
+                                    <ChevronRight className="h-5 w-5" />
+                                </button>
+                                <span className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-0.5 rounded-full">
+                                    {imageIndex + 1} / {imageIds.length}
+                                </span>
+                            </>
+                        )}
                     </div>
 
                     {/* RIGHT: detail panel */}

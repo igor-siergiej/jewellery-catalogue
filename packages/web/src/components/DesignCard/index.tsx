@@ -27,7 +27,7 @@ export interface DesignCardProps {
 }
 
 export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated }) => {
-    const { name, timeRequired, id, imageId, totalQuantity } = design;
+    const { name, timeRequired, id, imageIds, totalQuantity } = design;
     const [isFavorite, setIsFavorite] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -104,7 +104,7 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated 
                 </div>
                 <ItemHeader className="basis-auto justify-start">
                     <div className="w-64 h-64">
-                        <Image imageId={imageId} />
+                        <Image imageId={imageIds?.[0] ?? ''} />
                     </div>
                 </ItemHeader>
                 <ItemContent className="flex-none items-start text-left w-full">

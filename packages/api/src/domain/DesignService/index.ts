@@ -47,8 +47,8 @@ export class DesignService {
 
     async addDesign(
         designData: UploadDesign,
-        imageBuffer: Buffer,
-        contentType: string,
+        imageBuffers: Array<{ buffer: Buffer; contentType: string }>,
+        existingImageIds: string[],
         userId: string
     ): Promise<Design> {
         if (!userId) {
@@ -56,9 +56,16 @@ export class DesignService {
         }
 
         const designId = this.idGenerator.generate();
-        const imageId = this.idGenerator.generate();
 
-        await this.imageService.uploadImage(imageId, imageBuffer, contentType);
+        const newImageIds = await Promise.all(
+            imageBuffers.map(async ({ buffer, contentType }) => {
+                const imageId = this.idGenerator.generate();
+                await this.imageService.uploadImage(imageId, buffer, contentType);
+                return imageId;
+            })
+        );
+
+        const imageIds = [...existingImageIds, ...newImageIds];
 
         let materials: Array<RequiredMaterial>;
 
@@ -101,70 +108,7 @@ export class DesignService {
             timeRequired: designData.timeRequired,
             totalMaterialCosts: designData.totalMaterialCosts,
             price: designData.price,
-            imageId,
-            materials,
-            dateAdded: new Date(),
-            totalQuantity: 0,
-            lowStockThreshold: designData.lowStockThreshold,
-            variationGroups,
-            variants,
-            designType: designData.designType,
-        };
-
-        await this.designRepo.insert(design);
-
-        return design;
-    }
-
-    async addDesignWithImageId(designData: UploadDesign, imageId: string, userId: string): Promise<Design> {
-        if (!userId) {
-            throw Object.assign(new Error('User ID is required'), { status: 400 });
-        }
-
-        const designId = this.idGenerator.generate();
-
-        let materials: Array<RequiredMaterial>;
-
-        try {
-            materials =
-                typeof designData.materials === 'string' ? JSON.parse(designData.materials) : designData.materials;
-        } catch {
-            throw Object.assign(new Error('Invalid materials format'), { status: 400 });
-        }
-
-        let variationGroups: VariationGroup[] | undefined;
-        let variants: DesignVariant[] | undefined;
-
-        if (designData.variationGroups) {
-            try {
-                variationGroups =
-                    typeof designData.variationGroups === 'string'
-                        ? JSON.parse(designData.variationGroups)
-                        : designData.variationGroups;
-            } catch {
-                throw Object.assign(new Error('Invalid variationGroups format'), { status: 400 });
-            }
-        }
-
-        if (designData.variants) {
-            try {
-                const parsed: DesignVariant[] =
-                    typeof designData.variants === 'string' ? JSON.parse(designData.variants) : designData.variants;
-                variants = parsed.map((v) => ({ ...v, totalQuantity: 0 }));
-            } catch {
-                throw Object.assign(new Error('Invalid variants format'), { status: 400 });
-            }
-        }
-
-        const design: Design = {
-            id: designId,
-            userId,
-            name: designData.name,
-            description: designData.description,
-            timeRequired: designData.timeRequired,
-            totalMaterialCosts: designData.totalMaterialCosts,
-            price: designData.price,
-            imageId,
+            imageIds,
             materials,
             dateAdded: new Date(),
             totalQuantity: 0,
@@ -205,8 +149,8 @@ export class DesignService {
     async editDesignProperties(
         id: string,
         updates: EditDesign,
-        imageBuffer: Buffer | null,
-        contentType: string | null,
+        imageBuffers: Array<{ buffer: Buffer; contentType: string }>,
+        keepImageIds: string[],
         userId: string
     ): Promise<Design> {
         if (!id) {
@@ -219,13 +163,15 @@ export class DesignService {
             throw Object.assign(new Error('Design not found'), { status: 404 });
         }
 
-        let imageId = existing.imageId;
+        const newImageIds = await Promise.all(
+            imageBuffers.map(async ({ buffer, contentType }) => {
+                const imageId = this.idGenerator.generate();
+                await this.imageService.uploadImage(imageId, buffer, contentType);
+                return imageId;
+            })
+        );
 
-        if (imageBuffer && contentType) {
-            const newImageId = this.idGenerator.generate();
-            await this.imageService.uploadImage(newImageId, imageBuffer, contentType);
-            imageId = newImageId;
-        }
+        const imageIds = [...keepImageIds, ...newImageIds];
 
         let materials = existing.materials;
         if (updates.materials) {
@@ -247,7 +193,7 @@ export class DesignService {
             ...existing,
             ...updates,
             materials,
-            imageId,
+            imageIds,
             variationGroups,
             variants,
         };

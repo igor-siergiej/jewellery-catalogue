@@ -17,7 +17,7 @@ import { DRAFTS_ENDPOINT } from '../../api/endpoints';
 import makeAddDesignRequest from '../../api/endpoints/addDesign';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
 import { AddMaterialsTable } from '../../components/AddMaterialsTable';
-import ImageUpload from '../../components/ImageUpload';
+import MultiImageUpload from '../../components/MultiImageUpload';
 import PriceBreakdown from '../../components/PriceBreakdown';
 import RichTextEditor from '../../components/RichTextEditor';
 import TimeInput from '../../components/TimeInput';
@@ -41,7 +41,7 @@ const AddDesign: React.FC = () => {
             materials: [],
             description: '',
             totalMaterialCosts: 0,
-            image: undefined,
+            images: [],
             lowStockThreshold: undefined,
             variationGroups: [],
             variants: [],
@@ -94,7 +94,7 @@ const AddDesign: React.FC = () => {
                     form.reset(draft.data);
                 }
                 if (draft?.imageId) {
-                    form.setValue('image', draft.imageId);
+                    form.setValue('images', [draft.imageId]);
                 }
             })
             .catch(() => {})
@@ -112,10 +112,16 @@ const AddDesign: React.FC = () => {
                 currentTimeRequired
             );
 
-            // If image is a string it's a draft imageId already on server
-            const imageIdFromDraft =
-                typeof formData.image === 'string' ? formData.image : (uploadedImageId ?? undefined);
-            const submitData = { ...formData, variants, imageId: imageIdFromDraft };
+            // Replace first File with draft-uploaded imageId if available
+            let images = formData.images ?? [];
+            if (uploadedImageId) {
+                const firstFileIdx = images.findIndex((v) => v instanceof File);
+                if (firstFileIdx !== -1) {
+                    images = [...images];
+                    images[firstFileIdx] = uploadedImageId;
+                }
+            }
+            const submitData = { ...formData, variants, images };
 
             await makeAddDesignRequest(submitData, () => accessToken, login, logout);
             await deleteAndClearDraft(() => accessToken, login, logout);
@@ -268,25 +274,24 @@ const AddDesign: React.FC = () => {
 
                         <hr className="border-t border-border" />
 
-                        {/* Upload Image Section */}
+                        {/* Upload Images Section */}
                         <div className="grid grid-cols-12 gap-4">
                             <div className="col-span-4">
                                 <h2 className="text-lg font-medium text-center h-[30px] leading-[30px]">
-                                    Upload Image
+                                    Upload Images
                                 </h2>
                             </div>
                             <div className="col-span-8">
                                 <FormField
                                     control={form.control}
-                                    name="image"
+                                    name="images"
                                     render={({ field, fieldState }) => (
                                         <FormItem>
                                             <FormControl>
-                                                <ImageUpload
-                                                    setImage={form.setValue}
+                                                <MultiImageUpload
+                                                    value={field.value ?? []}
                                                     onChange={field.onChange}
                                                     hasError={!!fieldState.error}
-                                                    value={field.value}
                                                 />
                                             </FormControl>
                                             <FormMessage />

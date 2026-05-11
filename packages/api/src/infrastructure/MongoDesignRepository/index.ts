@@ -11,21 +11,31 @@ export class MongoDesignRepository extends MongoRepository<Design> implements De
     }
 
     protected usesObjectId(): boolean {
-        return false; // Designs use string id, not ObjectId _id
+        return false;
+    }
+
+    private migrate(doc: any): Design {
+        if (!doc.imageIds && doc.imageId) {
+            doc.imageIds = [doc.imageId];
+            delete doc.imageId;
+        }
+        return doc as Design;
     }
 
     async getByUserId(userId: string): Promise<Array<Design>> {
-        return this.collection()
+        const docs = await this.collection()
             .find({ userId }, { projection: { _id: 0 } })
             .toArray();
+        return docs.map((d) => this.migrate(d));
     }
 
     async getByIdAndUserId(id: string, userId: string): Promise<Design | null> {
-        return this.collection().findOne({ id, userId }, { projection: { _id: 0 } });
+        const doc = await this.collection().findOne({ id, userId }, { projection: { _id: 0 } });
+        return doc ? this.migrate(doc) : null;
     }
 
     async findByMaterialId(materialId: string): Promise<Array<Design>> {
-        return this.collection()
+        const docs = await this.collection()
             .find(
                 {
                     'materials.id': materialId,
@@ -33,5 +43,6 @@ export class MongoDesignRepository extends MongoRepository<Design> implements De
                 { projection: { _id: 0 } }
             )
             .toArray();
+        return docs.map((d) => this.migrate(d));
     }
 }
