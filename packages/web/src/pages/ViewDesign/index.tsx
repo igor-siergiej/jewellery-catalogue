@@ -21,6 +21,7 @@ import {
     METAL_TYPE_LABELS,
     WIRE_TYPE_LABELS,
 } from '../../lib/materialLabels';
+import { cn } from '../../lib/utils';
 
 const ViewDesign = () => {
     const { id } = useParams<{ id: string }>();
@@ -116,7 +117,20 @@ const ViewDesign = () => {
                     {/* LEFT: sticky image */}
                     <div className="lg:sticky lg:top-8 relative">
                         <div className="rounded-xl overflow-hidden border border-border shadow-lg aspect-[3/4] bg-card">
-                            <Image imageId={imageIds?.[imageIndex] ?? ''} />
+                            {imageIds && imageIds.length > 0 ? (
+                                <div
+                                    className="flex h-full transition-transform duration-500 ease-in-out"
+                                    style={{ transform: `translateX(-${imageIndex * 100}%)` }}
+                                >
+                                    {imageIds.map((id) => (
+                                        <div key={id} className="w-full h-full flex-shrink-0">
+                                            <Image imageId={id} />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <Image imageId="" />
+                            )}
                         </div>
                         {imageIds && imageIds.length > 1 && (
                             <>
@@ -124,7 +138,7 @@ const ViewDesign = () => {
                                     type="button"
                                     onClick={() => setImageIndex((i) => Math.max(0, i - 1))}
                                     disabled={imageIndex === 0}
-                                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 disabled:opacity-20 text-white rounded-full p-1 transition-colors"
+                                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 disabled:opacity-0 text-white rounded-full p-1.5 transition-all backdrop-blur-sm"
                                 >
                                     <ChevronLeft className="h-5 w-5" />
                                 </button>
@@ -132,13 +146,25 @@ const ViewDesign = () => {
                                     type="button"
                                     onClick={() => setImageIndex((i) => Math.min(imageIds.length - 1, i + 1))}
                                     disabled={imageIndex === imageIds.length - 1}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 disabled:opacity-20 text-white rounded-full p-1 transition-colors"
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 disabled:opacity-0 text-white rounded-full p-1.5 transition-all backdrop-blur-sm"
                                 >
                                     <ChevronRight className="h-5 w-5" />
                                 </button>
-                                <span className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-0.5 rounded-full">
-                                    {imageIndex + 1} / {imageIds.length}
-                                </span>
+                                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                                    {imageIds.map((id, i) => (
+                                        <button
+                                            key={id}
+                                            type="button"
+                                            onClick={() => setImageIndex(i)}
+                                            className={cn(
+                                                'h-1.5 rounded-full transition-all duration-300',
+                                                i === imageIndex
+                                                    ? 'w-4 bg-white'
+                                                    : 'w-1.5 bg-white/50 hover:bg-white/80'
+                                            )}
+                                        />
+                                    ))}
+                                </div>
                             </>
                         )}
                     </div>
