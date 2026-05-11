@@ -1,11 +1,27 @@
 import './styles.css';
 
+import { useAuth } from '@imapps/web-utils';
+import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { Bold, Heading1, Heading2, Heading3, Italic, List, ListOrdered, Redo, Strikethrough, Undo } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import {
+    Bold,
+    Heading1,
+    Heading2,
+    Heading3,
+    ImageIcon,
+    Italic,
+    List,
+    ListOrdered,
+    Loader2,
+    Redo,
+    Strikethrough,
+    Undo,
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
+import { makeUploadImageRequest } from '@/api/endpoints/uploadImage';
 import { Button } from '@/components/ui/button';
 
 export interface RichTextEditorProps {
@@ -16,6 +32,9 @@ export interface RichTextEditorProps {
 
 const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeholder = 'Start typing...' }) => {
     const [, forceUpdate] = useState({});
+    const { accessToken, login, logout } = useAuth();
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const editor = useEditor({
         extensions: [
@@ -29,6 +48,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
             }),
             Placeholder.configure({
                 placeholder,
+            }),
+            Image.configure({
+                inline: false,
+                allowBase64: false,
             }),
         ],
         content: value,
@@ -55,6 +78,25 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
             editor.commands.setContent(value);
         }
     }, [value, editor]);
+
+    const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !editor) return;
+        e.target.value = '';
+        setIsUploading(true);
+        try {
+            const { imageId } = await makeUploadImageRequest(file, () => accessToken, login, logout);
+            editor
+                .chain()
+                .focus()
+                .setImage({ src: `/api/image/${imageId}` })
+                .run();
+        } catch (err) {
+            console.error('[RichTextEditor] Image upload failed:', err);
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     if (!editor) {
         return null;
@@ -129,6 +171,24 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
                 >
                     <ListOrdered className="h-4 w-4" />
                 </Button>
+                <div className="w-px bg-border mx-1" />
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    title="Insert image"
+                >
+                    {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
+                </Button>
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageFileChange}
+                />
                 <div className="w-px bg-border mx-1" />
                 <Button
                     type="button"
