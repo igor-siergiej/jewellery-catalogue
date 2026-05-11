@@ -1,3 +1,10 @@
+# [1.26.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.25.0...v1.26.0) (2026-05-11)
+
+
+### Features
+
+* **materials:** search and column sorting ([#21](https://github.com/igor-siergiej/jewellery-catalogue/issues/21)) ([9fb7189](https://github.com/igor-siergiej/jewellery-catalogue/commit/9fb71891bc6d6862737c22a9edebe74b29d87780))
+
 # [1.25.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.24.0...v1.25.0) (2026-05-11)
 
 
