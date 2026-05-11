@@ -6,12 +6,14 @@ import {
     MaterialType,
     type Wire,
 } from '@jewellery-catalogue/types';
+import Fuse from 'fuse.js';
 import { ChevronLeft, ChevronRight, Package } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useSearch } from '@/context/SearchContext';
 
 import AllMaterialsTable from './AllMaterialsTable';
 import BeadTable from './BeadTable';
@@ -116,19 +118,56 @@ const Pagination: React.FC<PaginationProps> = ({
     );
 };
 
+function sortMaterials<T>(items: T[], field: string, dir: 'asc' | 'desc'): T[] {
+    return [...items].sort((a, b) => {
+        const aVal = (a as Record<string, unknown>)[field];
+        const bVal = (b as Record<string, unknown>)[field];
+        if (aVal == null && bVal == null) return 0;
+        if (aVal == null) return dir === 'asc' ? 1 : -1;
+        if (bVal == null) return dir === 'asc' ? -1 : 1;
+        if (typeof aVal === 'string' && typeof bVal === 'string') {
+            return dir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+        }
+        return dir === 'asc' ? (aVal as number) - (bVal as number) : (bVal as number) - (aVal as number);
+    });
+}
+
 const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUpdated }) => {
+    const { searchQuery } = useSearch();
     const [currentPage, setCurrentPage] = useState(0);
     const [pageSize, setPageSize] = useState(10);
+    const [sortField, setSortField] = useState<string | null>(null);
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
-    // Filter materials by type
-    const wireMaterials = materials.filter((m): m is Wire => m.type === MaterialType.WIRE);
-    const beadMaterials = materials.filter((m): m is Bead => m.type === MaterialType.BEAD);
-    const chainMaterials = materials.filter((m): m is Chain => m.type === MaterialType.CHAIN);
-    const earHookMaterials = materials.filter((m): m is EarHook => m.type === MaterialType.EAR_HOOK);
+    const fuse = useMemo(
+        () => new Fuse(materials, { keys: ['name', 'brand', 'materialCode'], threshold: 0.4 }),
+        [materials]
+    );
+
+    const filteredMaterials = useMemo(() => {
+        if (!searchQuery) return materials;
+        return fuse.search(searchQuery).map((r) => r.item);
+    }, [searchQuery, fuse, materials]);
+
+    const effectivePage = (total: number) => Math.min(currentPage, Math.max(0, Math.ceil(total / pageSize) - 1));
+
+    const handleSort = (field: string) => {
+        if (sortField === field) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortDirection('asc');
+        }
+        setCurrentPage(0);
+    };
+
+    const wireMaterials = filteredMaterials.filter((m): m is Wire => m.type === MaterialType.WIRE);
+    const beadMaterials = filteredMaterials.filter((m): m is Bead => m.type === MaterialType.BEAD);
+    const chainMaterials = filteredMaterials.filter((m): m is Chain => m.type === MaterialType.CHAIN);
+    const earHookMaterials = filteredMaterials.filter((m): m is EarHook => m.type === MaterialType.EAR_HOOK);
 
     const goToNextPage = (totalMaterials: number) => {
         const totalPages = Math.ceil(totalMaterials / pageSize);
-
         if (currentPage < totalPages - 1) {
             setCurrentPage(currentPage + 1);
         }
@@ -160,16 +199,23 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
         );
     }
 
-    const getPaginatedMaterials = <T extends Material>(materials: Array<T>) => {
-        const startIndex = currentPage * pageSize;
-        const endIndex = startIndex + pageSize;
-
-        return materials.slice(startIndex, endIndex);
+    const getPaginatedMaterials = <T extends Material>(items: Array<T>): Array<T> => {
+        const sorted = sortField ? sortMaterials(items, sortField, sortDirection) : items;
+        const startIndex = effectivePage(items.length) * pageSize;
+        return sorted.slice(startIndex, startIndex + pageSize);
     };
+
+    const sortProps = { sortField, sortDirection, onSort: handleSort };
 
     return (
         <div className="space-y-4">
-            <Tabs defaultValue="all" onValueChange={() => setCurrentPage(0)}>
+            <Tabs
+                defaultValue="all"
+                onValueChange={() => {
+                    setCurrentPage(0);
+                    setSortField(null);
+                }}
+            >
                 <TabsList>
                     <TabsTrigger value="all">All Materials</TabsTrigger>
                     <TabsTrigger value="wire">Wire ({wireMaterials.length})</TabsTrigger>
@@ -180,12 +226,13 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
 
                 <TabsContent value="all">
                     <AllMaterialsTable
-                        materials={getPaginatedMaterials(materials)}
+                        materials={getPaginatedMaterials(filteredMaterials)}
                         onMaterialUpdated={onMaterialUpdated}
+                        {...sortProps}
                     />
                     <Pagination
-                        totalMaterials={materials.length}
-                        currentPage={currentPage}
+                        totalMaterials={filteredMaterials.length}
+                        currentPage={effectivePage(filteredMaterials.length)}
                         pageSize={pageSize}
                         setPageSize={setPageSize}
                         setCurrentPage={setCurrentPage}
@@ -196,10 +243,14 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
                 </TabsContent>
 
                 <TabsContent value="wire">
-                    <WireTable materials={getPaginatedMaterials(wireMaterials)} onMaterialUpdated={onMaterialUpdated} />
+                    <WireTable
+                        materials={getPaginatedMaterials(wireMaterials)}
+                        onMaterialUpdated={onMaterialUpdated}
+                        {...sortProps}
+                    />
                     <Pagination
                         totalMaterials={wireMaterials.length}
-                        currentPage={currentPage}
+                        currentPage={effectivePage(wireMaterials.length)}
                         pageSize={pageSize}
                         setPageSize={setPageSize}
                         setCurrentPage={setCurrentPage}
@@ -210,10 +261,14 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
                 </TabsContent>
 
                 <TabsContent value="bead">
-                    <BeadTable materials={getPaginatedMaterials(beadMaterials)} onMaterialUpdated={onMaterialUpdated} />
+                    <BeadTable
+                        materials={getPaginatedMaterials(beadMaterials)}
+                        onMaterialUpdated={onMaterialUpdated}
+                        {...sortProps}
+                    />
                     <Pagination
                         totalMaterials={beadMaterials.length}
-                        currentPage={currentPage}
+                        currentPage={effectivePage(beadMaterials.length)}
                         pageSize={pageSize}
                         setPageSize={setPageSize}
                         setCurrentPage={setCurrentPage}
@@ -227,10 +282,11 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
                     <ChainTable
                         materials={getPaginatedMaterials(chainMaterials)}
                         onMaterialUpdated={onMaterialUpdated}
+                        {...sortProps}
                     />
                     <Pagination
                         totalMaterials={chainMaterials.length}
-                        currentPage={currentPage}
+                        currentPage={effectivePage(chainMaterials.length)}
                         pageSize={pageSize}
                         setPageSize={setPageSize}
                         setCurrentPage={setCurrentPage}
@@ -244,10 +300,11 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
                     <EarHookTable
                         materials={getPaginatedMaterials(earHookMaterials)}
                         onMaterialUpdated={onMaterialUpdated}
+                        {...sortProps}
                     />
                     <Pagination
                         totalMaterials={earHookMaterials.length}
-                        currentPage={currentPage}
+                        currentPage={effectivePage(earHookMaterials.length)}
                         pageSize={pageSize}
                         setPageSize={setPageSize}
                         setCurrentPage={setCurrentPage}

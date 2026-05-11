@@ -1,5 +1,6 @@
 import { ArrowLeft, Loader2, Search } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
@@ -23,7 +24,12 @@ const MainLayoutContent = ({ children }: MainLayoutProps) => {
     const { searchQuery, setSearchQuery } = useSearch();
     const { status: draftStatus } = useDraftStatus();
     const isDesignsPage = location.pathname === '/designs';
+    const isMaterialsPage = location.pathname === '/materials';
     const isViewDesignPage = location.pathname.startsWith('/designs/') && location.pathname !== '/designs';
+
+    useEffect(() => {
+        setSearchQuery('');
+    }, [setSearchQuery]);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
@@ -54,12 +60,12 @@ const MainLayoutContent = ({ children }: MainLayoutProps) => {
                             )}
                         </span>
                     )}
-                    {isDesignsPage && (
+                    {(isDesignsPage || isMaterialsPage) && (
                         <div className="relative max-w-md">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
                                 type="text"
-                                placeholder="Search designs..."
+                                placeholder={isDesignsPage ? 'Search designs...' : 'Search materials...'}
                                 value={searchQuery}
                                 onChange={handleSearchChange}
                                 className="pl-9 bg-card"

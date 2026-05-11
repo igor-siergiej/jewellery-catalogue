@@ -1,6 +1,6 @@
 import { useAuth } from '@imapps/web-utils';
 import type { Material } from '@jewellery-catalogue/types';
-import { Edit, ShoppingBasket, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, Edit, ShoppingBasket, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 import makeDeleteMaterialRequest from '@/api/endpoints/deleteMaterial';
@@ -23,9 +23,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 export interface IAllMaterialsTableProps {
     materials: Array<Material>;
     onMaterialUpdated?: () => void;
+    sortField?: string | null;
+    sortDirection?: 'asc' | 'desc';
+    onSort?: (field: string) => void;
 }
 
-const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({ materials, onMaterialUpdated }) => {
+const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({
+    materials,
+    onMaterialUpdated,
+    sortField,
+    sortDirection,
+    onSort,
+}) => {
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
     const [materialToDelete, setMaterialToDelete] = useState<Material | null>(null);
@@ -34,7 +43,6 @@ const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({ materials, onMat
 
     const formatPrice = (value: number | null | undefined) => {
         if (value == null) return '';
-
         return `£${Number(value).toFixed(2)}`;
     };
 
@@ -76,21 +84,43 @@ const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({ materials, onMat
         }
     };
 
+    const sortIcon = (field: string) => {
+        if (!onSort) return null;
+        if (sortField !== field) return <ArrowUpDown className="ml-1 h-3 w-3 opacity-40 inline-block shrink-0" />;
+        return sortDirection === 'asc' ? (
+            <ArrowUp className="ml-1 h-3 w-3 inline-block shrink-0" />
+        ) : (
+            <ArrowDown className="ml-1 h-3 w-3 inline-block shrink-0" />
+        );
+    };
+
+    const sortableHead = (field: string, label: string, className?: string) => (
+        <TableHead
+            className={`font-semibold${onSort ? ' cursor-pointer select-none' : ''}${className ? ` ${className}` : ''}`}
+            onClick={() => onSort?.(field)}
+        >
+            <span className="flex items-center gap-1">
+                {label}
+                {sortIcon(field)}
+            </span>
+        </TableHead>
+    );
+
     return (
         <>
             <div className="rounded-md border bg-card">
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
-                            <TableHead className="font-semibold">Name</TableHead>
-                            <TableHead className="font-semibold">Material Code</TableHead>
-                            <TableHead className="font-semibold">Brand</TableHead>
-                            <TableHead className="font-semibold">Type</TableHead>
+                            {sortableHead('name', 'Name')}
+                            {sortableHead('materialCode', 'Material Code')}
+                            {sortableHead('brand', 'Brand')}
+                            {sortableHead('type', 'Type')}
                             <TableHead className="font-semibold">Total Stock</TableHead>
                             <TableHead className="font-semibold">Per Pack</TableHead>
-                            <TableHead className="font-semibold">Price/Pack</TableHead>
+                            {sortableHead('pricePerPack', 'Price/Pack')}
                             <TableHead className="font-semibold">Per Unit Price</TableHead>
-                            <TableHead className="font-semibold">Diameter</TableHead>
+                            {sortableHead('diameter', 'Diameter')}
                             <TableHead className="font-semibold">Colour</TableHead>
                             <TableHead className="font-semibold">Wire Type</TableHead>
                             <TableHead className="font-semibold">Metal Type</TableHead>
@@ -145,7 +175,9 @@ const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({ materials, onMat
                                         <TableCell>{formatPrice((material as any).pricePerPack)}</TableCell>
                                         <TableCell>{getPerUnitPrice()}</TableCell>
                                         <TableCell>
-                                            {material.diameter ? `${(material.diameter as number).toFixed(2)}mm` : '-'}
+                                            {(material as any).diameter
+                                                ? `${((material as any).diameter as number).toFixed(2)}mm`
+                                                : '-'}
                                         </TableCell>
                                         <TableCell>{(material as any).colour || '-'}</TableCell>
                                         <TableCell>{(material as any).wireType || '-'}</TableCell>

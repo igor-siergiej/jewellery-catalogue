@@ -1,5 +1,5 @@
 import type { Chain } from '@jewellery-catalogue/types';
-import { Edit, ShoppingBasket } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, Edit, ShoppingBasket } from 'lucide-react';
 import { useState } from 'react';
 
 import MaterialUpdateForm from '@/components/MaterialUpdateForm';
@@ -12,9 +12,12 @@ import { METAL_TYPE_LABELS, WIRE_TYPE_LABELS } from '@/lib/materialLabels';
 export interface IChainTableProps {
     materials: Array<Chain>;
     onMaterialUpdated?: () => void;
+    sortField?: string | null;
+    sortDirection?: 'asc' | 'desc';
+    onSort?: (field: string) => void;
 }
 
-const ChainTable: React.FC<IChainTableProps> = ({ materials, onMaterialUpdated }) => {
+const ChainTable: React.FC<IChainTableProps> = ({ materials, onMaterialUpdated, sortField, sortDirection, onSort }) => {
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [selectedMaterial, setSelectedMaterial] = useState<Chain | null>(null);
 
@@ -42,22 +45,44 @@ const ChainTable: React.FC<IChainTableProps> = ({ materials, onMaterialUpdated }
         }
     };
 
+    const sortIcon = (field: string) => {
+        if (!onSort) return null;
+        if (sortField !== field) return <ArrowUpDown className="ml-1 h-3 w-3 opacity-40 inline-block shrink-0" />;
+        return sortDirection === 'asc' ? (
+            <ArrowUp className="ml-1 h-3 w-3 inline-block shrink-0" />
+        ) : (
+            <ArrowDown className="ml-1 h-3 w-3 inline-block shrink-0" />
+        );
+    };
+
+    const sortableHead = (field: string, label: string, className?: string) => (
+        <TableHead
+            className={`font-semibold${onSort ? ' cursor-pointer select-none' : ''}${className ? ` ${className}` : ''}`}
+            onClick={() => onSort?.(field)}
+        >
+            <span className="flex items-center gap-1">
+                {label}
+                {sortIcon(field)}
+            </span>
+        </TableHead>
+    );
+
     return (
         <>
             <div className="rounded-md border bg-card">
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
-                            <TableHead className="font-semibold">Name</TableHead>
-                            <TableHead className="font-semibold">Material Code</TableHead>
-                            <TableHead className="font-semibold">Brand</TableHead>
-                            <TableHead className="font-semibold">Wire Type</TableHead>
-                            <TableHead className="font-semibold">Metal Type</TableHead>
-                            <TableHead className="font-semibold">Diameter (mm)</TableHead>
-                            <TableHead className="font-semibold">Total Length (m)</TableHead>
-                            <TableHead className="font-semibold">Length/Pack (m)</TableHead>
-                            <TableHead className="font-semibold">Price/Pack</TableHead>
-                            <TableHead className="font-semibold">Price/m</TableHead>
+                            {sortableHead('name', 'Name')}
+                            {sortableHead('materialCode', 'Material Code')}
+                            {sortableHead('brand', 'Brand')}
+                            {sortableHead('wireType', 'Wire Type')}
+                            {sortableHead('metalType', 'Metal Type')}
+                            {sortableHead('diameter', 'Diameter (mm)')}
+                            {sortableHead('totalLength', 'Total Length (m)')}
+                            {sortableHead('lengthPerPack', 'Length/Pack (m)')}
+                            {sortableHead('pricePerPack', 'Price/Pack')}
+                            {sortableHead('pricePerMeter', 'Price/m')}
                             <TableHead className="font-semibold text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
