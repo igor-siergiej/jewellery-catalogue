@@ -8,7 +8,7 @@ import {
 } from '@jewellery-catalogue/types';
 import Fuse from 'fuse.js';
 import { ChevronLeft, ChevronRight, Package } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
@@ -149,10 +149,7 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
         return fuse.search(searchQuery).map((r) => r.item);
     }, [searchQuery, fuse, materials]);
 
-    // Reset page when search changes so results start from page 1
-    useEffect(() => {
-        setCurrentPage(0);
-    }, []);
+    const effectivePage = (total: number) => Math.min(currentPage, Math.max(0, Math.ceil(total / pageSize) - 1));
 
     const handleSort = (field: string) => {
         if (sortField === field) {
@@ -204,7 +201,7 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
 
     const getPaginatedMaterials = <T extends Material>(items: Array<T>): Array<T> => {
         const sorted = sortField ? sortMaterials(items, sortField, sortDirection) : items;
-        const startIndex = currentPage * pageSize;
+        const startIndex = effectivePage(items.length) * pageSize;
         return sorted.slice(startIndex, startIndex + pageSize);
     };
 
@@ -235,7 +232,7 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
                     />
                     <Pagination
                         totalMaterials={filteredMaterials.length}
-                        currentPage={currentPage}
+                        currentPage={effectivePage(filteredMaterials.length)}
                         pageSize={pageSize}
                         setPageSize={setPageSize}
                         setCurrentPage={setCurrentPage}
@@ -253,7 +250,7 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
                     />
                     <Pagination
                         totalMaterials={wireMaterials.length}
-                        currentPage={currentPage}
+                        currentPage={effectivePage(wireMaterials.length)}
                         pageSize={pageSize}
                         setPageSize={setPageSize}
                         setCurrentPage={setCurrentPage}
@@ -271,7 +268,7 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
                     />
                     <Pagination
                         totalMaterials={beadMaterials.length}
-                        currentPage={currentPage}
+                        currentPage={effectivePage(beadMaterials.length)}
                         pageSize={pageSize}
                         setPageSize={setPageSize}
                         setCurrentPage={setCurrentPage}
@@ -289,7 +286,7 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
                     />
                     <Pagination
                         totalMaterials={chainMaterials.length}
-                        currentPage={currentPage}
+                        currentPage={effectivePage(chainMaterials.length)}
                         pageSize={pageSize}
                         setPageSize={setPageSize}
                         setCurrentPage={setCurrentPage}
@@ -307,7 +304,7 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
                     />
                     <Pagination
                         totalMaterials={earHookMaterials.length}
-                        currentPage={currentPage}
+                        currentPage={effectivePage(earHookMaterials.length)}
                         pageSize={pageSize}
                         setPageSize={setPageSize}
                         setCurrentPage={setCurrentPage}
