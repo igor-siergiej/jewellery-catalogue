@@ -4,7 +4,7 @@ import { dependencyContainer } from '../dependencies';
 import { DependencyToken } from '../dependencies/types';
 import { addDesign, deleteDesign, editDesignProperties, getDesign, getDesigns, updateDesign } from '../handlers/Design';
 import { createDraft, deleteDraft, getDraft, getDrafts, updateDraft, uploadDraftImage } from '../handlers/Draft';
-import { getImage } from '../handlers/Image';
+import { getImage, uploadImage } from '../handlers/Image';
 import { addMaterial, deleteMaterial, getMaterial, getMaterials, updateMaterial } from '../handlers/Material';
 import { getUserSettings, recalculatePrices, updateUserSettings } from '../handlers/UserSettings';
 import { authenticate } from '../middleware/auth';
@@ -49,6 +49,7 @@ router.post('/api/drafts/:id/image', authenticate, uploadDraftImage);
 router.delete('/api/drafts/:id', authenticate, deleteDraft);
 
 // Image routes
+router.post('/api/images', authenticate, uploadImage);
 router.get('/api/image/:name', getImage);
 
 export default router;
