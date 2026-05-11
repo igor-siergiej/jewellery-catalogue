@@ -1,3 +1,10 @@
+# [1.25.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.24.0...v1.25.0) (2026-05-11)
+
+
+### Features
+
+* **designs:** multi-image upload and carousel ([#20](https://github.com/igor-siergiej/jewellery-catalogue/issues/20)) ([e46e537](https://github.com/igor-siergiej/jewellery-catalogue/commit/e46e537dfc07aa1d8ecdf99a8514c2c4b9e68b9a))
+
 # [1.24.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.23.0...v1.24.0) (2026-05-11)
 
 
