@@ -1,3 +1,10 @@
+# [1.24.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.23.0...v1.24.0) (2026-05-11)
+
+
+### Features
+
+* **editor:** add image upload to rich text editor ([#19](https://github.com/igor-siergiej/jewellery-catalogue/issues/19)) ([8880538](https://github.com/igor-siergiej/jewellery-catalogue/commit/888053859a0698446b61f4318298c486b6f482f2))
+
 # [1.23.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.22.0...v1.23.0) (2026-05-11)
 
 
