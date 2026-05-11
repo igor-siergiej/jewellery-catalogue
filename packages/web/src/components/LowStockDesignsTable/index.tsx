@@ -86,7 +86,7 @@ const LowStockDesignsTable: React.FC<ILowStockDesignsTableProps> = ({ designs, o
                                     <TableRow key={design.id || `design-${index}`} className="hover:bg-muted/50">
                                         <TableCell>
                                             <div className="h-12 w-12 rounded-md overflow-hidden bg-muted flex items-center justify-center">
-                                                <Image imageId={design.imageId} />
+                                                <Image imageId={design.imageIds?.[0] ?? ''} />
                                             </div>
                                         </TableCell>
                                         <TableCell className="font-medium">{design.name}</TableCell>

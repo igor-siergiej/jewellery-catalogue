@@ -93,16 +93,17 @@ export const useDraftAutosave = ({
             const name = (values.name as string) || '';
             if (!name.trim()) return;
 
-            const imageValue = values.image;
+            const imagesValue = values.images as Array<File | string> | undefined;
+            const firstNewFile = imagesValue?.find((v): v is File => v instanceof File);
 
-            if (imageValue instanceof File && imageValue !== pendingFileRef.current) {
-                pendingFileRef.current = imageValue;
+            if (firstNewFile && firstNewFile !== pendingFileRef.current) {
+                pendingFileRef.current = firstNewFile;
                 uploadedImageIdRef.current = null;
-            } else if (!(imageValue instanceof File) && typeof imageValue !== 'string') {
+            } else if (!firstNewFile) {
                 pendingFileRef.current = null;
             }
 
-            const { image: _image, ...serializableData } = values;
+            const { images: _images, ...serializableData } = values;
 
             isSavingRef.current = true;
             setIsSaving(true);

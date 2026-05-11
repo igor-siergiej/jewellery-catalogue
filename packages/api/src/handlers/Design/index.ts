@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import type { Design, EditDesign, PersistentFile, UploadDesign } from '@jewellery-catalogue/types';
+import type { EditDesign, PersistentFile, UploadDesign } from '@jewellery-catalogue/types';
 import type { Context } from 'koa';
 
 import { dependencyContainer } from '../../dependencies';
@@ -7,6 +7,11 @@ import { DependencyToken } from '../../dependencies/types';
 import type { DesignService } from '../../domain/DesignService';
 
 const getDesignService = (): DesignService => dependencyContainer.resolve(DependencyToken.DesignService);
+
+function normalizeFiles(f: unknown): PersistentFile[] {
+    if (!f) return [];
+    return Array.isArray(f) ? f : [f];
+}
 
 export const getDesigns = async (ctx: Context) => {
     const userId = ctx.state.userId;
@@ -41,7 +46,7 @@ export const getDesign = async (ctx: Context) => {
 
 export const addDesign = async (ctx: Context) => {
     const userId = ctx.state.userId;
-    const file = ctx.request.files?.file as unknown as PersistentFile | undefined;
+    const files = normalizeFiles(ctx.request.files?.files);
 
     const {
         name,
@@ -54,12 +59,14 @@ export const addDesign = async (ctx: Context) => {
         variationGroups,
         variants,
         designType,
-        imageId: existingImageId,
-    } = ctx.request.body as Partial<UploadDesign> & { imageId?: string };
+        existingImageIds: existingImageIdsRaw,
+    } = ctx.request.body as Partial<UploadDesign> & { existingImageIds?: string; designType?: string };
 
-    if (!file && !existingImageId) {
+    const existingImageIds: string[] = existingImageIdsRaw ? JSON.parse(existingImageIdsRaw) : [];
+
+    if (files.length === 0 && existingImageIds.length === 0) {
         ctx.status = 400;
-        ctx.body = { error: 'File or imageId is required' };
+        ctx.body = { error: 'At least one image file or imageId is required' };
 
         return;
     }
@@ -72,23 +79,19 @@ export const addDesign = async (ctx: Context) => {
             materials: materials!,
             totalMaterialCosts: Number(totalMaterialCosts),
             price: Number(price),
-            image: file!,
+            image: files[0]!,
             lowStockThreshold: lowStockThreshold !== undefined ? Number(lowStockThreshold) : undefined,
             variationGroups,
             variants,
             designType,
         };
 
-        let design: Design;
+        const imageBuffers = files.map((file) => ({
+            buffer: fs.readFileSync(file.filepath),
+            contentType: file.mimetype || 'application/octet-stream',
+        }));
 
-        if (file) {
-            const fileBuffer = fs.readFileSync(file.filepath);
-            const contentType = file.mimetype || 'application/octet-stream';
-
-            design = await getDesignService().addDesign(designData, fileBuffer, contentType, userId);
-        } else {
-            design = await getDesignService().addDesignWithImageId(designData, existingImageId!, userId);
-        }
+        const design = await getDesignService().addDesign(designData, imageBuffers, existingImageIds, userId);
 
         ctx.status = 200;
         ctx.body = design;
@@ -120,7 +123,7 @@ export const updateDesign = async (ctx: Context) => {
 export const editDesignProperties = async (ctx: Context) => {
     const userId = ctx.state.userId;
     const { id } = ctx.params;
-    const file = ctx.request.files?.file as unknown as PersistentFile | undefined;
+    const files = normalizeFiles(ctx.request.files?.files);
 
     const {
         name,
@@ -132,16 +135,21 @@ export const editDesignProperties = async (ctx: Context) => {
         variationGroups,
         variants,
         designType,
-    } = ctx.request.body as Partial<EditDesign> & { variationGroups?: string; variants?: string };
+        keepImageIds: keepImageIdsRaw,
+    } = ctx.request.body as Partial<EditDesign> & {
+        variationGroups?: string;
+        variants?: string;
+        keepImageIds?: string;
+        designType?: string;
+    };
+
+    const keepImageIds: string[] = keepImageIdsRaw ? JSON.parse(keepImageIdsRaw) : [];
 
     try {
-        let fileBuffer: Buffer | null = null;
-        let contentType: string | null = null;
-
-        if (file) {
-            fileBuffer = fs.readFileSync(file.filepath);
-            contentType = file.mimetype || 'application/octet-stream';
-        }
+        const imageBuffers = files.map((file) => ({
+            buffer: fs.readFileSync(file.filepath),
+            contentType: file.mimetype || 'application/octet-stream',
+        }));
 
         const updates: EditDesign = {};
 
@@ -160,7 +168,7 @@ export const editDesignProperties = async (ctx: Context) => {
         }
         if (designType !== undefined) updates.designType = designType;
 
-        const design = await getDesignService().editDesignProperties(id, updates, fileBuffer, contentType, userId);
+        const design = await getDesignService().editDesignProperties(id, updates, imageBuffers, keepImageIds, userId);
 
         ctx.status = 200;
         ctx.body = design;

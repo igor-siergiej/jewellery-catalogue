@@ -40,7 +40,7 @@ describe('MongoDesignRepository', () => {
             timeRequired: '45',
             totalMaterialCosts: 20.0,
             price: 35.0,
-            imageId: 'image-123',
+            imageIds: ['image-123'],
             materials: [],
             dateAdded: new Date('2025-01-01'),
         };

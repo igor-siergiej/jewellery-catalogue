@@ -8,7 +8,10 @@ export const formDesignSchema = z
         name: z.string().min(1, 'Please enter the design name').trim(),
         timeRequired: z.string().min(1, 'Please enter the time required'),
         materials: z.array(requiredMaterialSchema),
-        image: z.union([z.instanceof(File), z.string()], { message: 'Please upload an image' }).optional(),
+        images: z
+            .array(z.union([z.instanceof(File), z.string()]))
+            .optional()
+            .default([]),
         price: z.number({ message: 'Please enter the price' }).nonnegative('Price must be 0 or greater'),
         description: z.string(),
         totalMaterialCosts: z.number(),
