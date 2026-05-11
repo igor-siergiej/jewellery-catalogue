@@ -1,7 +1,6 @@
 import './styles.css';
 
 import { useAuth } from '@imapps/web-utils';
-import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -23,6 +22,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { makeUploadImageRequest } from '@/api/endpoints/uploadImage';
 import { Button } from '@/components/ui/button';
+import { ResizableImage } from './ResizableImage';
 
 export interface RichTextEditorProps {
     value: string;
@@ -49,7 +49,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
             Placeholder.configure({
                 placeholder,
             }),
-            Image.configure({
+            ResizableImage.configure({
                 inline: false,
                 allowBase64: false,
             }),
