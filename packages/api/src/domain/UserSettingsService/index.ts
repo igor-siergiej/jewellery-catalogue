@@ -37,6 +37,36 @@ export class UserSettingsService {
         return settings;
     }
 
+    async recalculatePricesForMaterial(
+        materialId: string,
+        userId: string
+    ): Promise<{ updated: number; total: number }> {
+        const settings = await this.get(userId);
+        const designs = await this.designRepo.findByMaterialId(materialId);
+        const userDesigns = designs.filter((d) => d.userId === userId);
+        const total = userDesigns.length;
+        let updated = 0;
+
+        for (const design of userDesigns) {
+            const price = calcPrice(
+                design.totalMaterialCosts,
+                design.timeRequired,
+                settings.hourlyWage,
+                settings.profitMargin
+            );
+
+            const variants = design.variants?.map((v) => ({
+                ...v,
+                price: calcPrice(v.totalMaterialCosts, design.timeRequired, settings.hourlyWage, settings.profitMargin),
+            }));
+
+            await this.designRepo.update(design.id, { ...design, price, variants });
+            updated++;
+        }
+
+        return { updated, total };
+    }
+
     async recalculatePrices(userId: string): Promise<{ updated: number; total: number }> {
         const settings = await this.get(userId);
         const designs = await this.designRepo.getByUserId(userId);

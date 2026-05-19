@@ -4,8 +4,11 @@ import type { Context } from 'koa';
 import { dependencyContainer } from '../../dependencies';
 import { DependencyToken } from '../../dependencies/types';
 import type { MaterialService } from '../../domain/MaterialService';
+import type { UserSettingsService } from '../../domain/UserSettingsService';
 
 const getMaterialService = (): MaterialService => dependencyContainer.resolve(DependencyToken.MaterialService);
+const getUserSettingsService = (): UserSettingsService =>
+    dependencyContainer.resolve(DependencyToken.UserSettingsService);
 
 export const getMaterials = async (ctx: Context) => {
     const userId = ctx.state.userId;
@@ -61,9 +64,25 @@ export const updateMaterial = async (ctx: Context) => {
     const updates = ctx.request.body;
 
     try {
-        const material = await getMaterialService().updateMaterial(id, updates, userId);
+        const result = await getMaterialService().updateMaterial(id, updates, userId);
 
-        ctx.body = material;
+        ctx.body = result;
+    } catch (error: unknown) {
+        const err = error as { status?: number; message?: string } | null;
+
+        ctx.status = err?.status ?? 500;
+        ctx.body = { error: err?.message ?? 'Internal Server Error' };
+    }
+};
+
+export const recalculateMaterialPrices = async (ctx: Context) => {
+    const userId = ctx.state.userId;
+    const { id } = ctx.params;
+
+    try {
+        const result = await getUserSettingsService().recalculatePricesForMaterial(id, userId);
+
+        ctx.body = result;
     } catch (error: unknown) {
         const err = error as { status?: number; message?: string } | null;
 

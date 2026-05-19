@@ -5,7 +5,18 @@ import { Loader2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+import makeRecalculateMaterialPricesRequest from '@/api/endpoints/recalculateMaterialPrices';
 import makeUpdateMaterialRequest from '@/api/endpoints/updateMaterial';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -24,6 +35,8 @@ export interface IMaterialUpdateFormProps {
 
 const MaterialUpdateForm: React.FC<IMaterialUpdateFormProps> = ({ material, onSuccess, onCancel }) => {
     const [isUpdating, setIsUpdating] = useState(false);
+    const [isRecalculating, setIsRecalculating] = useState(false);
+    const [pendingRecalculate, setPendingRecalculate] = useState<{ count: number } | null>(null);
     const { accessToken, login, logout } = useAuth();
     const { dispatch } = useAlert();
 
@@ -115,10 +128,41 @@ const MaterialUpdateForm: React.FC<IMaterialUpdateFormProps> = ({ material, onSu
         }
     }, [addPacks, material, lengthPerPack, quantityPerPack, totalLength, totalQuantity]);
 
+    const handleRecalculateConfirm = async () => {
+        setIsRecalculating(true);
+        try {
+            const result = await makeRecalculateMaterialPricesRequest(material.id, () => accessToken, login, logout);
+            dispatch({
+                type: AlertStoreActions.SHOW_ALERT,
+                payload: {
+                    title: 'Prices updated!',
+                    message: `Updated ${result.updated} of ${result.total} design prices.`,
+                    severity: 'success',
+                    variant: 'standard',
+                },
+            });
+        } catch (e) {
+            const message = e instanceof Error ? e.message : 'Unknown Error';
+            dispatch({
+                type: AlertStoreActions.SHOW_ALERT,
+                payload: {
+                    title: 'Error updating prices',
+                    message: `Details: ${message}`,
+                    severity: 'error',
+                    variant: 'standard',
+                },
+            });
+        } finally {
+            setIsRecalculating(false);
+            setPendingRecalculate(null);
+            onSuccess();
+        }
+    };
+
     const onSubmit = async (data: UpdateMaterial) => {
         setIsUpdating(true);
         try {
-            await makeUpdateMaterialRequest(material.id, data, () => accessToken, login, logout);
+            const result = await makeUpdateMaterialRequest(material.id, data, () => accessToken, login, logout);
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
@@ -130,7 +174,11 @@ const MaterialUpdateForm: React.FC<IMaterialUpdateFormProps> = ({ material, onSu
                 },
             });
 
-            onSuccess();
+            if (result.priceChanged && result.affectedDesignsCount > 0) {
+                setPendingRecalculate({ count: result.affectedDesignsCount });
+            } else {
+                onSuccess();
+            }
         } catch (e) {
             const message = e instanceof Error ? e.message : 'Unknown Error';
 
@@ -149,218 +197,248 @@ const MaterialUpdateForm: React.FC<IMaterialUpdateFormProps> = ({ material, onSu
     };
 
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                {/* Current Stock Info */}
-                <div className="space-y-2">
-                    <h3 className="text-sm font-semibold">Current Inventory</h3>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <p className="text-muted-foreground">Stock Level</p>
-                            <p className="font-medium">{currentStock}</p>
-                        </div>
-                        <div>
-                            <p className="text-muted-foreground">Pack Size</p>
-                            <p className="font-medium">{packSize}</p>
+        <>
+            <AlertDialog
+                open={!!pendingRecalculate}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setPendingRecalculate(null);
+                        onSuccess();
+                    }
+                }}
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Update Design Prices?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This material is used in {pendingRecalculate?.count}{' '}
+                            {pendingRecalculate?.count === 1 ? 'design' : 'designs'}. Would you like to recalculate
+                            their selling prices based on the new material cost?
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isRecalculating}>Skip</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleRecalculateConfirm} disabled={isRecalculating}>
+                            {isRecalculating ? 'Updating…' : 'Update Prices'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    {/* Current Stock Info */}
+                    <div className="space-y-2">
+                        <h3 className="text-sm font-semibold">Current Inventory</h3>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p className="text-muted-foreground">Stock Level</p>
+                                <p className="font-medium">{currentStock}</p>
+                            </div>
+                            <div>
+                                <p className="text-muted-foreground">Pack Size</p>
+                                <p className="font-medium">{packSize}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <Separator />
+                    <Separator />
 
-                {/* Material Details and Type-specific fields side by side */}
-                <div className="grid grid-cols-2 gap-6">
-                    {/* Basic Details */}
-                    <div className="space-y-4">
-                        <h3 className="text-sm font-semibold">Material Details</h3>
+                    {/* Material Details and Type-specific fields side by side */}
+                    <div className="grid grid-cols-2 gap-6">
+                        {/* Basic Details */}
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-semibold">Material Details</h3>
 
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Name</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                            <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Name</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                        <FormField
-                            control={form.control}
-                            name="brand"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Brand</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                            <FormField
+                                control={form.control}
+                                name="brand"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Brand</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                        <FormField
-                            control={form.control}
-                            name="materialCode"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Material Code (Optional)</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                            <FormField
+                                control={form.control}
+                                name="materialCode"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Material Code (Optional)</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                        <FormField
-                            control={form.control}
-                            name="purchaseUrl"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Purchase URL</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                            <FormField
+                                control={form.control}
+                                name="purchaseUrl"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Purchase URL</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                        <FormField
-                            control={form.control}
-                            name="lowStockThreshold"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Low Stock Threshold (Optional)</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            className="max-w-[150px]"
-                                            type="number"
-                                            step="any"
-                                            min="0"
-                                            placeholder="e.g., 1.5"
-                                            {...field}
-                                            value={field.value ?? ''}
-                                            onChange={(e) => {
-                                                const value = e.target.value;
-                                                field.onChange(value === '' ? undefined : Number(value));
-                                            }}
-                                        />
-                                    </FormControl>
-                                    <FormDescription>Alert when stock drops below this many packs</FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-
-                    {/* Type-specific fields */}
-                    <UpdateFormResolver
-                        control={form.control}
-                        materialType={currentMaterialType}
-                        form={form}
-                        material={material}
-                    />
-                </div>
-
-                <Separator />
-
-                {/* Pack Pricing and Add Stock side by side */}
-                <div className="grid grid-cols-2 gap-6">
-                    {/* Pack Pricing */}
-                    <div className="space-y-4">
-                        <h3 className="text-sm font-semibold">Pack Pricing</h3>
-
-                        <FormField
-                            control={form.control}
-                            name="pricePerPack"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Price per Pack</FormLabel>
-                                    <FormControl>
-                                        <InputGroup className="max-w-[150px]">
-                                            <InputGroupAddon align="inline-start">
-                                                <InputGroupText>£</InputGroupText>
-                                            </InputGroupAddon>
-                                            <InputGroupInput
+                            <FormField
+                                control={form.control}
+                                name="lowStockThreshold"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Low Stock Threshold (Optional)</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                className="max-w-[150px]"
                                                 type="number"
-                                                step="0.01"
+                                                step="any"
+                                                min="0"
+                                                placeholder="e.g., 1.5"
                                                 {...field}
-                                                value={field.value ?? (material as any).pricePerPack ?? ''}
+                                                value={field.value ?? ''}
                                                 onChange={(e) => {
                                                     const value = e.target.value;
                                                     field.onChange(value === '' ? undefined : Number(value));
                                                 }}
                                             />
-                                        </InputGroup>
-                                    </FormControl>
-                                    <FormDescription>Current price for buying a new pack</FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
+                                        </FormControl>
+                                        <FormDescription>Alert when stock drops below this many packs</FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        {/* Type-specific fields */}
+                        <UpdateFormResolver
+                            control={form.control}
+                            materialType={currentMaterialType}
+                            form={form}
+                            material={material}
                         />
                     </div>
 
-                    {/* Add Stock Section */}
-                    <div className="space-y-4">
-                        <h3 className="text-sm font-semibold">Add Stock</h3>
+                    <Separator />
 
-                        <FormField
-                            control={form.control}
-                            name="addPacks"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Add Packs</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            className="max-w-[150px]"
-                                            type="number"
-                                            step="1"
-                                            placeholder="0"
-                                            {...field}
-                                            value={field.value ?? ''}
-                                            onChange={(e) => {
-                                                const value = e.target.value;
-                                                field.onChange(value === '' ? undefined : Number(value));
-                                            }}
-                                        />
-                                    </FormControl>
-                                    <FormDescription>How many new packs did you buy?</FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                    {/* Pack Pricing and Add Stock side by side */}
+                    <div className="grid grid-cols-2 gap-6">
+                        {/* Pack Pricing */}
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-semibold">Pack Pricing</h3>
 
-                        {/* Reserved space for estimated new stock */}
-                        <div className={`rounded-md p-3 text-sm min-h-[60px] ${estimatedNewStock ? 'bg-muted' : ''}`}>
-                            {estimatedNewStock ? (
-                                <>
-                                    <p className="text-muted-foreground">New stock level will be:</p>
-                                    <p className="font-semibold">{estimatedNewStock}</p>
-                                </>
-                            ) : (
-                                <p className="text-muted-foreground opacity-0">Placeholder</p>
-                            )}
+                            <FormField
+                                control={form.control}
+                                name="pricePerPack"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Price per Pack</FormLabel>
+                                        <FormControl>
+                                            <InputGroup className="max-w-[150px]">
+                                                <InputGroupAddon align="inline-start">
+                                                    <InputGroupText>£</InputGroupText>
+                                                </InputGroupAddon>
+                                                <InputGroupInput
+                                                    type="number"
+                                                    step="0.01"
+                                                    {...field}
+                                                    value={field.value ?? (material as any).pricePerPack ?? ''}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        field.onChange(value === '' ? undefined : Number(value));
+                                                    }}
+                                                />
+                                            </InputGroup>
+                                        </FormControl>
+                                        <FormDescription>Current price for buying a new pack</FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        {/* Add Stock Section */}
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-semibold">Add Stock</h3>
+
+                            <FormField
+                                control={form.control}
+                                name="addPacks"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Add Packs</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                className="max-w-[150px]"
+                                                type="number"
+                                                step="1"
+                                                placeholder="0"
+                                                {...field}
+                                                value={field.value ?? ''}
+                                                onChange={(e) => {
+                                                    const value = e.target.value;
+                                                    field.onChange(value === '' ? undefined : Number(value));
+                                                }}
+                                            />
+                                        </FormControl>
+                                        <FormDescription>How many new packs did you buy?</FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Reserved space for estimated new stock */}
+                            <div
+                                className={`rounded-md p-3 text-sm min-h-[60px] ${estimatedNewStock ? 'bg-muted' : ''}`}
+                            >
+                                {estimatedNewStock ? (
+                                    <>
+                                        <p className="text-muted-foreground">New stock level will be:</p>
+                                        <p className="font-semibold">{estimatedNewStock}</p>
+                                    </>
+                                ) : (
+                                    <p className="text-muted-foreground opacity-0">Placeholder</p>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Action Buttons */}
-                <div className="flex justify-end gap-2 pt-4">
-                    <Button type="button" variant="outline" onClick={onCancel} disabled={isUpdating}>
-                        Cancel
-                    </Button>
-                    <Button type="submit" disabled={isUpdating}>
-                        {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Update Material
-                    </Button>
-                </div>
-            </form>
-        </Form>
+                    {/* Action Buttons */}
+                    <div className="flex justify-end gap-2 pt-4">
+                        <Button type="button" variant="outline" onClick={onCancel} disabled={isUpdating}>
+                            Cancel
+                        </Button>
+                        <Button type="submit" disabled={isUpdating}>
+                            {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Update Material
+                        </Button>
+                    </div>
+                </form>
+            </Form>
+        </>
     );
 };
 
