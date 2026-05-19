@@ -1,3 +1,10 @@
+# [1.27.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.26.2...v1.27.0) (2026-05-19)
+
+
+### Features
+
+* **materials:** prompt to update design prices after material price change ([#25](https://github.com/igor-siergiej/jewellery-catalogue/issues/25)) ([d1c94e6](https://github.com/igor-siergiej/jewellery-catalogue/commit/d1c94e61b3a1850b1cc1b525b5bf1a9b5a795c97))
+
 ## [1.26.2](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.26.1...v1.26.2) (2026-05-19)
 
 
