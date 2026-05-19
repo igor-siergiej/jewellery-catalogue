@@ -23,9 +23,9 @@ const mockUpdate = vi.mocked(makeUpdateDraftRequest);
 describe('useDraftAutosave', () => {
     beforeEach(() => {
         vi.useFakeTimers();
-        mockCreate.mockResolvedValue({ id: 'draft-1' });
+        mockCreate.mockResolvedValue({ id: 'draft-1' } as any);
         mockDelete.mockResolvedValue(undefined);
-        mockUpdate.mockResolvedValue({ id: 'draft-1' });
+        mockUpdate.mockResolvedValue({ id: 'draft-1' } as any);
     });
 
     afterEach(() => {
