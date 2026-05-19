@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import { useForm } from 'react-hook-form';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { makeCreateDraftRequest, makeDeleteDraftRequest, makeUpdateDraftRequest } from '../api/endpoints/drafts';
+import { makeCreateDraftRequest } from '../api/endpoints/drafts';
 import { useDraftAutosave } from './useDraftAutosave';
 
 vi.mock('../api/endpoints/drafts', () => ({
@@ -17,15 +17,10 @@ vi.mock('@tanstack/react-query', () => ({
 }));
 
 const mockCreate = vi.mocked(makeCreateDraftRequest);
-const mockDelete = vi.mocked(makeDeleteDraftRequest);
-const mockUpdate = vi.mocked(makeUpdateDraftRequest);
 
 describe('useDraftAutosave', () => {
     beforeEach(() => {
         vi.useFakeTimers();
-        mockCreate.mockResolvedValue({ id: 'draft-1' } as any);
-        mockDelete.mockResolvedValue(undefined);
-        mockUpdate.mockResolvedValue({ id: 'draft-1' } as any);
     });
 
     afterEach(() => {
