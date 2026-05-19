@@ -1,3 +1,10 @@
+## [1.26.2](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.26.1...v1.26.2) (2026-05-19)
+
+
+### Bug Fixes
+
+* **designs:** clear draft race condition and navigate after creation ([#24](https://github.com/igor-siergiej/jewellery-catalogue/issues/24)) ([f2aa4f2](https://github.com/igor-siergiej/jewellery-catalogue/commit/f2aa4f2fa440c65113f1f800a91b4470fbfd8204))
+
 ## [1.26.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.26.0...v1.26.1) (2026-05-19)
 
 
