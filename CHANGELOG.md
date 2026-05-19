@@ -1,3 +1,10 @@
+## [1.26.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.26.0...v1.26.1) (2026-05-19)
+
+
+### Bug Fixes
+
+* **low-stock:** per-variant stock detection and pre-selection ([#23](https://github.com/igor-siergiej/jewellery-catalogue/issues/23)) ([fad69ad](https://github.com/igor-siergiej/jewellery-catalogue/commit/fad69ad04336df70b902a97453ab51e394129da5))
+
 # [1.26.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.25.0...v1.26.0) (2026-05-11)
 
 
