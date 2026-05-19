@@ -69,7 +69,7 @@ const AddDesign: React.FC = () => {
     const navigate = useNavigate();
     const { setDraftStatus, clearDraftStatus } = useDraftStatus();
 
-    const { draftId, uploadedImageId, clearDraft, deleteAndClearDraft } = useDraftAutosave({
+    const { uploadedImageId, deleteAndClearDraft } = useDraftAutosave({
         form,
         type: 'design',
         initialDraftId: draftIdParam,
