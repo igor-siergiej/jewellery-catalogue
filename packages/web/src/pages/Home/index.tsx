@@ -9,7 +9,7 @@ import LowStockDesignsTable from '@/components/LowStockDesignsTable';
 import LowStockMaterialsTable from '@/components/LowStockMaterialsTable';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { getLowStockDesigns, getLowStockMaterials } from '@/utils/lowStock';
+import { getLowStockDesignRows, getLowStockMaterials } from '@/utils/lowStock';
 
 const Home = () => {
     const { accessToken, login, logout } = useAuth();
@@ -41,9 +41,9 @@ const Home = () => {
     }
 
     const lowStockMaterials = getLowStockMaterials(materials);
-    const lowStockDesigns = getLowStockDesigns(designs);
+    const lowStockDesignRows = getLowStockDesignRows(designs);
 
-    const hasAnyLowStock = lowStockMaterials.length > 0 || lowStockDesigns.length > 0;
+    const hasAnyLowStock = lowStockMaterials.length > 0 || lowStockDesignRows.length > 0;
 
     const handleRefresh = () => {
         refetchMaterials();
@@ -98,19 +98,19 @@ const Home = () => {
             )}
 
             {/* Low Stock Designs Section */}
-            {lowStockDesigns.length > 0 && (
+            {lowStockDesignRows.length > 0 && (
                 <Card className="border-orange-200 bg-orange-50">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <AlertTriangle className="h-5 w-5 text-orange-500" />
-                            Low Stock Designs ({lowStockDesigns.length})
+                            Low Stock Designs ({lowStockDesignRows.length})
                         </CardTitle>
                         <CardDescription>
-                            {lowStockDesigns.length} design(s) below their low stock threshold
+                            {lowStockDesignRows.length} design(s) below their low stock threshold
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <LowStockDesignsTable designs={lowStockDesigns} onDesignUpdated={handleRefresh} />
+                        <LowStockDesignsTable rows={lowStockDesignRows} onDesignUpdated={handleRefresh} />
                     </CardContent>
                 </Card>
             )}

@@ -1,8 +1,5 @@
-import { type Design, type Material, MaterialType } from '@jewellery-catalogue/types';
+import { type Design, type DesignVariant, type Material, MaterialType } from '@jewellery-catalogue/types';
 
-/**
- * Calculate the current number of packs for a material
- */
 function getCurrentPacks(material: Material): number {
     switch (material.type) {
         case MaterialType.WIRE:
@@ -16,44 +13,44 @@ function getCurrentPacks(material: Material): number {
     }
 }
 
-/**
- * Check if a material is below its low stock threshold
- */
 export function isLowStockMaterial(material: Material): boolean {
-    if (material.lowStockThreshold === undefined || material.lowStockThreshold === null) {
-        return false;
-    }
-    const currentPacks = getCurrentPacks(material);
-    return currentPacks < material.lowStockThreshold;
+    if (material.lowStockThreshold == null) return false;
+    return getCurrentPacks(material) < material.lowStockThreshold;
 }
 
-/**
- * Check if a design is below its low stock threshold
- */
 export function isLowStockDesign(design: Design): boolean {
-    if (design.lowStockThreshold === undefined || design.lowStockThreshold === null) {
-        return false;
+    if (design.variants?.length) {
+        return design.variants.some((v) => v.lowStockThreshold != null && v.totalQuantity < v.lowStockThreshold);
     }
+    if (design.lowStockThreshold == null) return false;
     return design.totalQuantity < design.lowStockThreshold;
 }
 
-/**
- * Filter materials to get only those below low stock threshold
- */
+export type LowStockDesignRow = {
+    design: Design;
+    variant?: DesignVariant;
+};
+
+export function getLowStockDesignRows(designs: Design[]): LowStockDesignRow[] {
+    const rows: LowStockDesignRow[] = [];
+    for (const design of designs) {
+        if (design.variants?.length) {
+            for (const variant of design.variants) {
+                if (variant.lowStockThreshold != null && variant.totalQuantity < variant.lowStockThreshold) {
+                    rows.push({ design, variant });
+                }
+            }
+        } else if (isLowStockDesign(design)) {
+            rows.push({ design });
+        }
+    }
+    return rows;
+}
+
 export function getLowStockMaterials(materials: Material[]): Material[] {
     return materials.filter(isLowStockMaterial);
 }
 
-/**
- * Filter designs to get only those below low stock threshold
- */
-export function getLowStockDesigns(designs: Design[]): Design[] {
-    return designs.filter(isLowStockDesign);
-}
-
-/**
- * Get current packs for a material (exposed for use in components)
- */
 export function getMaterialCurrentPacks(material: Material): number {
     return getCurrentPacks(material);
 }
