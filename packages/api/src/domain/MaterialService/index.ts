@@ -58,7 +58,11 @@ export class MaterialService {
         return material;
     }
 
-    async updateMaterial(id: string, updates: UpdateMaterial, userId: string): Promise<Material> {
+    async updateMaterial(
+        id: string,
+        updates: UpdateMaterial,
+        userId: string
+    ): Promise<{ material: Material; affectedDesignsCount: number; priceChanged: boolean }> {
         if (!id) {
             throw Object.assign(new Error('Material ID is required'), { status: 400 });
         }
@@ -73,22 +77,39 @@ export class MaterialService {
             throw Object.assign(new Error('Material not found'), { status: 404 });
         }
 
-        // Process the updates based on material type
+        const oldPerUnitPrice = this.getPerUnitPrice(existing);
         const processed = this.processUpdateMaterial(existing, updates);
+        const newPerUnitPrice = this.getPerUnitPrice(processed);
+        const priceChanged = oldPerUnitPrice !== newPerUnitPrice;
 
         await this.materialRepo.update(id, processed);
 
-        await this.propagateMaterialUpdateToDesigns(id, processed, userId);
+        const affectedDesignsCount = await this.propagateMaterialUpdateToDesigns(id, processed, userId);
 
-        return processed;
+        return { material: processed, affectedDesignsCount, priceChanged };
+    }
+
+    private getPerUnitPrice(material: Material): number {
+        switch (material.type) {
+            case MaterialType.WIRE:
+            case MaterialType.CHAIN:
+                return (material as any).pricePerMeter ?? 0;
+            case MaterialType.BEAD:
+                return (material as any).pricePerBead ?? 0;
+            case MaterialType.EAR_HOOK:
+                return (material as any).pricePerPiece ?? 0;
+            default:
+                return 0;
+        }
     }
 
     private async propagateMaterialUpdateToDesigns(
         materialId: string,
         updatedMaterial: Material,
         userId: string
-    ): Promise<void> {
+    ): Promise<number> {
         const designs = await this.designRepo.findByMaterialId(materialId);
+        let count = 0;
 
         for (const design of designs) {
             if (design.userId !== userId) continue;
@@ -107,7 +128,10 @@ export class MaterialService {
                 materials: updatedMaterials,
                 totalMaterialCosts: parseFloat(totalMaterialCosts.toFixed(2)),
             });
+            count++;
         }
+
+        return count;
     }
 
     private calculateRequiredMaterialCost(rm: RequiredMaterial): number {

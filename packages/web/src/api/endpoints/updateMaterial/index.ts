@@ -3,6 +3,12 @@ import { type Material, MethodType, type UpdateMaterial } from '@jewellery-catal
 import { MATERIALS_ENDPOINT } from '../../endpoints';
 import { makeRequestWithAutoRefresh } from '../../makeRequest';
 
+export type UpdateMaterialResponse = {
+    material: Material;
+    affectedDesignsCount: number;
+    priceChanged: boolean;
+};
+
 const makeUpdateMaterialRequest = async (
     materialId: string,
     updates: UpdateMaterial,
@@ -10,7 +16,7 @@ const makeUpdateMaterialRequest = async (
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
 ) => {
-    return await makeRequestWithAutoRefresh<Material>(
+    return await makeRequestWithAutoRefresh<UpdateMaterialResponse>(
         {
             pathname: `${MATERIALS_ENDPOINT}/${materialId}`,
             method: MethodType.PUT,

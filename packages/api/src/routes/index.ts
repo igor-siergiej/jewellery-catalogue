@@ -5,7 +5,14 @@ import { DependencyToken } from '../dependencies/types';
 import { addDesign, deleteDesign, editDesignProperties, getDesign, getDesigns, updateDesign } from '../handlers/Design';
 import { createDraft, deleteDraft, getDraft, getDrafts, updateDraft, uploadDraftImage } from '../handlers/Draft';
 import { getImage, uploadImage } from '../handlers/Image';
-import { addMaterial, deleteMaterial, getMaterial, getMaterials, updateMaterial } from '../handlers/Material';
+import {
+    addMaterial,
+    deleteMaterial,
+    getMaterial,
+    getMaterials,
+    recalculateMaterialPrices,
+    updateMaterial,
+} from '../handlers/Material';
 import { getUserSettings, recalculatePrices, updateUserSettings } from '../handlers/UserSettings';
 import { authenticate } from '../middleware/auth';
 
@@ -38,6 +45,7 @@ router.get('/api/materials', authenticate, getMaterials);
 router.post('/api/materials', authenticate, addMaterial);
 router.get('/api/materials/:id', authenticate, getMaterial);
 router.put('/api/materials/:id', authenticate, updateMaterial);
+router.post('/api/materials/:id/recalculate-prices', authenticate, recalculateMaterialPrices);
 router.delete('/api/materials/:id', authenticate, deleteMaterial);
 
 // Draft routes

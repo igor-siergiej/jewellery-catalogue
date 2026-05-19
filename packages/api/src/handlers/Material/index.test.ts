@@ -26,4 +26,9 @@ describe('Material Handlers', () => {
         expect(materialHandlers.deleteMaterial).toBeDefined();
         expect(typeof materialHandlers.deleteMaterial).toBe('function');
     });
+
+    it('should export recalculateMaterialPrices', () => {
+        expect(materialHandlers.recalculateMaterialPrices).toBeDefined();
+        expect(typeof materialHandlers.recalculateMaterialPrices).toBe('function');
+    });
 });
