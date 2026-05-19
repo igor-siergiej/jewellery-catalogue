@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { type SubmitHandler, useForm } from 'react-hook-form';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
@@ -22,6 +22,7 @@ import PriceBreakdown from '../../components/PriceBreakdown';
 import RichTextEditor from '../../components/RichTextEditor';
 import TimeInput from '../../components/TimeInput';
 import { computeVariants, VariationGroupBuilder } from '../../components/VariationGroupBuilder';
+import { DESIGNS_PAGE } from '../../constants/routes';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
 import { useDraftStatus } from '../../context/DraftStatus';
@@ -65,6 +66,7 @@ const AddDesign: React.FC = () => {
     const variationGroups = form.watch('variationGroups') ?? [];
 
     const { dispatch } = useAlert();
+    const navigate = useNavigate();
     const { setDraftStatus, clearDraftStatus } = useDraftStatus();
 
     const { draftId, uploadedImageId, clearDraft, deleteAndClearDraft } = useDraftAutosave({
@@ -135,7 +137,7 @@ const AddDesign: React.FC = () => {
                     variant: 'standard',
                 },
             });
-            form.reset();
+            navigate(DESIGNS_PAGE.route);
         } catch (e) {
             console.error('[AddDesign] Error adding design:', e);
             const message = e instanceof Error ? e.message : 'Unknown Error';
