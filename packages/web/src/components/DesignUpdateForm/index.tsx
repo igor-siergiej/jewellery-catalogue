@@ -31,6 +31,7 @@ export interface IDesignUpdateFormProps {
     design: Design;
     onSuccess: () => void;
     onCancel: () => void;
+    initialVariantId?: string;
 }
 
 interface MaterialAvailability {
@@ -42,9 +43,9 @@ interface MaterialAvailability {
     status: 'sufficient' | 'low' | 'insufficient';
 }
 
-const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess, onCancel }) => {
+const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess, onCancel, initialVariantId }) => {
     const [isUpdating, setIsUpdating] = useState(false);
-    const [selectedVariantId, setSelectedVariantId] = useState<string | undefined>(undefined);
+    const [selectedVariantId, setSelectedVariantId] = useState<string | undefined>(initialVariantId);
     const { accessToken, login, logout } = useAuth();
     const { dispatch } = useAlert();
 
