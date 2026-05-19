@@ -218,10 +218,10 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
             >
                 <TabsList>
                     <TabsTrigger value="all">All Materials</TabsTrigger>
-                    <TabsTrigger value="wire">Wire ({wireMaterials.length})</TabsTrigger>
-                    <TabsTrigger value="bead">Bead ({beadMaterials.length})</TabsTrigger>
-                    <TabsTrigger value="chain">Chain ({chainMaterials.length})</TabsTrigger>
-                    <TabsTrigger value="ear-hook">Ear Hook ({earHookMaterials.length})</TabsTrigger>
+                    <TabsTrigger value="wire">Wires ({wireMaterials.length})</TabsTrigger>
+                    <TabsTrigger value="bead">Beads ({beadMaterials.length})</TabsTrigger>
+                    <TabsTrigger value="chain">Chains ({chainMaterials.length})</TabsTrigger>
+                    <TabsTrigger value="ear-hook">Ear Hooks ({earHookMaterials.length})</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="all">

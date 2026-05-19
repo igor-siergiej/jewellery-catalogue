@@ -17,10 +17,10 @@ export const WIRE_TYPE_LABELS: Record<WIRE_TYPE, string> = {
 
 export const DESIGN_TYPE_LABELS: Record<DesignType, string> = {
     [DesignType.EARRINGS]: 'Earrings',
-    [DesignType.EARCUFF]: 'Ear Cuff',
-    [DesignType.RING]: 'Ring',
-    [DesignType.NECKLACE]: 'Necklace',
-    [DesignType.BRACELET]: 'Bracelet',
+    [DesignType.EARCUFF]: 'Ear Cuffs',
+    [DesignType.RING]: 'Rings',
+    [DesignType.NECKLACE]: 'Necklaces',
+    [DesignType.BRACELET]: 'Bracelets',
 };
 
 // User-friendly labels for Metal Types

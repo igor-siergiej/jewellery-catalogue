@@ -7,6 +7,7 @@
     "start": "bun run start:dev",
     "start:with-mock": "concurrently \"bun run start:mock-auth\" \"bun run start:dev\"",
     "build": "vite build --emptyOutDir",
+    "test": "vitest run",
     "pw:install": "PLAYWRIGHT_BROWSERS_PATH=~/.cache/ms-playwright playwright install --with-deps",
     "pw:run": "playwright test --config=playwright.config.ts",
     "pw:e2e": "playwright test --config=playwright.config.ts",

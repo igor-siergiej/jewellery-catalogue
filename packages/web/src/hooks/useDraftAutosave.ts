@@ -67,6 +67,10 @@ export const useDraftAutosave = ({
     onStatusChangeRef.current = onStatusChange;
 
     const clearDraft = useCallback(() => {
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+            debounceTimerRef.current = null;
+        }
         setDraftId(null);
         draftIdRef.current = null;
         uploadedImageIdRef.current = null;
