@@ -38,7 +38,7 @@ export class MongoDesignRepository extends MongoRepository<Design> implements De
         const docs = await this.collection()
             .find(
                 {
-                    'materials.id': materialId,
+                    $or: [{ 'materials.id': materialId }, { 'variationGroups.options.material.id': materialId }],
                 },
                 { projection: { _id: 0 } }
             )

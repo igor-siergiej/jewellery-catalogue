@@ -97,4 +97,47 @@ describe('MongoDesignRepository', () => {
             expect(mockDesignsCollection.deleteOne).toHaveBeenCalledWith({ id: 'design-123' });
         });
     });
+
+    describe('findByMaterialId', () => {
+        it('should query both base materials and variation group option materials', async () => {
+            const mockCursor = { toArray: mock().mockResolvedValue([]) };
+            mockDesignsCollection.find.mockReturnValue(mockCursor);
+
+            await repository.findByMaterialId('mat-1');
+
+            expect(mockDesignsCollection.find).toHaveBeenCalledWith(
+                {
+                    $or: [{ 'materials.id': 'mat-1' }, { 'variationGroups.options.material.id': 'mat-1' }],
+                },
+                { projection: { _id: 0 } }
+            );
+        });
+
+        it('should return designs matched by base material id', async () => {
+            const design = {
+                id: 'd1',
+                materials: [{ id: 'mat-1', type: 'wire' }],
+            } as unknown as Design;
+            const mockCursor = { toArray: mock().mockResolvedValue([design]) };
+            mockDesignsCollection.find.mockReturnValue(mockCursor);
+
+            const result = await repository.findByMaterialId('mat-1');
+
+            expect(result).toEqual([design]);
+        });
+
+        it('should return designs matched by variation group option material id', async () => {
+            const design = {
+                id: 'd1',
+                materials: [],
+                variationGroups: [{ id: 'g1', options: [{ id: 'o1', material: { id: 'mat-1' } }] }],
+            } as unknown as Design;
+            const mockCursor = { toArray: mock().mockResolvedValue([design]) };
+            mockDesignsCollection.find.mockReturnValue(mockCursor);
+
+            const result = await repository.findByMaterialId('mat-1');
+
+            expect(result).toEqual([design]);
+        });
+    });
 });
