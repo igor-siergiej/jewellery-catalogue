@@ -1,3 +1,15 @@
+# [1.28.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.27.0...v1.28.0) (2026-06-01)
+
+
+### Bug Fixes
+
+* **designs:** find by material also searches variant option materials ([e0e5d7a](https://github.com/igor-siergiej/jewellery-catalogue/commit/e0e5d7a9d3f7b90c4c0276abdd8fcedf48d3f146))
+
+
+### Features
+
+* **materials:** propagate price updates to variant materials and costs ([b90ad89](https://github.com/igor-siergiej/jewellery-catalogue/commit/b90ad89b48fc8dd758ddfe641c4f71aeb36f8348))
+
 # [1.27.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.26.2...v1.27.0) (2026-05-19)
 
 
