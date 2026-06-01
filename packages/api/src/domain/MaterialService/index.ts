@@ -1,10 +1,12 @@
 import {
+    type DesignVariant,
     type FormMaterial,
     FormMaterialSchemas,
     type Material,
     MaterialType,
     type RequiredMaterial,
     type UpdateMaterial,
+    type VariationGroup,
 } from '@jewellery-catalogue/types';
 
 import { convertFormDataToMaterial } from '../../utils/material-conversion';
@@ -119,19 +121,73 @@ export class MaterialService {
                 return { ...rm, ...updatedMaterial };
             });
 
-            const totalMaterialCosts = updatedMaterials.reduce((sum, rm) => {
-                return sum + this.calculateRequiredMaterialCost(rm);
-            }, 0);
+            const totalMaterialCosts = parseFloat(
+                updatedMaterials.reduce((sum, rm) => sum + this.calculateRequiredMaterialCost(rm), 0).toFixed(2)
+            );
+
+            const variantUpdate = this.updateVariantMaterials(
+                updatedMaterials,
+                design.variationGroups,
+                design.variants,
+                materialId,
+                updatedMaterial
+            );
 
             await this.designRepo.update(design.id, {
                 ...design,
                 materials: updatedMaterials,
-                totalMaterialCosts: parseFloat(totalMaterialCosts.toFixed(2)),
+                totalMaterialCosts,
+                ...(variantUpdate ?? {}),
             });
             count++;
         }
 
         return count;
+    }
+
+    private updateVariantMaterials(
+        updatedSharedMaterials: RequiredMaterial[],
+        variationGroups: VariationGroup[] | undefined,
+        variants: DesignVariant[] | undefined,
+        materialId: string,
+        updatedMaterial: Material
+    ): { variationGroups: VariationGroup[]; variants: DesignVariant[] } | undefined {
+        if (!variationGroups?.length || !variants?.length) return undefined;
+
+        const updatedGroups = variationGroups.map((group) => ({
+            ...group,
+            options: group.options.map((option) =>
+                option.material.id === materialId
+                    ? { ...option, material: { ...option.material, ...updatedMaterial } }
+                    : option
+            ),
+        }));
+
+        const updatedVariants = variants.map((variant) => {
+            const optionMaterials = this.resolveVariantOptionMaterials(variant.optionIds, updatedGroups);
+            const totalMaterialCosts = parseFloat(
+                [...updatedSharedMaterials, ...optionMaterials]
+                    .reduce((sum, rm) => sum + this.calculateRequiredMaterialCost(rm), 0)
+                    .toFixed(2)
+            );
+            return { ...variant, totalMaterialCosts, price: totalMaterialCosts };
+        });
+
+        return { variationGroups: updatedGroups, variants: updatedVariants };
+    }
+
+    private resolveVariantOptionMaterials(optionIds: string[], groups: VariationGroup[]): RequiredMaterial[] {
+        const materials: RequiredMaterial[] = [];
+        for (const optionId of optionIds) {
+            for (const group of groups) {
+                const option = group.options.find((o) => o.id === optionId);
+                if (option) {
+                    materials.push(option.material);
+                    break;
+                }
+            }
+        }
+        return materials;
     }
 
     private calculateRequiredMaterialCost(rm: RequiredMaterial): number {
