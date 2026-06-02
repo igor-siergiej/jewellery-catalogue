@@ -3,6 +3,7 @@ import { useAuth, useAuthConfig } from '@imapps/web-utils';
 import { Eye, EyeOff } from 'lucide-react';
 import type React from 'react';
 import { useState } from 'react';
+import { flushSync } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -69,9 +70,7 @@ export const RegisterForm: React.FC = () => {
 
             if (!json.accessToken) throw new Error('No access token returned');
 
-            // Login the user
-            login(json.accessToken);
-
+            flushSync(() => login(json.accessToken));
             navigate(HOME_PAGE.route);
         } catch (e) {
             const message = e instanceof Error ? e.message : 'Unknown error';

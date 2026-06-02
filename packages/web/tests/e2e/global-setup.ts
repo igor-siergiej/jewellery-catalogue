@@ -85,8 +85,9 @@ export default async function globalSetup(): Promise<() => void> {
         }
 
         if (req.method === 'POST' && req.url === '/refresh') {
-            res.writeHead(200);
-            res.end(JSON.stringify({ accessToken: makeMockToken('refresh') }));
+            // Return 401 — tests start with cleared auth state and no valid refresh token
+            res.writeHead(401);
+            res.end(JSON.stringify({ message: 'No refresh token' }));
             return;
         }
 
