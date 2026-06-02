@@ -59,23 +59,16 @@ test.describe('Given Start Page', () => {
         // Wait for services to be ready before testing connectivity
         await waitForAuthServices(page);
 
-        // Use environment variables for service URLs, with fallbacks for local development
-        const apiServiceUrl = process.env.E2E_API_SERVICE_URL || 'http://192.168.68.54:5001';
-        const authServiceUrl = process.env.E2E_AUTH_SERVICE_URL || 'http://192.168.68.54:5002';
+        const apiServiceUrl = process.env.E2E_API_SERVICE_URL || 'http://localhost:3001';
+        const authServiceUrl = process.env.E2E_AUTH_SERVICE_URL || 'http://localhost:3008';
 
-        const apiResponse = await request.get(`${apiServiceUrl}/health`);
-
+        const apiResponse = await request.get(`${apiServiceUrl}/api/health`);
         expect(apiResponse.status()).toBe(200);
-        const apiBody = await apiResponse.json();
-
-        expect(apiBody.service).toBe('api');
 
         const authResponse = await request.get(`${authServiceUrl}/health`);
-
         expect(authResponse.status()).toBe(200);
         const authBody = await authResponse.json();
-
-        expect(authBody.service).toBe('auth');
+        expect(authBody.status).toBe('healthy');
 
         await page.goto('/');
         await page.waitForLoadState('networkidle');

@@ -52,7 +52,7 @@ export const waitForAuthServices = async (page: Page) => {
 
     while (retries < maxRetries) {
         try {
-            const response = await page.request.get(`${apiServiceUrl}/health`);
+            const response = await page.request.get(`${apiServiceUrl}/api/health`);
 
             if (response.status() === 200) {
                 console.log('✅ API service is ready');
@@ -171,10 +171,14 @@ export const pageContent = {
         title: 'Jewellery Catalogue',
         subtitle: 'Welcome back Goldsmith!',
         submitButtonText: 'Login',
+        titleSelector: 'h1',
+        subtitleSelector: 'h2',
     },
     register: {
         title: 'Jewellery Catalogue',
         subtitle: 'Join the goldsmith empire!',
         submitButtonText: 'Register',
+        titleSelector: 'h1',
+        subtitleSelector: 'h2',
     },
 };
