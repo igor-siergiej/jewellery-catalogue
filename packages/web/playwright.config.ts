@@ -14,7 +14,6 @@ if (isCI || isStaging) {
 
 const getBaseURL = () => {
     if (process.env.STAGING_BASE_URL) return process.env.STAGING_BASE_URL;
-    if (isCI || isStaging) return 'http://localhost:8082';
     return process.env.E2E_BASE_URL || 'http://localhost:3000';
 };
 

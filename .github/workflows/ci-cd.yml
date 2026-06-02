@@ -98,6 +98,7 @@ jobs:
           retention-days: 7
 
   release:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     needs: [test, integration-test]
     permissions:
@@ -117,6 +118,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-publish:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     needs: release
     permissions:
@@ -144,9 +146,9 @@ jobs:
         run: bash .github/workflows-utils/pipelines/scripts/publish-images.sh jewellery-catalogue ${{ steps.version.outputs.version }}
 
   deploy:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     needs: build-publish
-    if: success()
     steps:
       - name: Trigger web deployment
         run: |
