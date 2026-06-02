@@ -45,7 +45,8 @@ test.describe('Given Start Page', () => {
                 !error.includes('favicon') &&
                 !error.includes('manifest') &&
                 !error.includes('DevTools') &&
-                !error.includes('400 (Bad Request)')
+                !error.includes('400 (Bad Request)') &&
+                !error.includes('/refresh') // 401 on refresh is expected when unauthenticated
         );
 
         expect(criticalErrors).toHaveLength(0);
