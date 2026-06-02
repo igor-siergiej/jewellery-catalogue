@@ -84,6 +84,7 @@ jobs:
           bun-version: latest
       - run: bun install
       - run: bunx playwright install --with-deps chromium
+        working-directory: packages/web
       - run: bun run pw:e2e
         working-directory: packages/web
         env:
