@@ -27,7 +27,8 @@ test.describe('Given Start Page', () => {
 
         page.on('console', (msg) => {
             if (msg.type() === 'error') {
-                consoleErrors.push(msg.text());
+                const { url } = msg.location();
+                consoleErrors.push(url ? `${msg.text()} [${url}]` : msg.text());
             }
         });
 
