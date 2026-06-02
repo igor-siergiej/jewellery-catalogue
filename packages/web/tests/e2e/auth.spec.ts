@@ -27,11 +27,13 @@ test.describe('Authentication Flow', () => {
 
             // Wait for React app to render
             await page.waitForSelector('#root', { state: 'visible' });
-            await page.waitForSelector('h3', { timeout: 10000 });
+            await page.waitForSelector(pageContent.register.titleSelector, { timeout: 10000 });
 
             // Check page elements
-            await expect(page.locator('h3')).toContainText(pageContent.register.title);
-            await expect(page.locator('h5')).toContainText(pageContent.register.subtitle);
+            await expect(page.locator(pageContent.register.titleSelector)).toContainText(pageContent.register.title);
+            await expect(page.locator(pageContent.register.subtitleSelector)).toContainText(
+                pageContent.register.subtitle
+            );
 
             // Check form fields
             await expect(page.locator(selectors.usernameInput)).toBeVisible();
@@ -69,18 +71,17 @@ test.describe('Authentication Flow', () => {
 
             await usernameInput.fill('testuser');
 
-            // Test each weak password scenario
-            const weakPasswords = [
-                testCredentials.weakPasswords.tooShort,
-                testCredentials.weakPasswords.noNumber,
-                testCredentials.weakPasswords.noLetter,
-            ];
+            await passwordInput.fill(testCredentials.weakPasswords.tooShort);
+            await page.click(selectors.submitButton);
+            await expect(page.locator('text=Password must be at least 8 characters long')).toBeVisible();
 
-            for (const weakPassword of weakPasswords) {
-                await passwordInput.fill(weakPassword);
-                await page.click(selectors.submitButton);
-                await expect(page.locator(selectors.passwordValidationError)).toBeVisible();
-            }
+            await passwordInput.fill(testCredentials.weakPasswords.noNumber);
+            await page.click(selectors.submitButton);
+            await expect(page.locator('text=Password must contain at least one letter and one number')).toBeVisible();
+
+            await passwordInput.fill(testCredentials.weakPasswords.noLetter);
+            await page.click(selectors.submitButton);
+            await expect(page.locator('text=Password must contain at least one letter and one number')).toBeVisible();
         });
 
         test('should successfully register a new user and navigate to home', async ({ page }) => {
@@ -164,11 +165,11 @@ test.describe('Authentication Flow', () => {
 
             // Wait for React app to render
             await page.waitForSelector('#root', { state: 'visible' });
-            await page.waitForSelector('h3', { timeout: 10000 });
+            await page.waitForSelector(pageContent.login.titleSelector, { timeout: 10000 });
 
             // Check page elements
-            await expect(page.locator('h3')).toContainText(pageContent.login.title);
-            await expect(page.locator('h5')).toContainText(pageContent.login.subtitle);
+            await expect(page.locator(pageContent.login.titleSelector)).toContainText(pageContent.login.title);
+            await expect(page.locator(pageContent.login.subtitleSelector)).toContainText(pageContent.login.subtitle);
 
             // Check form fields
             await expect(page.locator(selectors.usernameInput)).toBeVisible();

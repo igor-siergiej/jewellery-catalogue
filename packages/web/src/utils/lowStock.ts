@@ -20,7 +20,10 @@ export function isLowStockMaterial(material: Material): boolean {
 
 export function isLowStockDesign(design: Design): boolean {
     if (design.variants?.length) {
-        return design.variants.some((v) => v.lowStockThreshold != null && v.totalQuantity < v.lowStockThreshold);
+        return design.variants.some((v) => {
+            const threshold = v.lowStockThreshold ?? design.lowStockThreshold;
+            return threshold != null && v.totalQuantity < threshold;
+        });
     }
     if (design.lowStockThreshold == null) return false;
     return design.totalQuantity < design.lowStockThreshold;
@@ -36,7 +39,8 @@ export function getLowStockDesignRows(designs: Design[]): LowStockDesignRow[] {
     for (const design of designs) {
         if (design.variants?.length) {
             for (const variant of design.variants) {
-                if (variant.lowStockThreshold != null && variant.totalQuantity < variant.lowStockThreshold) {
+                const threshold = variant.lowStockThreshold ?? design.lowStockThreshold;
+                if (threshold != null && variant.totalQuantity < threshold) {
                     rows.push({ design, variant });
                 }
             }

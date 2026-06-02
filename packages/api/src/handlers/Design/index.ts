@@ -132,11 +132,13 @@ export const editDesignProperties = async (ctx: Context) => {
         materials,
         totalMaterialCosts,
         price,
+        lowStockThreshold,
         variationGroups,
         variants,
         designType,
         keepImageIds: keepImageIdsRaw,
     } = ctx.request.body as Partial<EditDesign> & {
+        lowStockThreshold?: string;
         variationGroups?: string;
         variants?: string;
         keepImageIds?: string;
@@ -167,6 +169,7 @@ export const editDesignProperties = async (ctx: Context) => {
             updates.variants = typeof variants === 'string' ? JSON.parse(variants) : variants;
         }
         if (designType !== undefined) updates.designType = designType;
+        if (lowStockThreshold !== undefined) updates.lowStockThreshold = Number(lowStockThreshold);
 
         const design = await getDesignService().editDesignProperties(id, updates, imageBuffers, keepImageIds, userId);
 

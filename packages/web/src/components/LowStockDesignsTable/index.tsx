@@ -79,7 +79,9 @@ const LowStockDesignsTable: React.FC<ILowStockDesignsTableProps> = ({ rows, onDe
                         ) : (
                             rows.map(({ design, variant }, index) => {
                                 const quantity = variant ? variant.totalQuantity : design.totalQuantity;
-                                const threshold = variant ? variant.lowStockThreshold : design.lowStockThreshold;
+                                const threshold = variant
+                                    ? (variant.lowStockThreshold ?? design.lowStockThreshold)
+                                    : design.lowStockThreshold;
                                 const displayName = variant ? `${design.name} — ${variant.name}` : design.name;
                                 const price = variant ? variant.price : design.price;
                                 const rowKey = variant ? `${design.id}-${variant.id}` : design.id || `design-${index}`;

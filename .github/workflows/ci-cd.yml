@@ -107,7 +107,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build-publish
-    if: success()
     steps:
       - name: Trigger web deployment
         run: |
