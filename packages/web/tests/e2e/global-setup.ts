@@ -1,6 +1,7 @@
-import { createServer, type IncomingMessage } from 'node:http';
+import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 
 const KIVO_PORT = 3008;
+const ALLOWED_ORIGIN = 'http://localhost:3000';
 
 const makePart = (obj: object | string) =>
     Buffer.from(typeof obj === 'string' ? obj : JSON.stringify(obj)).toString('base64');
@@ -12,6 +13,13 @@ function makeMockToken(username: string): string {
         makePart({ username, id, catalogueId: `${id.slice(0, -1)}7`, exp: 9999999999, iat: 1700000000 }),
         makePart('mock-signature'),
     ].join('.');
+}
+
+function setCors(res: ServerResponse) {
+    res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }
 
 function readBody(req: IncomingMessage): Promise<Record<string, string>> {
@@ -34,7 +42,14 @@ export default async function globalSetup(): Promise<() => void> {
     const registeredUsers = new Map<string, string>();
 
     const server = createServer(async (req, res) => {
+        setCors(res);
         res.setHeader('Content-Type', 'application/json');
+
+        if (req.method === 'OPTIONS') {
+            res.writeHead(204);
+            res.end();
+            return;
+        }
 
         if (req.method === 'GET' && req.url === '/health') {
             res.writeHead(200);
