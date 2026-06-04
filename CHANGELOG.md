@@ -1,3 +1,10 @@
+# [1.29.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.28.1...v1.29.0) (2026-06-04)
+
+
+### Features
+
+* **ci:** add fallow static analysis ([#28](https://github.com/igor-siergiej/jewellery-catalogue/issues/28)) ([8d94782](https://github.com/igor-siergiej/jewellery-catalogue/commit/8d94782bad3a2b0d4901cb0c6b5661383d5bcc56))
+
 ## [1.28.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.28.0...v1.28.1) (2026-06-04)
 
 
