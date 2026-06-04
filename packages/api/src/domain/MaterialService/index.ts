@@ -21,6 +21,7 @@ export class MaterialService {
         private readonly designRepo: DesignRepository
     ) {}
 
+    // fallow-ignore-next-line unused-class-member
     async getMaterialsByUserId(userId: string): Promise<Array<Material>> {
         if (!userId) {
             throw Object.assign(new Error('User ID is required'), { status: 400 });
@@ -29,6 +30,7 @@ export class MaterialService {
         return this.materialRepo.getByUserId(userId);
     }
 
+    // fallow-ignore-next-line unused-class-member
     async getMaterial(id: string, userId: string): Promise<Material> {
         if (!id) {
             throw Object.assign(new Error('Material ID is required'), { status: 400 });
@@ -47,6 +49,7 @@ export class MaterialService {
         return material;
     }
 
+    // fallow-ignore-next-line unused-class-member
     async addMaterial(materialData: FormMaterial, userId: string): Promise<Material> {
         if (!userId) {
             throw Object.assign(new Error('User ID is required'), { status: 400 });
@@ -60,6 +63,7 @@ export class MaterialService {
         return material;
     }
 
+    // fallow-ignore-next-line unused-class-member
     async updateMaterial(
         id: string,
         updates: UpdateMaterial,
@@ -367,6 +371,7 @@ export class MaterialService {
         }
     }
 
+    // fallow-ignore-next-line unused-class-member
     async deleteMaterial(id: string, userId: string): Promise<void> {
         if (!id) {
             throw Object.assign(new Error('Material ID is required'), { status: 400 });

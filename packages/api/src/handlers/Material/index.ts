@@ -5,6 +5,7 @@ import { dependencyContainer } from '../../dependencies';
 import { DependencyToken } from '../../dependencies/types';
 import type { MaterialService } from '../../domain/MaterialService';
 import type { UserSettingsService } from '../../domain/UserSettingsService';
+import { handleHandlerError } from '../../utils/handler-error';
 
 const getMaterialService = (): MaterialService => dependencyContainer.resolve(DependencyToken.MaterialService);
 const getUserSettingsService = (): UserSettingsService =>
@@ -18,10 +19,7 @@ export const getMaterials = async (ctx: Context) => {
 
         ctx.body = materials;
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
+        handleHandlerError(ctx, error);
     }
 };
 
@@ -34,10 +32,7 @@ export const getMaterial = async (ctx: Context) => {
 
         ctx.body = material;
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
+        handleHandlerError(ctx, error);
     }
 };
 
@@ -51,10 +46,7 @@ export const addMaterial = async (ctx: Context) => {
         ctx.status = 200;
         ctx.body = material;
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
+        handleHandlerError(ctx, error);
     }
 };
 
@@ -68,10 +60,7 @@ export const updateMaterial = async (ctx: Context) => {
 
         ctx.body = result;
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
+        handleHandlerError(ctx, error);
     }
 };
 
@@ -84,10 +73,7 @@ export const recalculateMaterialPrices = async (ctx: Context) => {
 
         ctx.body = result;
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
+        handleHandlerError(ctx, error);
     }
 };
 
@@ -101,9 +87,6 @@ export const deleteMaterial = async (ctx: Context) => {
         ctx.status = 200;
         ctx.body = { message: 'Material deleted successfully' };
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
+        handleHandlerError(ctx, error);
     }
 };

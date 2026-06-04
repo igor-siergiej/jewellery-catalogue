@@ -13,12 +13,12 @@ function getCurrentPacks(material: Material): number {
     }
 }
 
-export function isLowStockMaterial(material: Material): boolean {
+function isLowStockMaterial(material: Material): boolean {
     if (material.lowStockThreshold == null) return false;
     return getCurrentPacks(material) < material.lowStockThreshold;
 }
 
-export function isLowStockDesign(design: Design): boolean {
+function isLowStockDesign(design: Design): boolean {
     if (design.variants?.length) {
         return design.variants.some((v) => {
             const threshold = v.lowStockThreshold ?? design.lowStockThreshold;
