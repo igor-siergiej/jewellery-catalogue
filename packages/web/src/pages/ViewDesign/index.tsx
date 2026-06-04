@@ -180,7 +180,9 @@ const ViewDesign = () => {
                             )}
                             <h1 className="text-4xl font-bold leading-tight">{name}</h1>
                             <div className="flex items-baseline gap-3 flex-wrap">
-                                <span className="text-3xl font-semibold">£{price.toFixed(2)}</span>
+                                {(!variants || variants.length === 0) && (
+                                    <span className="text-3xl font-semibold">£{price.toFixed(2)}</span>
+                                )}
                                 <Badge variant="secondary" className="text-xs">
                                     {totalQuantity ?? 0} in stock
                                 </Badge>
