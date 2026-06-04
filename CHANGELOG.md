@@ -1,3 +1,10 @@
+## [1.28.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.28.0...v1.28.1) (2026-06-04)
+
+
+### Bug Fixes
+
+* **designs:** hide price from header when variants exist ([0dcab88](https://github.com/igor-siergiej/jewellery-catalogue/commit/0dcab88102e34616cec68f7ef1b7723f17702831))
+
 # [1.28.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.27.0...v1.28.0) (2026-06-01)
 
 
