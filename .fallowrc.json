@@ -1,0 +1,11 @@
+{
+  "ignorePatterns": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.integration.test.ts",
+    "packages/web/src/components/ui/**",
+    "**/dist/**",
+    "**/coverage/**"
+  ],
+  "ignoreUnresolvedImports": ["bun:test"]
+}
