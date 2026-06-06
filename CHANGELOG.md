@@ -1,3 +1,10 @@
+## [1.29.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.29.0...v1.29.1) (2026-06-06)
+
+
+### Bug Fixes
+
+* **fallow:** resolve all dead code, duplication, and complexity issues ([#29](https://github.com/igor-siergiej/jewellery-catalogue/issues/29)) ([55ad3c9](https://github.com/igor-siergiej/jewellery-catalogue/commit/55ad3c9eeddd878699d1606791ec98994a878e33))
+
 # [1.29.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.28.1...v1.29.0) (2026-06-04)
 
 
