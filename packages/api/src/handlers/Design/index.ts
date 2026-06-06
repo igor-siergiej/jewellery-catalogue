@@ -5,6 +5,7 @@ import type { Context } from 'koa';
 import { dependencyContainer } from '../../dependencies';
 import { DependencyToken } from '../../dependencies/types';
 import type { DesignService } from '../../domain/DesignService';
+import { handleHandlerError } from '../../utils/handler-error';
 
 const getDesignService = (): DesignService => dependencyContainer.resolve(DependencyToken.DesignService);
 
@@ -21,10 +22,7 @@ export const getDesigns = async (ctx: Context) => {
 
         ctx.body = designs;
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
+        handleHandlerError(ctx, error);
     }
 };
 
@@ -37,10 +35,7 @@ export const getDesign = async (ctx: Context) => {
 
         ctx.body = design;
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
+        handleHandlerError(ctx, error);
     }
 };
 
@@ -96,10 +91,7 @@ export const addDesign = async (ctx: Context) => {
         ctx.status = 200;
         ctx.body = design;
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
+        handleHandlerError(ctx, error);
     }
 };
 
@@ -113,10 +105,7 @@ export const updateDesign = async (ctx: Context) => {
 
         ctx.body = design;
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
+        handleHandlerError(ctx, error);
     }
 };
 
@@ -176,10 +165,7 @@ export const editDesignProperties = async (ctx: Context) => {
         ctx.status = 200;
         ctx.body = design;
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
+        handleHandlerError(ctx, error);
     }
 };
 
@@ -193,9 +179,6 @@ export const deleteDesign = async (ctx: Context) => {
         ctx.status = 200;
         ctx.body = { message: 'Design deleted successfully' };
     } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
+        handleHandlerError(ctx, error);
     }
 };

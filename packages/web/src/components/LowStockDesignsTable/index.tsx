@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { VIEW_DESIGN_PAGE } from '@/constants/routes';
 import type { LowStockDesignRow } from '@/utils/lowStock';
 
-export interface ILowStockDesignsTableProps {
+interface ILowStockDesignsTableProps {
     rows: LowStockDesignRow[];
     onDesignUpdated?: () => void;
 }
