@@ -18,3 +18,5 @@ packages/web/coverage/
 
 # Git worktrees
 .worktrees
+# fallow audit binary (downloaded on demand by scripts/run-fallow.sh)
+.tooling/
