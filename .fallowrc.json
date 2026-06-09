@@ -9,6 +9,7 @@
   ],
   "ignoreUnresolvedImports": ["bun:test"],
   "ignoreDependencies": [
+    "@tiptap/pm",
     "class-variance-authority",
     "vaul",
     "@radix-ui/react-alert-dialog",
