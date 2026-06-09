@@ -12,6 +12,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --fix --unsafe .",
     "format": "biome format --write .",
+    "audit": "bash scripts/run-fallow.sh",
     "prepare": "husky",
     "release": "semantic-release"
   },
