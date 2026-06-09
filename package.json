@@ -20,7 +20,6 @@
   ],
   "devDependencies": {
     "@biomejs/biome": "2.2.5",
-    "@imapps/biome-config": "0.5.1",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^13.0.0",
     "@semantic-release/exec": "^7.1.0",

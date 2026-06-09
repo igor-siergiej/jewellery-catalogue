@@ -16,7 +16,6 @@
     "koa": "^3.0.0",
     "koa-body": "^6.0.1",
     "koa-router": "^13.0.1",
-    "minio": "^8.0.5",
     "mongodb": "^6.13.1"
   },
   "devDependencies": {

@@ -7,5 +7,26 @@
     "**/dist/**",
     "**/coverage/**"
   ],
-  "ignoreUnresolvedImports": ["bun:test"]
+  "ignoreUnresolvedImports": ["bun:test"],
+  "ignoreDependencies": [
+    "@tiptap/pm",
+    "class-variance-authority",
+    "vaul",
+    "@radix-ui/react-alert-dialog",
+    "@radix-ui/react-checkbox",
+    "@radix-ui/react-collapsible",
+    "@radix-ui/react-dialog",
+    "@radix-ui/react-label",
+    "@radix-ui/react-scroll-area",
+    "@radix-ui/react-select",
+    "@radix-ui/react-separator",
+    "@radix-ui/react-slot",
+    "@radix-ui/react-tabs",
+    "@radix-ui/react-tooltip",
+    "@testing-library/react",
+    "@testing-library/dom",
+    "@testing-library/user-event",
+    "jsdom",
+    "vitest-fetch-mock"
+  ]
 }
