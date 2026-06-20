@@ -33,8 +33,9 @@ export const getDesign = async (c: Ctx) => {
 
 export const addDesign = async (c: Ctx) => {
     const userId = c.get('userId');
-    const body = await c.req.parseBody({ all: true });
-    const files = collectFiles(body.files);
+    const isJson = (c.req.header('content-type') ?? '').includes('application/json');
+    const body = isJson ? await c.req.json() : await c.req.parseBody({ all: true });
+    const files = isJson ? [] : collectFiles(body.files);
 
     const {
         name,
