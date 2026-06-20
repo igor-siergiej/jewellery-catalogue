@@ -1,120 +1,32 @@
 import 'dotenv/config';
 
-import cors from '@koa/cors';
-import Koa, { type Context, type Next } from 'koa';
-import koaBody from 'koa-body';
+import { createApp } from '@imapps/api-utils/hono';
 
 import { config } from './config';
 import { dependencyContainer, registerDepdendencies } from './dependencies';
 import { DependencyToken } from './dependencies/types';
-import routes from './routes';
-import { HttpErrorCode } from './types';
+import { createRoutes } from './routes';
 
 const port = config.get('port');
 
 const allowedOrigins = [
-    'http://localhost:3000', // Development
-    'http://localhost:8082', // Staging (localhost)
-    'http://192.168.68.54:8082', // Staging (IP)
-    'https://jewellerycatalogue.imapps.co.uk', // Production
+    'http://localhost:3000',
+    'http://localhost:8082',
+    'http://192.168.68.54:8082',
+    'https://jewellerycatalogue.imapps.co.uk',
 ];
 
-const customLogger = async (ctx: Context, next: Next) => {
-    const start = Date.now();
-    const appLogger = dependencyContainer.resolve(DependencyToken.Logger);
-
-    if (appLogger) {
-        appLogger.info(`Incoming request: ${ctx.method} ${ctx.url}`, {
-            method: ctx.method,
-            url: ctx.url,
-            userAgent: ctx.get('user-agent') || 'unknown',
-        });
-    }
-
-    await next();
-
-    const responseTime = Date.now() - start;
-
-    if (appLogger) {
-        appLogger.info(`${ctx.method} ${ctx.url} - ${ctx.status} ${responseTime}ms`);
-    }
-};
-
-const corsOptions = {
-    origin: (ctx: Context) => {
-        const origin = ctx.get('origin');
-
-        if (allowedOrigins.includes(origin)) {
-            return origin;
-        }
-
-        return '*';
-    },
-    credentials: true,
-    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
-};
-
-const bodyOptions = {
-    json: true,
-    text: true,
-    multipart: true,
-    formidable: {
-        keepExtensions: true,
-        multiples: true,
-    },
-};
-
 export const onStartup = async () => {
+    registerDepdendencies();
+
+    const appLogger = dependencyContainer.resolve(DependencyToken.Logger);
+    const database = dependencyContainer.resolve(DependencyToken.Database);
+    const bucket = dependencyContainer.resolve(DependencyToken.Bucket);
+
+    if (!appLogger) throw new Error('Logger dependency not resolved');
+    if (!database) throw new Error('Could not connect to DB');
+
     try {
-        const app = new Koa();
-
-        app.use(cors(corsOptions));
-
-        registerDepdendencies();
-
-        app.use(customLogger);
-
-        app.use(koaBody(bodyOptions));
-        app.use(async (ctx, next) => {
-            try {
-                await next();
-            } catch (err) {
-                ctx.status = err.status || HttpErrorCode.InternalServerError;
-                ctx.body = {
-                    success: false,
-                    message: err.message || 'Internal Server Error',
-                };
-                ctx.app.emit('error', err, ctx);
-            }
-        });
-
-        app.on('error', (err, ctx) => {
-            const appLogger = dependencyContainer.resolve(DependencyToken.Logger);
-
-            if (appLogger) {
-                appLogger.error('Server Error', {
-                    message: err.message,
-                    stack: err.stack,
-                    path: ctx.request.path,
-                    method: ctx.request.method,
-                    status: ctx.status,
-                });
-            }
-        });
-
-        const appLogger = dependencyContainer.resolve(DependencyToken.Logger);
-        const database = dependencyContainer.resolve(DependencyToken.Database);
-        const bucket = dependencyContainer.resolve(DependencyToken.Bucket);
-
-        if (!appLogger) {
-            throw new Error('Logger dependency not resolved');
-        }
-
-        if (!database) {
-            throw new Error('Could not connect to DB');
-        }
-
         appLogger.info('Starting API server - connecting to database and object store');
         await database.connect({
             connectionUri: config.get('connectionUri'),
@@ -130,11 +42,9 @@ export const onStartup = async () => {
         });
         appLogger.info('Connected to object store');
 
-        // Create indexes for efficient userId queries
         appLogger.info('Creating database indexes');
         const designsCollection = database.getCollection('designs' as any);
         const materialsCollection = database.getCollection('materials' as any);
-
         await designsCollection.createIndex({ userId: 1 });
         await designsCollection.createIndex({ id: 1, userId: 1 });
         await materialsCollection.createIndex({ userId: 1 });
@@ -144,24 +54,15 @@ export const onStartup = async () => {
         await draftsCollection.createIndex({ id: 1, userId: 1 });
         appLogger.info('Database indexes created');
 
-        app.use(routes.routes());
+        const app = createApp({ logger: appLogger, allowedOrigins });
+        app.route('/', createRoutes());
 
-        app.listen(port, () => {
-            appLogger.info(`Jewellery Catalogue Api server running on port ${port}`);
-        });
+        Bun.serve({ port, fetch: app.fetch });
+        appLogger.info(`Jewellery Catalogue Api server running on port ${port}`);
     } catch (error: unknown) {
-        const appLogger = dependencyContainer.resolve(DependencyToken.Logger);
-
-        if (error instanceof Error) {
-            if (appLogger) {
-                appLogger.error('Encountered an error on start up', { error: error.message });
-            }
-        } else {
-            if (appLogger) {
-                appLogger.error('Encountered unexpected error on start up', { error });
-            }
-        }
-
+        appLogger.error('Encountered an error on start up', {
+            error: error instanceof Error ? error.message : error,
+        });
         process.exit(1);
     }
 };
