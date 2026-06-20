@@ -75,6 +75,13 @@ jobs:
           --health-timeout 5s
           --health-retries 15
           --health-start-period 5s
+      minio:
+        image: bitnami/minio:latest
+        ports:
+          - 9000:9000
+        env:
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minioadmin
     steps:
       - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2

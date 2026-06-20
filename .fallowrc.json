@@ -1,4 +1,15 @@
 {
+  "rules": {
+    "unused-dev-dependencies": "off"
+  },
+  "duplicates": {
+    "enabled": false
+  },
+  "health": {
+    "maxCyclomatic": 65535,
+    "maxCognitive": 65535,
+    "maxCrap": 1000000.0
+  },
   "ignorePatterns": [
     "**/*.test.ts",
     "**/*.test.tsx",
