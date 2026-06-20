@@ -11,17 +11,11 @@
     "test:integration": "docker compose -f ../../docker-compose.test.yml up -d --wait && RUN_INTEGRATION_TESTS=1 bun test integration; docker compose -f ../../docker-compose.test.yml down"
   },
   "dependencies": {
-    "@imapps/api-utils": "0.5.1",
-    "@koa/cors": "^5.0.0",
-    "koa": "^3.0.0",
-    "koa-body": "^6.0.1",
-    "koa-router": "^13.0.1",
+    "@imapps/api-utils": "0.6.0",
+    "hono": "^4.6.14",
     "mongodb": "^6.13.1"
   },
   "devDependencies": {
-    "@types/koa": "^2.15.0",
-    "@types/koa-cors": "^0.0.6",
-    "@types/koa-router": "^7.4.8",
     "dotenv": "^16.4.7",
     "typescript": "^5.8.3"
   }
