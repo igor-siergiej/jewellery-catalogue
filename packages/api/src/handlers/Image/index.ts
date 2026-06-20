@@ -1,58 +1,46 @@
-import fs from 'node:fs';
-import type { PersistentFile } from '@jewellery-catalogue/types';
-import type { Context } from 'koa';
+import { Readable } from 'node:stream';
+import { APIError } from '@imapps/api-utils/hono';
+import type { Context } from 'hono';
 
 import { dependencyContainer } from '../../dependencies';
 import { DependencyToken } from '../../dependencies/types';
 import type { IdGenerator } from '../../domain/IdGenerator';
 import type { ImageService } from '../../domain/ImageService';
 
+type Ctx = Context<{ Variables: { userId: string } }>;
+
 const getImageService = (): ImageService => dependencyContainer.resolve(DependencyToken.ImageService);
 const getIdGenerator = (): IdGenerator => dependencyContainer.resolve(DependencyToken.IdGenerator);
 
-export const uploadImage = async (ctx: Context) => {
-    const file = ctx.request.files?.file as unknown as PersistentFile | undefined;
+export const uploadImage = async (c: Ctx) => {
+    const body = await c.req.parseBody();
+    const file = body.file;
 
-    if (!file) {
-        ctx.status = 400;
-        ctx.body = { error: 'File is required' };
-        return;
+    if (!(file instanceof File)) {
+        throw new APIError('File is required', 400);
     }
 
-    try {
-        const imageId = getIdGenerator().generate();
-        const fileBuffer = fs.readFileSync(file.filepath);
-        const contentType = file.mimetype || 'application/octet-stream';
+    const imageId = getIdGenerator().generate();
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+    const contentType = file.type || 'application/octet-stream';
 
-        await getImageService().uploadImage(imageId, fileBuffer, contentType);
-
-        ctx.status = 201;
-        ctx.body = { imageId };
-    } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
-    }
+    await getImageService().uploadImage(imageId, fileBuffer, contentType);
+    return c.json({ imageId }, 201);
 };
 
-export const getImage = async (ctx: Context) => {
-    const { name } = ctx.params;
+export const getImage = async (c: Ctx) => {
+    const name = c.req.param('name');
 
     try {
         const { stream, contentType, cacheControl } = await getImageService().getImage(name);
-
-        ctx.set('Content-Type', contentType);
-        ctx.set('Cache-Control', cacheControl);
-        ctx.body = stream;
+        c.header('Content-Type', contentType);
+        c.header('Cache-Control', cacheControl);
+        return c.body(Readable.toWeb(stream as Readable) as unknown as ReadableStream);
     } catch (error: unknown) {
         const err = error as { status?: number; message?: string };
-
-        ctx.status = err.status ?? 500;
-
         if (err.status === 404) {
-            ctx.body = { error: 'Image not found' };
-        } else {
-            ctx.body = { error: err.message ?? 'Internal Server Error' };
+            throw new APIError('Image not found', 404);
         }
+        throw new APIError(err.message ?? 'Internal Server Error', err.status ?? 500);
     }
 };

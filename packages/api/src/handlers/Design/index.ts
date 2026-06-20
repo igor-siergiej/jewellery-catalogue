@@ -1,47 +1,41 @@
-import fs from 'node:fs';
-import type { EditDesign, PersistentFile, UploadDesign } from '@jewellery-catalogue/types';
-import type { Context } from 'koa';
+import { APIError } from '@imapps/api-utils/hono';
+import type { EditDesign, UploadDesign } from '@jewellery-catalogue/types';
+import type { Context } from 'hono';
 
 import { dependencyContainer } from '../../dependencies';
 import { DependencyToken } from '../../dependencies/types';
 import type { DesignService } from '../../domain/DesignService';
-import { handleHandlerError } from '../../utils/handler-error';
+
+type Ctx = Context<{ Variables: { userId: string } }>;
 
 const getDesignService = (): DesignService => dependencyContainer.resolve(DependencyToken.DesignService);
 
-function normalizeFiles(f: unknown): PersistentFile[] {
-    if (!f) return [];
-    return Array.isArray(f) ? f : [f];
-}
-
-export const getDesigns = async (ctx: Context) => {
-    const userId = ctx.state.userId;
-
-    try {
-        const designs = await getDesignService().getDesignsByUserId(userId);
-
-        ctx.body = designs;
-    } catch (error: unknown) {
-        handleHandlerError(ctx, error);
-    }
+const collectFiles = (value: unknown): File[] => {
+    if (!value) return [];
+    const arr = Array.isArray(value) ? value : [value];
+    return arr.filter((f): f is File => f instanceof File);
 };
 
-export const getDesign = async (ctx: Context) => {
-    const userId = ctx.state.userId;
-    const { id } = ctx.params;
+const toImageBuffer = async (file: File) => ({
+    buffer: Buffer.from(await file.arrayBuffer()),
+    contentType: file.type || 'application/octet-stream',
+});
 
-    try {
-        const design = await getDesignService().getDesign(id, userId);
-
-        ctx.body = design;
-    } catch (error: unknown) {
-        handleHandlerError(ctx, error);
-    }
+export const getDesigns = async (c: Ctx) => {
+    const designs = await getDesignService().getDesignsByUserId(c.get('userId'));
+    return c.json(designs);
 };
 
-export const addDesign = async (ctx: Context) => {
-    const userId = ctx.state.userId;
-    const files = normalizeFiles(ctx.request.files?.files);
+export const getDesign = async (c: Ctx) => {
+    const design = await getDesignService().getDesign(c.req.param('id'), c.get('userId'));
+    return c.json(design);
+};
+
+export const addDesign = async (c: Ctx) => {
+    const userId = c.get('userId');
+    const isJson = (c.req.header('content-type') ?? '').includes('application/json');
+    const body = isJson ? await c.req.json() : await c.req.parseBody({ all: true });
+    const files = isJson ? [] : collectFiles(body.files);
 
     const {
         name,
@@ -55,64 +49,44 @@ export const addDesign = async (ctx: Context) => {
         variants,
         designType,
         existingImageIds: existingImageIdsRaw,
-    } = ctx.request.body as Partial<UploadDesign> & { existingImageIds?: string; designType?: string };
+    } = body as unknown as Partial<UploadDesign> & { existingImageIds?: string; designType?: string };
 
-    const existingImageIds: string[] = existingImageIdsRaw ? JSON.parse(existingImageIdsRaw) : [];
+    const existingImageIds: string[] =
+        typeof existingImageIdsRaw === 'string' && existingImageIdsRaw ? JSON.parse(existingImageIdsRaw) : [];
 
     if (files.length === 0 && existingImageIds.length === 0) {
-        ctx.status = 400;
-        ctx.body = { error: 'At least one image file or imageId is required' };
-
-        return;
+        throw new APIError('At least one image file or imageId is required', 400);
     }
 
-    try {
-        const designData: UploadDesign = {
-            name: name!,
-            description: description!,
-            timeRequired: timeRequired!,
-            materials: materials!,
-            totalMaterialCosts: Number(totalMaterialCosts),
-            price: Number(price),
-            image: files[0]!,
-            lowStockThreshold: lowStockThreshold !== undefined ? Number(lowStockThreshold) : undefined,
-            variationGroups,
-            variants,
-            designType,
-        };
+    const designData: UploadDesign = {
+        name: name!,
+        description: description!,
+        timeRequired: timeRequired!,
+        materials: materials!,
+        totalMaterialCosts: Number(totalMaterialCosts),
+        price: Number(price),
+        image: files[0]! as unknown as UploadDesign['image'],
+        lowStockThreshold: lowStockThreshold !== undefined ? Number(lowStockThreshold) : undefined,
+        variationGroups,
+        variants,
+        designType,
+    };
 
-        const imageBuffers = files.map((file) => ({
-            buffer: fs.readFileSync(file.filepath),
-            contentType: file.mimetype || 'application/octet-stream',
-        }));
-
-        const design = await getDesignService().addDesign(designData, imageBuffers, existingImageIds, userId);
-
-        ctx.status = 200;
-        ctx.body = design;
-    } catch (error: unknown) {
-        handleHandlerError(ctx, error);
-    }
+    const imageBuffers = await Promise.all(files.map(toImageBuffer));
+    const design = await getDesignService().addDesign(designData, imageBuffers, existingImageIds, userId);
+    return c.json(design, 200);
 };
 
-export const updateDesign = async (ctx: Context) => {
-    const userId = ctx.state.userId;
-    const { id } = ctx.params;
-    const updates = ctx.request.body;
-
-    try {
-        const design = await getDesignService().updateDesign(id, updates, userId);
-
-        ctx.body = design;
-    } catch (error: unknown) {
-        handleHandlerError(ctx, error);
-    }
+export const updateDesign = async (c: Ctx) => {
+    const updates = await c.req.json();
+    const design = await getDesignService().updateDesign(c.req.param('id'), updates, c.get('userId'));
+    return c.json(design);
 };
 
-export const editDesignProperties = async (ctx: Context) => {
-    const userId = ctx.state.userId;
-    const { id } = ctx.params;
-    const files = normalizeFiles(ctx.request.files?.files);
+export const editDesignProperties = async (c: Ctx) => {
+    const userId = c.get('userId');
+    const body = await c.req.parseBody({ all: true });
+    const files = collectFiles(body.files);
 
     const {
         name,
@@ -126,7 +100,7 @@ export const editDesignProperties = async (ctx: Context) => {
         variants,
         designType,
         keepImageIds: keepImageIdsRaw,
-    } = ctx.request.body as Partial<EditDesign> & {
+    } = body as unknown as Partial<EditDesign> & {
         lowStockThreshold?: string;
         variationGroups?: string;
         variants?: string;
@@ -134,51 +108,38 @@ export const editDesignProperties = async (ctx: Context) => {
         designType?: string;
     };
 
-    const keepImageIds: string[] = keepImageIdsRaw ? JSON.parse(keepImageIdsRaw) : [];
+    const keepImageIds: string[] =
+        typeof keepImageIdsRaw === 'string' && keepImageIdsRaw ? JSON.parse(keepImageIdsRaw) : [];
 
-    try {
-        const imageBuffers = files.map((file) => ({
-            buffer: fs.readFileSync(file.filepath),
-            contentType: file.mimetype || 'application/octet-stream',
-        }));
+    const imageBuffers = await Promise.all(files.map(toImageBuffer));
+    const updates: EditDesign = {};
 
-        const updates: EditDesign = {};
-
-        if (name) updates.name = name;
-        if (description !== undefined) updates.description = description;
-        if (timeRequired) updates.timeRequired = timeRequired;
-        if (materials) updates.materials = materials;
-        if (totalMaterialCosts !== undefined) updates.totalMaterialCosts = Number(totalMaterialCosts);
-        if (price !== undefined) updates.price = Number(price);
-        if (variationGroups !== undefined) {
-            updates.variationGroups =
-                typeof variationGroups === 'string' ? JSON.parse(variationGroups) : variationGroups;
-        }
-        if (variants !== undefined) {
-            updates.variants = typeof variants === 'string' ? JSON.parse(variants) : variants;
-        }
-        if (designType !== undefined) updates.designType = designType;
-        if (lowStockThreshold !== undefined) updates.lowStockThreshold = Number(lowStockThreshold);
-
-        const design = await getDesignService().editDesignProperties(id, updates, imageBuffers, keepImageIds, userId);
-
-        ctx.status = 200;
-        ctx.body = design;
-    } catch (error: unknown) {
-        handleHandlerError(ctx, error);
+    if (name) updates.name = name as EditDesign['name'];
+    if (description !== undefined) updates.description = description as EditDesign['description'];
+    if (timeRequired) updates.timeRequired = timeRequired as EditDesign['timeRequired'];
+    if (materials) updates.materials = materials as EditDesign['materials'];
+    if (totalMaterialCosts !== undefined) updates.totalMaterialCosts = Number(totalMaterialCosts);
+    if (price !== undefined) updates.price = Number(price);
+    if (variationGroups !== undefined) {
+        updates.variationGroups = typeof variationGroups === 'string' ? JSON.parse(variationGroups) : variationGroups;
     }
+    if (variants !== undefined) {
+        updates.variants = typeof variants === 'string' ? JSON.parse(variants) : variants;
+    }
+    if (designType !== undefined) updates.designType = designType as EditDesign['designType'];
+    if (lowStockThreshold !== undefined) updates.lowStockThreshold = Number(lowStockThreshold);
+
+    const design = await getDesignService().editDesignProperties(
+        c.req.param('id'),
+        updates,
+        imageBuffers,
+        keepImageIds,
+        userId
+    );
+    return c.json(design, 200);
 };
 
-export const deleteDesign = async (ctx: Context) => {
-    const userId = ctx.state.userId;
-    const { id } = ctx.params;
-
-    try {
-        await getDesignService().deleteDesign(id, userId);
-
-        ctx.status = 200;
-        ctx.body = { message: 'Design deleted successfully' };
-    } catch (error: unknown) {
-        handleHandlerError(ctx, error);
-    }
+export const deleteDesign = async (c: Ctx) => {
+    await getDesignService().deleteDesign(c.req.param('id'), c.get('userId'));
+    return c.json({ message: 'Design deleted successfully' }, 200);
 };

@@ -1,53 +1,32 @@
-import type { Context } from 'koa';
+import { APIError } from '@imapps/api-utils/hono';
+import type { Context } from 'hono';
 
 import { dependencyContainer } from '../../dependencies';
 import { DependencyToken } from '../../dependencies/types';
 import type { UserSettingsService } from '../../domain/UserSettingsService';
 
+type Ctx = Context<{ Variables: { userId: string } }>;
+
 const getService = (): UserSettingsService => dependencyContainer.resolve(DependencyToken.UserSettingsService);
 
-export const getUserSettings = async (ctx: Context) => {
-    const userId = ctx.state.userId;
+export const getUserSettings = async (c: Ctx) => c.json(await getService().get(c.get('userId')));
 
-    try {
-        ctx.body = await getService().get(userId);
-    } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
-    }
-};
-
-export const updateUserSettings = async (ctx: Context) => {
-    const userId = ctx.state.userId;
-    const { hourlyWage, profitMargin } = ctx.request.body as { hourlyWage?: number; profitMargin?: number };
+export const updateUserSettings = async (c: Ctx) => {
+    const { hourlyWage, profitMargin } = (await c.req.json()) as {
+        hourlyWage?: number;
+        profitMargin?: number;
+    };
 
     if (hourlyWage === undefined || profitMargin === undefined) {
-        ctx.status = 400;
-        ctx.body = { error: 'hourlyWage and profitMargin are required' };
-        return;
+        throw new APIError('hourlyWage and profitMargin are required', 400);
     }
 
-    try {
-        ctx.body = await getService().upsert(userId, {
+    return c.json(
+        await getService().upsert(c.get('userId'), {
             hourlyWage: Number(hourlyWage),
             profitMargin: Number(profitMargin),
-        });
-    } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
-    }
+        })
+    );
 };
 
-export const recalculatePrices = async (ctx: Context) => {
-    const userId = ctx.state.userId;
-
-    try {
-        ctx.body = await getService().recalculatePrices(userId);
-    } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
-    }
-};
+export const recalculatePrices = async (c: Ctx) => c.json(await getService().recalculatePrices(c.get('userId')));

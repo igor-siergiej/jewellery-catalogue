@@ -1,126 +1,61 @@
-import fs from 'node:fs';
-import type { DraftType, PersistentFile } from '@jewellery-catalogue/types';
-import type { Context } from 'koa';
+import { APIError } from '@imapps/api-utils/hono';
+import type { DraftType } from '@jewellery-catalogue/types';
+import type { Context } from 'hono';
 
 import { dependencyContainer } from '../../dependencies';
 import { DependencyToken } from '../../dependencies/types';
 import type { DraftService } from '../../domain/DraftService';
 
+type Ctx = Context<{ Variables: { userId: string } }>;
+
 const getDraftService = (): DraftService => dependencyContainer.resolve(DependencyToken.DraftService);
 
-export const getDrafts = async (ctx: Context) => {
-    const userId = ctx.state.userId;
-    const type = ctx.query.type as DraftType | undefined;
-
-    try {
-        const drafts = await getDraftService().getDraftsByUserId(userId, type);
-
-        ctx.body = drafts;
-    } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
-    }
+export const getDrafts = async (c: Ctx) => {
+    const type = c.req.query('type') as DraftType | undefined;
+    const drafts = await getDraftService().getDraftsByUserId(c.get('userId'), type);
+    return c.json(drafts);
 };
 
-export const getDraft = async (ctx: Context) => {
-    const userId = ctx.state.userId;
-    const { id } = ctx.params;
-
-    try {
-        const draft = await getDraftService().getDraft(id, userId);
-
-        ctx.body = draft;
-    } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
-    }
+export const getDraft = async (c: Ctx) => {
+    const draft = await getDraftService().getDraft(c.req.param('id'), c.get('userId'));
+    return c.json(draft);
 };
 
-export const createDraft = async (ctx: Context) => {
-    const userId = ctx.state.userId;
-    const { type, name, data } = ctx.request.body as {
+export const createDraft = async (c: Ctx) => {
+    const { type, name, data } = (await c.req.json()) as {
         type: DraftType;
         name: string;
         data: Record<string, unknown>;
     };
-
-    try {
-        const draft = await getDraftService().createDraft(userId, type, name, data ?? {});
-
-        ctx.status = 201;
-        ctx.body = draft;
-    } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
-    }
+    const draft = await getDraftService().createDraft(c.get('userId'), type, name, data ?? {});
+    return c.json(draft, 201);
 };
 
-export const updateDraft = async (ctx: Context) => {
-    const userId = ctx.state.userId;
-    const { id } = ctx.params;
-    const { name, data, imageId } = ctx.request.body as {
+export const updateDraft = async (c: Ctx) => {
+    const { name, data, imageId } = (await c.req.json()) as {
         name: string;
         data: Record<string, unknown>;
         imageId?: string;
     };
-
-    try {
-        const draft = await getDraftService().updateDraft(id, userId, name, data ?? {}, imageId);
-
-        ctx.body = draft;
-    } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
-    }
+    const draft = await getDraftService().updateDraft(c.req.param('id'), c.get('userId'), name, data ?? {}, imageId);
+    return c.json(draft);
 };
 
-export const uploadDraftImage = async (ctx: Context) => {
-    const userId = ctx.state.userId;
-    const { id } = ctx.params;
-    const file = ctx.request.files?.file as unknown as PersistentFile;
+export const uploadDraftImage = async (c: Ctx) => {
+    const body = await c.req.parseBody();
+    const file = body.file;
 
-    if (!file) {
-        ctx.status = 400;
-        ctx.body = { error: 'File is required' };
-        return;
+    if (!(file instanceof File)) {
+        throw new APIError('File is required', 400);
     }
 
-    try {
-        const fileBuffer = fs.readFileSync(file.filepath);
-        const contentType = file.mimetype || 'application/octet-stream';
-
-        const draft = await getDraftService().uploadDraftImage(id, userId, fileBuffer, contentType);
-
-        ctx.body = draft;
-    } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
-    }
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+    const contentType = file.type || 'application/octet-stream';
+    const draft = await getDraftService().uploadDraftImage(c.req.param('id'), c.get('userId'), fileBuffer, contentType);
+    return c.json(draft);
 };
 
-export const deleteDraft = async (ctx: Context) => {
-    const userId = ctx.state.userId;
-    const { id } = ctx.params;
-
-    try {
-        await getDraftService().deleteDraft(id, userId);
-
-        ctx.status = 200;
-        ctx.body = { message: 'Draft deleted successfully' };
-    } catch (error: unknown) {
-        const err = error as { status?: number; message?: string } | null;
-
-        ctx.status = err?.status ?? 500;
-        ctx.body = { error: err?.message ?? 'Internal Server Error' };
-    }
+export const deleteDraft = async (c: Ctx) => {
+    await getDraftService().deleteDraft(c.req.param('id'), c.get('userId'));
+    return c.json({ message: 'Draft deleted successfully' }, 200);
 };
