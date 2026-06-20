@@ -55,4 +55,9 @@ export const uploadDraftImage = async (c: Ctx) => {
     return c.json(draft);
 };
 
+export const deleteDraft = async (c: Ctx) => {
+    await getDraftService().deleteDraft(c.req.param('id'), c.get('userId'));
+    return c.json({ message: 'Draft deleted successfully' }, 200);
+};
+
 export type { PersistentFile };
