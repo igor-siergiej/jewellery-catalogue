@@ -19,9 +19,6 @@
   "workspaces": [
     "packages/*"
   ],
-  "overrides": {
-    "@imapps/api-utils": "file:../utils/packages/api-utils"
-  },
   "devDependencies": {
     "@biomejs/biome": "2.2.5",
     "@imapps/dev-scripts": "0.1.0",
