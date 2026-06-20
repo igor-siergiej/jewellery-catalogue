@@ -1,5 +1,5 @@
 import { APIError } from '@imapps/api-utils/hono';
-import type { DraftType, PersistentFile } from '@jewellery-catalogue/types';
+import type { DraftType } from '@jewellery-catalogue/types';
 import type { Context } from 'hono';
 
 import { dependencyContainer } from '../../dependencies';
@@ -59,5 +59,3 @@ export const deleteDraft = async (c: Ctx) => {
     await getDraftService().deleteDraft(c.req.param('id'), c.get('userId'));
     return c.json({ message: 'Draft deleted successfully' }, 200);
 };
-
-export type { PersistentFile };
