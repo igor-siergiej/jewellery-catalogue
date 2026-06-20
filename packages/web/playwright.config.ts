@@ -50,7 +50,7 @@ export default defineConfig({
                   command: `bash -c "cd ${ROOT} && bun run --filter @jewellery-catalogue/api start"`,
                   url: 'http://localhost:3001/api/health',
                   reuseExistingServer: false,
-                  timeout: 60000,
+                  timeout: 30000,
                   env: {
                       PORT: '3001',
                       CONNECTION_URI: E2E_MONGO_URI,

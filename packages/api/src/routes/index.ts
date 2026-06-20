@@ -24,8 +24,7 @@ export const createRoutes = (): Hono<Env> => {
     app.get('/api/health', async (c) => {
         try {
             const databaseConnectionExists = await dependencyContainer.resolve(DependencyToken.Database).ping();
-            const bucketConnectionExists = await dependencyContainer.resolve(DependencyToken.Bucket).ping();
-            return c.body(null, databaseConnectionExists && bucketConnectionExists ? 200 : 500);
+            return c.body(null, databaseConnectionExists ? 200 : 500);
         } catch {
             return c.body(null, 500);
         }
