@@ -2,6 +2,8 @@ import type {
     Design,
     EtsyRow,
     ImportCandidate,
+    ImportCommitRequest,
+    ImportCommitResult,
     ImportInvalidRow,
     ImportPreviewResult,
 } from '@jewellery-catalogue/types';
@@ -18,7 +20,6 @@ import { PlaceholderMaterialResolver, placeholderNameForTag } from './placeholde
 export class DesignImportService {
     constructor(
         private readonly designRepo: DesignRepository,
-        // biome-ignore lint/correctness/noUnusedPrivateClassMembers: used by commit() in Task 8
         private readonly materialRepo: MaterialRepository,
         private readonly imageService: ImageService,
         private readonly idGenerator: IdGenerator,
@@ -67,9 +68,59 @@ export class DesignImportService {
         return { candidates, invalid, summary };
     }
 
-    // commit() implemented in Task 8
+    async commit(request: ImportCommitRequest, userId: string): Promise<ImportCommitResult> {
+        const existing = await this.designRepo.getByUserId(userId);
+        const byKey = new Map<string, Design>();
+        for (const d of existing) if (d.importKey) byKey.set(d.importKey, d);
 
-    // biome-ignore lint/correctness/noUnusedPrivateClassMembers: used by commit() in Task 8
+        const resolver = new PlaceholderMaterialResolver(this.materialRepo, this.idGenerator);
+        const result: ImportCommitResult = { created: 0, updated: 0, failed: [] };
+
+        for (const candidate of request.candidates) {
+            const match = byKey.get(candidate.importKey);
+            const name = candidate.row.title.trim();
+
+            if (!match) {
+                const imageIds = await this.uploadImages(candidate.row);
+                if (imageIds.length === 0) {
+                    result.failed.push({ name, reason: 'No images could be fetched' });
+                    continue;
+                }
+                const materials = await resolver.resolve(candidate.row.materials, userId);
+                const design = { ...this.newDesign(candidate, imageIds, materials), userId };
+                await this.designRepo.insert(design);
+                result.created += 1;
+                continue;
+            }
+
+            const changedFields = diffChangedFields(candidate.row, match);
+            if (changedFields.length === 0) continue; // resolved SAME
+
+            let imageIds = match.imageIds;
+            let etsyImageSignature = match.etsyImageSignature;
+            if (changedFields.includes('images')) {
+                const fetched = await this.uploadImages(candidate.row);
+                if (fetched.length > 0) {
+                    imageIds = fetched;
+                    etsyImageSignature = imageSignature(candidate.row.imageUrls);
+                }
+            }
+
+            const updated: Design = {
+                ...match,
+                name,
+                description: candidate.row.description,
+                price: candidate.row.price,
+                imageIds,
+                etsyImageSignature,
+            };
+            await this.designRepo.update(match.id, updated);
+            result.updated += 1;
+        }
+
+        return result;
+    }
+
     private async uploadImages(row: EtsyRow): Promise<string[]> {
         const ids: string[] = [];
         for (const url of row.imageUrls) {
@@ -85,7 +136,6 @@ export class DesignImportService {
         return ids;
     }
 
-    // biome-ignore lint/correctness/noUnusedPrivateClassMembers: used by commit() in Task 8
     private newDesign(candidate: ImportCandidate, imageIds: string[], materials: Design['materials']): Design {
         const { row } = candidate;
         return {
