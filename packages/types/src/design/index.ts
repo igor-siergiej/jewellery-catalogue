@@ -23,6 +23,10 @@ export const designSchema = z.object({
     variationGroups: z.array(variationGroupSchema).optional(),
     variants: z.array(designVariantSchema).optional(),
     designType: z.nativeEnum(DesignType).optional(),
+    importSource: z.literal('ETSY').optional(),
+    importKey: z.string().optional(),
+    etsyImageSignature: z.string().optional(),
+    etsyMaterials: z.array(z.string()).optional(),
 });
 
 export type Design = z.infer<typeof designSchema>;
