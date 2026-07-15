@@ -3,7 +3,16 @@ import { Hono } from 'hono';
 
 import { dependencyContainer } from '../dependencies';
 import { DependencyToken } from '../dependencies/types';
-import { addDesign, deleteDesign, editDesignProperties, getDesign, getDesigns, updateDesign } from '../handlers/Design';
+import {
+    addDesign,
+    commitImport,
+    deleteDesign,
+    editDesignProperties,
+    getDesign,
+    getDesigns,
+    previewImport,
+    updateDesign,
+} from '../handlers/Design';
 import { createDraft, deleteDraft, getDraft, getDrafts, updateDraft, uploadDraftImage } from '../handlers/Draft';
 import { getImage, uploadImage } from '../handlers/Image';
 import {
@@ -36,6 +45,8 @@ export const createRoutes = (): Hono<Env> => {
     app.get('/api/designs', authenticate, getDesigns);
     app.post('/api/designs', authenticate, addDesign);
     app.post('/api/designs/recalculate-prices', authenticate, recalculatePrices);
+    app.post('/api/designs/import/preview', authenticate, previewImport);
+    app.post('/api/designs/import/commit', authenticate, commitImport);
     app.get('/api/designs/:id', authenticate, getDesign);
     app.put('/api/designs/:id', authenticate, updateDesign);
     app.patch('/api/designs/:id', authenticate, editDesignProperties);

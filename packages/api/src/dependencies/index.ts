@@ -1,6 +1,8 @@
 // biome-ignore-all lint/correctness/noConstructorReturn: I need to figure out a better way to do this
 import { DependencyContainer, Logger, MongoDbConnection, ObjectStoreConnection } from '@imapps/api-utils';
 
+import { DesignImportService } from '../domain/DesignImportService';
+import { HttpEtsyImageFetcher } from '../domain/DesignImportService/imageFetcher';
 import { DesignService } from '../domain/DesignService';
 import { DraftService } from '../domain/DraftService';
 import { ImageService } from '../domain/ImageService';
@@ -89,6 +91,21 @@ export const registerDepdendencies = () => {
                     dependencyContainer.resolve(DependencyToken.ImageService),
                     dependencyContainer.resolve(DependencyToken.IdGenerator),
                     dependencyContainer.resolve(DependencyToken.MaterialRepository)
+                );
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.DesignImportService,
+        class {
+            constructor() {
+                return new DesignImportService(
+                    dependencyContainer.resolve(DependencyToken.DesignRepository),
+                    dependencyContainer.resolve(DependencyToken.MaterialRepository),
+                    dependencyContainer.resolve(DependencyToken.ImageService),
+                    dependencyContainer.resolve(DependencyToken.IdGenerator),
+                    new HttpEtsyImageFetcher()
                 );
             }
         } as any

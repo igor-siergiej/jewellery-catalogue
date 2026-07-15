@@ -14,4 +14,16 @@ describe('routes', () => {
         // 500 acceptable here (no DB in unit context); must not be 401/404
         expect([200, 500]).toContain(res.status);
     });
+
+    it('rejects unauthenticated import preview requests with 401', async () => {
+        const app = createRoutes();
+        const res = await app.request('/api/designs/import/preview', { method: 'POST' });
+        expect(res.status).toBe(401);
+    });
+
+    it('rejects unauthenticated import commit requests with 401', async () => {
+        const app = createRoutes();
+        const res = await app.request('/api/designs/import/commit', { method: 'POST' });
+        expect(res.status).toBe(401);
+    });
 });

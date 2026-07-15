@@ -1,6 +1,7 @@
 import type { Logger, MongoDbConnection, ObjectStoreConnection } from '@imapps/api-utils';
 import type { Design, Draft, Material, UserSettings } from '@jewellery-catalogue/types';
 
+import type { DesignImportService } from '../domain/DesignImportService';
 import type { DesignRepository } from '../domain/DesignRepository';
 import type { DesignService } from '../domain/DesignService';
 import type { DraftRepository } from '../domain/DraftRepository';
@@ -36,6 +37,7 @@ export enum DependencyToken {
     ImageService = 'ImageService',
     DraftService = 'DraftService',
     UserSettingsService = 'UserSettingsService',
+    DesignImportService = 'DesignImportService',
     // Infrastructure
     IdGenerator = 'IdGenerator',
     ImageStore = 'ImageStore',
@@ -57,6 +59,7 @@ export type Dependencies = {
     [DependencyToken.ImageService]: ImageService;
     [DependencyToken.DraftService]: DraftService;
     [DependencyToken.UserSettingsService]: UserSettingsService;
+    [DependencyToken.DesignImportService]: DesignImportService;
     // Infrastructure
     [DependencyToken.IdGenerator]: IdGenerator;
     [DependencyToken.ImageStore]: ImageStore;
