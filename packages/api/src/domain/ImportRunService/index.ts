@@ -5,6 +5,9 @@ import type { IdGenerator } from '../IdGenerator';
 import type { ImportRunRepository } from '../ImportRunRepository';
 
 export class ImportRunService {
+    // biome-ignore lint/correctness/noUnusedPrivateClassMembers: read externally by tests to await the in-flight loop deterministically
+    private execution: Promise<void> | undefined;
+
     constructor(
         private readonly runRepo: ImportRunRepository,
         private readonly importService: DesignImportService,
