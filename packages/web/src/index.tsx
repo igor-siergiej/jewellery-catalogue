@@ -13,6 +13,7 @@ import {
     ADD_MATERIAL_PAGE,
     DESIGNS_PAGE,
     HOME_PAGE,
+    IMPORT_DESIGNS_PAGE,
     MATERIALS_PAGE,
     REGISTER_PAGE,
     START_PAGE,
@@ -24,6 +25,7 @@ import AddDesign from './pages/AddDesign';
 import AddMaterial from './pages/AddMaterial';
 import Designs from './pages/Designs';
 import Home from './pages/Home';
+import ImportDesigns from './pages/ImportDesigns';
 import Materials from './pages/Materials';
 import Register from './pages/Register';
 import Start from './pages/Start';
@@ -65,6 +67,17 @@ function App() {
                     <ProtectedRoute fallbackPath={START_PAGE.route}>
                         <MainLayout>
                             <Designs />
+                        </MainLayout>
+                    </ProtectedRoute>
+                }
+            />
+
+            <Route
+                path={IMPORT_DESIGNS_PAGE.route}
+                element={
+                    <ProtectedRoute fallbackPath={START_PAGE.route}>
+                        <MainLayout>
+                            <ImportDesigns />
                         </MainLayout>
                     </ProtectedRoute>
                 }
