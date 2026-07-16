@@ -120,7 +120,8 @@ export const registerDepdendencies = () => {
                 return new ImportRunService(
                     dependencyContainer.resolve(DependencyToken.ImportRunRepository),
                     dependencyContainer.resolve(DependencyToken.DesignImportService),
-                    dependencyContainer.resolve(DependencyToken.IdGenerator)
+                    dependencyContainer.resolve(DependencyToken.IdGenerator),
+                    dependencyContainer.resolve(DependencyToken.Logger)
                 );
             }
         } as any

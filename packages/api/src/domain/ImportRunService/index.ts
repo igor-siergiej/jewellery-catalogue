@@ -1,3 +1,4 @@
+import type { Logger } from '@imapps/api-utils';
 import type { ImportCandidate, ImportCommitRequest, ImportRun } from '@jewellery-catalogue/types';
 
 import type { DesignImportService } from '../DesignImportService';
@@ -11,7 +12,8 @@ export class ImportRunService {
     constructor(
         private readonly runRepo: ImportRunRepository,
         private readonly importService: DesignImportService,
-        private readonly idGenerator: IdGenerator
+        private readonly idGenerator: IdGenerator,
+        private readonly logger: Logger
     ) {}
 
     async start(request: ImportCommitRequest, userId: string): Promise<ImportRun> {
@@ -102,8 +104,13 @@ export class ImportRunService {
                 });
             }
             await persist({ ...cleared, status: 'completed', finishedAt: new Date() });
-        } catch {
-            await persist({ ...cleared, status: 'failed', finishedAt: new Date() });
+        } catch (error) {
+            this.logger.error('Import run worker failed', { runId: run.id, error });
+            try {
+                await persist({ ...cleared, status: 'failed', finishedAt: new Date() });
+            } catch (persistError) {
+                this.logger.error('Failed to persist import run failure', { runId: run.id, error: persistError });
+            }
         }
     }
 }

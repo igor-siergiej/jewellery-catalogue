@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
+import type { Logger } from '@imapps/api-utils';
 import type { ImportCandidate, ImportRun } from '@jewellery-catalogue/types';
 import type { DesignImportService } from '../DesignImportService';
 import type { IdGenerator } from '../IdGenerator';
@@ -38,7 +39,9 @@ const candidate = (title: string): ImportCandidate =>
         row: { title, description: '', price: 1, quantity: 1, materials: [], imageUrls: [], sku: '' },
     }) as ImportCandidate;
 
-const makeService = () => new ImportRunService(runRepo, importService, idGenerator);
+const logger = { info: mock(() => {}), warn: mock(() => {}), error: mock(() => {}) };
+
+const makeService = () => new ImportRunService(runRepo, importService, idGenerator, logger as unknown as Logger);
 
 const awaitExecution = async (service: ImportRunService) => {
     await (service as unknown as { execution?: Promise<void> }).execution;
@@ -141,6 +144,24 @@ describe('ImportRunService', () => {
         const finished = runs.get(run.id)!;
         expect(finished.status).toBe('failed');
         expect(finished.finishedAt).toBeInstanceOf(Date);
+    });
+
+    it('does not reject when persisting the terminal failure write itself fails', async () => {
+        commitCandidate.mockImplementation(async () => {
+            throw new Error('mongo down');
+        });
+        runRepo.update
+            .mockImplementationOnce(async (id: string, run: ImportRun) => {
+                runs.set(id, run);
+            })
+            .mockImplementationOnce(async () => {
+                throw new Error('db unreachable');
+            });
+        const service = makeService();
+        const run = await service.start({ candidates: [candidate('A')], fileName: 'x.csv' }, 'u1');
+        await expect(awaitExecution(service)).resolves.toBeUndefined();
+        expect(logger.error).toHaveBeenCalledTimes(2);
+        expect(runs.get(run.id)!.status).toBe('running');
     });
 
     it('cancel is a no-op on a finished run', async () => {
