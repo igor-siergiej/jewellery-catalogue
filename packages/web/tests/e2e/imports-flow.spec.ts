@@ -29,6 +29,9 @@ test.describe
             await expect(page.getByText(/of \d+ listings processed/)).toBeVisible();
 
             await page.goto('/imports');
-            await expect(page.getByRole('cell', { name: 'etsy-listings.csv' })).toBeVisible({ timeout: 10000 });
+            // Runs accumulate in the persistent e2e database across attempts — assert on the first row.
+            await expect(page.getByRole('cell', { name: 'etsy-listings.csv' }).first()).toBeVisible({
+                timeout: 10000,
+            });
         });
     });
