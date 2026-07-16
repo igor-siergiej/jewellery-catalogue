@@ -50,6 +50,7 @@ export class ImportRunService {
             created: 0,
             updated: 0,
             failed: [],
+            results: [],
             startedAt: new Date(),
             cancelRequested: false,
         };
@@ -112,14 +113,19 @@ export class ImportRunService {
                     await persist({ currentImageProgress: { done, total } });
                 });
 
+                const name = candidate.row.title.trim();
                 await persist({
                     processed: current.processed + 1,
                     created: current.created + (result.outcome === 'created' ? 1 : 0),
                     updated: current.updated + (result.outcome === 'updated' ? 1 : 0),
                     failed:
                         result.outcome === 'failed'
-                            ? [...current.failed, { name: candidate.row.title.trim(), reason: result.reason }]
+                            ? [...current.failed, { name, reason: result.reason }]
                             : current.failed,
+                    results:
+                        result.outcome === 'failed'
+                            ? current.results
+                            : [...current.results, { name, outcome: result.outcome, designId: result.designId }],
                 });
             }
             await persist({ ...cleared, status: 'completed', finishedAt: new Date() });

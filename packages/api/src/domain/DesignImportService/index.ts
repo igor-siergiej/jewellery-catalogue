@@ -21,7 +21,10 @@ export interface CommitContext {
     resolver: PlaceholderMaterialResolver;
 }
 
-export type CandidateOutcome = { outcome: 'created' | 'updated' | 'skipped' } | { outcome: 'failed'; reason: string };
+export type CandidateOutcome =
+    | { outcome: 'created' | 'updated'; designId: string }
+    | { outcome: 'skipped'; designId?: string }
+    | { outcome: 'failed'; reason: string };
 
 export class DesignImportService {
     constructor(
@@ -98,11 +101,11 @@ export class DesignImportService {
             const materials = await ctx.resolver.resolve(candidate.row.materials, ctx.userId);
             const design = { ...this.newDesign(candidate, imageIds, materials), userId: ctx.userId };
             await this.designRepo.insert(design);
-            return { outcome: 'created' };
+            return { outcome: 'created', designId: design.id };
         }
 
         const changedFields = diffChangedFields(candidate.row, match);
-        if (changedFields.length === 0) return { outcome: 'skipped' };
+        if (changedFields.length === 0) return { outcome: 'skipped', designId: match.id };
 
         let imageIds = match.imageIds;
         let etsyImageSignature = match.etsyImageSignature;
@@ -123,7 +126,7 @@ export class DesignImportService {
             etsyImageSignature,
         };
         await this.designRepo.update(match.id, updated);
-        return { outcome: 'updated' };
+        return { outcome: 'updated', designId: match.id };
     }
 
     private async uploadImages(

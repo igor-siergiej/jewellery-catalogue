@@ -31,7 +31,10 @@ const runRepo = {
     }),
 } satisfies ImportRunRepository;
 
-const commitCandidate = mock<DesignImportService['commitCandidate']>(async () => ({ outcome: 'created' }));
+const commitCandidate = mock<DesignImportService['commitCandidate']>(async () => ({
+    outcome: 'created',
+    designId: 'd-1',
+}));
 const importService = {
     createCommitContext: mock(async () => ({ userId: 'u1', byKey: new Map(), resolver: {} })),
     commitCandidate,
@@ -58,7 +61,7 @@ describe('ImportRunService', () => {
         jest.clearAllMocks();
         runs.clear();
         idc = 0;
-        commitCandidate.mockImplementation(async () => ({ outcome: 'created' }));
+        commitCandidate.mockImplementation(async () => ({ outcome: 'created', designId: 'd-1' }));
     });
 
     it('start returns a running run immediately and completes it in the background', async () => {
@@ -71,6 +74,10 @@ describe('ImportRunService', () => {
         expect(finished.status).toBe('completed');
         expect(finished.processed).toBe(2);
         expect(finished.created).toBe(2);
+        expect(finished.results).toEqual([
+            { name: 'A', outcome: 'created', designId: 'd-1' },
+            { name: 'B', outcome: 'created', designId: 'd-1' },
+        ]);
         expect(finished.finishedAt).toBeInstanceOf(Date);
     });
 
@@ -126,7 +133,7 @@ describe('ImportRunService', () => {
         commitCandidate.mockImplementation(async () => {
             const run = [...runs.values()][0];
             runs.set(run.id, { ...runs.get(run.id)!, cancelRequested: true });
-            return { outcome: 'created' };
+            return { outcome: 'created', designId: 'd-1' };
         });
         const service = makeService();
         const run = await service.start({ candidates: [candidate('A'), candidate('B')], fileName: 'x.csv' }, 'u1');
@@ -142,7 +149,7 @@ describe('ImportRunService', () => {
             const run = [...runs.values()][0];
             runs.set(run.id, { ...runs.get(run.id)!, cancelRequested: true });
             await onImageProgress?.(2, 3);
-            return { outcome: 'created' };
+            return { outcome: 'created', designId: 'd-1' };
         });
         const service = makeService();
         const run = await service.start({ candidates: [candidate('A'), candidate('B')], fileName: 'x.csv' }, 'u1');
@@ -158,7 +165,7 @@ describe('ImportRunService', () => {
             const inFlight = [...runs.values()][0];
             expect(inFlight.currentListing).toBe('A');
             expect(inFlight.currentImageProgress).toEqual({ done: 1, total: 3 });
-            return { outcome: 'created' };
+            return { outcome: 'created', designId: 'd-1' };
         });
         const service = makeService();
         const run = await service.start({ candidates: [candidate('A')], fileName: 'x.csv' }, 'u1');

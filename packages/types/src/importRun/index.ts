@@ -10,6 +10,12 @@ export interface ImportRunImageProgress {
     total: number;
 }
 
+export interface ImportRunResult {
+    name: string;
+    outcome: 'created' | 'updated' | 'skipped';
+    designId?: string;
+}
+
 export interface ImportRun {
     id: string;
     userId: string;
@@ -20,6 +26,7 @@ export interface ImportRun {
     created: number;
     updated: number;
     failed: ImportRunFailure[];
+    results: ImportRunResult[];
     startedAt: Date;
     finishedAt?: Date;
     cancelRequested: boolean;

@@ -123,7 +123,7 @@ describe('DesignImportService.commitCandidate', () => {
         const service = makeService();
         const ctx = await service.createCommitContext('u1');
         const result = await service.commitCandidate(newCandidate(), ctx);
-        expect(result).toEqual({ outcome: 'created' });
+        expect(result).toEqual({ outcome: 'created', designId: expect.any(String) });
         expect(designRepo.insert).toHaveBeenCalledTimes(1);
     });
 
@@ -153,7 +153,7 @@ describe('DesignImportService.commitCandidate', () => {
         const service = makeService();
         const ctx = await service.createCommitContext('u1');
         const result = await service.commitCandidate(newCandidate(), ctx);
-        expect(result).toEqual({ outcome: 'updated' });
+        expect(result).toEqual({ outcome: 'updated', designId: 'existing-1' });
         expect(designRepo.update).toHaveBeenCalledTimes(1);
     });
 
@@ -184,7 +184,7 @@ describe('DesignImportService.commitCandidate', () => {
         designRepo.getByUserId.mockResolvedValue([inserted]);
         const ctx2 = await service.createCommitContext('u1');
         const result = await service.commitCandidate(newCandidate(), ctx2);
-        expect(result).toEqual({ outcome: 'skipped' });
+        expect(result).toEqual({ outcome: 'skipped', designId: inserted.id });
         expect(designRepo.update).not.toHaveBeenCalled();
     });
 });
