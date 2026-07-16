@@ -5,7 +5,6 @@ import { dependencyContainer } from '../dependencies';
 import { DependencyToken } from '../dependencies/types';
 import {
     addDesign,
-    commitImport,
     deleteDesign,
     editDesignProperties,
     getDesign,
@@ -15,6 +14,7 @@ import {
 } from '../handlers/Design';
 import { createDraft, deleteDraft, getDraft, getDrafts, updateDraft, uploadDraftImage } from '../handlers/Draft';
 import { getImage, uploadImage } from '../handlers/Image';
+import { cancelImportRun, getImportRun, getImportRuns, startImportRun } from '../handlers/ImportRun';
 import {
     addMaterial,
     deleteMaterial,
@@ -46,7 +46,10 @@ export const createRoutes = (): Hono<Env> => {
     app.post('/api/designs', authenticate, addDesign);
     app.post('/api/designs/recalculate-prices', authenticate, recalculatePrices);
     app.post('/api/designs/import/preview', authenticate, previewImport);
-    app.post('/api/designs/import/commit', authenticate, commitImport);
+    app.post('/api/designs/import/commit', authenticate, startImportRun);
+    app.get('/api/designs/import/runs', authenticate, getImportRuns);
+    app.get('/api/designs/import/runs/:id', authenticate, getImportRun);
+    app.post('/api/designs/import/runs/:id/cancel', authenticate, cancelImportRun);
     app.get('/api/designs/:id', authenticate, getDesign);
     app.put('/api/designs/:id', authenticate, updateDesign);
     app.patch('/api/designs/:id', authenticate, editDesignProperties);

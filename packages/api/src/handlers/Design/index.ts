@@ -157,7 +157,3 @@ export const previewImport = async (c: Ctx) => {
     const result = await getDesignImportService().preview(csvText, c.get('userId'));
     return c.json(result, 200);
 };
-
-export const commitImport = async (_c: Ctx) => {
-    throw new APIError('Import commit is being reworked', 503);
-};
