@@ -75,7 +75,6 @@ export class DesignImportService {
         return { candidates, invalid, summary };
     }
 
-    // fallow-ignore-next-line unused-class-member
     async createCommitContext(userId: string): Promise<CommitContext> {
         const existing = await this.designRepo.getByUserId(userId);
         const byKey = new Map<string, Design>();
@@ -83,7 +82,6 @@ export class DesignImportService {
         return { userId, byKey, resolver: new PlaceholderMaterialResolver(this.materialRepo, this.idGenerator) };
     }
 
-    // fallow-ignore-next-line unused-class-member
     async commitCandidate(
         candidate: ImportCandidate,
         ctx: CommitContext,

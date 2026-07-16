@@ -18,6 +18,7 @@ export class ImportRunService {
         private readonly logger: Logger
     ) {}
 
+    // fallow-ignore-next-line unused-class-member
     async start(request: ImportCommitRequest, userId: string): Promise<ImportRun> {
         const running = await this.runRepo.findRunning(userId);
         if (running) {
@@ -57,6 +58,7 @@ export class ImportRunService {
         return run;
     }
 
+    // fallow-ignore-next-line unused-class-member
     async getRuns(userId: string): Promise<ImportRun[]> {
         return this.runRepo.getByUserId(userId);
     }
@@ -69,6 +71,7 @@ export class ImportRunService {
         return run;
     }
 
+    // fallow-ignore-next-line unused-class-member
     async cancel(id: string, userId: string): Promise<ImportRun> {
         const run = await this.getRun(id, userId);
         if (run.status !== 'running') return run;
