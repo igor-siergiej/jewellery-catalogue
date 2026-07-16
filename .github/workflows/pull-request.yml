@@ -106,6 +106,10 @@ jobs:
         with:
           fetch-depth: 0
       - uses: fallow-rs/fallow@v2
+        # Pinned: 3.6.0 platform packages are missing the fallow-lsp binary,
+        # which fails the action's install verification. Unpin once fixed upstream.
+        env:
+          FALLOW_VERSION: 3.5.1
         with:
           command: audit
           comment: true
