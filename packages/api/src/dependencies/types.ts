@@ -1,5 +1,5 @@
 import type { Logger, MongoDbConnection, ObjectStoreConnection } from '@imapps/api-utils';
-import type { Design, Draft, Material, UserSettings } from '@jewellery-catalogue/types';
+import type { Design, Draft, EtsyConnection, Material, UserSettings } from '@jewellery-catalogue/types';
 
 import type { DesignRepository } from '../domain/DesignRepository';
 import type { DesignService } from '../domain/DesignService';
@@ -19,6 +19,7 @@ export type Collections = {
     [CollectionNames.Materials]: Material;
     [CollectionNames.Drafts]: Draft;
     [CollectionNames.UserSettings]: UserSettings;
+    [CollectionNames.EtsyConnections]: EtsyConnection;
 };
 
 export enum DependencyToken {
@@ -67,4 +68,5 @@ export enum CollectionNames {
     Materials = 'materials',
     Drafts = 'drafts',
     UserSettings = 'userSettings',
+    EtsyConnections = 'etsyConnections',
 }
