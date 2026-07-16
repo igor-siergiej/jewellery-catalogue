@@ -26,7 +26,7 @@ import { getDraftsQuery, makeDeleteDraftRequest } from '../../api/endpoints/draf
 import { getDesignsQuery } from '../../api/endpoints/getDesigns';
 import { DesignCard } from '../../components/DesignCard';
 import LoadingScreen from '../../components/Loading';
-import { ADD_DESIGN_PAGE, IMPORT_DESIGNS_PAGE } from '../../constants/routes';
+import { ADD_DESIGN_PAGE } from '../../constants/routes';
 import { useSearch } from '../../context/SearchContext';
 import { DESIGN_TYPE_LABELS } from '../../lib/materialLabels';
 
@@ -116,7 +116,6 @@ const Designs = () => {
     const { accessToken, login, logout } = useAuth();
     const { searchQuery } = useSearch();
     const queryClient = useQueryClient();
-    const navigate = useNavigate();
     const [typeFilter, setTypeFilter] = useState<DesignType | 'all'>('all');
 
     const { data, isError, refetch } = useQuery({
@@ -171,12 +170,6 @@ const Designs = () => {
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-end">
-                <Button variant="outline" onClick={() => navigate(IMPORT_DESIGNS_PAGE.route)}>
-                    Import from Etsy
-                </Button>
-            </div>
-
             <Tabs value={typeFilter} onValueChange={(v) => setTypeFilter(v as DesignType | 'all')}>
                 <TabsList>
                     <TabsTrigger value="all">All ({data.length})</TabsTrigger>
