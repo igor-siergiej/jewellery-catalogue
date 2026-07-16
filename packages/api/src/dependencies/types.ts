@@ -1,5 +1,5 @@
 import type { Logger, MongoDbConnection, ObjectStoreConnection } from '@imapps/api-utils';
-import type { Design, Draft, Material, UserSettings } from '@jewellery-catalogue/types';
+import type { Design, Draft, ImportRun, Material, UserSettings } from '@jewellery-catalogue/types';
 
 import type { DesignImportService } from '../domain/DesignImportService';
 import type { DesignRepository } from '../domain/DesignRepository';
@@ -9,6 +9,7 @@ import type { DraftService } from '../domain/DraftService';
 import type { IdGenerator } from '../domain/IdGenerator';
 import type { ImageService } from '../domain/ImageService';
 import type { ImageStore } from '../domain/ImageService/types';
+import type { ImportRunRepository } from '../domain/ImportRunRepository';
 import type { MaterialRepository } from '../domain/MaterialRepository';
 import type { MaterialService } from '../domain/MaterialService';
 import type { UserSettingsRepository } from '../domain/UserSettingsRepository';
@@ -20,6 +21,7 @@ export type Collections = {
     [CollectionNames.Materials]: Material;
     [CollectionNames.Drafts]: Draft;
     [CollectionNames.UserSettings]: UserSettings;
+    [CollectionNames.ImportRuns]: ImportRun;
 };
 
 export enum DependencyToken {
@@ -31,6 +33,7 @@ export enum DependencyToken {
     MaterialRepository = 'MaterialRepository',
     DraftRepository = 'DraftRepository',
     UserSettingsRepository = 'UserSettingsRepository',
+    ImportRunRepository = 'ImportRunRepository',
     // Services
     DesignService = 'DesignService',
     MaterialService = 'MaterialService',
@@ -53,6 +56,7 @@ export type Dependencies = {
     [DependencyToken.MaterialRepository]: MaterialRepository;
     [DependencyToken.DraftRepository]: DraftRepository;
     [DependencyToken.UserSettingsRepository]: UserSettingsRepository;
+    [DependencyToken.ImportRunRepository]: ImportRunRepository;
     // Services
     [DependencyToken.DesignService]: DesignService;
     [DependencyToken.MaterialService]: MaterialService;
@@ -70,4 +74,5 @@ export enum CollectionNames {
     Materials = 'materials',
     Drafts = 'drafts',
     UserSettings = 'userSettings',
+    ImportRuns = 'importRuns',
 }

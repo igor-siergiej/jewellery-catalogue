@@ -11,6 +11,7 @@ import { UserSettingsService } from '../domain/UserSettingsService';
 import { BucketStore } from '../infrastructure/BucketStore';
 import { MongoDesignRepository } from '../infrastructure/MongoDesignRepository';
 import { MongoDraftRepository } from '../infrastructure/MongoDraftRepository';
+import { MongoImportRunRepository } from '../infrastructure/MongoImportRunRepository';
 import { MongoMaterialRepository } from '../infrastructure/MongoMaterialRepository';
 import { MongoUserSettingsRepository } from '../infrastructure/MongoUserSettingsRepository';
 import { UuidGenerator } from '../infrastructure/UuidGenerator';
@@ -116,6 +117,15 @@ export const registerDepdendencies = () => {
         class {
             constructor() {
                 return new MongoDraftRepository(dependencyContainer.resolve(DependencyToken.Database));
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.ImportRunRepository,
+        class {
+            constructor() {
+                return new MongoImportRunRepository(dependencyContainer.resolve(DependencyToken.Database));
             }
         } as any
     );
