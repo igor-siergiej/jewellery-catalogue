@@ -44,7 +44,7 @@ const buildPlaceholderMaterial = (tag: string, id: string, userId: string): Mate
             pricePerPack: 0,
             totalLength: SENTINEL_STOCK,
             pricePerMeter: 0,
-        } as unknown as Material;
+        } as Material;
     }
     return {
         ...base,
@@ -55,7 +55,7 @@ const buildPlaceholderMaterial = (tag: string, id: string, userId: string): Mate
         pricePerPack: 0,
         totalQuantity: SENTINEL_STOCK,
         pricePerBead: 0,
-    } as unknown as Material;
+    } as Material;
 };
 
 const toRequired = (material: Material): RequiredMaterial =>
