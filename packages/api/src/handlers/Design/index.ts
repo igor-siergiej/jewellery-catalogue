@@ -4,11 +4,14 @@ import type { Context } from 'hono';
 
 import { dependencyContainer } from '../../dependencies';
 import { DependencyToken } from '../../dependencies/types';
+import type { DesignImportService } from '../../domain/DesignImportService';
 import type { DesignService } from '../../domain/DesignService';
 
 type Ctx = Context<{ Variables: { userId: string } }>;
 
 const getDesignService = (): DesignService => dependencyContainer.resolve(DependencyToken.DesignService);
+const getDesignImportService = (): DesignImportService =>
+    dependencyContainer.resolve(DependencyToken.DesignImportService);
 
 const collectFiles = (value: unknown): File[] => {
     if (!value) return [];
@@ -142,4 +145,15 @@ export const editDesignProperties = async (c: Ctx) => {
 export const deleteDesign = async (c: Ctx) => {
     await getDesignService().deleteDesign(c.req.param('id'), c.get('userId'));
     return c.json({ message: 'Design deleted successfully' }, 200);
+};
+
+export const previewImport = async (c: Ctx) => {
+    const body = await c.req.parseBody();
+    const file = body.file;
+    if (!(file instanceof File)) {
+        throw new APIError('CSV file is required', 400);
+    }
+    const csvText = await file.text();
+    const result = await getDesignImportService().preview(csvText, c.get('userId'));
+    return c.json(result, 200);
 };
