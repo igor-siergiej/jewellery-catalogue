@@ -24,4 +24,13 @@ describe('parseCsv', () => {
         expect(rows[1].imageUrls).toHaveLength(2);
         expect(rows[1].sku).toBe('SKU-1');
     });
+
+    it('caps imageUrls at 3 per listing', () => {
+        const header =
+            'TITLE,DESCRIPTION,PRICE,CURRENCY_CODE,QUANTITY,TAGS,MATERIALS,IMAGE1,IMAGE2,IMAGE3,IMAGE4,IMAGE5,SKU';
+        const urls = [1, 2, 3, 4, 5].map((n) => `https://i.etsystatic.com/1/il/a/${n}/il_x.jpg`);
+        const row = `Ring,d,1,GBP,1,t,Copper,${urls.join(',')},`;
+        const [parsed] = parseCsv(`${header}\n${row}`);
+        expect(parsed.imageUrls).toEqual(urls.slice(0, 3));
+    });
 });

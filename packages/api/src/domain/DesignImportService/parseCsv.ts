@@ -1,6 +1,8 @@
 import type { EtsyRow } from '@jewellery-catalogue/types';
 import { parse } from 'csv-parse/sync';
 
+const MAX_IMAGES_PER_DESIGN = 3;
+
 export const parseCsv = (csvText: string): EtsyRow[] => {
     const records: Record<string, string>[] = parse(csvText, {
         columns: true,
@@ -30,7 +32,7 @@ export const parseCsv = (csvText: string): EtsyRow[] => {
             price: Number.isFinite(price) ? price : 0,
             quantity: Number.isFinite(quantity) ? quantity : 0,
             materials,
-            imageUrls,
+            imageUrls: imageUrls.slice(0, MAX_IMAGES_PER_DESIGN),
             sku: (r.SKU ?? '').trim(),
         };
     });

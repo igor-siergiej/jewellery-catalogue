@@ -2,8 +2,6 @@ import type {
     Design,
     EtsyRow,
     ImportCandidate,
-    ImportCommitRequest,
-    ImportCommitResult,
     ImportInvalidRow,
     ImportPreviewResult,
 } from '@jewellery-catalogue/types';
@@ -16,6 +14,14 @@ import type { EtsyImageFetcher } from './imageFetcher';
 import { inferDesignType } from './inferDesignType';
 import { parseCsv } from './parseCsv';
 import { PlaceholderMaterialResolver, placeholderNameForTag } from './placeholderMaterials';
+
+export interface CommitContext {
+    userId: string;
+    byKey: Map<string, Design>;
+    resolver: PlaceholderMaterialResolver;
+}
+
+export type CandidateOutcome = { outcome: 'created' | 'updated' | 'skipped' } | { outcome: 'failed'; reason: string };
 
 export class DesignImportService {
     constructor(
@@ -70,73 +76,80 @@ export class DesignImportService {
     }
 
     // fallow-ignore-next-line unused-class-member
-    async commit(request: ImportCommitRequest, userId: string): Promise<ImportCommitResult> {
+    async createCommitContext(userId: string): Promise<CommitContext> {
         const existing = await this.designRepo.getByUserId(userId);
         const byKey = new Map<string, Design>();
         for (const d of existing) if (d.importKey) byKey.set(d.importKey, d);
-
-        const resolver = new PlaceholderMaterialResolver(this.materialRepo, this.idGenerator);
-        const result: ImportCommitResult = { created: 0, updated: 0, failed: [] };
-
-        for (const candidate of request.candidates) {
-            const key = deriveImportKey(candidate.row);
-            const match = byKey.get(key);
-            const name = candidate.row.title.trim();
-
-            if (!match) {
-                const imageIds = await this.uploadImages(candidate.row);
-                if (imageIds.length === 0) {
-                    result.failed.push({ name, reason: 'No images could be fetched' });
-                    continue;
-                }
-                const materials = await resolver.resolve(candidate.row.materials, userId);
-                const design = { ...this.newDesign(candidate, imageIds, materials), userId };
-                await this.designRepo.insert(design);
-                result.created += 1;
-                continue;
-            }
-
-            const changedFields = diffChangedFields(candidate.row, match);
-            if (changedFields.length === 0) continue; // resolved SAME
-
-            let imageIds = match.imageIds;
-            let etsyImageSignature = match.etsyImageSignature;
-            if (changedFields.includes('images')) {
-                const fetched = await this.uploadImages(candidate.row);
-                if (fetched.length > 0) {
-                    imageIds = fetched;
-                    etsyImageSignature = imageSignature(candidate.row.imageUrls);
-                }
-            }
-
-            const updated: Design = {
-                ...match,
-                name,
-                description: candidate.row.description,
-                price: candidate.row.price,
-                imageIds,
-                etsyImageSignature,
-            };
-            await this.designRepo.update(match.id, updated);
-            result.updated += 1;
-        }
-
-        return result;
+        return { userId, byKey, resolver: new PlaceholderMaterialResolver(this.materialRepo, this.idGenerator) };
     }
 
-    private async uploadImages(row: EtsyRow): Promise<string[]> {
-        const ids: string[] = [];
-        for (const url of row.imageUrls) {
-            try {
-                const { buffer, contentType } = await this.imageFetcher.fetch(url);
-                const id = this.idGenerator.generate();
-                await this.imageService.uploadImage(id, buffer, contentType);
-                ids.push(id);
-            } catch {
-                // skip individual image failures
+    // fallow-ignore-next-line unused-class-member
+    async commitCandidate(
+        candidate: ImportCandidate,
+        ctx: CommitContext,
+        onImageProgress?: (done: number, total: number) => void | Promise<void>
+    ): Promise<CandidateOutcome> {
+        const key = deriveImportKey(candidate.row);
+        const match = ctx.byKey.get(key);
+
+        if (!match) {
+            const imageIds = await this.uploadImages(candidate.row, onImageProgress);
+            if (imageIds.length === 0) {
+                return { outcome: 'failed', reason: 'No images could be fetched' };
+            }
+            const materials = await ctx.resolver.resolve(candidate.row.materials, ctx.userId);
+            const design = { ...this.newDesign(candidate, imageIds, materials), userId: ctx.userId };
+            await this.designRepo.insert(design);
+            return { outcome: 'created' };
+        }
+
+        const changedFields = diffChangedFields(candidate.row, match);
+        if (changedFields.length === 0) return { outcome: 'skipped' };
+
+        let imageIds = match.imageIds;
+        let etsyImageSignature = match.etsyImageSignature;
+        if (changedFields.includes('images')) {
+            const fetched = await this.uploadImages(candidate.row, onImageProgress);
+            if (fetched.length > 0) {
+                imageIds = fetched;
+                etsyImageSignature = imageSignature(candidate.row.imageUrls);
             }
         }
-        return ids;
+
+        const updated: Design = {
+            ...match,
+            name: candidate.row.title.trim(),
+            description: candidate.row.description,
+            price: candidate.row.price,
+            imageIds,
+            etsyImageSignature,
+        };
+        await this.designRepo.update(match.id, updated);
+        return { outcome: 'updated' };
+    }
+
+    private async uploadImages(
+        row: EtsyRow,
+        onImageProgress?: (done: number, total: number) => void | Promise<void>
+    ): Promise<string[]> {
+        const total = row.imageUrls.length;
+        let done = 0;
+        const results = await Promise.all(
+            row.imageUrls.map(async (url) => {
+                let id: string | null = null;
+                try {
+                    const { buffer, contentType } = await this.imageFetcher.fetch(url);
+                    id = this.idGenerator.generate();
+                    await this.imageService.uploadImage(id, buffer, contentType);
+                } catch {
+                    id = null;
+                }
+                done += 1;
+                await onImageProgress?.(done, total);
+                return id;
+            })
+        );
+        return results.filter((id): id is string => id !== null);
     }
 
     private newDesign(candidate: ImportCandidate, imageIds: string[], materials: Design['materials']): Design {

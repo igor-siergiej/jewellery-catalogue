@@ -158,11 +158,6 @@ export const previewImport = async (c: Ctx) => {
     return c.json(result, 200);
 };
 
-export const commitImport = async (c: Ctx) => {
-    const request = await c.req.json();
-    if (!Array.isArray((request as { candidates?: unknown })?.candidates)) {
-        throw new APIError('candidates array is required', 400);
-    }
-    const result = await getDesignImportService().commit(request, c.get('userId'));
-    return c.json(result, 200);
+export const commitImport = async (_c: Ctx) => {
+    throw new APIError('Import commit is being reworked', 503);
 };
