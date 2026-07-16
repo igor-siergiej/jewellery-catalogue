@@ -43,9 +43,3 @@ export interface ImportCommitRequest {
 export interface ImportCommitResponse {
     runId: string;
 }
-
-export interface ImportCommitResult {
-    created: number;
-    updated: number;
-    failed: { name: string; reason: string }[];
-}

@@ -44,16 +44,15 @@ describe('importDesigns requests', () => {
         expect(init?.body).toBeInstanceOf(FormData);
     });
 
-    it('posts JSON to commit endpoint', async () => {
+    it('posts JSON to commit endpoint and returns the run id', async () => {
         const fetchSpy = vi
             .spyOn(globalThis, 'fetch')
-            .mockResolvedValue(new Response(JSON.stringify({ created: 1, updated: 0, failed: [] }), { status: 200 }));
-        const res = await makeCommitImportRequest({ candidates: [] }, token, noop, noop);
-        expect(res.created).toBe(1);
+            .mockResolvedValue(new Response(JSON.stringify({ runId: 'run-1' }), { status: 202 }));
+        const res = await makeCommitImportRequest({ candidates: [], fileName: 'export.csv' }, token, noop, noop);
+        expect(res.runId).toBe('run-1');
         expect(fetchSpy.mock.calls[0][0]).toBe(DESIGNS_IMPORT_COMMIT_ENDPOINT);
         const [, init] = fetchSpy.mock.calls[0];
         expect(init?.method).toBe('POST');
-        expect(init?.body).not.toBeInstanceOf(FormData);
-        expect(JSON.parse(init?.body as string)).toEqual({ candidates: [] });
+        expect(JSON.parse(init?.body as string)).toEqual({ candidates: [], fileName: 'export.csv' });
     });
 });

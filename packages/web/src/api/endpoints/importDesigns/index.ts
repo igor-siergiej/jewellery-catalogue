@@ -1,6 +1,6 @@
 import {
     type ImportCommitRequest,
-    type ImportCommitResult,
+    type ImportCommitResponse,
     type ImportPreviewResult,
     MethodType,
 } from '@jewellery-catalogue/types';
@@ -35,8 +35,8 @@ export const makeCommitImportRequest = async (
     getAccessToken: () => string,
     onTokenRefresh: (t: string) => void,
     onTokenClear: () => void
-): Promise<ImportCommitResult> => {
-    return await makeRequestWithAutoRefresh<ImportCommitResult>(
+): Promise<ImportCommitResponse> => {
+    return await makeRequestWithAutoRefresh<ImportCommitResponse>(
         {
             pathname: DESIGNS_IMPORT_COMMIT_ENDPOINT,
             method: MethodType.POST,
