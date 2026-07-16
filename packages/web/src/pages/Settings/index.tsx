@@ -30,8 +30,13 @@ const Settings = () => {
 
     const [localWage, setLocalWage] = useState<number | ''>(hourlyWage);
     const [localMargin, setLocalMargin] = useState<number | ''>(profitMargin);
-    const [pricingStatus, setPricingStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+    const [pricingStatus, setPricingStatus] = useState<'idle' | 'saving' | 'recalculating' | 'success' | 'error'>(
+        'idle'
+    );
     const [pricingError, setPricingError] = useState('');
+    const [pricingAction, setPricingAction] = useState<'save' | 'recalculate' | null>(null);
+    const [recalculateResult, setRecalculateResult] = useState<{ updated: number; total: number } | null>(null);
+    const pricingBusy = pricingStatus === 'saving' || pricingStatus === 'recalculating';
 
     useEffect(() => {
         setLocalWage(hourlyWage);
@@ -57,10 +62,17 @@ const Settings = () => {
         const margin = Number(localMargin);
         if (Number.isNaN(wage) || Number.isNaN(margin)) return;
 
+        setPricingAction(thenRecalculate ? 'recalculate' : 'save');
         setPricingStatus('saving');
         try {
             await updateSettings({ hourlyWage: wage, profitMargin: margin });
-            if (thenRecalculate) await recalculate();
+            if (thenRecalculate) {
+                setPricingStatus('recalculating');
+                const result = await recalculate();
+                setRecalculateResult(result);
+            } else {
+                setRecalculateResult(null);
+            }
             setPricingStatus('success');
         } catch (err) {
             setPricingError(err instanceof Error ? err.message : 'Unknown error');
@@ -101,8 +113,18 @@ const Settings = () => {
                                 <span className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-sm">
                                     {shopName} <ExternalLink className="h-3 w-3" />
                                 </span>
-                                <Button variant="outline" disabled={isDisconnecting} onClick={() => disconnect()}>
-                                    {isDisconnecting ? 'Disconnecting…' : broken ? 'Reconnect Etsy' : 'Disconnect'}
+                                <Button
+                                    variant="outline"
+                                    disabled={broken ? isConnecting : isDisconnecting}
+                                    onClick={broken ? handleConnect : () => disconnect()}
+                                >
+                                    {broken
+                                        ? isConnecting
+                                            ? 'Redirecting…'
+                                            : 'Reconnect Etsy'
+                                        : isDisconnecting
+                                          ? 'Disconnecting…'
+                                          : 'Disconnect'}
                                 </Button>
                             </div>
                         </div>
@@ -157,12 +179,30 @@ const Settings = () => {
                         </InputGroup>
                     </div>
                     <div className="flex gap-2">
-                        <Button onClick={() => handleSavePricing(true)}>Save &amp; Recalculate All Designs</Button>
-                        <Button variant="outline" onClick={() => handleSavePricing(false)}>
-                            Save Only
+                        <Button disabled={pricingBusy} onClick={() => handleSavePricing(true)}>
+                            {pricingAction === 'recalculate' && pricingStatus === 'saving'
+                                ? 'Saving…'
+                                : pricingAction === 'recalculate' && pricingStatus === 'recalculating'
+                                  ? 'Recalculating…'
+                                  : 'Save & Recalculate All Designs'}
+                        </Button>
+                        <Button variant="outline" disabled={pricingBusy} onClick={() => handleSavePricing(false)}>
+                            {pricingAction === 'save' && pricingStatus === 'saving' ? 'Saving…' : 'Save Only'}
                         </Button>
                     </div>
-                    {pricingStatus === 'success' && <p className="text-sm text-green-600">Saved.</p>}
+                    {pricingStatus === 'recalculating' && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Loader2 className="h-4 w-4 animate-spin" /> Updating prices for all your designs…
+                        </div>
+                    )}
+                    {pricingStatus === 'success' && pricingAction === 'recalculate' && recalculateResult && (
+                        <p className="text-sm text-green-600">
+                            Updated {recalculateResult.updated} of {recalculateResult.total} designs
+                        </p>
+                    )}
+                    {pricingStatus === 'success' && pricingAction === 'save' && (
+                        <p className="text-sm text-green-600">Saved.</p>
+                    )}
                     {pricingStatus === 'error' && <p className="text-sm text-destructive">{pricingError}</p>}
                 </CardContent>
             </Card>
