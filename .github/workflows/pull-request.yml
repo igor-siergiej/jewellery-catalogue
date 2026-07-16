@@ -105,9 +105,10 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: fallow-rs/fallow@v2
-        # Pinned: 3.6.0 platform packages are missing the fallow-lsp binary,
-        # which fails the action's install verification. Unpin once fixed upstream.
+      # Pinned action + CLI to 3.5.1: the 3.6.0 release ships no fallow-lsp binary in
+      # the platform packages, and the v2/v3 action's verification requires it.
+      # Restore fallow-rs/fallow@v2 without the version input once fixed upstream.
+      - uses: fallow-rs/fallow@v3.5.1
         with:
           version: 3.5.1
           command: audit
