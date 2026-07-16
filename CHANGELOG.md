@@ -1,3 +1,10 @@
+## [1.30.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.30.0...v1.30.1) (2026-07-16)
+
+
+### Reverts
+
+* Etsy CSV listing import ([#33](https://github.com/igor-siergiej/jewellery-catalogue/issues/33)) ([#34](https://github.com/igor-siergiej/jewellery-catalogue/issues/34)) ([71a90ad](https://github.com/igor-siergiej/jewellery-catalogue/commit/71a90ad1724f620f3b91cae52f36eb0e848724dd))
+
 # [1.30.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.29.1...v1.30.0) (2026-07-16)
 
 
