@@ -1,3 +1,10 @@
+# [1.30.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.29.1...v1.30.0) (2026-07-16)
+
+
+### Features
+
+* Etsy listing import with background import runs ([#33](https://github.com/igor-siergiej/jewellery-catalogue/issues/33)) ([cdeb26a](https://github.com/igor-siergiej/jewellery-catalogue/commit/cdeb26ac7295e0d44e69a5b5a869307f041a2ced))
+
 ## [1.29.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.29.0...v1.29.1) (2026-06-06)
 
 
