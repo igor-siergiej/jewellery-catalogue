@@ -10,6 +10,7 @@ import type { IdGenerator } from '../domain/IdGenerator';
 import type { ImageService } from '../domain/ImageService';
 import type { ImageStore } from '../domain/ImageService/types';
 import type { ImportRunRepository } from '../domain/ImportRunRepository';
+import type { ImportRunService } from '../domain/ImportRunService';
 import type { MaterialRepository } from '../domain/MaterialRepository';
 import type { MaterialService } from '../domain/MaterialService';
 import type { UserSettingsRepository } from '../domain/UserSettingsRepository';
@@ -41,6 +42,7 @@ export enum DependencyToken {
     DraftService = 'DraftService',
     UserSettingsService = 'UserSettingsService',
     DesignImportService = 'DesignImportService',
+    ImportRunService = 'ImportRunService',
     // Infrastructure
     IdGenerator = 'IdGenerator',
     ImageStore = 'ImageStore',
@@ -64,6 +66,7 @@ export type Dependencies = {
     [DependencyToken.DraftService]: DraftService;
     [DependencyToken.UserSettingsService]: UserSettingsService;
     [DependencyToken.DesignImportService]: DesignImportService;
+    [DependencyToken.ImportRunService]: ImportRunService;
     // Infrastructure
     [DependencyToken.IdGenerator]: IdGenerator;
     [DependencyToken.ImageStore]: ImageStore;

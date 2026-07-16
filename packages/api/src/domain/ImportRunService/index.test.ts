@@ -1,0 +1,148 @@
+import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
+import type { ImportCandidate, ImportRun } from '@jewellery-catalogue/types';
+import type { DesignImportService } from '../DesignImportService';
+import type { IdGenerator } from '../IdGenerator';
+import type { ImportRunRepository } from '../ImportRunRepository';
+import { ImportRunService } from './index';
+
+const runs = new Map<string, ImportRun>();
+const runRepo = {
+    getByUserId: mock(async (userId: string) => [...runs.values()].filter((r) => r.userId === userId)),
+    getByIdAndUserId: mock(async (id: string, userId: string) => {
+        const run = runs.get(id);
+        return run && run.userId === userId ? run : null;
+    }),
+    getById: mock(async (id: string) => runs.get(id) ?? null),
+    findRunning: mock(
+        async (userId: string) => [...runs.values()].find((r) => r.userId === userId && r.status === 'running') ?? null
+    ),
+    insert: mock(async (run: ImportRun) => {
+        runs.set(run.id, run);
+    }),
+    update: mock(async (id: string, run: ImportRun) => {
+        runs.set(id, run);
+    }),
+} satisfies ImportRunRepository;
+
+const commitCandidate = mock<DesignImportService['commitCandidate']>(async () => ({ outcome: 'created' }));
+const importService = {
+    createCommitContext: mock(async () => ({ userId: 'u1', byKey: new Map(), resolver: {} })),
+    commitCandidate,
+} as unknown as DesignImportService;
+
+let idc = 0;
+const idGenerator: IdGenerator = { generate: () => `run-${++idc}` };
+
+const candidate = (title: string): ImportCandidate =>
+    ({
+        row: { title, description: '', price: 1, quantity: 1, materials: [], imageUrls: [], sku: '' },
+    }) as ImportCandidate;
+
+const makeService = () => new ImportRunService(runRepo, importService, idGenerator);
+
+const awaitExecution = async (service: ImportRunService) => {
+    await (service as unknown as { execution?: Promise<void> }).execution;
+};
+
+describe('ImportRunService', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+        runs.clear();
+        idc = 0;
+        commitCandidate.mockImplementation(async () => ({ outcome: 'created' }));
+    });
+
+    it('start returns a running run immediately and completes it in the background', async () => {
+        const service = makeService();
+        const run = await service.start({ candidates: [candidate('A'), candidate('B')], fileName: 'x.csv' }, 'u1');
+        expect(run.status).toBe('running');
+        expect(run.total).toBe(2);
+        await awaitExecution(service);
+        const finished = runs.get(run.id)!;
+        expect(finished.status).toBe('completed');
+        expect(finished.processed).toBe(2);
+        expect(finished.created).toBe(2);
+        expect(finished.finishedAt).toBeInstanceOf(Date);
+    });
+
+    it('accumulates per-candidate failures without stopping', async () => {
+        commitCandidate
+            .mockImplementationOnce(async () => ({ outcome: 'failed', reason: 'No images could be fetched' }))
+            .mockImplementationOnce(async () => ({ outcome: 'updated' }));
+        const service = makeService();
+        const run = await service.start({ candidates: [candidate('Bad'), candidate('Good')], fileName: 'x.csv' }, 'u1');
+        await awaitExecution(service);
+        const finished = runs.get(run.id)!;
+        expect(finished.status).toBe('completed');
+        expect(finished.failed).toEqual([{ name: 'Bad', reason: 'No images could be fetched' }]);
+        expect(finished.updated).toBe(1);
+    });
+
+    it('rejects a second start while a run is running', async () => {
+        runs.set('run-existing', { id: 'run-existing', userId: 'u1', status: 'running' } as ImportRun);
+        const service = makeService();
+        await expect(service.start({ candidates: [], fileName: 'x.csv' }, 'u1')).rejects.toMatchObject({ status: 409 });
+    });
+
+    it('cancel stops the loop between candidates', async () => {
+        commitCandidate.mockImplementation(async () => {
+            const run = [...runs.values()][0];
+            runs.set(run.id, { ...runs.get(run.id)!, cancelRequested: true });
+            return { outcome: 'created' };
+        });
+        const service = makeService();
+        const run = await service.start({ candidates: [candidate('A'), candidate('B')], fileName: 'x.csv' }, 'u1');
+        await awaitExecution(service);
+        const finished = runs.get(run.id)!;
+        expect(finished.status).toBe('cancelled');
+        expect(finished.processed).toBe(1);
+    });
+
+    it('persists current listing and image progress, cleared on finish', async () => {
+        commitCandidate.mockImplementation(async (_candidate, _ctx, onImageProgress) => {
+            await onImageProgress?.(1, 3);
+            const inFlight = [...runs.values()][0];
+            expect(inFlight.currentListing).toBe('A');
+            expect(inFlight.currentImageProgress).toEqual({ done: 1, total: 3 });
+            return { outcome: 'created' };
+        });
+        const service = makeService();
+        const run = await service.start({ candidates: [candidate('A')], fileName: 'x.csv' }, 'u1');
+        await awaitExecution(service);
+        const finished = runs.get(run.id)!;
+        expect(finished.status).toBe('completed');
+        expect(finished.currentListing).toBeUndefined();
+        expect(finished.currentImageProgress).toBeUndefined();
+    });
+
+    it('marks the run failed when the worker throws unexpectedly', async () => {
+        commitCandidate.mockImplementation(async () => {
+            throw new Error('mongo down');
+        });
+        const service = makeService();
+        const run = await service.start({ candidates: [candidate('A')], fileName: 'x.csv' }, 'u1');
+        await awaitExecution(service);
+        const finished = runs.get(run.id)!;
+        expect(finished.status).toBe('failed');
+        expect(finished.finishedAt).toBeInstanceOf(Date);
+    });
+
+    it('cancel is a no-op on a finished run', async () => {
+        runs.set('run-done', {
+            id: 'run-done',
+            userId: 'u1',
+            status: 'completed',
+            cancelRequested: false,
+        } as ImportRun);
+        const service = makeService();
+        const result = await service.cancel('run-done', 'u1');
+        expect(result.status).toBe('completed');
+        expect(result.cancelRequested).toBe(false);
+    });
+
+    it('getRun throws 404 for another user', async () => {
+        runs.set('run-1', { id: 'run-1', userId: 'other' } as ImportRun);
+        const service = makeService();
+        await expect(makeService().getRun('run-1', 'u1')).rejects.toMatchObject({ status: 404 });
+    });
+});

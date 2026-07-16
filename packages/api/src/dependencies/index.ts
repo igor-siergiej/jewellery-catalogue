@@ -6,6 +6,7 @@ import { HttpEtsyImageFetcher } from '../domain/DesignImportService/imageFetcher
 import { DesignService } from '../domain/DesignService';
 import { DraftService } from '../domain/DraftService';
 import { ImageService } from '../domain/ImageService';
+import { ImportRunService } from '../domain/ImportRunService';
 import { MaterialService } from '../domain/MaterialService';
 import { UserSettingsService } from '../domain/UserSettingsService';
 import { BucketStore } from '../infrastructure/BucketStore';
@@ -107,6 +108,19 @@ export const registerDepdendencies = () => {
                     dependencyContainer.resolve(DependencyToken.ImageService),
                     dependencyContainer.resolve(DependencyToken.IdGenerator),
                     new HttpEtsyImageFetcher()
+                );
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.ImportRunService,
+        class {
+            constructor() {
+                return new ImportRunService(
+                    dependencyContainer.resolve(DependencyToken.ImportRunRepository),
+                    dependencyContainer.resolve(DependencyToken.DesignImportService),
+                    dependencyContainer.resolve(DependencyToken.IdGenerator)
                 );
             }
         } as any
