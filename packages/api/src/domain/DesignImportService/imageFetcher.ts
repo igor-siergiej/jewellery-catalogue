@@ -2,6 +2,7 @@ export interface EtsyImageFetcher {
     fetch(url: string): Promise<{ buffer: Buffer; contentType: string }>;
 }
 
+// fallow-ignore-next-line unused-export
 export const isAllowedEtsyUrl = (url: string): boolean => {
     try {
         const parsed = new URL(url);

@@ -26,6 +26,7 @@ export class DesignImportService {
         private readonly imageFetcher: EtsyImageFetcher
     ) {}
 
+    // fallow-ignore-next-line unused-class-member
     async preview(csvText: string, userId: string): Promise<ImportPreviewResult> {
         const rows = parseCsv(csvText);
         const existing = await this.designRepo.getByUserId(userId);
@@ -68,6 +69,7 @@ export class DesignImportService {
         return { candidates, invalid, summary };
     }
 
+    // fallow-ignore-next-line unused-class-member
     async commit(request: ImportCommitRequest, userId: string): Promise<ImportCommitResult> {
         const existing = await this.designRepo.getByUserId(userId);
         const byKey = new Map<string, Design>();
@@ -161,5 +163,3 @@ export class DesignImportService {
         };
     }
 }
-
-export { PlaceholderMaterialResolver };
