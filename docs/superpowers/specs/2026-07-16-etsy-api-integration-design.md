@@ -96,6 +96,20 @@ userSettings +
 new collection: etsyConnections (one per user)
 ```
 
+## UI surface map
+
+Existing pages: Home, Designs, AddDesign, ViewDesign, Materials, AddMaterial, Start, Register. Settings today is a dialog (`UserSettingsDialog`).
+
+| Surface | Change |
+|---|---|
+| `/settings` (new page) | Promotes the dialog. Sections: **Etsy connection** (Connect button → OAuth redirect; connected = shop name chip + disconnect; callback API route redirects back with `?etsy=connected\|error` — no dedicated callback page), **Pricing** (markup multiplier, hourly rate), **Etsy defaults** (description template textarea; designType→category dropdowns fed by taxonomy API, shown only when connected) |
+| AddDesign + DesignEditForm | "Maker docs" section (diagram upload + making-notes textarea; drafts autosave covers new fields for free). Price suggestion beside price input (design + per-variant), click-to-apply |
+| ViewDesign | Etsy chip (`Draft`/`Active` + external link). "Send to Etsy" button → push dialog (modal): editable composed description, resolved category, price, photo list. Maker docs display (diagram gallery + notes) |
+| Designs list | Etsy indicator per row when linked |
+| Nav | No new items. Settings gear routes to the page instead of opening the dialog |
+
+No listings screen (one-time script covers linking); orders page is future work.
+
 ## Error handling
 
 - Token refresh failure → connection marked broken → web shows "Reconnect Etsy" banner on Etsy-dependent surfaces; all other app function unaffected.
