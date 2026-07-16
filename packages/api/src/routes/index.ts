@@ -5,6 +5,7 @@ import { dependencyContainer } from '../dependencies';
 import { DependencyToken } from '../dependencies/types';
 import { addDesign, deleteDesign, editDesignProperties, getDesign, getDesigns, updateDesign } from '../handlers/Design';
 import { createDraft, deleteDraft, getDraft, getDrafts, updateDraft, uploadDraftImage } from '../handlers/Draft';
+import { disconnectEtsyConnection, etsyOAuthCallback, getEtsyConnectionStatus, startEtsyOAuth } from '../handlers/Etsy';
 import { getImage, uploadImage } from '../handlers/Image';
 import {
     addMaterial,
@@ -32,6 +33,11 @@ export const createRoutes = (): Hono<Env> => {
 
     app.get('/api/user-settings', authenticate, getUserSettings);
     app.put('/api/user-settings', authenticate, updateUserSettings);
+
+    app.get('/api/etsy/oauth/start', authenticate, startEtsyOAuth);
+    app.get('/api/etsy/oauth/callback', etsyOAuthCallback);
+    app.get('/api/etsy/connection', authenticate, getEtsyConnectionStatus);
+    app.delete('/api/etsy/connection', authenticate, disconnectEtsyConnection);
 
     app.get('/api/designs', authenticate, getDesigns);
     app.post('/api/designs', authenticate, addDesign);

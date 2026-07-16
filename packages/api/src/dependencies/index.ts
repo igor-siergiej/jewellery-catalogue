@@ -1,14 +1,19 @@
 // biome-ignore-all lint/correctness/noConstructorReturn: I need to figure out a better way to do this
 import { DependencyContainer, Logger, MongoDbConnection, ObjectStoreConnection } from '@imapps/api-utils';
 
+import { config } from '../config';
 import { DesignService } from '../domain/DesignService';
 import { DraftService } from '../domain/DraftService';
+import { EtsyClient } from '../domain/EtsyClient';
+import { EtsyConnectionService } from '../domain/EtsyConnectionService';
+import { EtsyOAuthStateStore } from '../domain/EtsyOAuthStateStore';
 import { ImageService } from '../domain/ImageService';
 import { MaterialService } from '../domain/MaterialService';
 import { UserSettingsService } from '../domain/UserSettingsService';
 import { BucketStore } from '../infrastructure/BucketStore';
 import { MongoDesignRepository } from '../infrastructure/MongoDesignRepository';
 import { MongoDraftRepository } from '../infrastructure/MongoDraftRepository';
+import { MongoEtsyConnectionRepository } from '../infrastructure/MongoEtsyConnectionRepository';
 import { MongoMaterialRepository } from '../infrastructure/MongoMaterialRepository';
 import { MongoUserSettingsRepository } from '../infrastructure/MongoUserSettingsRepository';
 import { UuidGenerator } from '../infrastructure/UuidGenerator';
@@ -132,6 +137,47 @@ export const registerDepdendencies = () => {
                 return new UserSettingsService(
                     dependencyContainer.resolve(DependencyToken.UserSettingsRepository),
                     dependencyContainer.resolve(DependencyToken.DesignRepository)
+                );
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.EtsyConnectionRepository,
+        class {
+            constructor() {
+                return new MongoEtsyConnectionRepository(dependencyContainer.resolve(DependencyToken.Database));
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.EtsyClient,
+        class {
+            constructor() {
+                return new EtsyClient(config.get('etsyApiKey'), config.get('etsySharedSecret'));
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.EtsyOAuthStateStore,
+        class {
+            constructor() {
+                return new EtsyOAuthStateStore();
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.EtsyConnectionService,
+        class {
+            constructor() {
+                return new EtsyConnectionService(
+                    dependencyContainer.resolve(DependencyToken.EtsyClient),
+                    dependencyContainer.resolve(DependencyToken.EtsyConnectionRepository),
+                    dependencyContainer.resolve(DependencyToken.EtsyOAuthStateStore),
+                    config.get('etsyRedirectUri')
                 );
             }
         } as any
