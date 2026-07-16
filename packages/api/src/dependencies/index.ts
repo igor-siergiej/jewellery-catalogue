@@ -1,18 +1,14 @@
 // biome-ignore-all lint/correctness/noConstructorReturn: I need to figure out a better way to do this
 import { DependencyContainer, Logger, MongoDbConnection, ObjectStoreConnection } from '@imapps/api-utils';
 
-import { DesignImportService } from '../domain/DesignImportService';
-import { HttpEtsyImageFetcher } from '../domain/DesignImportService/imageFetcher';
 import { DesignService } from '../domain/DesignService';
 import { DraftService } from '../domain/DraftService';
 import { ImageService } from '../domain/ImageService';
-import { ImportRunService } from '../domain/ImportRunService';
 import { MaterialService } from '../domain/MaterialService';
 import { UserSettingsService } from '../domain/UserSettingsService';
 import { BucketStore } from '../infrastructure/BucketStore';
 import { MongoDesignRepository } from '../infrastructure/MongoDesignRepository';
 import { MongoDraftRepository } from '../infrastructure/MongoDraftRepository';
-import { MongoImportRunRepository } from '../infrastructure/MongoImportRunRepository';
 import { MongoMaterialRepository } from '../infrastructure/MongoMaterialRepository';
 import { MongoUserSettingsRepository } from '../infrastructure/MongoUserSettingsRepository';
 import { UuidGenerator } from '../infrastructure/UuidGenerator';
@@ -99,48 +95,10 @@ export const registerDepdendencies = () => {
     );
 
     dependencyContainer.registerSingleton(
-        DependencyToken.DesignImportService,
-        class {
-            constructor() {
-                return new DesignImportService(
-                    dependencyContainer.resolve(DependencyToken.DesignRepository),
-                    dependencyContainer.resolve(DependencyToken.MaterialRepository),
-                    dependencyContainer.resolve(DependencyToken.ImageService),
-                    dependencyContainer.resolve(DependencyToken.IdGenerator),
-                    new HttpEtsyImageFetcher()
-                );
-            }
-        } as any
-    );
-
-    dependencyContainer.registerSingleton(
-        DependencyToken.ImportRunService,
-        class {
-            constructor() {
-                return new ImportRunService(
-                    dependencyContainer.resolve(DependencyToken.ImportRunRepository),
-                    dependencyContainer.resolve(DependencyToken.DesignImportService),
-                    dependencyContainer.resolve(DependencyToken.IdGenerator),
-                    dependencyContainer.resolve(DependencyToken.Logger)
-                );
-            }
-        } as any
-    );
-
-    dependencyContainer.registerSingleton(
         DependencyToken.DraftRepository,
         class {
             constructor() {
                 return new MongoDraftRepository(dependencyContainer.resolve(DependencyToken.Database));
-            }
-        } as any
-    );
-
-    dependencyContainer.registerSingleton(
-        DependencyToken.ImportRunRepository,
-        class {
-            constructor() {
-                return new MongoImportRunRepository(dependencyContainer.resolve(DependencyToken.Database));
             }
         } as any
     );

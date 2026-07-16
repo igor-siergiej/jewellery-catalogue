@@ -1,4 +1,4 @@
-import { Gem, Home, Palette, Plus, PlusCircle, UploadCloud } from 'lucide-react';
+import { Gem, Home, Palette, Plus, PlusCircle } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
@@ -24,7 +24,6 @@ const routeIcons = {
     '/addDesign': Plus,
     '/materials': Gem,
     '/addMaterial': PlusCircle,
-    '/imports': UploadCloud,
 };
 
 const AppSidebar = () => {
