@@ -52,9 +52,6 @@ export const onStartup = async () => {
         const draftsCollection = database.getCollection('drafts' as any);
         await draftsCollection.createIndex({ userId: 1 });
         await draftsCollection.createIndex({ id: 1, userId: 1 });
-        const importRunsCollection = database.getCollection('importRuns' as any);
-        await importRunsCollection.createIndex({ userId: 1, status: 1 });
-        await importRunsCollection.createIndex({ userId: 1, startedAt: -1 });
         appLogger.info('Database indexes created');
 
         const app = createApp({ logger: appLogger, allowedOrigins });

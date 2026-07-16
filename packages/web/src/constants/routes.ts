@@ -41,12 +41,4 @@ export const VIEW_DESIGN_PAGE = {
     getRoute: (id: string) => `/designs/${id}`,
 };
 
-export const IMPORTS_PAGE: NavRoute = { name: 'Imports', route: '/imports' };
-export const NEW_IMPORT_PAGE: NavRoute = { name: 'New Import', route: '/imports/new' };
-export const VIEW_IMPORT_RUN_PAGE = {
-    name: 'Import Run',
-    route: '/imports/:id',
-    getRoute: (id: string) => `/imports/${id}`,
-};
-
-export const ROUTES = [HOME_PAGE, DESIGNS_PAGE, ADD_DESIGN_PAGE, MATERIALS_PAGE, ADD_MATERIAL_PAGE, IMPORTS_PAGE];
+export const ROUTES = [HOME_PAGE, DESIGNS_PAGE, ADD_DESIGN_PAGE, MATERIALS_PAGE, ADD_MATERIAL_PAGE];

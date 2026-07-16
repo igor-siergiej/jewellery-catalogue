@@ -13,13 +13,10 @@ import {
     ADD_MATERIAL_PAGE,
     DESIGNS_PAGE,
     HOME_PAGE,
-    IMPORTS_PAGE,
     MATERIALS_PAGE,
-    NEW_IMPORT_PAGE,
     REGISTER_PAGE,
     START_PAGE,
     VIEW_DESIGN_PAGE,
-    VIEW_IMPORT_RUN_PAGE,
 } from './constants/routes';
 import { AlertProvider } from './context/Alert';
 import { DraftStatusProvider } from './context/DraftStatus';
@@ -27,13 +24,10 @@ import AddDesign from './pages/AddDesign';
 import AddMaterial from './pages/AddMaterial';
 import Designs from './pages/Designs';
 import Home from './pages/Home';
-import Imports from './pages/Imports';
 import Materials from './pages/Materials';
-import NewImport from './pages/NewImport';
 import Register from './pages/Register';
 import Start from './pages/Start';
 import ViewDesign from './pages/ViewDesign';
-import ViewImportRun from './pages/ViewImportRun';
 import { getAuthConfig } from './utils/authConfig';
 import { loadConfig } from './utils/loadConfig';
 
@@ -115,39 +109,6 @@ function App() {
                     <ProtectedRoute fallbackPath={START_PAGE.route}>
                         <MainLayout>
                             <AddMaterial />
-                        </MainLayout>
-                    </ProtectedRoute>
-                }
-            />
-
-            <Route
-                path={IMPORTS_PAGE.route}
-                element={
-                    <ProtectedRoute fallbackPath={START_PAGE.route}>
-                        <MainLayout>
-                            <Imports />
-                        </MainLayout>
-                    </ProtectedRoute>
-                }
-            />
-
-            <Route
-                path={NEW_IMPORT_PAGE.route}
-                element={
-                    <ProtectedRoute fallbackPath={START_PAGE.route}>
-                        <MainLayout>
-                            <NewImport />
-                        </MainLayout>
-                    </ProtectedRoute>
-                }
-            />
-
-            <Route
-                path={VIEW_IMPORT_RUN_PAGE.route}
-                element={
-                    <ProtectedRoute fallbackPath={START_PAGE.route}>
-                        <MainLayout>
-                            <ViewImportRun />
                         </MainLayout>
                     </ProtectedRoute>
                 }

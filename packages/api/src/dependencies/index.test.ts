@@ -54,12 +54,6 @@ describe('Dependencies', () => {
             expect(container.constructors?.[DependencyToken.MaterialRepository]).toBeDefined();
         });
 
-        it('should register ImportRunRepository', () => {
-            registerDepdendencies();
-            const container = dependencyContainer as any;
-            expect(container.constructors?.[DependencyToken.ImportRunRepository]).toBeDefined();
-        });
-
         it('should register MaterialService', () => {
             registerDepdendencies();
             const container = dependencyContainer as any;
@@ -78,17 +72,11 @@ describe('Dependencies', () => {
             expect(container.constructors?.[DependencyToken.DesignService]).toBeDefined();
         });
 
-        it('should register DesignImportService', () => {
-            registerDepdendencies();
-            const container = dependencyContainer as any;
-            expect(container.constructors?.[DependencyToken.DesignImportService]).toBeDefined();
-        });
-
-        it('should register exactly 17 dependencies', () => {
+        it('should register exactly 12 dependencies', () => {
             registerDepdendencies();
             const container = dependencyContainer as any;
             const registeredCount = Object.keys(container.constructors || {}).length;
-            expect(registeredCount).toBe(17);
+            expect(registeredCount).toBe(14);
         });
 
         it('should register all expected tokens', () => {
@@ -109,9 +97,6 @@ describe('Dependencies', () => {
                 DependencyToken.DesignService,
                 DependencyToken.DraftRepository,
                 DependencyToken.DraftService,
-                DependencyToken.DesignImportService,
-                DependencyToken.ImportRunRepository,
-                DependencyToken.ImportRunService,
             ];
 
             expectedTokens.forEach((token) => {
