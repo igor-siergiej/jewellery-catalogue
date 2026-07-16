@@ -61,35 +61,37 @@ export class ImportRunService {
     private async execute(run: ImportRun, candidates: ImportCandidate[]): Promise<void> {
         let current = run;
         const cleared = { currentListing: undefined, currentImageProgress: undefined };
+
+        // Every write below is a full-document replace, and cancel() can land concurrently at any
+        // point in the loop (including mid-commitCandidate, between two image-progress callbacks).
+        // Routing all writes through this single helper — which re-reads the persisted flag and OR's
+        // it in — guarantees an externally-set cancelRequested can never be clobbered back to false.
+        const persist = async (patch: Partial<ImportRun> = {}): Promise<void> => {
+            const latest = await this.runRepo.getById(run.id);
+            current = {
+                ...current,
+                ...patch,
+                cancelRequested: current.cancelRequested || !!latest?.cancelRequested || !!patch.cancelRequested,
+            };
+            await this.runRepo.update(run.id, current);
+        };
+
         try {
             const ctx = await this.importService.createCommitContext(run.userId);
             for (const candidate of candidates) {
                 const latest = await this.runRepo.getById(run.id);
                 if (latest?.cancelRequested) {
-                    current = {
-                        ...current,
-                        ...cleared,
-                        cancelRequested: true,
-                        status: 'cancelled',
-                        finishedAt: new Date(),
-                    };
-                    await this.runRepo.update(run.id, current);
+                    await persist({ ...cleared, cancelRequested: true, status: 'cancelled', finishedAt: new Date() });
                     return;
                 }
 
-                current = { ...current, currentListing: candidate.row.title.trim(), currentImageProgress: undefined };
-                await this.runRepo.update(run.id, current);
+                await persist({ currentListing: candidate.row.title.trim(), currentImageProgress: undefined });
 
                 const result = await this.importService.commitCandidate(candidate, ctx, async (done, total) => {
-                    current = { ...current, currentImageProgress: { done, total } };
-                    await this.runRepo.update(run.id, current);
+                    await persist({ currentImageProgress: { done, total } });
                 });
-                // Re-read cancelRequested: a concurrent cancel() may have written it while commitCandidate
-                // was in flight, and the full-document write below would otherwise clobber it back to false.
-                const postCommit = await this.runRepo.getById(run.id);
-                current = {
-                    ...current,
-                    cancelRequested: postCommit?.cancelRequested ?? current.cancelRequested,
+
+                await persist({
                     processed: current.processed + 1,
                     created: current.created + (result.outcome === 'created' ? 1 : 0),
                     updated: current.updated + (result.outcome === 'updated' ? 1 : 0),
@@ -97,13 +99,11 @@ export class ImportRunService {
                         result.outcome === 'failed'
                             ? [...current.failed, { name: candidate.row.title.trim(), reason: result.reason }]
                             : current.failed,
-                };
-                await this.runRepo.update(run.id, current);
+                });
             }
-            current = { ...current, ...cleared, status: 'completed', finishedAt: new Date() };
-            await this.runRepo.update(run.id, current);
+            await persist({ ...cleared, status: 'completed', finishedAt: new Date() });
         } catch {
-            await this.runRepo.update(run.id, { ...current, ...cleared, status: 'failed', finishedAt: new Date() });
+            await persist({ ...cleared, status: 'failed', finishedAt: new Date() });
         }
     }
 }

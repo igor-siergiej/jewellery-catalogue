@@ -98,6 +98,22 @@ describe('ImportRunService', () => {
         expect(finished.processed).toBe(1);
     });
 
+    it('cancel set between two onImageProgress writes survives and stops the run at that candidate', async () => {
+        commitCandidate.mockImplementationOnce(async (_candidate, _ctx, onImageProgress) => {
+            await onImageProgress?.(1, 3);
+            const run = [...runs.values()][0];
+            runs.set(run.id, { ...runs.get(run.id)!, cancelRequested: true });
+            await onImageProgress?.(2, 3);
+            return { outcome: 'created' };
+        });
+        const service = makeService();
+        const run = await service.start({ candidates: [candidate('A'), candidate('B')], fileName: 'x.csv' }, 'u1');
+        await awaitExecution(service);
+        const finished = runs.get(run.id)!;
+        expect(finished.status).toBe('cancelled');
+        expect(finished.processed).toBe(1);
+    });
+
     it('persists current listing and image progress, cleared on finish', async () => {
         commitCandidate.mockImplementation(async (_candidate, _ctx, onImageProgress) => {
             await onImageProgress?.(1, 3);
