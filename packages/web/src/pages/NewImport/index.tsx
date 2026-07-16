@@ -39,6 +39,7 @@ const NewImport: React.FC = () => {
     const [busy, setBusy] = useState(false);
     const [dragging, setDragging] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [conflict, setConflict] = useState(false);
 
     const token = () => accessToken;
 
@@ -87,11 +88,18 @@ const NewImport: React.FC = () => {
         if (chosen.length === 0 || !fileName) return;
         setBusy(true);
         setError(null);
+        setConflict(false);
         try {
             const res = await makeCommitImportRequest({ candidates: chosen, fileName }, token, login, logout);
             navigate(VIEW_IMPORT_RUN_PAGE.getRoute(res.runId));
         } catch (e) {
-            setError(e instanceof Error ? e.message : 'Import failed');
+            const isConflict = e instanceof Error && e.message.includes('409');
+            if (isConflict) {
+                setConflict(true);
+                setError('An import is already running.');
+            } else {
+                setError(e instanceof Error ? e.message : 'Import failed');
+            }
             setBusy(false);
         }
     };
@@ -154,7 +162,19 @@ const NewImport: React.FC = () => {
 
             {error && (
                 <Alert className="border-destructive/50 bg-destructive/10">
-                    <AlertDescription className="text-destructive">{error}</AlertDescription>
+                    <AlertDescription className="flex items-center justify-between gap-4 text-destructive">
+                        <span>{error}</span>
+                        {conflict && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="shrink-0"
+                                onClick={() => navigate(IMPORTS_PAGE.route)}
+                            >
+                                View imports
+                            </Button>
+                        )}
+                    </AlertDescription>
                 </Alert>
             )}
 
@@ -260,17 +280,19 @@ const NewImport: React.FC = () => {
                         </div>
                     )}
 
-                    <div className="sticky bottom-0 -mx-4 border-t bg-background/95 p-4 backdrop-blur">
-                        <div className="flex items-center justify-between">
-                            <p className="text-sm text-muted-foreground">
-                                {chosen.length} of {selectableKeys.length} importable listings selected
-                            </p>
-                            <Button disabled={busy || chosen.length === 0} onClick={onCommit}>
-                                {busy && <Loader2 className="h-4 w-4 animate-spin" />}
-                                Start import
-                            </Button>
+                    {preview.candidates.length > 0 && (
+                        <div className="sticky bottom-0 -mx-4 border-t bg-background/95 p-4 backdrop-blur">
+                            <div className="flex items-center justify-between">
+                                <p className="text-sm text-muted-foreground">
+                                    {chosen.length} of {selectableKeys.length} importable listings selected
+                                </p>
+                                <Button disabled={busy || chosen.length === 0} onClick={onCommit}>
+                                    {busy && <Loader2 className="h-4 w-4 animate-spin" />}
+                                    Start import
+                                </Button>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </>
             )}
         </div>

@@ -7,4 +7,5 @@ export interface ImportRunRepository {
     findRunning(userId: string): Promise<ImportRun | null>;
     insert(run: ImportRun): Promise<void>;
     update(id: string, run: ImportRun): Promise<void>;
+    requestCancel(id: string): Promise<void>;
 }

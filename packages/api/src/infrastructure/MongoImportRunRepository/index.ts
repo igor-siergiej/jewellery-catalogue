@@ -39,4 +39,8 @@ export class MongoImportRunRepository extends MongoRepository<ImportRun> impleme
     async update(id: string, run: ImportRun): Promise<void> {
         await this.collection().findOneAndReplace({ id }, run);
     }
+
+    async requestCancel(id: string): Promise<void> {
+        await this.collection().updateOne({ id, status: 'running' }, { $set: { cancelRequested: true } });
+    }
 }

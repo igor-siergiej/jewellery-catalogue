@@ -23,6 +23,12 @@ const runRepo = {
     update: mock(async (id: string, run: ImportRun) => {
         runs.set(id, run);
     }),
+    requestCancel: mock(async (id: string) => {
+        const run = runs.get(id);
+        if (run && run.status === 'running') {
+            runs.set(id, { ...run, cancelRequested: true });
+        }
+    }),
 } satisfies ImportRunRepository;
 
 const commitCandidate = mock<DesignImportService['commitCandidate']>(async () => ({ outcome: 'created' }));
@@ -83,6 +89,35 @@ describe('ImportRunService', () => {
 
     it('rejects a second start while a run is running', async () => {
         runs.set('run-existing', { id: 'run-existing', userId: 'u1', status: 'running' } as ImportRun);
+        const service = makeService();
+        await expect(service.start({ candidates: [], fileName: 'x.csv' }, 'u1')).rejects.toMatchObject({ status: 409 });
+    });
+
+    it('treats a stale running run as a zombie and starts a new one', async () => {
+        runs.set('run-stale', {
+            id: 'run-stale',
+            userId: 'u1',
+            status: 'running',
+            startedAt: new Date(Date.now() - 16 * 60 * 1000),
+        } as ImportRun);
+        const service = makeService();
+        const run = await service.start({ candidates: [candidate('A')], fileName: 'x.csv' }, 'u1');
+        expect(run.status).toBe('running');
+        expect(run.id).not.toBe('run-stale');
+        const stale = runs.get('run-stale')!;
+        expect(stale.status).toBe('failed');
+        expect(stale.finishedAt).toBeInstanceOf(Date);
+        expect(stale.currentListing).toBeUndefined();
+        expect(stale.currentImageProgress).toBeUndefined();
+    });
+
+    it('rejects a second start when the running run is fresh', async () => {
+        runs.set('run-fresh', {
+            id: 'run-fresh',
+            userId: 'u1',
+            status: 'running',
+            startedAt: new Date(),
+        } as ImportRun);
         const service = makeService();
         await expect(service.start({ candidates: [], fileName: 'x.csv' }, 'u1')).rejects.toMatchObject({ status: 409 });
     });

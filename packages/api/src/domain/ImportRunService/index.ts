@@ -5,6 +5,8 @@ import type { DesignImportService } from '../DesignImportService';
 import type { IdGenerator } from '../IdGenerator';
 import type { ImportRunRepository } from '../ImportRunRepository';
 
+const STALE_RUN_MS = 15 * 60 * 1000;
+
 export class ImportRunService {
     // biome-ignore lint/correctness/noUnusedPrivateClassMembers: read externally by tests to await the in-flight loop deterministically
     private execution: Promise<void> | undefined;
@@ -19,7 +21,22 @@ export class ImportRunService {
     async start(request: ImportCommitRequest, userId: string): Promise<ImportRun> {
         const running = await this.runRepo.findRunning(userId);
         if (running) {
-            throw Object.assign(new Error('An import is already running'), { status: 409 });
+            const age = Date.now() - new Date(running.startedAt).getTime();
+            const isStale = Number.isFinite(age) && age >= STALE_RUN_MS;
+            if (!isStale) {
+                throw Object.assign(new Error('An import is already running'), { status: 409 });
+            }
+            this.logger.warn('Marking stale running import run as failed', {
+                runId: running.id,
+                startedAt: running.startedAt,
+            });
+            await this.runRepo.update(running.id, {
+                ...running,
+                status: 'failed',
+                finishedAt: new Date(),
+                currentListing: undefined,
+                currentImageProgress: undefined,
+            });
         }
 
         const run: ImportRun = {
@@ -55,9 +72,8 @@ export class ImportRunService {
     async cancel(id: string, userId: string): Promise<ImportRun> {
         const run = await this.getRun(id, userId);
         if (run.status !== 'running') return run;
-        const updated = { ...run, cancelRequested: true };
-        await this.runRepo.update(run.id, updated);
-        return updated;
+        await this.runRepo.requestCancel(run.id);
+        return (await this.runRepo.getByIdAndUserId(id, userId)) ?? run;
     }
 
     private async execute(run: ImportRun, candidates: ImportCandidate[]): Promise<void> {

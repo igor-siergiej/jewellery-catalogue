@@ -1,7 +1,7 @@
 import type { EtsyRow } from '@jewellery-catalogue/types';
 import { parse } from 'csv-parse/sync';
 
-const MAX_IMAGES_PER_DESIGN = 3;
+export const MAX_IMAGES_PER_DESIGN = 3;
 
 export const parseCsv = (csvText: string): EtsyRow[] => {
     const records: Record<string, string>[] = parse(csvText, {

@@ -12,7 +12,7 @@ import type { MaterialRepository } from '../MaterialRepository';
 import { deriveImportKey, diffChangedFields, imageSignature } from './deriveKeys';
 import type { EtsyImageFetcher } from './imageFetcher';
 import { inferDesignType } from './inferDesignType';
-import { parseCsv } from './parseCsv';
+import { MAX_IMAGES_PER_DESIGN, parseCsv } from './parseCsv';
 import { PlaceholderMaterialResolver, placeholderNameForTag } from './placeholderMaterials';
 
 export interface CommitContext {
@@ -132,10 +132,11 @@ export class DesignImportService {
         row: EtsyRow,
         onImageProgress?: (done: number, total: number) => void | Promise<void>
     ): Promise<string[]> {
-        const total = row.imageUrls.length;
+        const urls = row.imageUrls.slice(0, MAX_IMAGES_PER_DESIGN);
+        const total = urls.length;
         let done = 0;
         const results = await Promise.all(
-            row.imageUrls.map(async (url) => {
+            urls.map(async (url) => {
                 let id: string | null = null;
                 try {
                     const { buffer, contentType } = await this.imageFetcher.fetch(url);
