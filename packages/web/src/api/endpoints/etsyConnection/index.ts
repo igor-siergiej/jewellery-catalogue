@@ -43,7 +43,7 @@ export const makeDisconnectEtsyRequest = (
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
 ) =>
-    makeRequestWithAutoRefresh<null>(
+    makeRequestWithAutoRefresh<{ message: string }>(
         {
             pathname: ETSY_CONNECTION_ENDPOINT,
             method: MethodType.DELETE,

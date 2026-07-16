@@ -32,5 +32,5 @@ export const getEtsyConnectionStatus = async (c: AuthedCtx) => c.json(await getS
 
 export const disconnectEtsyConnection = async (c: AuthedCtx) => {
     await getService().disconnect(c.get('userId'));
-    return c.body(null, 204);
+    return c.json({ message: 'Etsy connection deleted successfully' }, 200);
 };
