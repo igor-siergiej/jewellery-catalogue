@@ -37,6 +37,11 @@ export interface ImportPreviewResult {
 
 export interface ImportCommitRequest {
     candidates: ImportCandidate[];
+    fileName: string;
+}
+
+export interface ImportCommitResponse {
+    runId: string;
 }
 
 export interface ImportCommitResult {
