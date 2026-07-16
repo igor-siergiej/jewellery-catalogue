@@ -7,6 +7,7 @@ describe('imageFetcher', () => {
         expect(isAllowedEtsyUrl('http://i.etsystatic.com/x.jpg')).toBe(false);
         expect(isAllowedEtsyUrl('https://evil.com/x.jpg')).toBe(false);
         expect(isAllowedEtsyUrl('not a url')).toBe(false);
+        expect(isAllowedEtsyUrl('https://i.etsystatic.com.evil.com/x.jpg')).toBe(false);
     });
 
     it('rejects disallowed hosts before fetching', async () => {
@@ -25,5 +26,11 @@ describe('imageFetcher', () => {
         const res = await fetcher.fetch('https://i.etsystatic.com/1/il/a/1/il_x.jpg');
         expect(res.contentType).toBe('image/jpeg');
         expect(res.buffer.length).toBe(3);
+    });
+
+    it('rejects when the response is not ok', async () => {
+        const fakeFetch = mock(async () => new Response(null, { status: 500 }));
+        const fetcher = new HttpEtsyImageFetcher(fakeFetch as unknown as typeof fetch);
+        await expect(fetcher.fetch('https://i.etsystatic.com/1/il/a/1/il_x.jpg')).rejects.toThrow();
     });
 });

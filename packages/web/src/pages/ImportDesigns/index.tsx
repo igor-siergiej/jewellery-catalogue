@@ -18,6 +18,7 @@ const ImportDesigns: React.FC = () => {
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [resultMsg, setResultMsg] = useState<string | null>(null);
+    const [failedNames, setFailedNames] = useState<string[]>([]);
 
     const token = () => accessToken;
 
@@ -25,6 +26,7 @@ const ImportDesigns: React.FC = () => {
         setBusy(true);
         setError(null);
         setResultMsg(null);
+        setFailedNames([]);
         try {
             const res = await makePreviewImportRequest(file, token, login, logout);
             setPreview(res);
@@ -60,6 +62,7 @@ const ImportDesigns: React.FC = () => {
             const res = await makeCommitImportRequest({ candidates: chosen }, token, login, logout);
             await queryClient.invalidateQueries({ queryKey: ['designs'] });
             setResultMsg(`Created ${res.created}, updated ${res.updated}, failed ${res.failed.length}.`);
+            setFailedNames(res.failed.map((f) => f.name));
             setPreview(null);
             setSelected(new Set());
         } catch (e) {
@@ -90,6 +93,13 @@ const ImportDesigns: React.FC = () => {
 
             {error && <p className="text-destructive">{error}</p>}
             {resultMsg && <p className="text-green-600">{resultMsg}</p>}
+            {failedNames.length > 0 && (
+                <ul className="text-sm text-destructive list-disc pl-5">
+                    {failedNames.map((n) => (
+                        <li key={n}>{n}</li>
+                    ))}
+                </ul>
+            )}
 
             {preview && (
                 <div className="space-y-3">

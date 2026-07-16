@@ -78,7 +78,7 @@ describe('Dependencies', () => {
             expect(container.constructors?.[DependencyToken.DesignImportService]).toBeDefined();
         });
 
-        it('should register exactly 12 dependencies', () => {
+        it('should register exactly 15 dependencies', () => {
             registerDepdendencies();
             const container = dependencyContainer as any;
             const registeredCount = Object.keys(container.constructors || {}).length;

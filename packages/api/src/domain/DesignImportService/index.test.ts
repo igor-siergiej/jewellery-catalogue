@@ -4,6 +4,7 @@ import type { DesignRepository } from '../DesignRepository';
 import type { IdGenerator } from '../IdGenerator';
 import type { ImageService } from '../ImageService';
 import type { MaterialRepository } from '../MaterialRepository';
+import { deriveImportKey } from './deriveKeys';
 import type { EtsyImageFetcher } from './imageFetcher';
 import { DesignImportService } from './index';
 
@@ -71,7 +72,6 @@ describe('DesignImportService.preview', () => {
             etsyImageSignature: '111',
         } as unknown as Design;
         // importKey is title-hash of 'New Ring'
-        const { deriveImportKey } = await import('./deriveKeys');
         existing.importKey = deriveImportKey({ title: 'New Ring', sku: '' } as any);
         designRepo.getByUserId.mockResolvedValue([existing]);
 
@@ -92,8 +92,11 @@ describe('DesignImportService.commit', () => {
         idc = 0;
     });
 
+    // Server re-derives importKey from the row; candidate-supplied importKey is untrusted and ignored.
+    const newRingKey = deriveImportKey({ title: 'New Ring', sku: '' } as any);
+
     const candidate = (over: Partial<import('@jewellery-catalogue/types').ImportCandidate> = {}) => ({
-        importKey: 'k1',
+        importKey: newRingKey,
         name: 'New Ring',
         status: 'NEW' as const,
         changedFields: [],
@@ -116,7 +119,7 @@ describe('DesignImportService.commit', () => {
     it('creates a new design with seeded quantity and placeholder material', async () => {
         designRepo.getByUserId.mockResolvedValue([]);
         materialRepo.getByUserId.mockResolvedValue([]);
-        const res = await makeService().commit({ candidates: [candidate({ importKey: 'k1' })] }, 'u1');
+        const res = await makeService().commit({ candidates: [candidate()] }, 'u1');
         expect(res.created).toBe(1);
         expect(designRepo.insert).toHaveBeenCalledTimes(1);
         const inserted = designRepo.insert.mock.calls[0][0];
@@ -131,7 +134,7 @@ describe('DesignImportService.commit', () => {
         designRepo.getByUserId.mockResolvedValue([]);
         materialRepo.getByUserId.mockResolvedValue([]);
         imageFetcher.fetch.mockRejectedValueOnce(new Error('boom'));
-        const res = await makeService().commit({ candidates: [candidate({ importKey: 'k1' })] }, 'u1');
+        const res = await makeService().commit({ candidates: [candidate()] }, 'u1');
         expect(res.created).toBe(0);
         expect(res.failed[0].name).toBe('New Ring');
         expect(designRepo.insert).not.toHaveBeenCalled();
@@ -144,7 +147,7 @@ describe('DesignImportService.commit', () => {
             name: 'New Ring',
             description: 'desc',
             price: 6.15,
-            importKey: 'k1',
+            importKey: newRingKey,
             etsyImageSignature: '111',
             materials: [{ id: 'real', type: 'WIRE' }],
             totalMaterialCosts: 42,
@@ -157,7 +160,6 @@ describe('DesignImportService.commit', () => {
             {
                 candidates: [
                     candidate({
-                        importKey: 'k1',
                         status: 'CHANGED',
                         row: {
                             title: 'New Ring',
@@ -180,5 +182,50 @@ describe('DesignImportService.commit', () => {
         expect(updated.totalMaterialCosts).toBe(42);
         expect(updated.totalQuantity).toBe(9);
         expect(updated.imageIds).toEqual(['old-img']); // image signature unchanged -> not refetched
+    });
+
+    it('re-fetches and replaces images when the image signature changes, preserving materials', async () => {
+        const existing = {
+            id: 'd1',
+            userId: 'u1',
+            name: 'New Ring',
+            description: 'desc',
+            price: 6.15,
+            importKey: newRingKey,
+            etsyImageSignature: '111',
+            materials: [{ id: 'real', type: 'WIRE' }],
+            totalMaterialCosts: 42,
+            totalQuantity: 9,
+            imageIds: ['old-img'],
+        } as any;
+        designRepo.getByUserId.mockResolvedValue([existing]);
+        materialRepo.getByUserId.mockResolvedValue([]);
+        const newImageUrl = 'https://i.etsystatic.com/1/il/a/222/il_y.jpg';
+        const res = await makeService().commit(
+            {
+                candidates: [
+                    candidate({
+                        status: 'CHANGED',
+                        imageUrls: [newImageUrl],
+                        row: {
+                            title: 'New Ring',
+                            description: 'desc',
+                            price: 6.15,
+                            quantity: 3,
+                            materials: ['Copper'],
+                            imageUrls: [newImageUrl],
+                            sku: '',
+                        },
+                    }),
+                ],
+            },
+            'u1'
+        );
+        expect(res.updated).toBe(1);
+        const updated = designRepo.update.mock.calls[0][1];
+        expect(updated.imageIds).toEqual(['id-1']);
+        expect(updated.etsyImageSignature).toBe('222');
+        expect(updated.materials).toEqual([{ id: 'real', type: 'WIRE' }]);
+        expect(updated.totalQuantity).toBe(9);
     });
 });

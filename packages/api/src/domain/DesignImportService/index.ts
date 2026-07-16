@@ -77,7 +77,8 @@ export class DesignImportService {
         const result: ImportCommitResult = { created: 0, updated: 0, failed: [] };
 
         for (const candidate of request.candidates) {
-            const match = byKey.get(candidate.importKey);
+            const key = deriveImportKey(candidate.row);
+            const match = byKey.get(key);
             const name = candidate.row.title.trim();
 
             if (!match) {
@@ -150,9 +151,11 @@ export class DesignImportService {
             totalMaterialCosts: 0,
             dateAdded: new Date(),
             totalQuantity: row.quantity,
-            designType: candidate.designType,
+            designType: inferDesignType(row.title),
             importSource: 'ETSY',
-            importKey: candidate.importKey,
+            importKey: deriveImportKey(row),
+            // If some image fetches failed, imageUrls-derived signature stays "unchanged" on
+            // re-import, so a subsequent import won't retry the missing images (v1 trade-off).
             etsyImageSignature: imageSignature(row.imageUrls),
             etsyMaterials: row.materials,
         };
