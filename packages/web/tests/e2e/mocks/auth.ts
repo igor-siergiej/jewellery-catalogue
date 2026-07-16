@@ -15,6 +15,7 @@ export function makeMockToken(userId: string, username = 'testuser'): string {
 export const MOCK_TOKEN = makeMockToken('68c6f0f5b97c946129015116'); // materials-designs.spec
 export const MOCK_TOKEN_MATERIALS_CRUD = makeMockToken('68c6f0f5b97c946129015119'); // materials-crud.spec
 export const MOCK_TOKEN_DESIGN_INVENTORY = makeMockToken('68c6f0f5b97c946129015120'); // design-inventory.spec
+export const MOCK_TOKEN_IMPORTS = makeMockToken('68c6f0f5b97c946129015121'); // imports-flow.spec
 
 export const MOCK_USER = { id: '68c6f0f5b97c946129015116', username: 'testuser' };
 
