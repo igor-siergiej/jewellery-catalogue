@@ -9,7 +9,13 @@ type AuthedCtx = Context<{ Variables: { userId: string } }>;
 
 const getService = (): EtsyConnectionService => dependencyContainer.resolve(DependencyToken.EtsyConnectionService);
 
-export const startEtsyOAuth = async (c: AuthedCtx) => c.json(getService().startAuthorization(c.get('userId')));
+export const startEtsyOAuth = async (c: AuthedCtx) => {
+    const result = getService().startAuthorization(c.get('userId'));
+    dependencyContainer.resolve(DependencyToken.Logger).info('Etsy OAuth start - generated authorize URL', {
+        url: result.url,
+    });
+    return c.json(result);
+};
 
 export const etsyOAuthCallback = async (c: Context) => {
     const code = c.req.query('code');
@@ -25,6 +31,8 @@ export const etsyOAuthCallback = async (c: Context) => {
             hasState: !!state,
             error,
             errorDescription,
+            rawUrl: c.req.url,
+            allParams: Object.fromEntries(new URL(c.req.url).searchParams.entries()),
         });
         return c.redirect(`${webAppUrl}/settings?etsy=error`);
     }
