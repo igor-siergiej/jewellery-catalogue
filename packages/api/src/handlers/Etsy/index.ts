@@ -14,16 +14,28 @@ export const startEtsyOAuth = async (c: AuthedCtx) => c.json(getService().startA
 export const etsyOAuthCallback = async (c: Context) => {
     const code = c.req.query('code');
     const state = c.req.query('state');
+    const error = c.req.query('error');
+    const errorDescription = c.req.query('error_description');
     const webAppUrl = config.get('webAppUrl');
+    const logger = dependencyContainer.resolve(DependencyToken.Logger);
 
     if (!code || !state) {
+        logger.warn('Etsy OAuth callback missing code/state', {
+            hasCode: !!code,
+            hasState: !!state,
+            error,
+            errorDescription,
+        });
         return c.redirect(`${webAppUrl}/settings?etsy=error`);
     }
 
     try {
         await getService().handleCallback(code, state);
         return c.redirect(`${webAppUrl}/settings?etsy=connected`);
-    } catch {
+    } catch (err) {
+        logger.error('Etsy OAuth callback failed', {
+            message: err instanceof Error ? err.message : String(err),
+        });
         return c.redirect(`${webAppUrl}/settings?etsy=error`);
     }
 };
