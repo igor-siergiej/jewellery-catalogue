@@ -1,3 +1,10 @@
+# [1.31.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.30.1...v1.31.0) (2026-07-17)
+
+
+### Features
+
+* Etsy OAuth connection (API v3 integration, sub-project 1) ([#35](https://github.com/igor-siergiej/jewellery-catalogue/issues/35)) ([1e9059b](https://github.com/igor-siergiej/jewellery-catalogue/commit/1e9059b90af3fbac1af9d79cef90c4185179b14a))
+
 ## [1.30.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.30.0...v1.30.1) (2026-07-16)
 
 
