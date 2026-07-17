@@ -59,6 +59,10 @@ export default defineConfig({
                       BUCKET_ENDPOINT: 'localhost:9000',
                       BUCKET_ACCESS_KEY: 'minioadmin',
                       BUCKET_SECRET_KEY: 'minioadmin',
+                      ETSY_API_KEY: 'test',
+                      ETSY_SHARED_SECRET: 'test',
+                      ETSY_REDIRECT_URI: 'http://localhost:3001/api/etsy/oauth/callback',
+                      WEB_APP_URL: 'http://localhost:3000',
                   },
               },
               {
