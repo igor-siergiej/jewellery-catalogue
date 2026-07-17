@@ -13,7 +13,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Separator } from '../ui/separator';
 
-export interface MainLayoutProps {
+interface MainLayoutProps {
     children?: ReactNode;
 }
 

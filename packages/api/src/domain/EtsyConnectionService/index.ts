@@ -74,6 +74,7 @@ export class EtsyConnectionService {
         await this.connectionRepo.deleteByUserId(userId);
     }
 
+    // fallow-ignore-next-line unused-class-member
     async getValidAccessToken(userId: string): Promise<string> {
         const connection = await this.connectionRepo.getByUserId(userId);
         if (!connection) {
