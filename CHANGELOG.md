@@ -1,3 +1,10 @@
+## [1.31.3](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.31.2...v1.31.3) (2026-07-17)
+
+
+### Bug Fixes
+
+* **api:** log full authorize URL and raw callback query string for Etsy OAuth ([cc642c3](https://github.com/igor-siergiej/jewellery-catalogue/commit/cc642c3de84852c7061736973c128ccf03f83d0d))
+
 ## [1.31.2](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.31.1...v1.31.2) (2026-07-17)
 
 
