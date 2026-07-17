@@ -1,20 +1,19 @@
-import { ArrowLeft, Loader2, Search } from 'lucide-react';
+import { ArrowLeft, Loader2, Search, Settings as SettingsIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 
-import { DESIGNS_PAGE } from '../../constants/routes';
+import { DESIGNS_PAGE, SETTINGS_PAGE } from '../../constants/routes';
 import { useDraftStatus } from '../../context/DraftStatus';
 import { SearchProvider, useSearch } from '../../context/SearchContext';
 import AppSidebar from '../AppSidebar';
-import { UserSettingsDialog } from '../UserSettingsDialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Separator } from '../ui/separator';
 
-export interface MainLayoutProps {
+interface MainLayoutProps {
     children?: ReactNode;
 }
 
@@ -79,7 +78,14 @@ const MainLayoutContent = ({ children }: MainLayoutProps) => {
                         </Button>
                     )}
                     <div className="ml-auto">
-                        <UserSettingsDialog />
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Settings"
+                            onClick={() => navigate(SETTINGS_PAGE.route)}
+                        >
+                            <SettingsIcon className="h-5 w-5" />
+                        </Button>
                     </div>
                 </header>
                 <div className="flex flex-1 flex-col gap-4 p-4">

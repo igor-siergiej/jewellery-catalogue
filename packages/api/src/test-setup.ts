@@ -5,3 +5,7 @@ process.env.BUCKET_NAME = 'test';
 process.env.BUCKET_ACCESS_KEY = 'test';
 process.env.BUCKET_SECRET_KEY = 'test';
 process.env.BUCKET_ENDPOINT = 'localhost:9000';
+process.env.ETSY_API_KEY = 'test';
+process.env.ETSY_SHARED_SECRET = 'test';
+process.env.ETSY_REDIRECT_URI = 'http://localhost:3000/api/etsy/oauth/callback';
+process.env.WEB_APP_URL = 'http://localhost:5173';

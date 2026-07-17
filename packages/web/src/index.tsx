@@ -15,6 +15,7 @@ import {
     HOME_PAGE,
     MATERIALS_PAGE,
     REGISTER_PAGE,
+    SETTINGS_PAGE,
     START_PAGE,
     VIEW_DESIGN_PAGE,
 } from './constants/routes';
@@ -26,6 +27,7 @@ import Designs from './pages/Designs';
 import Home from './pages/Home';
 import Materials from './pages/Materials';
 import Register from './pages/Register';
+import Settings from './pages/Settings';
 import Start from './pages/Start';
 import ViewDesign from './pages/ViewDesign';
 import { getAuthConfig } from './utils/authConfig';
@@ -109,6 +111,17 @@ function App() {
                     <ProtectedRoute fallbackPath={START_PAGE.route}>
                         <MainLayout>
                             <AddMaterial />
+                        </MainLayout>
+                    </ProtectedRoute>
+                }
+            />
+
+            <Route
+                path={SETTINGS_PAGE.route}
+                element={
+                    <ProtectedRoute fallbackPath={START_PAGE.route}>
+                        <MainLayout>
+                            <Settings />
                         </MainLayout>
                     </ProtectedRoute>
                 }

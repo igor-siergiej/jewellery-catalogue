@@ -41,4 +41,9 @@ export const VIEW_DESIGN_PAGE = {
     getRoute: (id: string) => `/designs/${id}`,
 };
 
+export const SETTINGS_PAGE: NavRoute = {
+    name: 'Settings',
+    route: '/settings',
+};
+
 export const ROUTES = [HOME_PAGE, DESIGNS_PAGE, ADD_DESIGN_PAGE, MATERIALS_PAGE, ADD_MATERIAL_PAGE];
