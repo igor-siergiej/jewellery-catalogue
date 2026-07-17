@@ -1,3 +1,10 @@
+## [1.31.2](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.31.1...v1.31.2) (2026-07-17)
+
+
+### Bug Fixes
+
+* **api:** log Etsy OAuth callback failures instead of swallowing them ([7a20161](https://github.com/igor-siergiej/jewellery-catalogue/commit/7a20161809cf6051f09cf4d07c47e309cb192255))
+
 ## [1.31.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.31.0...v1.31.1) (2026-07-17)
 
 
