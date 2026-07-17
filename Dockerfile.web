@@ -5,7 +5,7 @@ ENV APP_VERSION=$APP_VERSION
 
 WORKDIR /app
 
-COPY package.json bun.lock bunfig.toml ./
+COPY package.json bun.lock ./
 COPY packages packages/
 
 RUN bun install --frozen-lockfile
