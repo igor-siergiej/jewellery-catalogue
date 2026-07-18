@@ -7,6 +7,7 @@ import { DraftService } from '../domain/DraftService';
 import { EtsyClient } from '../domain/EtsyClient';
 import { EtsyConnectionService } from '../domain/EtsyConnectionService';
 import { EtsyOAuthStateStore } from '../domain/EtsyOAuthStateStore';
+import { EtsyPushService } from '../domain/EtsyPushService';
 import { ImageService } from '../domain/ImageService';
 import { MaterialService } from '../domain/MaterialService';
 import { UserSettingsService } from '../domain/UserSettingsService';
@@ -178,6 +179,21 @@ export const registerDepdendencies = () => {
                     dependencyContainer.resolve(DependencyToken.EtsyConnectionRepository),
                     dependencyContainer.resolve(DependencyToken.EtsyOAuthStateStore),
                     config.get('etsyRedirectUri')
+                );
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.EtsyPushService,
+        class {
+            constructor() {
+                return new EtsyPushService(
+                    dependencyContainer.resolve(DependencyToken.DesignRepository),
+                    dependencyContainer.resolve(DependencyToken.ImageService),
+                    dependencyContainer.resolve(DependencyToken.EtsyClient),
+                    dependencyContainer.resolve(DependencyToken.EtsyConnectionService),
+                    dependencyContainer.resolve(DependencyToken.UserSettingsService)
                 );
             }
         } as any

@@ -9,6 +9,7 @@ import type { EtsyClient } from '../domain/EtsyClient';
 import type { EtsyConnectionRepository } from '../domain/EtsyConnectionRepository';
 import type { EtsyConnectionService } from '../domain/EtsyConnectionService';
 import type { EtsyOAuthStateStore } from '../domain/EtsyOAuthStateStore';
+import type { EtsyPushService } from '../domain/EtsyPushService';
 import type { IdGenerator } from '../domain/IdGenerator';
 import type { ImageService } from '../domain/ImageService';
 import type { ImageStore } from '../domain/ImageService/types';
@@ -43,6 +44,7 @@ export enum DependencyToken {
     DraftService = 'DraftService',
     UserSettingsService = 'UserSettingsService',
     EtsyConnectionService = 'EtsyConnectionService',
+    EtsyPushService = 'EtsyPushService',
     // Infrastructure
     IdGenerator = 'IdGenerator',
     ImageStore = 'ImageStore',
@@ -68,6 +70,7 @@ export type Dependencies = {
     [DependencyToken.DraftService]: DraftService;
     [DependencyToken.UserSettingsService]: UserSettingsService;
     [DependencyToken.EtsyConnectionService]: EtsyConnectionService;
+    [DependencyToken.EtsyPushService]: EtsyPushService;
     // Infrastructure
     [DependencyToken.IdGenerator]: IdGenerator;
     [DependencyToken.ImageStore]: ImageStore;
