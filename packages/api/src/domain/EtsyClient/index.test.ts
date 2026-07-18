@@ -143,4 +143,168 @@ describe('EtsyClient', () => {
             expect(url).toBe('https://api.etsy.com/v3/application/shops/47408839');
         });
     });
+
+    describe('createDraftListing', () => {
+        it('posts the mapped body to the shop listings endpoint and maps the response', async () => {
+            fetchMock.mockResolvedValue(new Response(JSON.stringify({ listing_id: 999 }), { status: 200 }));
+
+            const result = await client.createDraftListing('at-token', 47408839, {
+                title: 'Silver Ring',
+                description: 'A lovely ring.',
+                price: 25.5,
+                quantity: 3,
+                whoMade: 'i_did',
+                whenMade: 'made_to_order',
+                taxonomyId: 1234,
+            });
+
+            expect(result).toEqual({ listingId: 999 });
+
+            const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+            expect(url).toBe('https://api.etsy.com/v3/application/shops/47408839/listings');
+            expect(options.method).toBe('POST');
+            expect((options.headers as Record<string, string>)['x-api-key']).toBe('key123:secret456');
+            expect((options.headers as Record<string, string>).Authorization).toBe('Bearer at-token');
+            expect((options.headers as Record<string, string>)['Content-Type']).toBe('application/json');
+            const body = JSON.parse(options.body as string);
+            expect(body).toEqual({
+                quantity: 3,
+                title: 'Silver Ring',
+                description: 'A lovely ring.',
+                price: 25.5,
+                who_made: 'i_did',
+                when_made: 'made_to_order',
+                taxonomy_id: 1234,
+            });
+        });
+
+        it('throws when Etsy responds with an error status', async () => {
+            fetchMock.mockResolvedValue(new Response(JSON.stringify({ error: 'bad taxonomy' }), { status: 400 }));
+
+            await expect(
+                client.createDraftListing('at', 1, {
+                    title: 't',
+                    description: 'd',
+                    price: 1,
+                    quantity: 1,
+                    whoMade: 'i_did',
+                    whenMade: 'made_to_order',
+                    taxonomyId: 1,
+                })
+            ).rejects.toThrow();
+        });
+    });
+
+    describe('uploadListingImage', () => {
+        it('posts a multipart form with the image and rank', async () => {
+            fetchMock.mockResolvedValue(new Response(JSON.stringify({ listing_image_id: 1 }), { status: 200 }));
+
+            await client.uploadListingImage(
+                'at-token',
+                47408839,
+                999,
+                { buffer: Buffer.from('fake-image-bytes'), contentType: 'image/png', filename: 'photo.png' },
+                1
+            );
+
+            const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+            expect(url).toBe('https://api.etsy.com/v3/application/shops/47408839/listings/999/images');
+            expect(options.method).toBe('POST');
+            expect((options.headers as Record<string, string>)['x-api-key']).toBe('key123:secret456');
+            expect((options.headers as Record<string, string>).Authorization).toBe('Bearer at-token');
+            expect(options.body).toBeInstanceOf(FormData);
+            const form = options.body as FormData;
+            expect(form.get('rank')).toBe('1');
+            expect(form.get('image')).toBeInstanceOf(Blob);
+        });
+
+        it('throws when Etsy responds with an error status', async () => {
+            fetchMock.mockResolvedValue(new Response('nope', { status: 500 }));
+
+            await expect(
+                client.uploadListingImage(
+                    'at',
+                    1,
+                    1,
+                    { buffer: Buffer.from('x'), contentType: 'image/png', filename: 'x.png' },
+                    0
+                )
+            ).rejects.toThrow();
+        });
+    });
+
+    describe('getListingImages', () => {
+        it('fetches and maps the listing image ids', async () => {
+            fetchMock.mockResolvedValue(
+                new Response(JSON.stringify({ results: [{ listing_image_id: 111 }, { listing_image_id: 222 }] }), {
+                    status: 200,
+                })
+            );
+
+            const result = await client.getListingImages('at-token', 999);
+
+            expect(result).toEqual({ imageIds: [111, 222] });
+            const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+            expect(url).toBe('https://api.etsy.com/v3/application/listings/999/images');
+            expect((options.headers as Record<string, string>).Authorization).toBe('Bearer at-token');
+        });
+    });
+
+    describe('updateListingInventory', () => {
+        it('maps property values and offerings into the Etsy inventory body', async () => {
+            fetchMock.mockResolvedValue(new Response(JSON.stringify({}), { status: 200 }));
+
+            await client.updateListingInventory('at-token', 999, [
+                {
+                    propertyValues: [{ propertyName: 'Colour', values: ['Silver'] }],
+                    offering: { price: 25.5, quantity: 3, isEnabled: true },
+                },
+            ]);
+
+            const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+            expect(url).toBe('https://api.etsy.com/v3/application/listings/999/inventory');
+            expect(options.method).toBe('PUT');
+            const body = JSON.parse(options.body as string);
+            expect(body).toEqual({
+                products: [
+                    {
+                        property_values: [{ property_id: null, property_name: 'Colour', values: ['Silver'] }],
+                        offerings: [{ price: 25.5, quantity: 3, is_enabled: true }],
+                    },
+                ],
+            });
+        });
+
+        it('throws when Etsy responds with an error status', async () => {
+            fetchMock.mockResolvedValue(new Response('nope', { status: 400 }));
+
+            await expect(client.updateListingInventory('at', 1, [])).rejects.toThrow();
+        });
+    });
+
+    describe('getSellerTaxonomyNodes', () => {
+        it('fetches and maps the nested taxonomy tree', async () => {
+            fetchMock.mockResolvedValue(
+                new Response(
+                    JSON.stringify({
+                        results: [
+                            {
+                                id: 1,
+                                name: 'Jewelry',
+                                children: [{ id: 2, name: 'Rings', children: [] }],
+                            },
+                        ],
+                    }),
+                    { status: 200 }
+                )
+            );
+
+            const result = await client.getSellerTaxonomyNodes();
+
+            expect(result).toEqual([{ id: 1, name: 'Jewelry', children: [{ id: 2, name: 'Rings', children: [] }] }]);
+            const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+            expect(url).toBe('https://api.etsy.com/v3/application/seller-taxonomy/nodes');
+            expect((options.headers as Record<string, string>)['x-api-key']).toBe('key123:secret456');
+        });
+    });
 });

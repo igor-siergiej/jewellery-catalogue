@@ -10,6 +10,31 @@ export interface EtsyTokenResponse {
     expiresIn: number;
 }
 
+export interface EtsyDraftListingInput {
+    title: string;
+    description: string;
+    price: number;
+    quantity: number;
+    whoMade: string;
+    whenMade: string;
+    taxonomyId: number;
+}
+
+export interface EtsyListingResult {
+    listingId: number;
+}
+
+export interface EtsyInventoryProduct {
+    propertyValues: Array<{ propertyName: string; values: string[] }>;
+    offering: { price: number; quantity: number; isEnabled: boolean };
+}
+
+export interface EtsyTaxonomyNode {
+    id: number;
+    name: string;
+    children: EtsyTaxonomyNode[];
+}
+
 const base64UrlEncode = (input: Buffer): string =>
     input.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 
@@ -114,5 +139,131 @@ export class EtsyClient {
 
         const body = (await response.json()) as { shop_id: number; shop_name: string };
         return { shopId: body.shop_id, shopName: body.shop_name };
+    }
+
+    async createDraftListing(
+        accessToken: string,
+        shopId: number,
+        input: EtsyDraftListingInput
+    ): Promise<EtsyListingResult> {
+        const response = await fetch(`${API_BASE}/shops/${shopId}/listings`, {
+            method: 'POST',
+            headers: {
+                'x-api-key': this.apiKeyHeader(),
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                quantity: input.quantity,
+                title: input.title,
+                description: input.description,
+                price: input.price,
+                who_made: input.whoMade,
+                when_made: input.whenMade,
+                taxonomy_id: input.taxonomyId,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Etsy createDraftListing failed: ${response.status} ${await response.text()}`);
+        }
+
+        const body = (await response.json()) as { listing_id: number };
+        return { listingId: body.listing_id };
+    }
+
+    async uploadListingImage(
+        accessToken: string,
+        shopId: number,
+        listingId: number,
+        image: { buffer: Buffer; contentType: string; filename: string },
+        rank: number
+    ): Promise<void> {
+        const form = new FormData();
+        form.append('image', new Blob([image.buffer], { type: image.contentType }), image.filename);
+        form.append('rank', String(rank));
+
+        const response = await fetch(`${API_BASE}/shops/${shopId}/listings/${listingId}/images`, {
+            method: 'POST',
+            headers: {
+                'x-api-key': this.apiKeyHeader(),
+                Authorization: `Bearer ${accessToken}`,
+            },
+            body: form,
+        });
+
+        if (!response.ok) {
+            throw new Error(`Etsy uploadListingImage failed: ${response.status} ${await response.text()}`);
+        }
+    }
+
+    async getListingImages(accessToken: string, listingId: number): Promise<{ imageIds: number[] }> {
+        const response = await fetch(`${API_BASE}/listings/${listingId}/images`, {
+            headers: { 'x-api-key': this.apiKeyHeader(), Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Etsy getListingImages failed: ${response.status} ${await response.text()}`);
+        }
+
+        const body = (await response.json()) as { results: Array<{ listing_image_id: number }> };
+        return { imageIds: body.results.map((r) => r.listing_image_id) };
+    }
+
+    async updateListingInventory(
+        accessToken: string,
+        listingId: number,
+        products: EtsyInventoryProduct[]
+    ): Promise<void> {
+        const response = await fetch(`${API_BASE}/listings/${listingId}/inventory`, {
+            method: 'PUT',
+            headers: {
+                'x-api-key': this.apiKeyHeader(),
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                products: products.map((p) => ({
+                    property_values: p.propertyValues.map((pv) => ({
+                        property_id: null,
+                        property_name: pv.propertyName,
+                        values: pv.values,
+                    })),
+                    offerings: [
+                        {
+                            price: p.offering.price,
+                            quantity: p.offering.quantity,
+                            is_enabled: p.offering.isEnabled,
+                        },
+                    ],
+                })),
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Etsy updateListingInventory failed: ${response.status} ${await response.text()}`);
+        }
+    }
+
+    async getSellerTaxonomyNodes(): Promise<EtsyTaxonomyNode[]> {
+        const response = await fetch(`${API_BASE}/seller-taxonomy/nodes`, {
+            headers: { 'x-api-key': this.apiKeyHeader() },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Etsy getSellerTaxonomyNodes failed: ${response.status} ${await response.text()}`);
+        }
+
+        const body = (await response.json()) as {
+            results: Array<{ id: number; name: string; children?: unknown[] }>;
+        };
+
+        const mapNode = (n: { id: number; name: string; children?: unknown[] }): EtsyTaxonomyNode => ({
+            id: n.id,
+            name: n.name,
+            children: ((n.children ?? []) as Array<{ id: number; name: string; children?: unknown[] }>).map(mapNode),
+        });
+
+        return body.results.map(mapNode);
     }
 }
