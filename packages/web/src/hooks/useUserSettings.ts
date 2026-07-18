@@ -20,8 +20,12 @@ export const useUserSettings = () => {
     });
 
     const updateMutation = useMutation({
-        mutationFn: (updates: { hourlyWage: number; profitMargin: number }) =>
-            makeUpdateUserSettingsRequest(updates, () => accessToken, login, logout),
+        mutationFn: (updates: {
+            hourlyWage: number;
+            profitMargin: number;
+            markupMultiplier: number;
+            hourlyRate: number;
+        }) => makeUpdateUserSettingsRequest(updates, () => accessToken, login, logout),
         onSuccess: (updated) => {
             queryClient.setQueryData(QUERY_KEY, updated);
         },
@@ -37,6 +41,8 @@ export const useUserSettings = () => {
     return {
         hourlyWage: data?.hourlyWage ?? 10,
         profitMargin: data?.profitMargin ?? 15,
+        markupMultiplier: data?.markupMultiplier ?? 2.5,
+        hourlyRate: data?.hourlyRate ?? 0,
         isLoading,
         updateSettings: updateMutation.mutateAsync,
         recalculate: recalculateMutation.mutateAsync,
