@@ -148,7 +148,7 @@ describe('DesignService', () => {
             mockImageService.uploadImage.mockResolvedValue(undefined);
             mockDesignRepo.insert.mockResolvedValue(undefined);
 
-            const result = await service.addDesign(mockDesignData, mockImageBuffers, [], userId);
+            const result = await service.addDesign(mockDesignData, mockImageBuffers, [], [], [], userId);
 
             expect(mockImageService.uploadImage).toHaveBeenCalledWith('image-id-123', mockImageBuffer, mockContentType);
             expect(mockDesignRepo.insert).toHaveBeenCalledWith(
@@ -183,7 +183,7 @@ describe('DesignService', () => {
             mockImageService.uploadImage.mockResolvedValue(undefined);
             mockDesignRepo.insert.mockResolvedValue(undefined);
 
-            const result = await service.addDesign(designDataWithStringMaterials, mockImageBuffers, [], userId);
+            const result = await service.addDesign(designDataWithStringMaterials, mockImageBuffers, [], [], [], userId);
 
             expect(result.materials).toEqual(materials);
         });
@@ -199,7 +199,7 @@ describe('DesignService', () => {
             mockImageService.uploadImage.mockResolvedValue(undefined);
             mockDesignRepo.insert.mockResolvedValue(undefined);
 
-            const result = await service.addDesign(designDataWithArrayMaterials, mockImageBuffers, [], userId);
+            const result = await service.addDesign(designDataWithArrayMaterials, mockImageBuffers, [], [], [], userId);
 
             expect(result.materials).toEqual(materials);
         });
@@ -211,7 +211,7 @@ describe('DesignService', () => {
             };
 
             await expect(
-                service.addDesign(designDataWithInvalidMaterials, mockImageBuffers, [], userId)
+                service.addDesign(designDataWithInvalidMaterials, mockImageBuffers, [], [], [], userId)
             ).rejects.toMatchObject({
                 message: 'Invalid materials format',
                 status: 400,
@@ -223,11 +223,65 @@ describe('DesignService', () => {
         it('should propagate image service errors', async () => {
             mockImageService.uploadImage.mockRejectedValue(new Error('Upload failed'));
 
-            await expect(service.addDesign(mockDesignData, mockImageBuffers, [], userId)).rejects.toThrow(
+            await expect(service.addDesign(mockDesignData, mockImageBuffers, [], [], [], userId)).rejects.toThrow(
                 'Upload failed'
             );
 
             expect(mockDesignRepo.insert).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('addDesign — maker docs', () => {
+        it('uploads diagram images separately from product images and stores both id lists plus makingNotes', async () => {
+            mockIdGenerator.generate
+                .mockReturnValueOnce('design-1')
+                .mockReturnValueOnce('product-img-1')
+                .mockReturnValueOnce('diagram-img-1');
+            mockImageService.uploadImage.mockResolvedValue(undefined);
+
+            const designData = {
+                name: 'Test',
+                description: 'desc',
+                timeRequired: '01:00',
+                materials: JSON.stringify([]),
+                totalMaterialCosts: 10,
+                price: 20,
+                image: undefined,
+                makingNotes: 'Solder the clasp before adding the chain.',
+            } as any;
+
+            const result = await service.addDesign(
+                designData,
+                [{ buffer: Buffer.from('product'), contentType: 'image/png' }],
+                [],
+                [{ buffer: Buffer.from('diagram'), contentType: 'image/png' }],
+                [],
+                'user-1'
+            );
+
+            expect(result.imageIds).toEqual(['product-img-1']);
+            expect(result.diagramImageIds).toEqual(['diagram-img-1']);
+            expect(result.makingNotes).toBe('Solder the clasp before adding the chain.');
+            expect(mockImageService.uploadImage).toHaveBeenCalledTimes(2);
+        });
+
+        it('defaults makingNotes to empty string and diagramImageIds to empty array when omitted', async () => {
+            mockIdGenerator.generate.mockReturnValueOnce('design-2');
+
+            const designData = {
+                name: 'Test',
+                description: 'desc',
+                timeRequired: '01:00',
+                materials: JSON.stringify([]),
+                totalMaterialCosts: 10,
+                price: 20,
+                image: undefined,
+            } as any;
+
+            const result = await service.addDesign(designData, [], [], [], [], 'user-1');
+
+            expect(result.diagramImageIds).toEqual([]);
+            expect(result.makingNotes).toBe('');
         });
     });
 
@@ -293,6 +347,75 @@ describe('DesignService', () => {
             expect(result).toEqual(expectedUpdated);
             expect(result.name).toBe(existingDesign.name); // unchanged
             expect(result.description).toBe(updates.description); // updated
+        });
+    });
+
+    describe('editDesignProperties — maker docs', () => {
+        it('merges kept + newly uploaded diagram image ids and updates makingNotes', async () => {
+            const existing: Design = {
+                id: 'design-1',
+                userId: 'user-1',
+                name: 'Existing',
+                description: 'desc',
+                timeRequired: '01:00',
+                materials: [],
+                imageIds: ['product-1'],
+                diagramImageIds: ['old-diagram-1', 'old-diagram-2'],
+                makingNotes: 'Old notes',
+                price: 20,
+                totalMaterialCosts: 10,
+                dateAdded: new Date(),
+                totalQuantity: 0,
+            };
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(existing);
+            mockIdGenerator.generate.mockReturnValueOnce('new-diagram-1');
+            mockImageService.uploadImage.mockResolvedValue(undefined);
+
+            const result = await service.editDesignProperties(
+                'design-1',
+                { makingNotes: 'Updated notes' },
+                [],
+                ['product-1'],
+                [{ buffer: Buffer.from('diagram'), contentType: 'image/png' }],
+                ['old-diagram-1'],
+                'user-1'
+            );
+
+            expect(result.diagramImageIds).toEqual(['old-diagram-1', 'new-diagram-1']);
+            expect(result.makingNotes).toBe('Updated notes');
+            expect(result.imageIds).toEqual(['product-1']);
+        });
+
+        it('leaves diagramImageIds and makingNotes unchanged when not part of the update', async () => {
+            const existing: Design = {
+                id: 'design-1',
+                userId: 'user-1',
+                name: 'Existing',
+                description: 'desc',
+                timeRequired: '01:00',
+                materials: [],
+                imageIds: ['product-1'],
+                diagramImageIds: ['old-diagram-1'],
+                makingNotes: 'Keep me',
+                price: 20,
+                totalMaterialCosts: 10,
+                dateAdded: new Date(),
+                totalQuantity: 0,
+            };
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(existing);
+
+            const result = await service.editDesignProperties(
+                'design-1',
+                { name: 'Renamed' },
+                [],
+                ['product-1'],
+                [],
+                ['old-diagram-1'],
+                'user-1'
+            );
+
+            expect(result.diagramImageIds).toEqual(['old-diagram-1']);
+            expect(result.makingNotes).toBe('Keep me');
         });
     });
 

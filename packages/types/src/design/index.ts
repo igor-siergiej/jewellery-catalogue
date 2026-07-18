@@ -14,6 +14,8 @@ export const designSchema = z.object({
     timeRequired: z.string(),
     materials: z.array(requiredMaterialSchema),
     imageIds: z.array(z.string()),
+    diagramImageIds: z.array(z.string()).default([]),
+    makingNotes: z.string().default(''),
     price: z.number(),
     description: z.string(),
     totalMaterialCosts: z.number(),

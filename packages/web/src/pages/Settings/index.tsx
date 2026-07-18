@@ -26,10 +26,20 @@ const Settings = () => {
         disconnect,
         isDisconnecting,
     } = useEtsyConnection();
-    const { hourlyWage, profitMargin, updateSettings, recalculate, isLoading: pricingLoading } = useUserSettings();
+    const {
+        hourlyWage,
+        profitMargin,
+        markupMultiplier,
+        hourlyRate,
+        updateSettings,
+        recalculate,
+        isLoading: pricingLoading,
+    } = useUserSettings();
 
     const [localWage, setLocalWage] = useState<number | ''>(hourlyWage);
     const [localMargin, setLocalMargin] = useState<number | ''>(profitMargin);
+    const [localMarkupMultiplier, setLocalMarkupMultiplier] = useState<number | ''>(markupMultiplier);
+    const [localHourlyRate, setLocalHourlyRate] = useState<number | ''>(hourlyRate);
     const [pricingStatus, setPricingStatus] = useState<'idle' | 'saving' | 'recalculating' | 'success' | 'error'>(
         'idle'
     );
@@ -41,7 +51,9 @@ const Settings = () => {
     useEffect(() => {
         setLocalWage(hourlyWage);
         setLocalMargin(profitMargin);
-    }, [hourlyWage, profitMargin]);
+        setLocalMarkupMultiplier(markupMultiplier);
+        setLocalHourlyRate(hourlyRate);
+    }, [hourlyWage, profitMargin, markupMultiplier, hourlyRate]);
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: runs once on mount to strip the ?etsy param from the URL
     useEffect(() => {
@@ -65,7 +77,12 @@ const Settings = () => {
         setPricingAction(thenRecalculate ? 'recalculate' : 'save');
         setPricingStatus('saving');
         try {
-            await updateSettings({ hourlyWage: wage, profitMargin: margin });
+            await updateSettings({
+                hourlyWage: wage,
+                profitMargin: margin,
+                markupMultiplier: Number(localMarkupMultiplier),
+                hourlyRate: Number(localHourlyRate),
+            });
             if (thenRecalculate) {
                 setPricingStatus('recalculating');
                 const result = await recalculate();
@@ -175,6 +192,45 @@ const Settings = () => {
                             />
                             <InputGroupAddon align="inline-end">
                                 <InputGroupText>%</InputGroupText>
+                            </InputGroupAddon>
+                        </InputGroup>
+                    </div>
+                    <div className="space-y-1.5">
+                        <Label>Etsy Price Suggestion — Markup Multiplier</Label>
+                        <InputGroup className="max-w-[140px]">
+                            <InputGroupInput
+                                type="number"
+                                min="0"
+                                step="0.1"
+                                disabled={pricingBusy}
+                                value={localMarkupMultiplier}
+                                onChange={(e) =>
+                                    setLocalMarkupMultiplier(e.target.value === '' ? '' : parseFloat(e.target.value))
+                                }
+                            />
+                            <InputGroupAddon align="inline-end">
+                                <InputGroupText>×</InputGroupText>
+                            </InputGroupAddon>
+                        </InputGroup>
+                    </div>
+                    <div className="space-y-1.5">
+                        <Label>Etsy Price Suggestion — Hourly Rate</Label>
+                        <InputGroup className="max-w-[160px]">
+                            <InputGroupAddon align="inline-start">
+                                <InputGroupText>£</InputGroupText>
+                            </InputGroupAddon>
+                            <InputGroupInput
+                                type="number"
+                                min="0"
+                                step="0.50"
+                                disabled={pricingBusy}
+                                value={localHourlyRate}
+                                onChange={(e) =>
+                                    setLocalHourlyRate(e.target.value === '' ? '' : parseFloat(e.target.value))
+                                }
+                            />
+                            <InputGroupAddon align="inline-end">
+                                <InputGroupText>/hr</InputGroupText>
                             </InputGroupAddon>
                         </InputGroup>
                     </div>

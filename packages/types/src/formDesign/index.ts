@@ -12,6 +12,11 @@ export const formDesignSchema = z
             .array(z.union([z.instanceof(File), z.string()]))
             .optional()
             .default([]),
+        diagramImages: z
+            .array(z.union([z.instanceof(File), z.string()]))
+            .optional()
+            .default([]),
+        makingNotes: z.string().optional().default(''),
         price: z.number({ message: 'Please enter the price' }).nonnegative('Price must be 0 or greater'),
         description: z.string(),
         totalMaterialCosts: z.number(),

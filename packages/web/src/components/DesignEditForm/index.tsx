@@ -15,9 +15,11 @@ import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/
 import makeEditDesignRequest from '../../api/endpoints/editDesign';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
 import { AddMaterialsTable } from '../../components/AddMaterialsTable';
+import MakerDocsSection from '../../components/MakerDocsSection';
 import MultiImageUpload from '../../components/MultiImageUpload';
 import PriceBreakdown from '../../components/PriceBreakdown';
 import RichTextEditor from '../../components/RichTextEditor';
+import SuggestedPrice from '../../components/SuggestedPrice';
 import TimeInput from '../../components/TimeInput';
 import { computeVariants, VariationGroupBuilder } from '../../components/VariationGroupBuilder';
 import { useAlert } from '../../context/Alert';
@@ -45,6 +47,8 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
             totalMaterialCosts: design.totalMaterialCosts,
             price: design.price,
             images: design.imageIds,
+            diagramImages: design.diagramImageIds ?? [],
+            makingNotes: design.makingNotes ?? '',
             lowStockThreshold: design.lowStockThreshold,
             variationGroups: design.variationGroups ?? [],
             variants: design.variants ?? [],
@@ -54,7 +58,7 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
 
     const { accessToken, login, logout } = useAuth();
     const [isMakingRequest, setIsMakingRequest] = useState(false);
-    const { hourlyWage, profitMargin } = useUserSettings();
+    const { hourlyWage, profitMargin, markupMultiplier, hourlyRate } = useUserSettings();
 
     const { data } = useQuery({
         ...getMaterialsQuery(() => accessToken, login, logout),
@@ -247,6 +251,21 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
 
                 <hr className="border-t border-border" />
 
+                {/* Maker Docs Section */}
+                <div className="grid grid-cols-12 gap-4">
+                    <div className="col-span-4">
+                        <h2 className="text-lg font-medium text-center">Maker Docs</h2>
+                        <p className="text-xs text-muted-foreground text-center mt-1">
+                            Private — diagrams and notes never sent to Etsy
+                        </p>
+                    </div>
+                    <div className="col-span-8">
+                        <MakerDocsSection control={form.control} />
+                    </div>
+                </div>
+
+                <hr className="border-t border-border" />
+
                 {/* Add Materials Section */}
                 <div className="grid grid-cols-12 gap-4">
                     <div className="col-span-4">
@@ -308,6 +327,8 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                                             hourlyWage={hourlyWage}
                                             profitMargin={profitMargin}
                                             timeRequired={currentTimeRequired}
+                                            markupMultiplier={markupMultiplier}
+                                            hourlyRate={hourlyRate}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -379,6 +400,13 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                                                         />
                                                     </InputGroup>
                                                 </FormControl>
+                                                <SuggestedPrice
+                                                    materialsCost={form.watch('totalMaterialCosts') ?? 0}
+                                                    timeRequired={currentTimeRequired}
+                                                    markupMultiplier={markupMultiplier}
+                                                    hourlyRate={hourlyRate}
+                                                    onUse={(price) => field.onChange(price)}
+                                                />
                                                 <FormDescription>
                                                     Auto-calculated above. Edit to override.
                                                 </FormDescription>

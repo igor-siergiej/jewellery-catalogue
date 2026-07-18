@@ -15,6 +15,8 @@ export const editDesignSchema = z.object({
     variationGroups: z.array(variationGroupSchema).optional(),
     variants: z.array(designVariantSchema).optional(),
     designType: z.nativeEnum(DesignType).optional(),
+    diagramImageIds: z.array(z.string()).optional(),
+    makingNotes: z.string().optional(),
 });
 
 export type EditDesign = z.infer<typeof editDesignSchema>;
