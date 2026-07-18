@@ -245,6 +245,7 @@ export class EtsyClient {
         }
     }
 
+    // fallow-ignore-next-line unused-class-member
     async getSellerTaxonomyNodes(): Promise<EtsyTaxonomyNode[]> {
         const response = await fetch(`${API_BASE}/seller-taxonomy/nodes`, {
             headers: { 'x-api-key': this.apiKeyHeader() },
