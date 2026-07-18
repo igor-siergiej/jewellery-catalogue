@@ -1,3 +1,10 @@
+# [1.32.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.31.3...v1.32.0) (2026-07-18)
+
+
+### Features
+
+* design authoring upgrades — maker docs + price suggestion ([#36](https://github.com/igor-siergiej/jewellery-catalogue/issues/36)) ([77b6a57](https://github.com/igor-siergiej/jewellery-catalogue/commit/77b6a57a38ef1b1eb257d9226d3acfb2d852867c))
+
 ## [1.31.3](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.31.2...v1.31.3) (2026-07-17)
 
 
