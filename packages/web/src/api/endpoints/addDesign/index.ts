@@ -23,11 +23,23 @@ const makeAddDesignRequest = async (
         formData.append('existingImageIds', JSON.stringify(existingImageIds));
     }
 
+    const diagramImages = formDesign.diagramImages ?? [];
+    const existingDiagramImageIds = diagramImages.filter((v): v is string => typeof v === 'string');
+    const newDiagramFiles = diagramImages.filter((v): v is File => v instanceof File);
+
+    for (const file of newDiagramFiles) {
+        formData.append('diagramFiles', file);
+    }
+
+    if (existingDiagramImageIds.length > 0) {
+        formData.append('existingDiagramImageIds', JSON.stringify(existingDiagramImageIds));
+    }
+
     for (const key in formDesign) {
         if (Object.hasOwn(formDesign, key)) {
             const value = formDesign[key as keyof typeof formDesign];
 
-            if (key === 'images') {
+            if (key === 'images' || key === 'diagramImages') {
                 // handled above
             } else if (
                 (key === 'materials' || key === 'variationGroups' || key === 'variants') &&

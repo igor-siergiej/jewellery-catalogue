@@ -21,7 +21,7 @@ export const makeGetUserSettingsRequest = (
     );
 
 export const makeUpdateUserSettingsRequest = (
-    updates: { hourlyWage: number; profitMargin: number },
+    updates: { hourlyWage: number; profitMargin: number; markupMultiplier: number; hourlyRate: number },
     getAccessToken: () => string,
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
