@@ -183,6 +183,45 @@ describe('EtsyPushService', () => {
         });
     });
 
+    describe('push — crash safety and resume', () => {
+        it('persists pushIncomplete:true right after listing creation, propagates a later failure, then resumes without re-creating the listing', async () => {
+            // Phase 1: createDraftListing succeeds, uploadListingImage crashes mid-flow.
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign());
+            mockEtsyClient.createDraftListing.mockResolvedValue({ listingId: 999 });
+            mockEtsyClient.uploadListingImage.mockRejectedValue(new Error('network fail'));
+
+            await expect(service.push('design-1', 'user-1')).rejects.toThrow('network fail');
+
+            expect(mockEtsyClient.createDraftListing).toHaveBeenCalledTimes(1);
+            expect(mockDesignRepo.update).toHaveBeenCalledTimes(1);
+            expect(mockDesignRepo.update).toHaveBeenCalledWith(
+                'design-1',
+                expect.objectContaining({
+                    etsy: { listingId: 999, state: 'draft', lastPushedAt: null, pushIncomplete: true },
+                })
+            );
+
+            // Phase 2: resumed push picks up the persisted listingId and completes.
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(
+                makeDesign({
+                    etsy: { listingId: 999, state: 'draft', lastPushedAt: null, pushIncomplete: true },
+                })
+            );
+            mockEtsyClient.getListingImages.mockResolvedValue({ imageIds: [] });
+            mockEtsyClient.uploadListingImage.mockResolvedValue(undefined);
+
+            const result = await service.push('design-1', 'user-1');
+
+            expect(mockEtsyClient.createDraftListing).toHaveBeenCalledTimes(1);
+            expect(result.etsy).toEqual({
+                listingId: 999,
+                state: 'draft',
+                lastPushedAt: expect.any(Number),
+                pushIncomplete: false,
+            });
+        });
+    });
+
     describe('push — variations', () => {
         it('builds and puts inventory when the design has variation groups and variants', async () => {
             mockDesignRepo.getByIdAndUserId.mockResolvedValue(
