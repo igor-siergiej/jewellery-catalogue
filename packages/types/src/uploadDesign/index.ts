@@ -13,4 +13,5 @@ export interface UploadDesign {
     variationGroups?: string;
     variants?: string;
     designType?: DesignType;
+    makingNotes?: string;
 }
