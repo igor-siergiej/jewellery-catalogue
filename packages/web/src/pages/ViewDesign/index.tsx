@@ -54,6 +54,8 @@ const ViewDesign = () => {
         description,
         lowStockThreshold,
         designType,
+        diagramImageIds,
+        makingNotes,
     } = design ?? {};
 
     const hasDescription = description && description !== '<p></p>';
@@ -240,6 +242,29 @@ const ViewDesign = () => {
                                 <DesignDescription html={description} />
                             </div>
                         )}
+
+                        {/* Maker Docs */}
+                        {(diagramImageIds && diagramImageIds.length > 0) || makingNotes ? (
+                            <div className="mt-8 rounded-lg border border-border bg-muted/30 p-6">
+                                <h2 className="text-lg font-medium mb-1">Maker Docs</h2>
+                                <p className="text-xs text-muted-foreground mb-4">Private — never shown on Etsy</p>
+
+                                {diagramImageIds && diagramImageIds.length > 0 && (
+                                    <div className="flex flex-wrap gap-3 mb-4">
+                                        {diagramImageIds.map((id) => (
+                                            <div
+                                                key={id}
+                                                className="w-24 h-24 rounded-md overflow-hidden border border-border"
+                                            >
+                                                <Image imageId={id} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {makingNotes && <p className="text-sm whitespace-pre-wrap">{makingNotes}</p>}
+                            </div>
+                        ) : null}
 
                         {/* Variants */}
                         {variants && variants.length > 0 && (
