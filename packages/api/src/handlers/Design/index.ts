@@ -36,6 +36,7 @@ export const addDesign = async (c: Ctx) => {
     const isJson = (c.req.header('content-type') ?? '').includes('application/json');
     const body = isJson ? await c.req.json() : await c.req.parseBody({ all: true });
     const files = isJson ? [] : collectFiles(body.files);
+    const diagramFiles = isJson ? [] : collectFiles(body.diagramFiles);
 
     const {
         name,
@@ -48,11 +49,21 @@ export const addDesign = async (c: Ctx) => {
         variationGroups,
         variants,
         designType,
+        makingNotes,
         existingImageIds: existingImageIdsRaw,
-    } = body as unknown as Partial<UploadDesign> & { existingImageIds?: string; designType?: string };
+        existingDiagramImageIds: existingDiagramImageIdsRaw,
+    } = body as unknown as Partial<UploadDesign> & {
+        existingImageIds?: string;
+        existingDiagramImageIds?: string;
+        designType?: string;
+    };
 
     const existingImageIds: string[] =
         typeof existingImageIdsRaw === 'string' && existingImageIdsRaw ? JSON.parse(existingImageIdsRaw) : [];
+    const existingDiagramImageIds: string[] =
+        typeof existingDiagramImageIdsRaw === 'string' && existingDiagramImageIdsRaw
+            ? JSON.parse(existingDiagramImageIdsRaw)
+            : [];
 
     if (files.length === 0 && existingImageIds.length === 0) {
         throw new APIError('At least one image file or imageId is required', 400);
@@ -70,10 +81,19 @@ export const addDesign = async (c: Ctx) => {
         variationGroups,
         variants,
         designType,
+        makingNotes,
     };
 
     const imageBuffers = await Promise.all(files.map(toImageBuffer));
-    const design = await getDesignService().addDesign(designData, imageBuffers, existingImageIds, userId);
+    const diagramImageBuffers = await Promise.all(diagramFiles.map(toImageBuffer));
+    const design = await getDesignService().addDesign(
+        designData,
+        imageBuffers,
+        existingImageIds,
+        diagramImageBuffers,
+        existingDiagramImageIds,
+        userId
+    );
     return c.json(design, 200);
 };
 

@@ -49,6 +49,8 @@ export class DesignService {
         designData: UploadDesign,
         imageBuffers: Array<{ buffer: Buffer; contentType: string }>,
         existingImageIds: string[],
+        diagramImageBuffers: Array<{ buffer: Buffer; contentType: string }>,
+        existingDiagramImageIds: string[],
         userId: string
     ): Promise<Design> {
         if (!userId) {
@@ -65,7 +67,16 @@ export class DesignService {
             })
         );
 
+        const newDiagramImageIds = await Promise.all(
+            diagramImageBuffers.map(async ({ buffer, contentType }) => {
+                const imageId = this.idGenerator.generate();
+                await this.imageService.uploadImage(imageId, buffer, contentType);
+                return imageId;
+            })
+        );
+
         const imageIds = [...existingImageIds, ...newImageIds];
+        const diagramImageIds = [...existingDiagramImageIds, ...newDiagramImageIds];
 
         let materials: Array<RequiredMaterial>;
 
@@ -109,6 +120,8 @@ export class DesignService {
             totalMaterialCosts: designData.totalMaterialCosts,
             price: designData.price,
             imageIds,
+            diagramImageIds,
+            makingNotes: designData.makingNotes ?? '',
             materials,
             dateAdded: new Date(),
             totalQuantity: 0,
