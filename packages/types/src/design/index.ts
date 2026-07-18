@@ -7,6 +7,17 @@ import { DesignType } from './enum';
 
 export { DesignType } from './enum';
 
+export const etsyListingStateSchema = z.enum(['draft', 'active', 'inactive']);
+export type EtsyListingState = z.infer<typeof etsyListingStateSchema>;
+
+export const designEtsySchema = z.object({
+    listingId: z.number(),
+    state: etsyListingStateSchema,
+    lastPushedAt: z.number().nullable(),
+    pushIncomplete: z.boolean().optional(),
+});
+export type DesignEtsy = z.infer<typeof designEtsySchema>;
+
 export const designSchema = z.object({
     id: z.string(),
     userId: z.string(),
@@ -25,6 +36,7 @@ export const designSchema = z.object({
     variationGroups: z.array(variationGroupSchema).optional(),
     variants: z.array(designVariantSchema).optional(),
     designType: z.nativeEnum(DesignType).optional(),
+    etsy: designEtsySchema.optional(),
 });
 
 export type Design = z.infer<typeof designSchema>;
