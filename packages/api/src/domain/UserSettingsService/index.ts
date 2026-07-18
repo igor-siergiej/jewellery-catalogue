@@ -7,6 +7,7 @@ const DEFAULT_HOURLY_WAGE = 10;
 const DEFAULT_PROFIT_MARGIN = 15;
 const DEFAULT_MARKUP_MULTIPLIER = 2.5;
 const DEFAULT_HOURLY_RATE = 0;
+const DEFAULT_ETSY_DESCRIPTION_TEMPLATE = '{description}';
 
 function parseTimeToHours(timeRequired: string): number {
     const [hoursStr, minutesStr] = timeRequired.split(':');
@@ -30,20 +31,28 @@ export class UserSettingsService {
 
     async get(userId: string): Promise<UserSettings> {
         const stored = await this.settingsRepo.getByUserId(userId);
-        return (
-            stored ?? {
-                userId,
-                hourlyWage: DEFAULT_HOURLY_WAGE,
-                profitMargin: DEFAULT_PROFIT_MARGIN,
-                markupMultiplier: DEFAULT_MARKUP_MULTIPLIER,
-                hourlyRate: DEFAULT_HOURLY_RATE,
-            }
-        );
+        const defaults: UserSettings = {
+            userId,
+            hourlyWage: DEFAULT_HOURLY_WAGE,
+            profitMargin: DEFAULT_PROFIT_MARGIN,
+            markupMultiplier: DEFAULT_MARKUP_MULTIPLIER,
+            hourlyRate: DEFAULT_HOURLY_RATE,
+            etsyDescriptionTemplate: DEFAULT_ETSY_DESCRIPTION_TEMPLATE,
+            etsyTaxonomyMap: {},
+        };
+        return { ...defaults, ...stored };
     }
 
     async upsert(
         userId: string,
-        updates: { hourlyWage: number; profitMargin: number; markupMultiplier: number; hourlyRate: number }
+        updates: {
+            hourlyWage: number;
+            profitMargin: number;
+            markupMultiplier: number;
+            hourlyRate: number;
+            etsyDescriptionTemplate: string;
+            etsyTaxonomyMap: Record<string, number>;
+        }
     ): Promise<UserSettings> {
         const settings: UserSettings = { userId, ...updates };
         await this.settingsRepo.upsert(settings);

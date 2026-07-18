@@ -4,6 +4,7 @@ import { config } from '../../config';
 import { dependencyContainer } from '../../dependencies';
 import { DependencyToken } from '../../dependencies/types';
 import type { EtsyConnectionService } from '../../domain/EtsyConnectionService';
+import type { EtsyPushService } from '../../domain/EtsyPushService';
 
 type AuthedCtx = Context<{ Variables: { userId: string } }>;
 
@@ -53,4 +54,22 @@ export const getEtsyConnectionStatus = async (c: AuthedCtx) => c.json(await getS
 export const disconnectEtsyConnection = async (c: AuthedCtx) => {
     await getService().disconnect(c.get('userId'));
     return c.json({ message: 'Etsy connection deleted successfully' }, 200);
+};
+
+const getPushService = (): EtsyPushService => dependencyContainer.resolve(DependencyToken.EtsyPushService);
+
+export const pushDesignToEtsy = async (c: AuthedCtx) => {
+    const { description, price } = (await c.req.json().catch(() => ({}))) as {
+        description?: string;
+        price?: number;
+    };
+
+    const design = await getPushService().push(c.req.param('id'), c.get('userId'), { description, price });
+    return c.json(design, 200);
+};
+
+export const getEtsyTaxonomy = async (c: AuthedCtx) => {
+    const client = dependencyContainer.resolve(DependencyToken.EtsyClient);
+    const nodes = await client.getSellerTaxonomyNodes();
+    return c.json(nodes, 200);
 };

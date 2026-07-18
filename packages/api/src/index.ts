@@ -47,6 +47,7 @@ export const onStartup = async () => {
         const materialsCollection = database.getCollection('materials' as any);
         await designsCollection.createIndex({ userId: 1 });
         await designsCollection.createIndex({ id: 1, userId: 1 });
+        await designsCollection.createIndex({ 'etsy.listingId': 1 }, { unique: true, sparse: true });
         await materialsCollection.createIndex({ userId: 1 });
         await materialsCollection.createIndex({ id: 1, userId: 1 });
         const draftsCollection = database.getCollection('drafts' as any);

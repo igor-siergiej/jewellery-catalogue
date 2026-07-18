@@ -1,3 +1,4 @@
+import { DesignType } from '@jewellery-catalogue/types';
 import { AlertCircle, CheckCircle2, ExternalLink, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -6,8 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 import { useEtsyConnection } from '../../hooks/useEtsyConnection';
+import { useEtsyTaxonomy } from '../../hooks/useEtsyTaxonomy';
 import { useUserSettings } from '../../hooks/useUserSettings';
 
 const Settings = () => {
@@ -31,15 +34,20 @@ const Settings = () => {
         profitMargin,
         markupMultiplier,
         hourlyRate,
+        etsyDescriptionTemplate,
+        etsyTaxonomyMap,
         updateSettings,
         recalculate,
         isLoading: pricingLoading,
     } = useUserSettings();
+    const { options: taxonomyOptions, isLoading: taxonomyLoading } = useEtsyTaxonomy(connected);
 
     const [localWage, setLocalWage] = useState<number | ''>(hourlyWage);
     const [localMargin, setLocalMargin] = useState<number | ''>(profitMargin);
     const [localMarkupMultiplier, setLocalMarkupMultiplier] = useState<number | ''>(markupMultiplier);
     const [localHourlyRate, setLocalHourlyRate] = useState<number | ''>(hourlyRate);
+    const [localEtsyDescriptionTemplate, setLocalEtsyDescriptionTemplate] = useState(etsyDescriptionTemplate);
+    const [localEtsyTaxonomyMap, setLocalEtsyTaxonomyMap] = useState<Record<string, number>>(etsyTaxonomyMap);
     const [pricingStatus, setPricingStatus] = useState<'idle' | 'saving' | 'recalculating' | 'success' | 'error'>(
         'idle'
     );
@@ -53,7 +61,9 @@ const Settings = () => {
         setLocalMargin(profitMargin);
         setLocalMarkupMultiplier(markupMultiplier);
         setLocalHourlyRate(hourlyRate);
-    }, [hourlyWage, profitMargin, markupMultiplier, hourlyRate]);
+        setLocalEtsyDescriptionTemplate(etsyDescriptionTemplate);
+        setLocalEtsyTaxonomyMap(etsyTaxonomyMap);
+    }, [hourlyWage, profitMargin, markupMultiplier, hourlyRate, etsyDescriptionTemplate, etsyTaxonomyMap]);
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: runs once on mount to strip the ?etsy param from the URL
     useEffect(() => {
@@ -82,6 +92,8 @@ const Settings = () => {
                 profitMargin: margin,
                 markupMultiplier: Number(localMarkupMultiplier),
                 hourlyRate: Number(localHourlyRate),
+                etsyDescriptionTemplate: localEtsyDescriptionTemplate,
+                etsyTaxonomyMap: localEtsyTaxonomyMap,
             });
             if (thenRecalculate) {
                 setPricingStatus('recalculating');
@@ -262,6 +274,57 @@ const Settings = () => {
                     {pricingStatus === 'error' && <p className="text-sm text-destructive">{pricingError}</p>}
                 </CardContent>
             </Card>
+
+            {connected && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Etsy Defaults</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-1.5">
+                            <Label>Description template</Label>
+                            <Textarea
+                                value={localEtsyDescriptionTemplate}
+                                onChange={(e) => setLocalEtsyDescriptionTemplate(e.target.value)}
+                                placeholder={'{description}\n\nMaterials: {materials}'}
+                                rows={4}
+                            />
+                            <p className="text-xs text-muted-foreground">
+                                Use {'{description}'} and {'{materials}'} as placeholders.
+                            </p>
+                        </div>
+
+                        <div className="space-y-3">
+                            <Label>Category by design type</Label>
+                            {Object.values(DesignType).map((designType) => (
+                                <div key={designType} className="flex items-center gap-3">
+                                    <span className="w-28 text-sm">{designType}</span>
+                                    <select
+                                        className="flex-1 rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+                                        disabled={taxonomyLoading}
+                                        value={localEtsyTaxonomyMap[designType] ?? ''}
+                                        onChange={(e) =>
+                                            setLocalEtsyTaxonomyMap((prev) => ({
+                                                ...prev,
+                                                [designType]: Number(e.target.value),
+                                            }))
+                                        }
+                                    >
+                                        <option value="" disabled>
+                                            Select a category…
+                                        </option>
+                                        {taxonomyOptions.map((opt) => (
+                                            <option key={opt.id} value={opt.id}>
+                                                {opt.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
         </div>
     );
 };
