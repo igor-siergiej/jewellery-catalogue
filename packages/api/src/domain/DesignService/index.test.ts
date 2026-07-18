@@ -350,6 +350,75 @@ describe('DesignService', () => {
         });
     });
 
+    describe('editDesignProperties — maker docs', () => {
+        it('merges kept + newly uploaded diagram image ids and updates makingNotes', async () => {
+            const existing: Design = {
+                id: 'design-1',
+                userId: 'user-1',
+                name: 'Existing',
+                description: 'desc',
+                timeRequired: '01:00',
+                materials: [],
+                imageIds: ['product-1'],
+                diagramImageIds: ['old-diagram-1', 'old-diagram-2'],
+                makingNotes: 'Old notes',
+                price: 20,
+                totalMaterialCosts: 10,
+                dateAdded: new Date(),
+                totalQuantity: 0,
+            };
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(existing);
+            mockIdGenerator.generate.mockReturnValueOnce('new-diagram-1');
+            mockImageService.uploadImage.mockResolvedValue(undefined);
+
+            const result = await service.editDesignProperties(
+                'design-1',
+                { makingNotes: 'Updated notes' },
+                [],
+                ['product-1'],
+                [{ buffer: Buffer.from('diagram'), contentType: 'image/png' }],
+                ['old-diagram-1'],
+                'user-1'
+            );
+
+            expect(result.diagramImageIds).toEqual(['old-diagram-1', 'new-diagram-1']);
+            expect(result.makingNotes).toBe('Updated notes');
+            expect(result.imageIds).toEqual(['product-1']);
+        });
+
+        it('leaves diagramImageIds and makingNotes unchanged when not part of the update', async () => {
+            const existing: Design = {
+                id: 'design-1',
+                userId: 'user-1',
+                name: 'Existing',
+                description: 'desc',
+                timeRequired: '01:00',
+                materials: [],
+                imageIds: ['product-1'],
+                diagramImageIds: ['old-diagram-1'],
+                makingNotes: 'Keep me',
+                price: 20,
+                totalMaterialCosts: 10,
+                dateAdded: new Date(),
+                totalQuantity: 0,
+            };
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(existing);
+
+            const result = await service.editDesignProperties(
+                'design-1',
+                { name: 'Renamed' },
+                [],
+                ['product-1'],
+                [],
+                ['old-diagram-1'],
+                'user-1'
+            );
+
+            expect(result.diagramImageIds).toEqual(['old-diagram-1']);
+            expect(result.makingNotes).toBe('Keep me');
+        });
+    });
+
     describe('deleteDesign', () => {
         const designId = 'design-123';
         const userId = 'user-123';

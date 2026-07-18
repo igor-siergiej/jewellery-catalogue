@@ -107,6 +107,7 @@ export const editDesignProperties = async (c: Ctx) => {
     const userId = c.get('userId');
     const body = await c.req.parseBody({ all: true });
     const files = collectFiles(body.files);
+    const diagramFiles = collectFiles(body.diagramFiles);
 
     const {
         name,
@@ -119,19 +120,25 @@ export const editDesignProperties = async (c: Ctx) => {
         variationGroups,
         variants,
         designType,
+        makingNotes,
         keepImageIds: keepImageIdsRaw,
+        keepDiagramImageIds: keepDiagramImageIdsRaw,
     } = body as unknown as Partial<EditDesign> & {
         lowStockThreshold?: string;
         variationGroups?: string;
         variants?: string;
         keepImageIds?: string;
+        keepDiagramImageIds?: string;
         designType?: string;
     };
 
     const keepImageIds: string[] =
         typeof keepImageIdsRaw === 'string' && keepImageIdsRaw ? JSON.parse(keepImageIdsRaw) : [];
+    const keepDiagramImageIds: string[] =
+        typeof keepDiagramImageIdsRaw === 'string' && keepDiagramImageIdsRaw ? JSON.parse(keepDiagramImageIdsRaw) : [];
 
     const imageBuffers = await Promise.all(files.map(toImageBuffer));
+    const diagramImageBuffers = await Promise.all(diagramFiles.map(toImageBuffer));
     const updates: EditDesign = {};
 
     if (name) updates.name = name as EditDesign['name'];
@@ -148,12 +155,15 @@ export const editDesignProperties = async (c: Ctx) => {
     }
     if (designType !== undefined) updates.designType = designType as EditDesign['designType'];
     if (lowStockThreshold !== undefined) updates.lowStockThreshold = Number(lowStockThreshold);
+    if (makingNotes !== undefined) updates.makingNotes = makingNotes as EditDesign['makingNotes'];
 
     const design = await getDesignService().editDesignProperties(
         c.req.param('id'),
         updates,
         imageBuffers,
         keepImageIds,
+        diagramImageBuffers,
+        keepDiagramImageIds,
         userId
     );
     return c.json(design, 200);
