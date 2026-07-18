@@ -388,6 +388,8 @@ const AddDesign: React.FC = () => {
                                                     hourlyWage={hourlyWage}
                                                     profitMargin={profitMargin}
                                                     timeRequired={currentTimeRequired}
+                                                    markupMultiplier={markupMultiplier}
+                                                    hourlyRate={hourlyRate}
                                                 />
                                             </FormControl>
                                             <FormMessage />

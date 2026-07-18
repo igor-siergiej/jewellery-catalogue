@@ -327,6 +327,8 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                                             hourlyWage={hourlyWage}
                                             profitMargin={profitMargin}
                                             timeRequired={currentTimeRequired}
+                                            markupMultiplier={markupMultiplier}
+                                            hourlyRate={hourlyRate}
                                         />
                                     </FormControl>
                                     <FormMessage />

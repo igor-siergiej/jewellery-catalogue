@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { MATERIAL_TYPE_LABELS } from '@/lib/materialLabels';
 import { getTotalMaterialCosts } from '@/utils/getPriceOfMaterials';
+import { getSuggestedPrice } from '@/utils/getSuggestedPrice';
 import { getWageCosts } from '@/utils/getWageCost';
 
 export interface VariationGroupBuilderProps {
@@ -24,6 +25,8 @@ export interface VariationGroupBuilderProps {
     hourlyWage: number;
     profitMargin: number;
     timeRequired: string;
+    markupMultiplier: number;
+    hourlyRate: number;
 }
 
 function cartesian<T>(arrays: T[][]): T[][] {
@@ -264,7 +267,9 @@ const VariantPreview: React.FC<{
     hourlyWage: number;
     profitMargin: number;
     timeRequired: string;
-}> = ({ groups, sharedMaterials, hourlyWage, profitMargin, timeRequired }) => {
+    markupMultiplier: number;
+    hourlyRate: number;
+}> = ({ groups, sharedMaterials, hourlyWage, profitMargin, timeRequired, markupMultiplier, hourlyRate }) => {
     const variants = computeVariants(groups, sharedMaterials, hourlyWage, profitMargin, timeRequired);
 
     if (variants.length === 0) {
@@ -284,6 +289,7 @@ const VariantPreview: React.FC<{
                         <TableHead>Variant</TableHead>
                         <TableHead>Material Costs</TableHead>
                         <TableHead>Price</TableHead>
+                        <TableHead>Suggested</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -292,6 +298,15 @@ const VariantPreview: React.FC<{
                             <TableCell className="font-medium">{v.name}</TableCell>
                             <TableCell>£{v.totalMaterialCosts.toFixed(2)}</TableCell>
                             <TableCell>£{v.price.toFixed(2)}</TableCell>
+                            <TableCell>
+                                £
+                                {getSuggestedPrice({
+                                    materialsCost: v.totalMaterialCosts,
+                                    timeRequired,
+                                    markupMultiplier,
+                                    hourlyRate,
+                                }).toFixed(2)}
+                            </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
@@ -308,6 +323,8 @@ export const VariationGroupBuilder: React.FC<VariationGroupBuilderProps> = ({
     hourlyWage,
     profitMargin,
     timeRequired,
+    markupMultiplier,
+    hourlyRate,
 }) => {
     const addGroup = () => {
         const newGroup: VariationGroup = {
@@ -355,6 +372,8 @@ export const VariationGroupBuilder: React.FC<VariationGroupBuilderProps> = ({
                         hourlyWage={hourlyWage}
                         profitMargin={profitMargin}
                         timeRequired={timeRequired}
+                        markupMultiplier={markupMultiplier}
+                        hourlyRate={hourlyRate}
                     />
                 </div>
             )}
