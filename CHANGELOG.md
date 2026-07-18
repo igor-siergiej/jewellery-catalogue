@@ -1,3 +1,10 @@
+# [1.33.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.32.0...v1.33.0) (2026-07-18)
+
+
+### Features
+
+* push to Etsy as draft listing (stacked on [#36](https://github.com/igor-siergiej/jewellery-catalogue/issues/36)) ([#37](https://github.com/igor-siergiej/jewellery-catalogue/issues/37)) ([9d65415](https://github.com/igor-siergiej/jewellery-catalogue/commit/9d654150fa1270f0d29d86f9dd48b1c96b27c5ed))
+
 # [1.32.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.31.3...v1.32.0) (2026-07-18)
 
 
