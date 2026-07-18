@@ -12,20 +12,28 @@ const getService = (): UserSettingsService => dependencyContainer.resolve(Depend
 export const getUserSettings = async (c: Ctx) => c.json(await getService().get(c.get('userId')));
 
 export const updateUserSettings = async (c: Ctx) => {
-    const { hourlyWage, profitMargin, markupMultiplier, hourlyRate } = (await c.req.json()) as {
-        hourlyWage?: number;
-        profitMargin?: number;
-        markupMultiplier?: number;
-        hourlyRate?: number;
-    };
+    const { hourlyWage, profitMargin, markupMultiplier, hourlyRate, etsyDescriptionTemplate, etsyTaxonomyMap } =
+        (await c.req.json()) as {
+            hourlyWage?: number;
+            profitMargin?: number;
+            markupMultiplier?: number;
+            hourlyRate?: number;
+            etsyDescriptionTemplate?: string;
+            etsyTaxonomyMap?: Record<string, number>;
+        };
 
     if (
         hourlyWage === undefined ||
         profitMargin === undefined ||
         markupMultiplier === undefined ||
-        hourlyRate === undefined
+        hourlyRate === undefined ||
+        etsyDescriptionTemplate === undefined ||
+        etsyTaxonomyMap === undefined
     ) {
-        throw new APIError('hourlyWage, profitMargin, markupMultiplier and hourlyRate are required', 400);
+        throw new APIError(
+            'hourlyWage, profitMargin, markupMultiplier, hourlyRate, etsyDescriptionTemplate and etsyTaxonomyMap are required',
+            400
+        );
     }
 
     return c.json(
@@ -34,6 +42,8 @@ export const updateUserSettings = async (c: Ctx) => {
             profitMargin: Number(profitMargin),
             markupMultiplier: Number(markupMultiplier),
             hourlyRate: Number(hourlyRate),
+            etsyDescriptionTemplate,
+            etsyTaxonomyMap,
         })
     );
 };
