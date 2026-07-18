@@ -7,8 +7,7 @@ const DEFAULT_HOURLY_WAGE = 10;
 const DEFAULT_PROFIT_MARGIN = 15;
 const DEFAULT_MARKUP_MULTIPLIER = 2.5;
 const DEFAULT_HOURLY_RATE = 0;
-const DEFAULT_ETSY_DESCRIPTION_TEMPLATE = '';
-const DEFAULT_ETSY_TAXONOMY_MAP: Record<string, number> = {};
+const DEFAULT_ETSY_DESCRIPTION_TEMPLATE = '{description}';
 
 function parseTimeToHours(timeRequired: string): number {
     const [hoursStr, minutesStr] = timeRequired.split(':');
@@ -39,7 +38,7 @@ export class UserSettingsService {
             markupMultiplier: DEFAULT_MARKUP_MULTIPLIER,
             hourlyRate: DEFAULT_HOURLY_RATE,
             etsyDescriptionTemplate: DEFAULT_ETSY_DESCRIPTION_TEMPLATE,
-            etsyTaxonomyMap: DEFAULT_ETSY_TAXONOMY_MAP,
+            etsyTaxonomyMap: {},
         };
         return { ...defaults, ...stored };
     }

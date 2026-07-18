@@ -67,12 +67,12 @@ describe('UserSettingsService', () => {
     });
 
     describe('get — etsy fields', () => {
-        it('returns empty-string template and empty taxonomy map defaults when no settings stored', async () => {
+        it('returns {description} template and empty taxonomy map defaults when no settings stored', async () => {
             mockSettingsRepo.getByUserId.mockResolvedValue(null);
 
             const result = await service.get('user-1');
 
-            expect(result.etsyDescriptionTemplate).toBe('');
+            expect(result.etsyDescriptionTemplate).toBe('{description}');
             expect(result.etsyTaxonomyMap).toEqual({});
         });
 
@@ -106,7 +106,7 @@ describe('UserSettingsService', () => {
 
             expect(result.markupMultiplier).toBe(2.5);
             expect(result.hourlyRate).toBe(0);
-            expect(result.etsyDescriptionTemplate).toBe('');
+            expect(result.etsyDescriptionTemplate).toBe('{description}');
             expect(result.etsyTaxonomyMap).toEqual({});
             expect(result.hourlyWage).toBe(10);
             expect(result.profitMargin).toBe(15);
@@ -120,6 +120,8 @@ describe('UserSettingsService', () => {
                 profitMargin: 20,
                 markupMultiplier: 2,
                 hourlyRate: 8,
+                etsyDescriptionTemplate: 'test template',
+                etsyTaxonomyMap: { RING: 999 },
             });
 
             expect(result).toEqual({
@@ -128,6 +130,8 @@ describe('UserSettingsService', () => {
                 profitMargin: 20,
                 markupMultiplier: 2,
                 hourlyRate: 8,
+                etsyDescriptionTemplate: 'test template',
+                etsyTaxonomyMap: { RING: 999 },
             });
             expect(mockSettingsRepo.upsert).toHaveBeenCalledWith(result);
         });

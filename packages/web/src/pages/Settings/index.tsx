@@ -286,7 +286,7 @@ const Settings = () => {
                             <Textarea
                                 value={localEtsyDescriptionTemplate}
                                 onChange={(e) => setLocalEtsyDescriptionTemplate(e.target.value)}
-                                placeholder="{description}\n\nMaterials: {materials}"
+                                placeholder={'{description}\n\nMaterials: {materials}'}
                                 rows={4}
                             />
                             <p className="text-xs text-muted-foreground">
