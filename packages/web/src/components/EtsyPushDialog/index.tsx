@@ -1,5 +1,5 @@
 import type { Design } from '@jewellery-catalogue/types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -36,6 +36,14 @@ const EtsyPushDialog: React.FC<EtsyPushDialogProps> = ({ design, open, onOpenCha
         renderTemplate(etsyDescriptionTemplate, design.description, design.materials)
     );
     const [price, setPrice] = useState(design.price);
+
+    // biome-ignore lint/correctness/useExhaustiveDependencies: only re-seed on open/design change, not on every template or materials change
+    useEffect(() => {
+        if (open) {
+            setDescription(renderTemplate(etsyDescriptionTemplate, design.description, design.materials));
+            setPrice(design.price);
+        }
+    }, [open, design.id]);
 
     const taxonomyId = design.designType ? etsyTaxonomyMap[design.designType] : undefined;
 
