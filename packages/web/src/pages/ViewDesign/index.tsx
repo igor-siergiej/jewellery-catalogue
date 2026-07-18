@@ -1,6 +1,6 @@
 import { useAuth, useUser } from '@imapps/web-utils';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight, Edit, PackageOpen } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Edit, ExternalLink, PackageOpen } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
@@ -8,6 +8,7 @@ import { getDesignQuery } from '../../api/endpoints/getDesign';
 import DesignDescription from '../../components/DesignDescription';
 import DesignEditForm from '../../components/DesignEditForm';
 import DesignUpdateForm from '../../components/DesignUpdateForm';
+import EtsyPushDialog from '../../components/EtsyPushDialog';
 import { Image } from '../../components/Image';
 import LoadingScreen from '../../components/Loading';
 import { Badge } from '../../components/ui/badge';
@@ -15,6 +16,7 @@ import { Button } from '../../components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { MATERIALS_PAGE } from '../../constants/routes';
+import { useEtsyConnection } from '../../hooks/useEtsyConnection';
 import {
     DESIGN_TYPE_LABELS,
     MATERIAL_TYPE_LABELS,
@@ -30,6 +32,8 @@ const ViewDesign = () => {
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [editPropertiesDialogOpen, setEditPropertiesDialogOpen] = useState(false);
     const [imageIndex, setImageIndex] = useState(0);
+    const { connected: etsyConnected } = useEtsyConnection();
+    const [etsyDialogOpen, setEtsyDialogOpen] = useState(false);
 
     const {
         data: design,
@@ -56,6 +60,7 @@ const ViewDesign = () => {
         designType,
         diagramImageIds,
         makingNotes,
+        etsy,
     } = design ?? {};
 
     const hasDescription = description && description !== '<p></p>';
@@ -111,6 +116,34 @@ const ViewDesign = () => {
                             <PackageOpen className="h-4 w-4 mr-2" />
                             Manage Inventory
                         </Button>
+                        {etsyConnected && (
+                            <>
+                                {etsy?.listingId && (
+                                    <a
+                                        href={`https://www.etsy.com/your/shops/me/listing-editor/edit/${etsy.listingId}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+                                    >
+                                        {etsy.state === 'active' ? 'Active' : 'Draft'} on Etsy
+                                        <ExternalLink className="h-3 w-3" />
+                                    </a>
+                                )}
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={!!etsy?.listingId && !etsy.pushIncomplete}
+                                    title={
+                                        etsy?.listingId && !etsy.pushIncomplete
+                                            ? 'This design is already on Etsy'
+                                            : undefined
+                                    }
+                                    onClick={() => setEtsyDialogOpen(true)}
+                                >
+                                    Send to Etsy
+                                </Button>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -396,6 +429,8 @@ const ViewDesign = () => {
                     )}
                 </DialogContent>
             </Dialog>
+
+            {design && <EtsyPushDialog design={design} open={etsyDialogOpen} onOpenChange={setEtsyDialogOpen} />}
         </>
     );
 };
