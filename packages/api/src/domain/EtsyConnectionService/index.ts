@@ -74,7 +74,6 @@ export class EtsyConnectionService {
         await this.connectionRepo.deleteByUserId(userId);
     }
 
-    // fallow-ignore-next-line unused-class-member
     async getValidAccessToken(userId: string): Promise<string> {
         const connection = await this.connectionRepo.getByUserId(userId);
         if (!connection) {
@@ -100,5 +99,14 @@ export class EtsyConnectionService {
             await this.connectionRepo.upsert({ ...connection, broken: true });
             throw new APIError('Etsy connection is broken — reconnect required', 409);
         }
+    }
+
+    async getPushCredentials(userId: string): Promise<{ accessToken: string; shopId: number }> {
+        const accessToken = await this.getValidAccessToken(userId);
+        const connection = await this.connectionRepo.getByUserId(userId);
+        if (!connection) {
+            throw new APIError('Etsy is not connected', 400);
+        }
+        return { accessToken, shopId: connection.shopId };
     }
 }
