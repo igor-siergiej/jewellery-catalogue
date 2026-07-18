@@ -21,7 +21,14 @@ export const makeGetUserSettingsRequest = (
     );
 
 export const makeUpdateUserSettingsRequest = (
-    updates: { hourlyWage: number; profitMargin: number; markupMultiplier: number; hourlyRate: number },
+    updates: {
+        hourlyWage: number;
+        profitMargin: number;
+        markupMultiplier: number;
+        hourlyRate: number;
+        etsyDescriptionTemplate: string;
+        etsyTaxonomyMap: Record<string, number>;
+    },
     getAccessToken: () => string,
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void

@@ -25,6 +25,8 @@ export const useUserSettings = () => {
             profitMargin: number;
             markupMultiplier: number;
             hourlyRate: number;
+            etsyDescriptionTemplate: string;
+            etsyTaxonomyMap: Record<string, number>;
         }) => makeUpdateUserSettingsRequest(updates, () => accessToken, login, logout),
         onSuccess: (updated) => {
             queryClient.setQueryData(QUERY_KEY, updated);
@@ -43,6 +45,8 @@ export const useUserSettings = () => {
         profitMargin: data?.profitMargin ?? 15,
         markupMultiplier: data?.markupMultiplier ?? 2.5,
         hourlyRate: data?.hourlyRate ?? 0,
+        etsyDescriptionTemplate: data?.etsyDescriptionTemplate ?? '',
+        etsyTaxonomyMap: data?.etsyTaxonomyMap ?? {},
         isLoading,
         updateSettings: updateMutation.mutateAsync,
         recalculate: recalculateMutation.mutateAsync,
