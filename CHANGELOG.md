@@ -1,3 +1,10 @@
+## [1.33.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.33.0...v1.33.1) (2026-07-19)
+
+
+### Bug Fixes
+
+* surface real error on Etsy push failures instead of opaque 500 ([#39](https://github.com/igor-siergiej/jewellery-catalogue/issues/39)) ([a9e93ba](https://github.com/igor-siergiej/jewellery-catalogue/commit/a9e93ba8f68663eef8a7661d43cf6324515c9b2d))
+
 # [1.33.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.32.0...v1.33.0) (2026-07-18)
 
 
