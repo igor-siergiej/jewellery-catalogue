@@ -18,6 +18,10 @@ import {
 
 const isDryRun = process.argv.includes('--dry-run');
 
+// Tracked here (rather than only as a local in main()) so the top-level catch handler
+// below can close it if main() throws before reaching one of its own rl.close() calls.
+let rl: ReturnType<typeof createInterface> | undefined;
+
 async function promptOverrides(
     suggestions: LinkSuggestion[],
     listings: EtsyListingSummary[],
@@ -44,8 +48,8 @@ async function promptOverrides(
         }
 
         const parsed = Number(trimmed);
-        if (!Number.isFinite(parsed)) {
-            console.log(`"${trimmed}" is not a valid listingId — enter a number or "skip".`);
+        if (trimmed === '' || !Number.isInteger(parsed) || parsed <= 0) {
+            console.log(`"${trimmed}" is not a valid listingId — enter a positive whole number or "skip".`);
             continue;
         }
         overrides[suggestions[rowIndex].design.id] = parsed;
@@ -65,6 +69,8 @@ async function main() {
     const designRepo = new MongoDesignRepository(database);
     const etsyClient = new EtsyClient(config.get('etsyApiKey'), config.get('etsySharedSecret'));
 
+    // This app only ever has one connected user/shop today, so grabbing any single
+    // connection document is correct; a future multi-tenant change would need to filter this.
     const connection = await database
         .getCollection(CollectionNames.EtsyConnections)
         .findOne({}, { projection: { _id: 0 } });
@@ -91,7 +97,7 @@ async function main() {
         process.exit(0);
     }
 
-    const rl = createInterface({ input: process.stdin, output: process.stdout });
+    rl = createInterface({ input: process.stdin, output: process.stdout });
     const overrides = await promptOverrides(initialSuggestions, listings, rl);
     const finalSuggestions = applyOverrides(initialSuggestions, overrides, listings);
 
@@ -140,5 +146,6 @@ async function main() {
 
 main().catch((error) => {
     console.error('link-etsy-listings failed:', error);
+    rl?.close();
     process.exit(1);
 });
