@@ -17,6 +17,7 @@ const mockEtsyClient = {
     getListingImages: mock(),
     updateListingInventory: mock(),
     getSellerTaxonomyNodes: mock(),
+    getShopShippingProfiles: mock(),
 };
 const mockEtsyConnectionService = { getPushCredentials: mock() };
 const mockUserSettingsService = { get: mock() };
@@ -82,6 +83,7 @@ describe('EtsyPushService', () => {
             cacheControl: 'public',
         });
         mockEtsyClient.getListingImages.mockResolvedValue({ imageIds: [] });
+        mockEtsyClient.getShopShippingProfiles.mockResolvedValue([{ shippingProfileId: 5678, title: 'Standard' }]);
     });
 
     describe('push — new listing (no prior etsy.listingId)', () => {
@@ -94,7 +96,12 @@ describe('EtsyPushService', () => {
             expect(mockEtsyClient.createDraftListing).toHaveBeenCalledWith(
                 'at-token',
                 47408839,
-                expect.objectContaining({ title: 'Silver Ring', taxonomyId: 1234, quantity: 2 })
+                expect.objectContaining({
+                    title: 'Silver Ring',
+                    taxonomyId: 1234,
+                    quantity: 2,
+                    shippingProfileId: 5678,
+                })
             );
 
             expect(mockImageService.getImage).toHaveBeenCalledTimes(1);
@@ -134,6 +141,25 @@ describe('EtsyPushService', () => {
             mockDesignRepo.getByIdAndUserId.mockResolvedValue(
                 makeDesign({ designType: 'NECKLACE' as Design['designType'] })
             );
+
+            await expect(service.push('design-1', 'user-1')).rejects.toThrow();
+            expect(mockEtsyClient.createDraftListing).not.toHaveBeenCalled();
+        });
+
+        it('rejects when the shop has no Etsy shipping profile', async () => {
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign());
+            mockEtsyClient.getShopShippingProfiles.mockResolvedValue([]);
+
+            await expect(service.push('design-1', 'user-1')).rejects.toThrow();
+            expect(mockEtsyClient.createDraftListing).not.toHaveBeenCalled();
+        });
+
+        it('rejects when the shop has more than one Etsy shipping profile', async () => {
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign());
+            mockEtsyClient.getShopShippingProfiles.mockResolvedValue([
+                { shippingProfileId: 1, title: 'Standard' },
+                { shippingProfileId: 2, title: 'Express' },
+            ]);
 
             await expect(service.push('design-1', 'user-1')).rejects.toThrow();
             expect(mockEtsyClient.createDraftListing).not.toHaveBeenCalled();

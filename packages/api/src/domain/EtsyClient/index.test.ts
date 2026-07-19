@@ -156,6 +156,7 @@ describe('EtsyClient', () => {
                 whoMade: 'i_did',
                 whenMade: 'made_to_order',
                 taxonomyId: 1234,
+                shippingProfileId: 5678,
             });
 
             expect(result).toEqual({ listingId: 999 });
@@ -175,6 +176,7 @@ describe('EtsyClient', () => {
                 who_made: 'i_did',
                 when_made: 'made_to_order',
                 taxonomy_id: 1234,
+                shipping_profile_id: 5678,
             });
         });
 
@@ -190,8 +192,42 @@ describe('EtsyClient', () => {
                     whoMade: 'i_did',
                     whenMade: 'made_to_order',
                     taxonomyId: 1,
+                    shippingProfileId: 1,
                 })
             ).rejects.toThrow();
+        });
+    });
+
+    describe('getShopShippingProfiles', () => {
+        it('fetches and maps the shop shipping profiles', async () => {
+            fetchMock.mockResolvedValue(
+                new Response(
+                    JSON.stringify({
+                        results: [
+                            { shipping_profile_id: 1, title: 'Standard' },
+                            { shipping_profile_id: 2, title: 'Express' },
+                        ],
+                    }),
+                    { status: 200 }
+                )
+            );
+
+            const result = await client.getShopShippingProfiles('at-token', 47408839);
+
+            expect(result).toEqual([
+                { shippingProfileId: 1, title: 'Standard' },
+                { shippingProfileId: 2, title: 'Express' },
+            ]);
+            const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+            expect(url).toBe('https://api.etsy.com/v3/application/shops/47408839/shipping-profiles');
+            expect((options.headers as Record<string, string>)['x-api-key']).toBe('key123:secret456');
+            expect((options.headers as Record<string, string>).Authorization).toBe('Bearer at-token');
+        });
+
+        it('throws when Etsy responds with an error status', async () => {
+            fetchMock.mockResolvedValue(new Response('nope', { status: 404 }));
+
+            await expect(client.getShopShippingProfiles('at', 1)).rejects.toThrow();
         });
     });
 

@@ -27,10 +27,16 @@ export interface EtsyDraftListingInput {
     whoMade: string;
     whenMade: string;
     taxonomyId: number;
+    shippingProfileId: number;
 }
 
 export interface EtsyListingResult {
     listingId: number;
+}
+
+export interface EtsyShippingProfile {
+    shippingProfileId: number;
+    title: string;
 }
 
 export interface EtsyInventoryProduct {
@@ -238,6 +244,7 @@ export class EtsyClient {
                 who_made: input.whoMade,
                 when_made: input.whenMade,
                 taxonomy_id: input.taxonomyId,
+                shipping_profile_id: input.shippingProfileId,
             }),
         });
 
@@ -247,6 +254,21 @@ export class EtsyClient {
 
         const body = (await response.json()) as { listing_id: number };
         return { listingId: body.listing_id };
+    }
+
+    async getShopShippingProfiles(accessToken: string, shopId: number): Promise<EtsyShippingProfile[]> {
+        const response = await fetch(`${API_BASE}/shops/${shopId}/shipping-profiles`, {
+            headers: { 'x-api-key': this.apiKeyHeader(), Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!response.ok) {
+            throw await etsyError('getShopShippingProfiles', response);
+        }
+
+        const body = (await response.json()) as {
+            results: Array<{ shipping_profile_id: number; title: string }>;
+        };
+        return body.results.map((r) => ({ shippingProfileId: r.shipping_profile_id, title: r.title }));
     }
 
     async uploadListingImage(
