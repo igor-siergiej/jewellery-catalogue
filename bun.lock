@@ -4,6 +4,11 @@
   "workspaces": {
     "": {
       "name": "jewellery-catalogue",
+      "dependencies": {
+        "@imapps/api-utils": "0.6.0",
+        "fuse.js": "^7.1.0",
+        "mongodb": "^6.13.1",
+      },
       "devDependencies": {
         "@biomejs/biome": "2.2.5",
         "@imapps/dev-scripts": "0.1.0",
@@ -24,7 +29,7 @@
     },
     "packages/api": {
       "name": "@jewellery-catalogue/api",
-      "version": "1.29.1",
+      "version": "1.33.0",
       "dependencies": {
         "@imapps/api-utils": "0.6.0",
         "hono": "^4.6.14",
@@ -38,14 +43,14 @@
     },
     "packages/types": {
       "name": "@jewellery-catalogue/types",
-      "version": "1.29.1",
+      "version": "1.33.0",
       "dependencies": {
         "zod": "^4.1.12",
       },
     },
     "packages/web": {
       "name": "@jewellery-catalogue/web",
-      "version": "1.29.1",
+      "version": "1.33.0",
       "dependencies": {
         "@hookform/resolvers": "^5.2.2",
         "@imapps/web-utils": "0.5.1",
