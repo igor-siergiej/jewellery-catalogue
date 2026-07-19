@@ -1,3 +1,10 @@
+## [1.34.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.34.0...v1.34.1) (2026-07-19)
+
+
+### Bug Fixes
+
+* send required readiness_state_id when creating Etsy draft listings ([#43](https://github.com/igor-siergiej/jewellery-catalogue/issues/43)) ([65be6ab](https://github.com/igor-siergiej/jewellery-catalogue/commit/65be6ab4d04bec3aacd38949da3382144b3d7fcb)), closes [#39](https://github.com/igor-siergiej/jewellery-catalogue/issues/39) [#41](https://github.com/igor-siergiej/jewellery-catalogue/issues/41) [#42](https://github.com/igor-siergiej/jewellery-catalogue/issues/42)
+
 # [1.34.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.33.2...v1.34.0) (2026-07-19)
 
 
