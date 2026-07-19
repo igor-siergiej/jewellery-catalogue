@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto';
+import type { EtsyListingState } from '@jewellery-catalogue/types';
 
 const AUTHORIZE_URL = 'https://www.etsy.com/oauth/connect';
 const TOKEN_URL = 'https://api.etsy.com/v3/public/oauth/token';
@@ -34,6 +35,14 @@ export interface EtsyTaxonomyNode {
     name: string;
     children: EtsyTaxonomyNode[];
 }
+
+export interface EtsyListingStatus {
+    listingId: number;
+    state: EtsyListingState;
+}
+
+const mapListingState = (state: string): EtsyListingState =>
+    state === 'draft' || state === 'active' ? state : 'inactive';
 
 const base64UrlEncode = (input: Buffer): string =>
     input.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
@@ -139,6 +148,19 @@ export class EtsyClient {
 
         const body = (await response.json()) as { shop_id: number; shop_name: string };
         return { shopId: body.shop_id, shopName: body.shop_name };
+    }
+
+    async getListing(accessToken: string, listingId: number): Promise<EtsyListingStatus> {
+        const response = await fetch(`${API_BASE}/listings/${listingId}`, {
+            headers: { 'x-api-key': this.apiKeyHeader(), Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Etsy getListing failed: ${response.status} ${await response.text()}`);
+        }
+
+        const body = (await response.json()) as { listing_id: number; state: string };
+        return { listingId: body.listing_id, state: mapListingState(body.state) };
     }
 
     async createDraftListing(
