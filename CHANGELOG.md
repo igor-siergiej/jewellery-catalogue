@@ -1,3 +1,10 @@
+## [1.33.2](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.33.1...v1.33.2) (2026-07-19)
+
+
+### Bug Fixes
+
+* send required shipping_profile_id when creating Etsy draft listings ([#41](https://github.com/igor-siergiej/jewellery-catalogue/issues/41)) ([06dd705](https://github.com/igor-siergiej/jewellery-catalogue/commit/06dd705da885d8e394040f4c54fe6dc79971803a))
+
 ## [1.33.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.33.0...v1.33.1) (2026-07-19)
 
 
