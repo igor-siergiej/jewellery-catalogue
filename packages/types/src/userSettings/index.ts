@@ -8,6 +8,7 @@ export const userSettingsSchema = z.object({
     hourlyRate: z.number().nonnegative(),
     etsyDescriptionTemplate: z.string(),
     etsyTaxonomyMap: z.record(z.string(), z.number()),
+    etsyShippingProfileId: z.number().nullable(),
 });
 
 export type UserSettings = z.infer<typeof userSettingsSchema>;

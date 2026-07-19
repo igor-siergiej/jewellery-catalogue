@@ -28,6 +28,7 @@ export const makeUpdateUserSettingsRequest = (
         hourlyRate: number;
         etsyDescriptionTemplate: string;
         etsyTaxonomyMap: Record<string, number>;
+        etsyShippingProfileId: number | null;
     },
     getAccessToken: () => string,
     onTokenRefresh: (newToken: string) => void,

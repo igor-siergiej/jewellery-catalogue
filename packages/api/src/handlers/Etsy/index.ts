@@ -85,6 +85,13 @@ export const getEtsyTaxonomy = async (c: AuthedCtx) => {
     return c.json(nodes, 200);
 };
 
+export const getEtsyShippingProfiles = async (c: AuthedCtx) => {
+    const { accessToken, shopId } = await getService().getPushCredentials(c.get('userId'));
+    const client = dependencyContainer.resolve(DependencyToken.EtsyClient);
+    const profiles = await client.getShopShippingProfiles(accessToken, shopId);
+    return c.json(profiles, 200);
+};
+
 const getStatusService = (): EtsyStatusService => dependencyContainer.resolve(DependencyToken.EtsyStatusService);
 
 export const refreshDesignEtsyStatus = async (c: AuthedCtx) => {

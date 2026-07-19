@@ -12,15 +12,23 @@ const getService = (): UserSettingsService => dependencyContainer.resolve(Depend
 export const getUserSettings = async (c: Ctx) => c.json(await getService().get(c.get('userId')));
 
 export const updateUserSettings = async (c: Ctx) => {
-    const { hourlyWage, profitMargin, markupMultiplier, hourlyRate, etsyDescriptionTemplate, etsyTaxonomyMap } =
-        (await c.req.json()) as {
-            hourlyWage?: number;
-            profitMargin?: number;
-            markupMultiplier?: number;
-            hourlyRate?: number;
-            etsyDescriptionTemplate?: string;
-            etsyTaxonomyMap?: Record<string, number>;
-        };
+    const {
+        hourlyWage,
+        profitMargin,
+        markupMultiplier,
+        hourlyRate,
+        etsyDescriptionTemplate,
+        etsyTaxonomyMap,
+        etsyShippingProfileId,
+    } = (await c.req.json()) as {
+        hourlyWage?: number;
+        profitMargin?: number;
+        markupMultiplier?: number;
+        hourlyRate?: number;
+        etsyDescriptionTemplate?: string;
+        etsyTaxonomyMap?: Record<string, number>;
+        etsyShippingProfileId?: number | null;
+    };
 
     if (
         hourlyWage === undefined ||
@@ -44,6 +52,7 @@ export const updateUserSettings = async (c: Ctx) => {
             hourlyRate: Number(hourlyRate),
             etsyDescriptionTemplate,
             etsyTaxonomyMap,
+            etsyShippingProfileId: etsyShippingProfileId ?? null,
         })
     );
 };
