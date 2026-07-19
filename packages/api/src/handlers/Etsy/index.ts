@@ -5,6 +5,7 @@ import { dependencyContainer } from '../../dependencies';
 import { DependencyToken } from '../../dependencies/types';
 import type { EtsyConnectionService } from '../../domain/EtsyConnectionService';
 import type { EtsyPushService } from '../../domain/EtsyPushService';
+import type { EtsyStatusService } from '../../domain/EtsyStatusService';
 
 type AuthedCtx = Context<{ Variables: { userId: string } }>;
 
@@ -72,4 +73,16 @@ export const getEtsyTaxonomy = async (c: AuthedCtx) => {
     const client = dependencyContainer.resolve(DependencyToken.EtsyClient);
     const nodes = await client.getSellerTaxonomyNodes();
     return c.json(nodes, 200);
+};
+
+const getStatusService = (): EtsyStatusService => dependencyContainer.resolve(DependencyToken.EtsyStatusService);
+
+export const refreshDesignEtsyStatus = async (c: AuthedCtx) => {
+    const design = await getStatusService().refreshStatus(c.req.param('id'), c.get('userId'));
+    return c.json(design, 200);
+};
+
+export const getEtsyShopListings = async (c: AuthedCtx) => {
+    const listings = await getStatusService().listShopListings(c.get('userId'));
+    return c.json(listings, 200);
 };

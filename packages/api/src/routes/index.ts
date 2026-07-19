@@ -9,8 +9,10 @@ import {
     disconnectEtsyConnection,
     etsyOAuthCallback,
     getEtsyConnectionStatus,
+    getEtsyShopListings,
     getEtsyTaxonomy,
     pushDesignToEtsy,
+    refreshDesignEtsyStatus,
     startEtsyOAuth,
 } from '../handlers/Etsy';
 import { getImage, uploadImage } from '../handlers/Image';
@@ -47,6 +49,8 @@ export const createRoutes = (): Hono<Env> => {
     app.delete('/api/etsy/connection', authenticate, disconnectEtsyConnection);
     app.post('/api/designs/:id/etsy-push', authenticate, pushDesignToEtsy);
     app.get('/api/etsy/taxonomy', authenticate, getEtsyTaxonomy);
+    app.get('/api/etsy/listings', authenticate, getEtsyShopListings);
+    app.get('/api/designs/:id/etsy-status', authenticate, refreshDesignEtsyStatus);
 
     app.get('/api/designs', authenticate, getDesigns);
     app.post('/api/designs', authenticate, addDesign);

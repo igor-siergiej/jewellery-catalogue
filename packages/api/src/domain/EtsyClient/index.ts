@@ -1,8 +1,10 @@
 import { createHash, randomBytes } from 'node:crypto';
+import type { EtsyListingState } from '@jewellery-catalogue/types';
 
 const AUTHORIZE_URL = 'https://www.etsy.com/oauth/connect';
 const TOKEN_URL = 'https://api.etsy.com/v3/public/oauth/token';
 const API_BASE = 'https://api.etsy.com/v3/application';
+const SHOP_LISTINGS_PAGE_LIMIT = 100;
 
 export interface EtsyTokenResponse {
     accessToken: string;
@@ -34,6 +36,21 @@ export interface EtsyTaxonomyNode {
     name: string;
     children: EtsyTaxonomyNode[];
 }
+
+export interface EtsyListingStatus {
+    listingId: number;
+    state: EtsyListingState;
+}
+
+export interface EtsyListingSummary {
+    listingId: number;
+    title: string;
+    price: number;
+    url: string;
+}
+
+const mapListingState = (state: string): EtsyListingState =>
+    state === 'draft' || state === 'active' ? state : 'inactive';
 
 const base64UrlEncode = (input: Buffer): string =>
     input.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
@@ -139,6 +156,59 @@ export class EtsyClient {
 
         const body = (await response.json()) as { shop_id: number; shop_name: string };
         return { shopId: body.shop_id, shopName: body.shop_name };
+    }
+
+    async getListing(accessToken: string, listingId: number): Promise<EtsyListingStatus> {
+        const response = await fetch(`${API_BASE}/listings/${listingId}`, {
+            headers: { 'x-api-key': this.apiKeyHeader(), Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Etsy getListing failed: ${response.status} ${await response.text()}`);
+        }
+
+        const body = (await response.json()) as { listing_id: number; state: string };
+        return { listingId: body.listing_id, state: mapListingState(body.state) };
+    }
+
+    async getShopListingsActive(shopId: number): Promise<EtsyListingSummary[]> {
+        const results: EtsyListingSummary[] = [];
+        let offset = 0;
+
+        for (;;) {
+            const response = await fetch(
+                `${API_BASE}/shops/${shopId}/listings/active?limit=${SHOP_LISTINGS_PAGE_LIMIT}&offset=${offset}`,
+                { headers: { 'x-api-key': this.apiKeyHeader() } }
+            );
+
+            if (!response.ok) {
+                throw new Error(`Etsy getShopListingsActive failed: ${response.status} ${await response.text()}`);
+            }
+
+            const body = (await response.json()) as {
+                count: number;
+                results: Array<{
+                    listing_id: number;
+                    title: string;
+                    price: { amount: number; divisor: number };
+                    url: string;
+                }>;
+            };
+
+            results.push(
+                ...body.results.map((r) => ({
+                    listingId: r.listing_id,
+                    title: r.title,
+                    price: r.price.amount / r.price.divisor,
+                    url: r.url,
+                }))
+            );
+
+            offset += SHOP_LISTINGS_PAGE_LIMIT;
+            if (offset >= body.count || body.results.length < SHOP_LISTINGS_PAGE_LIMIT) break;
+        }
+
+        return results;
     }
 
     async createDraftListing(

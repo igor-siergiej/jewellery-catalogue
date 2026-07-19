@@ -7,6 +7,9 @@ export const IMAGES_ENDPOINT = '/api/images';
 export const ETSY_OAUTH_START_ENDPOINT = '/api/etsy/oauth/start';
 export const ETSY_CONNECTION_ENDPOINT = '/api/etsy/connection';
 export const ETSY_TAXONOMY_ENDPOINT = '/api/etsy/taxonomy';
+export const ETSY_LISTINGS_ENDPOINT = '/api/etsy/listings';
 
 export const getMaterialRecalculatePricesEndpoint = (materialId: string) =>
     `${MATERIALS_ENDPOINT}/${materialId}/recalculate-prices`;
+
+export const getEtsyStatusEndpoint = (designId: string) => `${DESIGNS_ENDPOINT}/${designId}/etsy-status`;

@@ -1,4 +1,4 @@
-import { Gem, Home, Palette, Plus, PlusCircle } from 'lucide-react';
+import { Gem, Home, Palette, Plus, PlusCircle, ShoppingBag } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
@@ -21,6 +21,7 @@ import { Header } from './Header';
 const routeIcons = {
     '/home': Home,
     '/designs': Palette,
+    '/listings': ShoppingBag,
     '/addDesign': Plus,
     '/materials': Gem,
     '/addMaterial': PlusCircle,

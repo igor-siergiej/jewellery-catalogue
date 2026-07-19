@@ -307,4 +307,120 @@ describe('EtsyClient', () => {
             expect((options.headers as Record<string, string>)['x-api-key']).toBe('key123:secret456');
         });
     });
+
+    describe('getListing', () => {
+        it('fetches the listing and maps a draft state through unchanged', async () => {
+            fetchMock.mockResolvedValue(
+                new Response(JSON.stringify({ listing_id: 999, state: 'draft' }), { status: 200 })
+            );
+
+            const result = await client.getListing('at-token', 999);
+
+            expect(result).toEqual({ listingId: 999, state: 'draft' });
+            const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+            expect(url).toBe('https://api.etsy.com/v3/application/listings/999');
+            expect((options.headers as Record<string, string>)['x-api-key']).toBe('key123:secret456');
+            expect((options.headers as Record<string, string>).Authorization).toBe('Bearer at-token');
+        });
+
+        it('maps an active state through unchanged', async () => {
+            fetchMock.mockResolvedValue(
+                new Response(JSON.stringify({ listing_id: 999, state: 'active' }), { status: 200 })
+            );
+
+            const result = await client.getListing('at-token', 999);
+
+            expect(result).toEqual({ listingId: 999, state: 'active' });
+        });
+
+        it.each(['inactive', 'sold_out', 'expired'])('maps Etsy state "%s" down to "inactive"', async (etsyState) => {
+            fetchMock.mockResolvedValue(
+                new Response(JSON.stringify({ listing_id: 999, state: etsyState }), { status: 200 })
+            );
+
+            const result = await client.getListing('at-token', 999);
+
+            expect(result).toEqual({ listingId: 999, state: 'inactive' });
+        });
+
+        it('throws when Etsy responds with an error status', async () => {
+            fetchMock.mockResolvedValue(new Response('nope', { status: 404 }));
+
+            await expect(client.getListing('at', 1)).rejects.toThrow();
+        });
+    });
+
+    describe('getShopListingsActive', () => {
+        it('fetches a single page when count fits within the page limit', async () => {
+            fetchMock.mockResolvedValue(
+                new Response(
+                    JSON.stringify({
+                        count: 2,
+                        results: [
+                            {
+                                listing_id: 1,
+                                title: 'Silver Ring',
+                                price: { amount: 2550, divisor: 100, currency_code: 'GBP' },
+                                url: 'https://etsy.com/listing/1',
+                            },
+                            {
+                                listing_id: 2,
+                                title: 'Gold Ring',
+                                price: { amount: 4000, divisor: 100, currency_code: 'GBP' },
+                                url: 'https://etsy.com/listing/2',
+                            },
+                        ],
+                    }),
+                    { status: 200 }
+                )
+            );
+
+            const result = await client.getShopListingsActive(47408839);
+
+            expect(result).toEqual([
+                { listingId: 1, title: 'Silver Ring', price: 25.5, url: 'https://etsy.com/listing/1' },
+                { listingId: 2, title: 'Gold Ring', price: 40, url: 'https://etsy.com/listing/2' },
+            ]);
+            expect(fetchMock).toHaveBeenCalledTimes(1);
+            const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+            expect(url).toBe('https://api.etsy.com/v3/application/shops/47408839/listings/active?limit=100&offset=0');
+            expect((options.headers as Record<string, string>)['x-api-key']).toBe('key123:secret456');
+            expect((options.headers as Record<string, string>).Authorization).toBeUndefined();
+        });
+
+        it('paginates when count exceeds the 100-item page limit', async () => {
+            const page = (start: number, count: number, total: number) => ({
+                count: total,
+                results: Array.from({ length: count }, (_, i) => ({
+                    listing_id: start + i,
+                    title: `Listing ${start + i}`,
+                    price: { amount: 1000, divisor: 100, currency_code: 'GBP' },
+                    url: `https://etsy.com/listing/${start + i}`,
+                })),
+            });
+
+            fetchMock
+                .mockResolvedValueOnce(new Response(JSON.stringify(page(1, 100, 102)), { status: 200 }))
+                .mockResolvedValueOnce(new Response(JSON.stringify(page(101, 2, 102)), { status: 200 }));
+
+            const result = await client.getShopListingsActive(47408839);
+
+            expect(result).toHaveLength(102);
+            expect(fetchMock).toHaveBeenCalledTimes(2);
+            const [firstUrl] = fetchMock.mock.calls[0] as [string, RequestInit];
+            const [secondUrl] = fetchMock.mock.calls[1] as [string, RequestInit];
+            expect(firstUrl).toBe(
+                'https://api.etsy.com/v3/application/shops/47408839/listings/active?limit=100&offset=0'
+            );
+            expect(secondUrl).toBe(
+                'https://api.etsy.com/v3/application/shops/47408839/listings/active?limit=100&offset=100'
+            );
+        });
+
+        it('throws when Etsy responds with an error status', async () => {
+            fetchMock.mockResolvedValue(new Response('nope', { status: 500 }));
+
+            await expect(client.getShopListingsActive(1)).rejects.toThrow();
+        });
+    });
 });

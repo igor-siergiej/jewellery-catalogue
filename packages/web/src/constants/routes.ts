@@ -46,4 +46,9 @@ export const SETTINGS_PAGE: NavRoute = {
     route: '/settings',
 };
 
-export const ROUTES = [HOME_PAGE, DESIGNS_PAGE, ADD_DESIGN_PAGE, MATERIALS_PAGE, ADD_MATERIAL_PAGE];
+export const LISTINGS_PAGE: NavRoute = {
+    name: 'Listings',
+    route: '/listings',
+};
+
+export const ROUTES = [HOME_PAGE, DESIGNS_PAGE, LISTINGS_PAGE, ADD_DESIGN_PAGE, MATERIALS_PAGE, ADD_MATERIAL_PAGE];
