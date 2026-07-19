@@ -38,6 +38,7 @@ describe('buildDraftListingInput', () => {
             price: 25.5,
             taxonomyId: 1234,
             shippingProfileId: 5678,
+            readinessStateId: 4321,
         });
 
         expect(result).toEqual({
@@ -49,6 +50,7 @@ describe('buildDraftListingInput', () => {
             whenMade: 'made_to_order',
             taxonomyId: 1234,
             shippingProfileId: 5678,
+            readinessStateId: 4321,
         });
     });
 
@@ -59,6 +61,7 @@ describe('buildDraftListingInput', () => {
             price: 10,
             taxonomyId: 1,
             shippingProfileId: 1,
+            readinessStateId: 1,
         });
 
         expect(result.quantity).toBe(1);
