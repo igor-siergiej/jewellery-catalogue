@@ -28,6 +28,10 @@ export class EtsyStatusService {
         const accessToken = await this.etsyConnectionService.getValidAccessToken(userId);
         const status = await this.etsyClient.getListing(accessToken, design.etsy.listingId);
 
+        if (status.state === design.etsy.state) {
+            return design;
+        }
+
         const updated: Design = { ...design, etsy: { ...design.etsy, state: status.state } };
         await this.designRepo.update(designId, updated);
 

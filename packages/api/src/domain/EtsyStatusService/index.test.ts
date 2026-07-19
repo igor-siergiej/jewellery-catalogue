@@ -65,6 +65,19 @@ describe('EtsyStatusService', () => {
             expect(mockDesignRepo.update).toHaveBeenCalledWith('design-1', result);
         });
 
+        it('does not persist and returns the original design when the fetched state is unchanged', async () => {
+            const design = makeDesign({
+                etsy: { listingId: 999, state: 'active', lastPushedAt: 123, pushIncomplete: false },
+            });
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(design);
+            mockEtsyClient.getListing.mockResolvedValue({ listingId: 999, state: 'active' });
+
+            const result = await service.refreshStatus('design-1', 'user-1');
+
+            expect(mockDesignRepo.update).not.toHaveBeenCalled();
+            expect(result).toEqual(design);
+        });
+
         it('throws when the design does not exist', async () => {
             mockDesignRepo.getByIdAndUserId.mockResolvedValue(null);
 

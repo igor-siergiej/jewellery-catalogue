@@ -3,13 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 
 import { makeGetEtsyListingsRequest } from '../api/endpoints/etsyListings';
 
-export const useEtsyListings = () => {
+export const useEtsyListings = (enabled: boolean) => {
     const { accessToken, login, logout } = useAuth();
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ['etsy-listings'],
         queryFn: () => makeGetEtsyListingsRequest(() => accessToken, login, logout),
-        enabled: !!accessToken,
+        enabled: enabled && !!accessToken,
     });
 
     return {

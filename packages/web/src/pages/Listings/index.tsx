@@ -11,7 +11,7 @@ import { useEtsyListings } from '../../hooks/useEtsyListings';
 
 const Listings = () => {
     const { connected: etsyConnected, isLoading: isConnectionLoading } = useEtsyConnection();
-    const { listings, isLoading, isError } = useEtsyListings();
+    const { listings, isLoading, isError } = useEtsyListings(etsyConnected);
 
     if (isConnectionLoading) {
         return <LoadingScreen />;

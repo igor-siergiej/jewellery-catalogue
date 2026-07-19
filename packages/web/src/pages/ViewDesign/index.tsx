@@ -128,7 +128,12 @@ const ViewDesign = () => {
                                         rel="noreferrer"
                                         className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground"
                                     >
-                                        {etsy.state === 'active' ? 'Active' : 'Draft'} on Etsy
+                                        {etsy.state === 'active'
+                                            ? 'Active'
+                                            : etsy.state === 'inactive'
+                                              ? 'Inactive'
+                                              : 'Draft'}{' '}
+                                        on Etsy
                                         <ExternalLink className="h-3 w-3" />
                                     </a>
                                 )}
