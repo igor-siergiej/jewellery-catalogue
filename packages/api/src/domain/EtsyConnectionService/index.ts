@@ -109,4 +109,12 @@ export class EtsyConnectionService {
         }
         return { accessToken, shopId: connection.shopId };
     }
+
+    async getShopId(userId: string): Promise<number> {
+        const connection = await this.connectionRepo.getByUserId(userId);
+        if (!connection) {
+            throw new APIError('Etsy is not connected', 400);
+        }
+        return connection.shopId;
+    }
 }

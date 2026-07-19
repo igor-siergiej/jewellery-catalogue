@@ -224,4 +224,21 @@ describe('EtsyConnectionService', () => {
             await expect(service.getPushCredentials('user-1')).rejects.toThrow();
         });
     });
+
+    describe('getShopId', () => {
+        it('returns the stored shopId without touching token refresh', async () => {
+            mockConnectionRepo.getByUserId.mockResolvedValue(makeConnection({ shopId: 47408839 }));
+
+            const result = await service.getShopId('user-1');
+
+            expect(result).toBe(47408839);
+            expect(mockEtsyClient.refreshAccessToken).not.toHaveBeenCalled();
+        });
+
+        it('throws when there is no connection', async () => {
+            mockConnectionRepo.getByUserId.mockResolvedValue(null);
+
+            await expect(service.getShopId('user-1')).rejects.toThrow();
+        });
+    });
 });
