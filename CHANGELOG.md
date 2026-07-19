@@ -1,3 +1,10 @@
+## [1.34.2](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.34.1...v1.34.2) (2026-07-19)
+
+
+### Bug Fixes
+
+* strip TipTap HTML from design descriptions before sending to Etsy ([#44](https://github.com/igor-siergiej/jewellery-catalogue/issues/44)) ([88d942c](https://github.com/igor-siergiej/jewellery-catalogue/commit/88d942c5f56fd53a7f729ce28fbd9c9e6f17d802))
+
 ## [1.34.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.34.0...v1.34.1) (2026-07-19)
 
 
