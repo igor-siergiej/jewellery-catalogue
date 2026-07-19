@@ -28,6 +28,15 @@ describe('renderDescriptionTemplate', () => {
         });
         expect(result).toBe('A ring. ()');
     });
+
+    it('strips the TipTap HTML design descriptions are authored in, rather than sending raw tags to Etsy', () => {
+        const result = renderDescriptionTemplate('{description}', {
+            description: '<p>A <strong>lovely</strong> ring.</p><p>Second paragraph.</p>',
+            materials: [],
+        });
+
+        expect(result).toBe('A lovely ring.\n\nSecond paragraph.');
+    });
 });
 
 describe('buildDraftListingInput', () => {

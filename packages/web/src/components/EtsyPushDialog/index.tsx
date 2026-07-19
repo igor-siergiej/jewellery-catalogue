@@ -1,4 +1,4 @@
-import type { Design } from '@jewellery-catalogue/types';
+import { type Design, htmlToPlainText } from '@jewellery-catalogue/types';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -25,7 +25,7 @@ interface EtsyPushDialogProps {
 
 const renderTemplate = (template: string, description: string, materials: Array<{ name: string }>): string =>
     template
-        .replace(/\{description\}/g, description)
+        .replace(/\{description\}/g, htmlToPlainText(description))
         .replace(/\{materials\}/g, materials.map((m) => m.name).join(', '));
 
 const EtsyPushDialog: React.FC<EtsyPushDialogProps> = ({ design, open, onOpenChange }) => {

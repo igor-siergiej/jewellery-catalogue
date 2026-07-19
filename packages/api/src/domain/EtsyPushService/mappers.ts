@@ -1,4 +1,10 @@
-import type { Design, DesignVariant, RequiredMaterial, VariationGroup } from '@jewellery-catalogue/types';
+import {
+    type Design,
+    type DesignVariant,
+    htmlToPlainText,
+    type RequiredMaterial,
+    type VariationGroup,
+} from '@jewellery-catalogue/types';
 
 import type { EtsyDraftListingInput, EtsyInventoryProduct } from '../EtsyClient';
 
@@ -7,7 +13,9 @@ export const renderDescriptionTemplate = (
     design: { description: string; materials: RequiredMaterial[] }
 ): string => {
     const materialsList = design.materials.map((m) => m.name).join(', ');
-    return template.replace(/\{description\}/g, design.description).replace(/\{materials\}/g, materialsList);
+    return template
+        .replace(/\{description\}/g, htmlToPlainText(design.description))
+        .replace(/\{materials\}/g, materialsList);
 };
 
 export const buildDraftListingInput = (args: {
