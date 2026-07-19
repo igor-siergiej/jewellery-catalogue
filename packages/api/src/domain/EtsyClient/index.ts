@@ -1,5 +1,12 @@
 import { createHash, randomBytes } from 'node:crypto';
+import { APIError } from '@imapps/api-utils/hono';
 import type { EtsyListingState } from '@jewellery-catalogue/types';
+
+// Etsy failures are surfaced as 502 (not the upstream status) so they can't collide with
+// our own 401/403 semantics — the web client treats any "401" in an error message as its
+// own JWT expiring and tries to refresh/logout, which must not fire for Etsy-side auth issues.
+const etsyError = async (op: string, response: Response): Promise<APIError> =>
+    new APIError(`Etsy ${op} failed: ${response.status} ${await response.text()}`, 502);
 
 const AUTHORIZE_URL = 'https://www.etsy.com/oauth/connect';
 const TOKEN_URL = 'https://api.etsy.com/v3/public/oauth/token';
@@ -104,7 +111,7 @@ export class EtsyClient {
         });
 
         if (!response.ok) {
-            throw new Error(`Etsy token request failed: ${response.status} ${await response.text()}`);
+            throw await etsyError('token request', response);
         }
 
         return mapTokenResponse((await response.json()) as EtsyTokenApiResponse);
@@ -138,7 +145,7 @@ export class EtsyClient {
         });
 
         if (!response.ok) {
-            throw new Error(`Etsy getMe failed: ${response.status} ${await response.text()}`);
+            throw await etsyError('getMe', response);
         }
 
         const body = (await response.json()) as { user_id: number; shop_id: number };
@@ -151,7 +158,7 @@ export class EtsyClient {
         });
 
         if (!response.ok) {
-            throw new Error(`Etsy getShop failed: ${response.status} ${await response.text()}`);
+            throw await etsyError('getShop', response);
         }
 
         const body = (await response.json()) as { shop_id: number; shop_name: string };
@@ -164,7 +171,7 @@ export class EtsyClient {
         });
 
         if (!response.ok) {
-            throw new Error(`Etsy getListing failed: ${response.status} ${await response.text()}`);
+            throw await etsyError('getListing', response);
         }
 
         const body = (await response.json()) as { listing_id: number; state: string };
@@ -182,7 +189,7 @@ export class EtsyClient {
             );
 
             if (!response.ok) {
-                throw new Error(`Etsy getShopListingsActive failed: ${response.status} ${await response.text()}`);
+                throw await etsyError('getShopListingsActive', response);
             }
 
             const body = (await response.json()) as {
@@ -235,7 +242,7 @@ export class EtsyClient {
         });
 
         if (!response.ok) {
-            throw new Error(`Etsy createDraftListing failed: ${response.status} ${await response.text()}`);
+            throw await etsyError('createDraftListing', response);
         }
 
         const body = (await response.json()) as { listing_id: number };
@@ -263,7 +270,7 @@ export class EtsyClient {
         });
 
         if (!response.ok) {
-            throw new Error(`Etsy uploadListingImage failed: ${response.status} ${await response.text()}`);
+            throw await etsyError('uploadListingImage', response);
         }
     }
 
@@ -273,7 +280,7 @@ export class EtsyClient {
         });
 
         if (!response.ok) {
-            throw new Error(`Etsy getListingImages failed: ${response.status} ${await response.text()}`);
+            throw await etsyError('getListingImages', response);
         }
 
         const body = (await response.json()) as { results: Array<{ listing_image_id: number }> };
@@ -311,7 +318,7 @@ export class EtsyClient {
         });
 
         if (!response.ok) {
-            throw new Error(`Etsy updateListingInventory failed: ${response.status} ${await response.text()}`);
+            throw await etsyError('updateListingInventory', response);
         }
     }
 
@@ -322,7 +329,7 @@ export class EtsyClient {
         });
 
         if (!response.ok) {
-            throw new Error(`Etsy getSellerTaxonomyNodes failed: ${response.status} ${await response.text()}`);
+            throw await etsyError('getSellerTaxonomyNodes', response);
         }
 
         const body = (await response.json()) as {
