@@ -39,6 +39,7 @@ export class UserSettingsService {
             hourlyRate: DEFAULT_HOURLY_RATE,
             etsyDescriptionTemplate: DEFAULT_ETSY_DESCRIPTION_TEMPLATE,
             etsyTaxonomyMap: {},
+            etsyShippingProfileId: null,
         };
         return { ...defaults, ...stored };
     }
@@ -52,6 +53,7 @@ export class UserSettingsService {
             hourlyRate: number;
             etsyDescriptionTemplate: string;
             etsyTaxonomyMap: Record<string, number>;
+            etsyShippingProfileId: number | null;
         }
     ): Promise<UserSettings> {
         const settings: UserSettings = { userId, ...updates };

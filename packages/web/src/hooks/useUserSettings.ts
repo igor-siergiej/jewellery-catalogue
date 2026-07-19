@@ -27,6 +27,7 @@ export const useUserSettings = () => {
             hourlyRate: number;
             etsyDescriptionTemplate: string;
             etsyTaxonomyMap: Record<string, number>;
+            etsyShippingProfileId: number | null;
         }) => makeUpdateUserSettingsRequest(updates, () => accessToken, login, logout),
         onSuccess: (updated) => {
             queryClient.setQueryData(QUERY_KEY, updated);
@@ -47,6 +48,7 @@ export const useUserSettings = () => {
         hourlyRate: data?.hourlyRate ?? 0,
         etsyDescriptionTemplate: data?.etsyDescriptionTemplate ?? '',
         etsyTaxonomyMap: data?.etsyTaxonomyMap ?? {},
+        etsyShippingProfileId: data?.etsyShippingProfileId ?? null,
         isLoading,
         updateSettings: updateMutation.mutateAsync,
         recalculate: recalculateMutation.mutateAsync,

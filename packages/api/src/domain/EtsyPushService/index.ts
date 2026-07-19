@@ -57,20 +57,8 @@ export class EtsyPushService {
                 throw new APIError('No Etsy category is mapped for this design type', 400);
             }
 
-            const shippingProfiles = await this.etsyClient.getShopShippingProfiles(accessToken, shopId);
-            if (shippingProfiles.length === 0) {
-                throw new APIError(
-                    'No Etsy shipping profile found — create one in your Etsy shop settings before sending designs.',
-                    400
-                );
-            }
-            if (shippingProfiles.length > 1) {
-                throw new APIError(
-                    "Multiple Etsy shipping profiles found — selecting one isn't supported yet. Your shop must have exactly one shipping profile to push designs.",
-                    400
-                );
-            }
-            const shippingProfileId = shippingProfiles[0].shippingProfileId;
+            const shippingProfileId =
+                settings.etsyShippingProfileId ?? (await this.resolveDefaultShippingProfileId(accessToken, shopId));
 
             const description =
                 overrides.description ?? renderDescriptionTemplate(settings.etsyDescriptionTemplate, design);
@@ -113,5 +101,22 @@ export class EtsyPushService {
         await this.designRepo.update(designId, updated);
 
         return updated;
+    }
+
+    private async resolveDefaultShippingProfileId(accessToken: string, shopId: number): Promise<number> {
+        const shippingProfiles = await this.etsyClient.getShopShippingProfiles(accessToken, shopId);
+        if (shippingProfiles.length === 0) {
+            throw new APIError(
+                'No Etsy shipping profile found — create one in your Etsy shop settings before sending designs.',
+                400
+            );
+        }
+        if (shippingProfiles.length > 1) {
+            throw new APIError(
+                'Your Etsy shop has multiple shipping profiles — choose one in Settings before sending designs.',
+                400
+            );
+        }
+        return shippingProfiles[0].shippingProfileId;
     }
 }

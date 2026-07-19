@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 import { useEtsyConnection } from '../../hooks/useEtsyConnection';
+import { useEtsyShippingProfiles } from '../../hooks/useEtsyShippingProfiles';
 import { useEtsyTaxonomy } from '../../hooks/useEtsyTaxonomy';
 import { useUserSettings } from '../../hooks/useUserSettings';
 
@@ -36,11 +37,13 @@ const Settings = () => {
         hourlyRate,
         etsyDescriptionTemplate,
         etsyTaxonomyMap,
+        etsyShippingProfileId,
         updateSettings,
         recalculate,
         isLoading: pricingLoading,
     } = useUserSettings();
     const { options: taxonomyOptions, isLoading: taxonomyLoading } = useEtsyTaxonomy(connected);
+    const { profiles: shippingProfiles, isLoading: shippingProfilesLoading } = useEtsyShippingProfiles(connected);
 
     const [localWage, setLocalWage] = useState<number | ''>(hourlyWage);
     const [localMargin, setLocalMargin] = useState<number | ''>(profitMargin);
@@ -48,6 +51,7 @@ const Settings = () => {
     const [localHourlyRate, setLocalHourlyRate] = useState<number | ''>(hourlyRate);
     const [localEtsyDescriptionTemplate, setLocalEtsyDescriptionTemplate] = useState(etsyDescriptionTemplate);
     const [localEtsyTaxonomyMap, setLocalEtsyTaxonomyMap] = useState<Record<string, number>>(etsyTaxonomyMap);
+    const [localEtsyShippingProfileId, setLocalEtsyShippingProfileId] = useState<number | null>(etsyShippingProfileId);
     const [pricingStatus, setPricingStatus] = useState<'idle' | 'saving' | 'recalculating' | 'success' | 'error'>(
         'idle'
     );
@@ -63,7 +67,16 @@ const Settings = () => {
         setLocalHourlyRate(hourlyRate);
         setLocalEtsyDescriptionTemplate(etsyDescriptionTemplate);
         setLocalEtsyTaxonomyMap(etsyTaxonomyMap);
-    }, [hourlyWage, profitMargin, markupMultiplier, hourlyRate, etsyDescriptionTemplate, etsyTaxonomyMap]);
+        setLocalEtsyShippingProfileId(etsyShippingProfileId);
+    }, [
+        hourlyWage,
+        profitMargin,
+        markupMultiplier,
+        hourlyRate,
+        etsyDescriptionTemplate,
+        etsyTaxonomyMap,
+        etsyShippingProfileId,
+    ]);
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: runs once on mount to strip the ?etsy param from the URL
     useEffect(() => {
@@ -94,6 +107,7 @@ const Settings = () => {
                 hourlyRate: Number(localHourlyRate),
                 etsyDescriptionTemplate: localEtsyDescriptionTemplate,
                 etsyTaxonomyMap: localEtsyTaxonomyMap,
+                etsyShippingProfileId: localEtsyShippingProfileId,
             });
             if (thenRecalculate) {
                 setPricingStatus('recalculating');
@@ -321,6 +335,35 @@ const Settings = () => {
                                     </select>
                                 </div>
                             ))}
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label>Shipping profile</Label>
+                            <select
+                                className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+                                disabled={shippingProfilesLoading}
+                                value={localEtsyShippingProfileId ?? ''}
+                                onChange={(e) =>
+                                    setLocalEtsyShippingProfileId(e.target.value === '' ? null : Number(e.target.value))
+                                }
+                            >
+                                <option value="">
+                                    {shippingProfiles.length > 1
+                                        ? 'Select a shipping profile…'
+                                        : "Auto (use the shop's only profile)"}
+                                </option>
+                                {shippingProfiles.map((profile) => (
+                                    <option key={profile.shippingProfileId} value={profile.shippingProfileId}>
+                                        {profile.title}
+                                    </option>
+                                ))}
+                            </select>
+                            {shippingProfiles.length > 1 && (
+                                <p className="text-xs text-muted-foreground">
+                                    Your shop has multiple shipping profiles — pick one, otherwise sending to Etsy will
+                                    fail.
+                                </p>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
