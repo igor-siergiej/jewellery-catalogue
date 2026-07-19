@@ -48,6 +48,7 @@ describe('buildDraftListingInput', () => {
             quantity: 3,
             whoMade: 'i_did',
             whenMade: 'made_to_order',
+            isSupply: false,
             taxonomyId: 1234,
             shippingProfileId: 5678,
             readinessStateId: 4321,

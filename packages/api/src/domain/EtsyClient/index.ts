@@ -26,6 +26,7 @@ export interface EtsyDraftListingInput {
     quantity: number;
     whoMade: string;
     whenMade: string;
+    isSupply: boolean;
     taxonomyId: number;
     shippingProfileId: number;
     readinessStateId: number;
@@ -249,6 +250,8 @@ export class EtsyClient {
                 price: input.price,
                 who_made: input.whoMade,
                 when_made: input.whenMade,
+                is_supply: input.isSupply,
+                type: 'physical',
                 taxonomy_id: input.taxonomyId,
                 shipping_profile_id: input.shippingProfileId,
                 readiness_state_id: input.readinessStateId,

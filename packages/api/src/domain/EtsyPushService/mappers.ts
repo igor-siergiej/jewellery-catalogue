@@ -24,6 +24,7 @@ export const buildDraftListingInput = (args: {
     quantity: Math.max(1, args.design.totalQuantity),
     whoMade: 'i_did',
     whenMade: 'made_to_order',
+    isSupply: false,
     taxonomyId: args.taxonomyId,
     shippingProfileId: args.shippingProfileId,
     readinessStateId: args.readinessStateId,
