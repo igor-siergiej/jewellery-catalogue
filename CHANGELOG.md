@@ -1,3 +1,10 @@
+# [1.34.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.33.2...v1.34.0) (2026-07-19)
+
+
+### Features
+
+* let users pick an Etsy shipping profile when their shop has more than one ([#42](https://github.com/igor-siergiej/jewellery-catalogue/issues/42)) ([a2949e7](https://github.com/igor-siergiej/jewellery-catalogue/commit/a2949e7fbf59a1ea808e4dc16d5b7fc62b7b293b))
+
 ## [1.33.2](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.33.1...v1.33.2) (2026-07-19)
 
 
