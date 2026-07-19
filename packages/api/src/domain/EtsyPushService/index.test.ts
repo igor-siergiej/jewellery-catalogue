@@ -18,6 +18,7 @@ const mockEtsyClient = {
     updateListingInventory: mock(),
     getSellerTaxonomyNodes: mock(),
     getShopShippingProfiles: mock(),
+    getShopReadinessStateDefinitions: mock(),
 };
 const mockEtsyConnectionService = { getPushCredentials: mock() };
 const mockUserSettingsService = { get: mock() };
@@ -84,6 +85,9 @@ describe('EtsyPushService', () => {
         });
         mockEtsyClient.getListingImages.mockResolvedValue({ imageIds: [] });
         mockEtsyClient.getShopShippingProfiles.mockResolvedValue([{ shippingProfileId: 5678, title: 'Standard' }]);
+        mockEtsyClient.getShopReadinessStateDefinitions.mockResolvedValue([
+            { readinessStateId: 4321, readinessState: 'made_to_order' },
+        ]);
     });
 
     describe('push — new listing (no prior etsy.listingId)', () => {
@@ -101,6 +105,7 @@ describe('EtsyPushService', () => {
                     taxonomyId: 1234,
                     quantity: 2,
                     shippingProfileId: 5678,
+                    readinessStateId: 4321,
                 })
             );
 
@@ -159,6 +164,58 @@ describe('EtsyPushService', () => {
             mockEtsyClient.getShopShippingProfiles.mockResolvedValue([
                 { shippingProfileId: 1, title: 'Standard' },
                 { shippingProfileId: 2, title: 'Express' },
+            ]);
+
+            await expect(service.push('design-1', 'user-1')).rejects.toThrow();
+            expect(mockEtsyClient.createDraftListing).not.toHaveBeenCalled();
+        });
+
+        it('rejects when the shop has no Etsy processing/readiness profile', async () => {
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign());
+            mockEtsyClient.getShopReadinessStateDefinitions.mockResolvedValue([]);
+
+            await expect(service.push('design-1', 'user-1')).rejects.toThrow();
+            expect(mockEtsyClient.createDraftListing).not.toHaveBeenCalled();
+        });
+
+        it("picks the 'made_to_order' processing profile even when a 'ready_to_ship' one also exists", async () => {
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign());
+            mockEtsyClient.createDraftListing.mockResolvedValue({ listingId: 999 });
+            mockEtsyClient.getShopReadinessStateDefinitions.mockResolvedValue([
+                { readinessStateId: 1, readinessState: 'ready_to_ship' },
+                { readinessStateId: 2, readinessState: 'made_to_order' },
+            ]);
+
+            await service.push('design-1', 'user-1');
+
+            expect(mockEtsyClient.createDraftListing).toHaveBeenCalledWith(
+                'at-token',
+                47408839,
+                expect.objectContaining({ readinessStateId: 2 })
+            );
+        });
+
+        it('falls back to the single available profile when none are made_to_order', async () => {
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign());
+            mockEtsyClient.createDraftListing.mockResolvedValue({ listingId: 999 });
+            mockEtsyClient.getShopReadinessStateDefinitions.mockResolvedValue([
+                { readinessStateId: 1, readinessState: 'ready_to_ship' },
+            ]);
+
+            await service.push('design-1', 'user-1');
+
+            expect(mockEtsyClient.createDraftListing).toHaveBeenCalledWith(
+                'at-token',
+                47408839,
+                expect.objectContaining({ readinessStateId: 1 })
+            );
+        });
+
+        it('rejects when the shop has multiple processing profiles and none are made_to_order', async () => {
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign());
+            mockEtsyClient.getShopReadinessStateDefinitions.mockResolvedValue([
+                { readinessStateId: 1, readinessState: 'ready_to_ship' },
+                { readinessStateId: 2, readinessState: 'ready_to_ship' },
             ]);
 
             await expect(service.push('design-1', 'user-1')).rejects.toThrow();

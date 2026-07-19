@@ -26,8 +26,10 @@ export interface EtsyDraftListingInput {
     quantity: number;
     whoMade: string;
     whenMade: string;
+    isSupply: boolean;
     taxonomyId: number;
     shippingProfileId: number;
+    readinessStateId: number;
 }
 
 export interface EtsyListingResult {
@@ -37,6 +39,11 @@ export interface EtsyListingResult {
 export interface EtsyShippingProfile {
     shippingProfileId: number;
     title: string;
+}
+
+export interface EtsyReadinessStateDefinition {
+    readinessStateId: number;
+    readinessState: 'ready_to_ship' | 'made_to_order';
 }
 
 export interface EtsyInventoryProduct {
@@ -243,8 +250,11 @@ export class EtsyClient {
                 price: input.price,
                 who_made: input.whoMade,
                 when_made: input.whenMade,
+                is_supply: input.isSupply,
+                type: 'physical',
                 taxonomy_id: input.taxonomyId,
                 shipping_profile_id: input.shippingProfileId,
+                readiness_state_id: input.readinessStateId,
             }),
         });
 
@@ -269,6 +279,24 @@ export class EtsyClient {
             results: Array<{ shipping_profile_id: number; title: string }>;
         };
         return body.results.map((r) => ({ shippingProfileId: r.shipping_profile_id, title: r.title }));
+    }
+
+    async getShopReadinessStateDefinitions(
+        accessToken: string,
+        shopId: number
+    ): Promise<EtsyReadinessStateDefinition[]> {
+        const response = await fetch(`${API_BASE}/shops/${shopId}/readiness-state-definitions`, {
+            headers: { 'x-api-key': this.apiKeyHeader(), Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!response.ok) {
+            throw await etsyError('getShopReadinessStateDefinitions', response);
+        }
+
+        const body = (await response.json()) as {
+            results: Array<{ readiness_state_id: number; readiness_state: 'ready_to_ship' | 'made_to_order' }>;
+        };
+        return body.results.map((r) => ({ readinessStateId: r.readiness_state_id, readinessState: r.readiness_state }));
     }
 
     async uploadListingImage(

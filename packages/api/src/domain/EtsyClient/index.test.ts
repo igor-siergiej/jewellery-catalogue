@@ -155,8 +155,10 @@ describe('EtsyClient', () => {
                 quantity: 3,
                 whoMade: 'i_did',
                 whenMade: 'made_to_order',
+                isSupply: false,
                 taxonomyId: 1234,
                 shippingProfileId: 5678,
+                readinessStateId: 4321,
             });
 
             expect(result).toEqual({ listingId: 999 });
@@ -175,8 +177,11 @@ describe('EtsyClient', () => {
                 price: 25.5,
                 who_made: 'i_did',
                 when_made: 'made_to_order',
+                is_supply: false,
+                type: 'physical',
                 taxonomy_id: 1234,
                 shipping_profile_id: 5678,
+                readiness_state_id: 4321,
             });
         });
 
@@ -191,8 +196,10 @@ describe('EtsyClient', () => {
                     quantity: 1,
                     whoMade: 'i_did',
                     whenMade: 'made_to_order',
+                    isSupply: false,
                     taxonomyId: 1,
                     shippingProfileId: 1,
+                    readinessStateId: 1,
                 })
             ).rejects.toThrow();
         });
@@ -228,6 +235,39 @@ describe('EtsyClient', () => {
             fetchMock.mockResolvedValue(new Response('nope', { status: 404 }));
 
             await expect(client.getShopShippingProfiles('at', 1)).rejects.toThrow();
+        });
+    });
+
+    describe('getShopReadinessStateDefinitions', () => {
+        it('fetches and maps the shop readiness state definitions', async () => {
+            fetchMock.mockResolvedValue(
+                new Response(
+                    JSON.stringify({
+                        results: [
+                            { readiness_state_id: 1, readiness_state: 'ready_to_ship' },
+                            { readiness_state_id: 2, readiness_state: 'made_to_order' },
+                        ],
+                    }),
+                    { status: 200 }
+                )
+            );
+
+            const result = await client.getShopReadinessStateDefinitions('at-token', 47408839);
+
+            expect(result).toEqual([
+                { readinessStateId: 1, readinessState: 'ready_to_ship' },
+                { readinessStateId: 2, readinessState: 'made_to_order' },
+            ]);
+            const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+            expect(url).toBe('https://api.etsy.com/v3/application/shops/47408839/readiness-state-definitions');
+            expect((options.headers as Record<string, string>)['x-api-key']).toBe('key123:secret456');
+            expect((options.headers as Record<string, string>).Authorization).toBe('Bearer at-token');
+        });
+
+        it('throws when Etsy responds with an error status', async () => {
+            fetchMock.mockResolvedValue(new Response('nope', { status: 404 }));
+
+            await expect(client.getShopReadinessStateDefinitions('at', 1)).rejects.toThrow();
         });
     });
 

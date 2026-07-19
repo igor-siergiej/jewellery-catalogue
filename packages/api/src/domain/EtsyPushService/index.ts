@@ -59,12 +59,20 @@ export class EtsyPushService {
 
             const shippingProfileId =
                 settings.etsyShippingProfileId ?? (await this.resolveDefaultShippingProfileId(accessToken, shopId));
+            const readinessStateId = await this.resolveDefaultReadinessStateId(accessToken, shopId);
 
             const description =
                 overrides.description ?? renderDescriptionTemplate(settings.etsyDescriptionTemplate, design);
             const price = overrides.price ?? design.price;
 
-            const draftInput = buildDraftListingInput({ design, description, price, taxonomyId, shippingProfileId });
+            const draftInput = buildDraftListingInput({
+                design,
+                description,
+                price,
+                taxonomyId,
+                shippingProfileId,
+                readinessStateId,
+            });
             const created = await this.etsyClient.createDraftListing(accessToken, shopId, draftInput);
             listingId = created.listingId;
 
@@ -118,5 +126,29 @@ export class EtsyPushService {
             );
         }
         return shippingProfiles[0].shippingProfileId;
+    }
+
+    private async resolveDefaultReadinessStateId(accessToken: string, shopId: number): Promise<number> {
+        const readinessStates = await this.etsyClient.getShopReadinessStateDefinitions(accessToken, shopId);
+        if (readinessStates.length === 0) {
+            throw new APIError(
+                'No Etsy processing profile found — create one in your Etsy shop settings before sending designs.',
+                400
+            );
+        }
+
+        // Designs are always listed as when_made: 'made_to_order', so prefer the shop's
+        // matching processing profile over any 'ready_to_ship' one when both exist.
+        const madeToOrder = readinessStates.find((r) => r.readinessState === 'made_to_order');
+        if (madeToOrder) {
+            return madeToOrder.readinessStateId;
+        }
+        if (readinessStates.length === 1) {
+            return readinessStates[0].readinessStateId;
+        }
+        throw new APIError(
+            "Your Etsy shop has multiple processing profiles and none are set to 'Made to order' — set one up in Etsy before sending designs.",
+            400
+        );
     }
 }
