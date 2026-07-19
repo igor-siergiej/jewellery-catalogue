@@ -16,6 +16,9 @@
     "prepare": "husky",
     "release": "semantic-release"
   },
+  "dependencies": {
+    "fuse.js": "^7.1.0"
+  },
   "workspaces": [
     "packages/*"
   ],
