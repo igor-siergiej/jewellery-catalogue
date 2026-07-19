@@ -108,7 +108,7 @@ Existing pages: Home, Designs, AddDesign, ViewDesign, Materials, AddMaterial, St
 | Designs list | Etsy indicator per row when linked |
 | Nav | No new items. Settings gear routes to the page instead of opening the dialog |
 
-No listings screen (one-time script covers linking); orders page is future work.
+~~No listings screen (one-time script covers linking); orders page is future work.~~ **Superseded 2026-07-18:** a `/listings` page was added to sub-project 4 (see decision log). Orders page is still future work.
 
 ## Error handling
 
@@ -138,6 +138,7 @@ No listings screen (one-time script covers linking); orders page is future work.
 | Link-back | Store listingId + state on design | Enables status chip, future sync |
 | Existing 102 listings | Link-only one-time script (5 designs) | Manual linking simpler at this scale; rest stay Etsy-only |
 | Publish step | Always in Etsy Shop Manager | The human double-check Mari wants |
+| Listings screen (amended 2026-07-18) | Added to sub-project 4 | Supersedes the original "no listings screen" call below — Mari wants to browse all active Etsy listings from the app, not just catalogue-linked ones. See `docs/superpowers/plans/2026-07-19-etsy-status-and-listings.md` |
 
 ## Open items
 
