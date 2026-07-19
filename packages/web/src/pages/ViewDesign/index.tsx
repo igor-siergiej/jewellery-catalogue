@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../componen
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { MATERIALS_PAGE } from '../../constants/routes';
 import { useEtsyConnection } from '../../hooks/useEtsyConnection';
+import { useEtsyStatus } from '../../hooks/useEtsyStatus';
 import {
     DESIGN_TYPE_LABELS,
     MATERIAL_TYPE_LABELS,
@@ -62,6 +63,8 @@ const ViewDesign = () => {
         makingNotes,
         etsy,
     } = design ?? {};
+
+    useEtsyStatus(id ?? '', !!id && !!etsy?.listingId);
 
     const hasDescription = description && description !== '<p></p>';
 
