@@ -65,8 +65,18 @@ export const pushDesignToEtsy = async (c: AuthedCtx) => {
         price?: number;
     };
 
-    const design = await getPushService().push(c.req.param('id'), c.get('userId'), { description, price });
-    return c.json(design, 200);
+    try {
+        const design = await getPushService().push(c.req.param('id'), c.get('userId'), { description, price });
+        return c.json(design, 200);
+    } catch (err) {
+        dependencyContainer.resolve(DependencyToken.Logger).error('Etsy push failed', {
+            designId: c.req.param('id'),
+            userId: c.get('userId'),
+            status: err instanceof Error && 'status' in err ? (err as { status?: number }).status : undefined,
+            message: err instanceof Error ? err.message : String(err),
+        });
+        throw err;
+    }
 };
 
 export const getEtsyTaxonomy = async (c: AuthedCtx) => {
