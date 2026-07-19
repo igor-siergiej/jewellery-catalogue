@@ -15,6 +15,7 @@ export const buildDraftListingInput = (args: {
     description: string;
     price: number;
     taxonomyId: number;
+    shippingProfileId: number;
 }): EtsyDraftListingInput => ({
     title: args.design.name,
     description: args.description,
@@ -23,6 +24,7 @@ export const buildDraftListingInput = (args: {
     whoMade: 'i_did',
     whenMade: 'made_to_order',
     taxonomyId: args.taxonomyId,
+    shippingProfileId: args.shippingProfileId,
 });
 
 export const buildInventoryProducts = (variants: DesignVariant[], groups: VariationGroup[]): EtsyInventoryProduct[] =>

@@ -57,11 +57,26 @@ export class EtsyPushService {
                 throw new APIError('No Etsy category is mapped for this design type', 400);
             }
 
+            const shippingProfiles = await this.etsyClient.getShopShippingProfiles(accessToken, shopId);
+            if (shippingProfiles.length === 0) {
+                throw new APIError(
+                    'No Etsy shipping profile found — create one in your Etsy shop settings before sending designs.',
+                    400
+                );
+            }
+            if (shippingProfiles.length > 1) {
+                throw new APIError(
+                    "Multiple Etsy shipping profiles found — selecting one isn't supported yet. Your shop must have exactly one shipping profile to push designs.",
+                    400
+                );
+            }
+            const shippingProfileId = shippingProfiles[0].shippingProfileId;
+
             const description =
                 overrides.description ?? renderDescriptionTemplate(settings.etsyDescriptionTemplate, design);
             const price = overrides.price ?? design.price;
 
-            const draftInput = buildDraftListingInput({ design, description, price, taxonomyId });
+            const draftInput = buildDraftListingInput({ design, description, price, taxonomyId, shippingProfileId });
             const created = await this.etsyClient.createDraftListing(accessToken, shopId, draftInput);
             listingId = created.listingId;
 

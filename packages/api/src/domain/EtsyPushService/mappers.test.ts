@@ -37,6 +37,7 @@ describe('buildDraftListingInput', () => {
             description: 'A lovely ring.',
             price: 25.5,
             taxonomyId: 1234,
+            shippingProfileId: 5678,
         });
 
         expect(result).toEqual({
@@ -47,6 +48,7 @@ describe('buildDraftListingInput', () => {
             whoMade: 'i_did',
             whenMade: 'made_to_order',
             taxonomyId: 1234,
+            shippingProfileId: 5678,
         });
     });
 
@@ -56,6 +58,7 @@ describe('buildDraftListingInput', () => {
             description: 'd',
             price: 10,
             taxonomyId: 1,
+            shippingProfileId: 1,
         });
 
         expect(result.quantity).toBe(1);
