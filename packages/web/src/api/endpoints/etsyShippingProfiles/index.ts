@@ -3,7 +3,7 @@ import { MethodType } from '@jewellery-catalogue/types';
 import { ETSY_SHIPPING_PROFILES_ENDPOINT } from '../../endpoints';
 import { makeRequestWithAutoRefresh } from '../../makeRequest';
 
-export interface EtsyShippingProfile {
+interface EtsyShippingProfile {
     shippingProfileId: number;
     title: string;
 }
