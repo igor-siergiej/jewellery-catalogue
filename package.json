@@ -9,6 +9,7 @@
     "start:api": "dotenv -e .env -- bun run --filter @jewellery-catalogue/api start",
     "start": "concurrently \"bun run start:web\" \"bun run start:api\"",
     "start:with-mock": "concurrently \"bun run start:web:with-mock\" \"bun run start:api\"",
+    "link-etsy-listings": "dotenv -e .env -- bun scripts/link-etsy-listings/index.ts",
     "lint": "biome check .",
     "lint:fix": "biome check --fix --unsafe .",
     "format": "biome format --write .",
@@ -17,7 +18,9 @@
     "release": "semantic-release"
   },
   "dependencies": {
-    "fuse.js": "^7.1.0"
+    "@imapps/api-utils": "0.6.0",
+    "fuse.js": "^7.1.0",
+    "mongodb": "^6.13.1"
   },
   "workspaces": [
     "packages/*"
