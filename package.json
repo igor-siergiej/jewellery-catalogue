@@ -43,7 +43,7 @@
     "vite": "^7.0.4"
   },
   "packageManager": "bun@1",
-  "version": "1.37.0",
+  "version": "1.38.0",
   "lint-staged": {
     "*.{ts,tsx,json}": "biome check --fix --unsafe"
   }

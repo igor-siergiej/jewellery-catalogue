@@ -1,3 +1,10 @@
+# [1.38.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.37.0...v1.38.0) (2026-07-20)
+
+
+### Features
+
+* fetch and show sold-out Etsy listings with images ([#51](https://github.com/igor-siergiej/jewellery-catalogue/issues/51)) ([9e4178d](https://github.com/igor-siergiej/jewellery-catalogue/commit/9e4178d5e05cce796f22fb3a286b32752345da62))
+
 # [1.37.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.36.1...v1.37.0) (2026-07-20)
 
 
