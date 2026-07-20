@@ -1,3 +1,10 @@
+## [1.35.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.35.0...v1.35.1) (2026-07-20)
+
+
+### Bug Fixes
+
+* preserve new lines when importing Etsy listing descriptions ([#46](https://github.com/igor-siergiej/jewellery-catalogue/issues/46)) ([9325f09](https://github.com/igor-siergiej/jewellery-catalogue/commit/9325f09aefcd6f93be2a660dde296b0ef479e77d))
+
 # [1.35.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.34.2...v1.35.0) (2026-07-20)
 
 
