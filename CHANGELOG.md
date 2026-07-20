@@ -1,3 +1,10 @@
+# [1.40.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.39.0...v1.40.0) (2026-07-20)
+
+
+### Features
+
+* editable design stock quantity with Etsy sync ([#54](https://github.com/igor-siergiej/jewellery-catalogue/issues/54)) ([16a31e4](https://github.com/igor-siergiej/jewellery-catalogue/commit/16a31e4ee7af3e49ffeda2243100d3c7c0117bd4))
+
 # [1.39.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.38.0...v1.39.0) (2026-07-20)
 
 
