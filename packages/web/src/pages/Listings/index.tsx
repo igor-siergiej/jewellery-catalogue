@@ -1,17 +1,27 @@
 import { ExternalLink, ShoppingBag } from 'lucide-react';
-import { Link } from 'react-router-dom';
-
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { LinkDesignDialog } from '../../components/LinkDesignDialog';
 import LoadingScreen from '../../components/Loading';
-import { Badge } from '../../components/ui/badge';
+import { Button } from '../../components/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '../../components/ui/empty';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { SETTINGS_PAGE, VIEW_DESIGN_PAGE } from '../../constants/routes';
 import { useEtsyConnection } from '../../hooks/useEtsyConnection';
 import { useEtsyListings } from '../../hooks/useEtsyListings';
+import { useEtsyReconcile } from '../../hooks/useEtsyReconcile';
 
 const Listings = () => {
     const { connected: etsyConnected, isLoading: isConnectionLoading } = useEtsyConnection();
     const { listings, isLoading, isError } = useEtsyListings(etsyConnected);
+    const navigate = useNavigate();
+    const { createFromListing, isCreating } = useEtsyReconcile();
+    const [linkDialogListingId, setLinkDialogListingId] = useState<number | null>(null);
+
+    const handleCreate = async (listingId: number) => {
+        const { designId } = await createFromListing(listingId);
+        navigate(VIEW_DESIGN_PAGE.getRoute(designId));
+    };
 
     if (isConnectionLoading) {
         return <LoadingScreen />;
@@ -88,7 +98,22 @@ const Listings = () => {
                                             View design
                                         </Link>
                                     ) : (
-                                        <Badge variant="secondary">Not linked</Badge>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                size="sm"
+                                                disabled={isCreating}
+                                                onClick={() => handleCreate(listing.listingId)}
+                                            >
+                                                Create design
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="secondary"
+                                                onClick={() => setLinkDialogListingId(listing.listingId)}
+                                            >
+                                                Link existing
+                                            </Button>
+                                        </div>
                                     )}
                                 </TableCell>
                                 <TableCell>
@@ -105,6 +130,15 @@ const Listings = () => {
                         ))}
                     </TableBody>
                 </Table>
+            )}
+
+            {linkDialogListingId !== null && (
+                <LinkDesignDialog
+                    listingId={linkDialogListingId}
+                    open={linkDialogListingId !== null}
+                    onOpenChange={(o) => !o && setLinkDialogListingId(null)}
+                    onLinked={() => setLinkDialogListingId(null)}
+                />
             )}
         </div>
     );
