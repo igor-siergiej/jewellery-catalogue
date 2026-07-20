@@ -99,3 +99,67 @@ describe('EtsyReconcileService.createDesignFromListing', () => {
         expect(mockDesignRepo.insert).not.toHaveBeenCalled();
     });
 });
+
+describe('EtsyReconcileService.linkListingToDesign', () => {
+    beforeEach(() => {
+        for (const m of [
+            ...Object.values(mockDesignRepo),
+            ...Object.values(mockEtsyClient),
+            ...Object.values(mockEtsyConnectionService),
+            ...Object.values(mockIdGenerator),
+        ]) {
+            m.mockClear();
+        }
+        mockEtsyConnectionService.getShopId.mockResolvedValue(47408839);
+        mockDesignRepo.getByUserId.mockResolvedValue([]);
+        mockEtsyClient.getShopListingsActive.mockResolvedValue([
+            { listingId: 555, title: 'Silver Ring', price: 25, url: 'https://etsy.com/555' },
+        ]);
+    });
+
+    it('writes the etsy link onto an existing unlinked design', async () => {
+        mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign({ id: 'design-9' }));
+
+        await makeService().linkListingToDesign(555, 'design-9', 'user-1');
+
+        expect(mockDesignRepo.update).toHaveBeenCalledTimes(1);
+        const [id, updated] = mockDesignRepo.update.mock.calls[0]! as [string, Design];
+        expect(id).toBe('design-9');
+        expect(updated.etsy).toEqual({ listingId: 555, state: 'active', lastPushedAt: null });
+    });
+
+    it('rejects with 404 when the design does not belong to the user', async () => {
+        mockDesignRepo.getByIdAndUserId.mockResolvedValue(null);
+        await expect(makeService().linkListingToDesign(555, 'nope', 'user-1')).rejects.toMatchObject({ status: 404 });
+        expect(mockDesignRepo.update).not.toHaveBeenCalled();
+    });
+
+    it('rejects with 409 when the design is already linked', async () => {
+        mockDesignRepo.getByIdAndUserId.mockResolvedValue(
+            makeDesign({ id: 'design-9', etsy: { listingId: 1, state: 'active', lastPushedAt: null } })
+        );
+        await expect(makeService().linkListingToDesign(555, 'design-9', 'user-1')).rejects.toMatchObject({
+            status: 409,
+        });
+        expect(mockDesignRepo.update).not.toHaveBeenCalled();
+    });
+
+    it('rejects with 400 when the listing is not in the shop', async () => {
+        mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign({ id: 'design-9' }));
+        await expect(makeService().linkListingToDesign(999, 'design-9', 'user-1')).rejects.toMatchObject({
+            status: 400,
+        });
+        expect(mockDesignRepo.update).not.toHaveBeenCalled();
+    });
+
+    it('rejects with 409 when the listing is already linked to another design', async () => {
+        mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign({ id: 'design-9' }));
+        mockDesignRepo.getByUserId.mockResolvedValue([
+            makeDesign({ id: 'design-7', etsy: { listingId: 555, state: 'active', lastPushedAt: null } }),
+        ]);
+        await expect(makeService().linkListingToDesign(555, 'design-9', 'user-1')).rejects.toMatchObject({
+            status: 409,
+        });
+        expect(mockDesignRepo.update).not.toHaveBeenCalled();
+    });
+});
