@@ -171,6 +171,12 @@ const ViewDesign = () => {
                                         </div>
                                     ))}
                                 </div>
+                            ) : etsy?.imageUrls && etsy.imageUrls.length > 0 ? (
+                                <img
+                                    src={etsy.imageUrls[0]}
+                                    alt={name}
+                                    className="w-full h-full object-cover rounded-md"
+                                />
                             ) : (
                                 <Image imageId="" />
                             )}
