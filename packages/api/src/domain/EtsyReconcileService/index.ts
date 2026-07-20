@@ -38,9 +38,12 @@ export class EtsyReconcileService {
 
     // fallow-ignore-next-line unused-class-member
     async createDesignFromListing(listingId: number, userId: string): Promise<{ designId: string }> {
-        const shopId = await this.etsyConnectionService.getShopId(userId);
+        const [shopId, accessToken] = await Promise.all([
+            this.etsyConnectionService.getShopId(userId),
+            this.etsyConnectionService.getValidAccessToken(userId),
+        ]);
         const [listings, designs] = await Promise.all([
-            this.etsyClient.getShopListingsActive(shopId),
+            this.etsyClient.getShopListingsByState(accessToken, shopId, 'active'),
             this.designRepo.getByUserId(userId),
         ]);
 
@@ -95,9 +98,12 @@ export class EtsyReconcileService {
             throw new APIError('This design is already linked to an Etsy listing', 409);
         }
 
-        const shopId = await this.etsyConnectionService.getShopId(userId);
+        const [shopId, accessToken] = await Promise.all([
+            this.etsyConnectionService.getShopId(userId),
+            this.etsyConnectionService.getValidAccessToken(userId),
+        ]);
         const [listings, designs] = await Promise.all([
-            this.etsyClient.getShopListingsActive(shopId),
+            this.etsyClient.getShopListingsByState(accessToken, shopId, 'active'),
             this.designRepo.getByUserId(userId),
         ]);
 

@@ -9,7 +9,7 @@ import type { MaterialRepository } from '../MaterialRepository';
 import { EtsyReconcileService } from './index';
 
 const mockDesignRepo = { getByUserId: mock(), getByIdAndUserId: mock(), insert: mock(), update: mock() };
-const mockEtsyClient = { getShopListingsActive: mock(), getListingDetail: mock(), getListingInventory: mock() };
+const mockEtsyClient = { getShopListingsByState: mock(), getListingDetail: mock(), getListingInventory: mock() };
 const mockEtsyConnectionService = { getShopId: mock(), getValidAccessToken: mock() };
 const mockMaterialRepo = { getByUserId: mock() };
 const mockIdGenerator = { generate: mock() };
@@ -79,7 +79,7 @@ describe('EtsyReconcileService.createDesignFromListing', () => {
         mockDesignRepo.getByUserId.mockResolvedValue([]);
         mockMaterialRepo.getByUserId.mockResolvedValue([]);
         mockEtsyClient.getListingInventory.mockResolvedValue({ products: [] });
-        mockEtsyClient.getShopListingsActive.mockResolvedValue([
+        mockEtsyClient.getShopListingsByState.mockResolvedValue([
             { listingId: 555, title: 'Silver Ring', price: 25, url: 'https://etsy.com/555' },
         ]);
         mockEtsyClient.getListingDetail.mockResolvedValue({
@@ -200,7 +200,7 @@ describe('EtsyReconcileService.linkListingToDesign', () => {
         }
         mockEtsyConnectionService.getShopId.mockResolvedValue(47408839);
         mockDesignRepo.getByUserId.mockResolvedValue([]);
-        mockEtsyClient.getShopListingsActive.mockResolvedValue([
+        mockEtsyClient.getShopListingsByState.mockResolvedValue([
             { listingId: 555, title: 'Silver Ring', price: 25, url: 'https://etsy.com/555' },
         ]);
     });

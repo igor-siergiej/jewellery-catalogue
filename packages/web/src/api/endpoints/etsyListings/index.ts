@@ -8,6 +8,8 @@ export interface EtsyListingWithLinkStatus {
     title: string;
     price: number;
     url: string;
+    state: 'active' | 'sold_out';
+    imageUrl: string | null;
     linkedDesignId: string | null;
 }
 
