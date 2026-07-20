@@ -1,3 +1,10 @@
+# [1.39.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.38.0...v1.39.0) (2026-07-20)
+
+
+### Features
+
+* show linked Etsy listing image on design cards ([#52](https://github.com/igor-siergiej/jewellery-catalogue/issues/52)) ([885b5d1](https://github.com/igor-siergiej/jewellery-catalogue/commit/885b5d15f42d68a8e7d3d881d4c791cf3ff0f555))
+
 # [1.38.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.37.0...v1.38.0) (2026-07-20)
 
 
