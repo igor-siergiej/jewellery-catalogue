@@ -16,6 +16,7 @@ export class EtsyStatusService {
         private readonly etsyConnectionService: EtsyConnectionService
     ) {}
 
+    // fallow-ignore-next-line unused-class-member
     async refreshStatus(designId: string, userId: string): Promise<Design> {
         const design = await this.designRepo.getByIdAndUserId(designId, userId);
         if (!design) {
@@ -38,6 +39,7 @@ export class EtsyStatusService {
         return updated;
     }
 
+    // fallow-ignore-next-line unused-class-member
     async listShopListings(userId: string): Promise<EtsyListingWithLinkStatus[]> {
         const shopId = await this.etsyConnectionService.getShopId(userId);
         const accessToken = await this.etsyConnectionService.getValidAccessToken(userId);
