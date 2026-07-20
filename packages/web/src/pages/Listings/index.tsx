@@ -1,5 +1,6 @@
+import Fuse from 'fuse.js';
 import { ExternalLink, ShoppingBag } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LinkDesignDialog } from '../../components/LinkDesignDialog';
 import LoadingScreen from '../../components/Loading';
@@ -7,6 +8,7 @@ import { Button } from '../../components/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '../../components/ui/empty';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { SETTINGS_PAGE, VIEW_DESIGN_PAGE } from '../../constants/routes';
+import { useSearch } from '../../context/SearchContext';
 import { useEtsyConnection } from '../../hooks/useEtsyConnection';
 import { useEtsyListings } from '../../hooks/useEtsyListings';
 import { useEtsyReconcile } from '../../hooks/useEtsyReconcile';
@@ -17,6 +19,17 @@ const Listings = () => {
     const navigate = useNavigate();
     const { createFromListing, isCreating } = useEtsyReconcile();
     const [linkDialogListingId, setLinkDialogListingId] = useState<number | null>(null);
+    const { searchQuery } = useSearch();
+
+    const fuse = useMemo(() => {
+        return new Fuse(listings, {
+            keys: ['title'],
+            threshold: 0.4,
+            includeScore: true,
+        });
+    }, [listings]);
+
+    const filteredListings = searchQuery ? fuse.search(searchQuery).map((result) => result.item) : listings;
 
     const handleCreate = async (listingId: number) => {
         const { designId } = await createFromListing(listingId);
@@ -74,6 +87,16 @@ const Listings = () => {
                         <EmptyDescription>Your shop has no active Etsy listings right now.</EmptyDescription>
                     </EmptyHeader>
                 </Empty>
+            ) : filteredListings.length === 0 ? (
+                <Empty>
+                    <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                            <ShoppingBag />
+                        </EmptyMedia>
+                        <EmptyTitle>No Matching Listings</EmptyTitle>
+                        <EmptyDescription>Try adjusting your search query.</EmptyDescription>
+                    </EmptyHeader>
+                </Empty>
             ) : (
                 <Table>
                     <TableHeader>
@@ -85,7 +108,7 @@ const Listings = () => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {listings.map((listing) => (
+                        {filteredListings.map((listing) => (
                             <TableRow key={listing.listingId}>
                                 <TableCell className="font-medium">{listing.title}</TableCell>
                                 <TableCell>£{listing.price.toFixed(2)}</TableCell>
