@@ -1,16 +1,37 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
-import type { Design } from '@jewellery-catalogue/types';
+import { type Design, type Material, MaterialType } from '@jewellery-catalogue/types';
 
 import type { DesignRepository } from '../DesignRepository';
 import type { EtsyClient } from '../EtsyClient';
 import type { EtsyConnectionService } from '../EtsyConnectionService';
 import type { IdGenerator } from '../IdGenerator';
+import type { MaterialRepository } from '../MaterialRepository';
 import { EtsyReconcileService } from './index';
 
 const mockDesignRepo = { getByUserId: mock(), getByIdAndUserId: mock(), insert: mock(), update: mock() };
-const mockEtsyClient = { getShopListingsActive: mock(), getListingDetail: mock() };
-const mockEtsyConnectionService = { getShopId: mock() };
+const mockEtsyClient = { getShopListingsActive: mock(), getListingDetail: mock(), getListingInventory: mock() };
+const mockEtsyConnectionService = { getShopId: mock(), getValidAccessToken: mock() };
+const mockMaterialRepo = { getByUserId: mock() };
 const mockIdGenerator = { generate: mock() };
+
+function makeMaterial(overrides: Partial<Material> = {}): Material {
+    return {
+        type: MaterialType.BEAD,
+        id: 'material-1',
+        userId: 'user-1',
+        name: 'Red',
+        brand: '',
+        purchaseUrl: '',
+        dateAdded: new Date().toISOString(),
+        diameter: 6,
+        colour: 'red',
+        quantityPerPack: 100,
+        pricePerPack: 5,
+        totalQuantity: 100,
+        pricePerBead: 0.05,
+        ...overrides,
+    } as Material;
+}
 
 function makeDesign(overrides: Partial<Design> = {}): Design {
     return {
@@ -36,7 +57,8 @@ function makeService() {
         mockDesignRepo as unknown as DesignRepository,
         mockEtsyClient as unknown as EtsyClient,
         mockEtsyConnectionService as unknown as EtsyConnectionService,
-        mockIdGenerator as unknown as IdGenerator
+        mockIdGenerator as unknown as IdGenerator,
+        mockMaterialRepo as unknown as MaterialRepository
     );
 }
 
@@ -46,13 +68,17 @@ describe('EtsyReconcileService.createDesignFromListing', () => {
             ...Object.values(mockDesignRepo),
             ...Object.values(mockEtsyClient),
             ...Object.values(mockEtsyConnectionService),
+            ...Object.values(mockMaterialRepo),
             ...Object.values(mockIdGenerator),
         ]) {
             m.mockClear();
         }
         mockEtsyConnectionService.getShopId.mockResolvedValue(47408839);
+        mockEtsyConnectionService.getValidAccessToken.mockResolvedValue('access-token');
         mockIdGenerator.generate.mockReturnValue('new-design-1');
         mockDesignRepo.getByUserId.mockResolvedValue([]);
+        mockMaterialRepo.getByUserId.mockResolvedValue([]);
+        mockEtsyClient.getListingInventory.mockResolvedValue({ products: [] });
         mockEtsyClient.getShopListingsActive.mockResolvedValue([
             { listingId: 555, title: 'Silver Ring', price: 25, url: 'https://etsy.com/555' },
         ]);
@@ -99,6 +125,53 @@ describe('EtsyReconcileService.createDesignFromListing', () => {
         expect(result).toEqual({ designId: 'new-design-1' });
         const inserted = mockDesignRepo.insert.mock.calls[0]![0] as Design;
         expect(inserted.description).toBe('<p>Line one.<br>Line two.</p><p>Second paragraph.</p>');
+    });
+
+    it('imports variations for property values that match an existing material by name', async () => {
+        let counter = 0;
+        mockIdGenerator.generate.mockImplementation(() => `id-${++counter}`);
+        mockMaterialRepo.getByUserId.mockResolvedValue([
+            makeMaterial({ id: 'material-red', name: 'Red' }),
+            makeMaterial({ id: 'material-blue', name: 'Blue' }),
+        ]);
+        mockEtsyClient.getListingInventory.mockResolvedValue({
+            products: [
+                {
+                    offerings: [{ price: 20, quantity: 3, isEnabled: true }],
+                    propertyValues: [{ propertyName: 'Color', values: ['Red'] }],
+                },
+                {
+                    offerings: [{ price: 22, quantity: 2, isEnabled: true }],
+                    propertyValues: [{ propertyName: 'Color', values: ['Blue'] }],
+                },
+                {
+                    // "Green" has no matching material in the catalogue and must be dropped.
+                    offerings: [{ price: 24, quantity: 1, isEnabled: true }],
+                    propertyValues: [{ propertyName: 'Color', values: ['Green'] }],
+                },
+            ],
+        });
+
+        await makeService().createDesignFromListing(555, 'user-1');
+
+        const inserted = mockDesignRepo.insert.mock.calls[0]![0] as Design;
+        expect(inserted.variationGroups).toHaveLength(1);
+        expect(inserted.variationGroups![0].name).toBe('Color');
+        expect(inserted.variationGroups![0].options.map((o) => o.material.name)).toEqual(['Red', 'Blue']);
+        expect(inserted.variants).toHaveLength(2);
+        expect(inserted.variants!.map((v) => v.name)).toEqual(['Red', 'Blue']);
+        expect(inserted.variants!.map((v) => v.price)).toEqual([20, 22]);
+    });
+
+    it('does not fail design creation when the inventory fetch errors', async () => {
+        mockEtsyClient.getListingInventory.mockRejectedValue(new Error('no inventory record'));
+
+        const result = await makeService().createDesignFromListing(555, 'user-1');
+
+        expect(result).toEqual({ designId: 'new-design-1' });
+        const inserted = mockDesignRepo.insert.mock.calls[0]![0] as Design;
+        expect(inserted.variationGroups).toBeUndefined();
+        expect(inserted.variants).toBeUndefined();
     });
 
     it('rejects with 400 when the listing is not in the shop', async () => {

@@ -222,7 +222,8 @@ export const registerDepdendencies = () => {
                     dependencyContainer.resolve(DependencyToken.DesignRepository),
                     dependencyContainer.resolve(DependencyToken.EtsyClient),
                     dependencyContainer.resolve(DependencyToken.EtsyConnectionService),
-                    dependencyContainer.resolve(DependencyToken.IdGenerator)
+                    dependencyContainer.resolve(DependencyToken.IdGenerator),
+                    dependencyContainer.resolve(DependencyToken.MaterialRepository)
                 );
             }
         } as any
