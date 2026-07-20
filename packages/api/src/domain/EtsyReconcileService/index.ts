@@ -1,5 +1,5 @@
 import { APIError } from '@imapps/api-utils/hono';
-import type { Design } from '@jewellery-catalogue/types';
+import { type Design, plainTextToHtml } from '@jewellery-catalogue/types';
 
 import type { DesignRepository } from '../DesignRepository';
 import type { EtsyClient } from '../EtsyClient';
@@ -36,7 +36,7 @@ export class EtsyReconcileService {
             id: designId,
             userId,
             name: detail.title,
-            description: detail.description,
+            description: plainTextToHtml(detail.description),
             timeRequired: '00:00',
             materials: [],
             imageIds: [],
