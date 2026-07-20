@@ -1,3 +1,10 @@
+# [1.36.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.35.1...v1.36.0) (2026-07-20)
+
+
+### Features
+
+* import Etsy listing variations into new designs ([#48](https://github.com/igor-siergiej/jewellery-catalogue/issues/48)) ([5c41863](https://github.com/igor-siergiej/jewellery-catalogue/commit/5c41863b1f2f70f552adc04894836b429f5ee596))
+
 ## [1.35.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.35.0...v1.35.1) (2026-07-20)
 
 
