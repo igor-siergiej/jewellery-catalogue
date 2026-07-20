@@ -69,6 +69,13 @@ export interface EtsyListingSummary {
     url: string;
 }
 
+export interface EtsyListingDetail {
+    title: string;
+    description: string;
+    price: number;
+    imageUrls: string[];
+}
+
 const mapListingState = (state: string): EtsyListingState =>
     state === 'draft' || state === 'active' ? state : 'inactive';
 
@@ -189,6 +196,30 @@ export class EtsyClient {
 
         const body = (await response.json()) as { listing_id: number; state: string };
         return { listingId: body.listing_id, state: mapListingState(body.state) };
+    }
+
+    async getListingDetail(listingId: number): Promise<EtsyListingDetail> {
+        const response = await fetch(`${API_BASE}/listings/${listingId}?includes=Images`, {
+            headers: { 'x-api-key': this.apiKeyHeader() },
+        });
+
+        if (!response.ok) {
+            throw await etsyError('getListingDetail', response);
+        }
+
+        const body = (await response.json()) as {
+            title: string;
+            description: string;
+            price: { amount: number; divisor: number };
+            images?: Array<{ url_fullxfull: string }>;
+        };
+
+        return {
+            title: body.title,
+            description: body.description,
+            price: body.price.amount / body.price.divisor,
+            imageUrls: (body.images ?? []).map((img) => img.url_fullxfull),
+        };
     }
 
     async getShopListingsActive(shopId: number): Promise<EtsyListingSummary[]> {
