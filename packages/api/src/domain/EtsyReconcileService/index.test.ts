@@ -73,7 +73,7 @@ describe('EtsyReconcileService.createDesignFromListing', () => {
         expect(inserted.id).toBe('new-design-1');
         expect(inserted.userId).toBe('user-1');
         expect(inserted.name).toBe('Silver Ring');
-        expect(inserted.description).toBe('A lovely ring.');
+        expect(inserted.description).toBe('<p>A lovely ring.</p>');
         expect(inserted.price).toBe(25);
         expect(inserted.materials).toEqual([]);
         expect(inserted.imageIds).toEqual([]);
@@ -84,6 +84,21 @@ describe('EtsyReconcileService.createDesignFromListing', () => {
             pushIncomplete: true,
             imageUrls: ['https://i.etsy.com/1.jpg'],
         });
+    });
+
+    it('preserves new lines from the listing description as HTML paragraphs/breaks', async () => {
+        mockEtsyClient.getListingDetail.mockResolvedValue({
+            title: 'Silver Ring',
+            description: 'Line one.\nLine two.\n\nSecond paragraph.',
+            price: 25,
+            imageUrls: ['https://i.etsy.com/1.jpg'],
+        });
+
+        const result = await makeService().createDesignFromListing(555, 'user-1');
+
+        expect(result).toEqual({ designId: 'new-design-1' });
+        const inserted = mockDesignRepo.insert.mock.calls[0]![0] as Design;
+        expect(inserted.description).toBe('<p>Line one.<br>Line two.</p><p>Second paragraph.</p>');
     });
 
     it('rejects with 400 when the listing is not in the shop', async () => {

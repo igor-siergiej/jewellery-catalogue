@@ -57,3 +57,19 @@ export const htmlToPlainText = (html: string): string =>
         .replace(/&nbsp;|&amp;|&lt;|&gt;|&quot;|&#39;/g, (entity) => HTML_ENTITIES[entity])
         .replace(/\n{3,}/g, '\n\n')
         .trim();
+
+const escapeHtml = (text: string): string => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+// Inverse of htmlToPlainText: third-party plain text (e.g. an Etsy listing
+// description) becomes TipTap-compatible HTML, so blank-line-separated
+// paragraphs and single line breaks survive instead of collapsing to one line.
+export const plainTextToHtml = (text: string): string => {
+    const trimmed = text.trim();
+    if (!trimmed) {
+        return '<p></p>';
+    }
+    return trimmed
+        .split(/\n{2,}/)
+        .map((paragraph) => `<p>${escapeHtml(paragraph).replace(/\n/g, '<br>')}</p>`)
+        .join('');
+};
