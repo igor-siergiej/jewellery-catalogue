@@ -76,6 +76,26 @@ export interface EtsyListingDetail {
     imageUrls: string[];
 }
 
+export interface EtsyInventoryProductOffering {
+    price: number;
+    quantity: number;
+    isEnabled: boolean;
+}
+
+export interface EtsyInventoryPropertyValue {
+    propertyName: string;
+    values: string[];
+}
+
+export interface EtsyInventoryProductResult {
+    offerings: EtsyInventoryProductOffering[];
+    propertyValues: EtsyInventoryPropertyValue[];
+}
+
+export interface EtsyListingInventory {
+    products: EtsyInventoryProductResult[];
+}
+
 const mapListingState = (state: string): EtsyListingState =>
     state === 'draft' || state === 'active' ? state : 'inactive';
 
@@ -219,6 +239,34 @@ export class EtsyClient {
             description: body.description,
             price: body.price.amount / body.price.divisor,
             imageUrls: (body.images ?? []).map((img) => img.url_fullxfull),
+        };
+    }
+
+    async getListingInventory(accessToken: string, listingId: number): Promise<EtsyListingInventory> {
+        const response = await fetch(`${API_BASE}/listings/${listingId}/inventory`, {
+            headers: { 'x-api-key': this.apiKeyHeader(), Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!response.ok) {
+            throw await etsyError('getListingInventory', response);
+        }
+
+        const body = (await response.json()) as {
+            products: Array<{
+                offerings: Array<{ price: { amount: number; divisor: number }; quantity: number; is_enabled: boolean }>;
+                property_values: Array<{ property_name: string; values: string[] }>;
+            }>;
+        };
+
+        return {
+            products: body.products.map((p) => ({
+                offerings: p.offerings.map((o) => ({
+                    price: o.price.amount / o.price.divisor,
+                    quantity: o.quantity,
+                    isEnabled: o.is_enabled,
+                })),
+                propertyValues: p.property_values.map((pv) => ({ propertyName: pv.property_name, values: pv.values })),
+            })),
         };
     }
 
