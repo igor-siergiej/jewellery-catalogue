@@ -36,11 +36,15 @@ export class EtsyReconcileService {
         }
     }
 
-    // fallow-ignore-next-line unused-class-member
-    async createDesignFromListing(listingId: number, userId: string): Promise<{ designId: string }> {
-        const shopId = await this.etsyConnectionService.getShopId(userId);
+    // Throws if the listing isn't an active listing in this user's shop, or is already
+    // linked to one of their designs — the precondition shared by create-from and link-to.
+    private async assertListingIsLinkable(listingId: number, userId: string): Promise<void> {
+        const [shopId, accessToken] = await Promise.all([
+            this.etsyConnectionService.getShopId(userId),
+            this.etsyConnectionService.getValidAccessToken(userId),
+        ]);
         const [listings, designs] = await Promise.all([
-            this.etsyClient.getShopListingsActive(shopId),
+            this.etsyClient.getShopListingsByState(accessToken, shopId, 'active'),
             this.designRepo.getByUserId(userId),
         ]);
 
@@ -50,6 +54,11 @@ export class EtsyReconcileService {
         if (designs.some((d) => d.etsy?.listingId === listingId)) {
             throw new APIError('This listing is already linked to a design', 409);
         }
+    }
+
+    // fallow-ignore-next-line unused-class-member
+    async createDesignFromListing(listingId: number, userId: string): Promise<{ designId: string }> {
+        await this.assertListingIsLinkable(listingId, userId);
 
         const [detail, { variationGroups, variants }] = await Promise.all([
             this.etsyClient.getListingDetail(listingId),
@@ -95,18 +104,7 @@ export class EtsyReconcileService {
             throw new APIError('This design is already linked to an Etsy listing', 409);
         }
 
-        const shopId = await this.etsyConnectionService.getShopId(userId);
-        const [listings, designs] = await Promise.all([
-            this.etsyClient.getShopListingsActive(shopId),
-            this.designRepo.getByUserId(userId),
-        ]);
-
-        if (!listings.some((l) => l.listingId === listingId)) {
-            throw new APIError('Listing not found in your Etsy shop', 400);
-        }
-        if (designs.some((d) => d.etsy?.listingId === listingId)) {
-            throw new APIError('This listing is already linked to a design', 409);
-        }
+        await this.assertListingIsLinkable(listingId, userId);
 
         const updated: Design = { ...design, etsy: { listingId, state: 'active', lastPushedAt: null } };
         await this.designRepo.update(designId, updated);

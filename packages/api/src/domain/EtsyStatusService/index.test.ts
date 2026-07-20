@@ -7,7 +7,7 @@ import type { EtsyConnectionService } from '../EtsyConnectionService';
 import { EtsyStatusService } from './index';
 
 const mockDesignRepo = { getByIdAndUserId: mock(), getByUserId: mock(), update: mock() };
-const mockEtsyClient = { getListing: mock(), getShopListingsActive: mock() };
+const mockEtsyClient = { getListing: mock(), getShopListingsByState: mock() };
 const mockEtsyConnectionService = { getValidAccessToken: mock(), getShopId: mock() };
 
 function makeDesign(overrides: Partial<Design> = {}): Design {
@@ -94,33 +94,59 @@ describe('EtsyStatusService', () => {
     });
 
     describe('listShopListings', () => {
-        it("flags listings already linked to one of this user's designs", async () => {
+        it("flags listings already linked to one of this user's designs, merging active and sold-out", async () => {
             mockDesignRepo.getByUserId.mockResolvedValue([
                 makeDesign({ id: 'design-1', etsy: { listingId: 1, state: 'active', lastPushedAt: 1 } }),
                 makeDesign({ id: 'design-2' }),
             ]);
-            mockEtsyClient.getShopListingsActive.mockResolvedValue([
-                { listingId: 1, title: 'Linked Listing', price: 25, url: 'https://etsy.com/listing/1' },
-                { listingId: 2, title: 'Unlinked Listing', price: 30, url: 'https://etsy.com/listing/2' },
-            ]);
+            mockEtsyClient.getShopListingsByState.mockImplementation((_token: string, _shopId: number, state: string) =>
+                Promise.resolve(
+                    state === 'active'
+                        ? [
+                              {
+                                  listingId: 1,
+                                  title: 'Linked Listing',
+                                  price: 25,
+                                  url: 'https://etsy.com/listing/1',
+                                  state: 'active',
+                                  imageUrl: null,
+                              },
+                          ]
+                        : [
+                              {
+                                  listingId: 2,
+                                  title: 'Unlinked Sold Out Listing',
+                                  price: 30,
+                                  url: 'https://etsy.com/listing/2',
+                                  state: 'sold_out',
+                                  imageUrl: 'https://img.etsy.com/2.jpg',
+                              },
+                          ]
+                )
+            );
 
             const result = await service.listShopListings('user-1');
 
             expect(mockEtsyConnectionService.getShopId).toHaveBeenCalledWith('user-1');
-            expect(mockEtsyClient.getShopListingsActive).toHaveBeenCalledWith(47408839);
+            expect(mockEtsyClient.getShopListingsByState).toHaveBeenCalledWith('at-token', 47408839, 'active');
+            expect(mockEtsyClient.getShopListingsByState).toHaveBeenCalledWith('at-token', 47408839, 'sold_out');
             expect(result).toEqual([
                 {
                     listingId: 1,
                     title: 'Linked Listing',
                     price: 25,
                     url: 'https://etsy.com/listing/1',
+                    state: 'active',
+                    imageUrl: null,
                     linkedDesignId: 'design-1',
                 },
                 {
                     listingId: 2,
-                    title: 'Unlinked Listing',
+                    title: 'Unlinked Sold Out Listing',
                     price: 30,
                     url: 'https://etsy.com/listing/2',
+                    state: 'sold_out',
+                    imageUrl: 'https://img.etsy.com/2.jpg',
                     linkedDesignId: null,
                 },
             ]);
@@ -128,9 +154,22 @@ describe('EtsyStatusService', () => {
 
         it('returns every listing unlinked when the user has no linked designs', async () => {
             mockDesignRepo.getByUserId.mockResolvedValue([makeDesign()]);
-            mockEtsyClient.getShopListingsActive.mockResolvedValue([
-                { listingId: 5, title: 'Some Listing', price: 10, url: 'https://etsy.com/listing/5' },
-            ]);
+            mockEtsyClient.getShopListingsByState.mockImplementation((_token: string, _shopId: number, state: string) =>
+                Promise.resolve(
+                    state === 'active'
+                        ? [
+                              {
+                                  listingId: 5,
+                                  title: 'Some Listing',
+                                  price: 10,
+                                  url: 'https://etsy.com/listing/5',
+                                  state: 'active',
+                                  imageUrl: null,
+                              },
+                          ]
+                        : []
+                )
+            );
 
             const result = await service.listShopListings('user-1');
 
@@ -140,6 +179,8 @@ describe('EtsyStatusService', () => {
                     title: 'Some Listing',
                     price: 10,
                     url: 'https://etsy.com/listing/5',
+                    state: 'active',
+                    imageUrl: null,
                     linkedDesignId: null,
                 },
             ]);

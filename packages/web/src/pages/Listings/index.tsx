@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LinkDesignDialog } from '../../components/LinkDesignDialog';
 import LoadingScreen from '../../components/Loading';
+import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '../../components/ui/empty';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
@@ -72,8 +73,8 @@ const Listings = () => {
             <div>
                 <h1 className="text-2xl font-semibold">Etsy Listings</h1>
                 <p className="text-sm text-muted-foreground">
-                    {listings.length} active listing{listings.length === 1 ? '' : 's'} on Etsy. Only active listings are
-                    shown here — drafts sitting on Etsy outside this app aren't included.
+                    {listings.length} listing{listings.length === 1 ? '' : 's'} on Etsy (active and sold out). Drafts
+                    sitting on Etsy outside this app aren't included.
                 </p>
             </div>
 
@@ -83,8 +84,10 @@ const Listings = () => {
                         <EmptyMedia variant="icon">
                             <ShoppingBag />
                         </EmptyMedia>
-                        <EmptyTitle>No Active Listings</EmptyTitle>
-                        <EmptyDescription>Your shop has no active Etsy listings right now.</EmptyDescription>
+                        <EmptyTitle>No Listings</EmptyTitle>
+                        <EmptyDescription>
+                            Your shop has no active or sold-out Etsy listings right now.
+                        </EmptyDescription>
                     </EmptyHeader>
                 </Empty>
             ) : filteredListings.length === 0 ? (
@@ -101,6 +104,7 @@ const Listings = () => {
                 <Table>
                     <TableHeader>
                         <TableRow>
+                            <TableHead />
                             <TableHead>Title</TableHead>
                             <TableHead>Price</TableHead>
                             <TableHead>Linked Design</TableHead>
@@ -110,7 +114,23 @@ const Listings = () => {
                     <TableBody>
                         {filteredListings.map((listing) => (
                             <TableRow key={listing.listingId}>
-                                <TableCell className="font-medium">{listing.title}</TableCell>
+                                <TableCell>
+                                    {listing.imageUrl ? (
+                                        <img
+                                            src={listing.imageUrl}
+                                            alt={listing.title}
+                                            className="h-10 w-10 rounded object-cover"
+                                        />
+                                    ) : (
+                                        <div className="h-10 w-10 rounded bg-muted" />
+                                    )}
+                                </TableCell>
+                                <TableCell className="font-medium">
+                                    <div className="flex items-center gap-2">
+                                        {listing.title}
+                                        {listing.state === 'sold_out' && <Badge variant="secondary">Sold out</Badge>}
+                                    </div>
+                                </TableCell>
                                 <TableCell>£{listing.price.toFixed(2)}</TableCell>
                                 <TableCell>
                                     {listing.linkedDesignId ? (

@@ -2,10 +2,10 @@ import { APIError } from '@imapps/api-utils/hono';
 import type { Design } from '@jewellery-catalogue/types';
 
 import type { DesignRepository } from '../DesignRepository';
-import type { EtsyClient, EtsyListingSummary } from '../EtsyClient';
+import type { EtsyClient, EtsyShopListingSummary } from '../EtsyClient';
 import type { EtsyConnectionService } from '../EtsyConnectionService';
 
-export interface EtsyListingWithLinkStatus extends EtsyListingSummary {
+export interface EtsyListingWithLinkStatus extends EtsyShopListingSummary {
     linkedDesignId: string | null;
 }
 
@@ -16,6 +16,7 @@ export class EtsyStatusService {
         private readonly etsyConnectionService: EtsyConnectionService
     ) {}
 
+    // fallow-ignore-next-line unused-class-member
     async refreshStatus(designId: string, userId: string): Promise<Design> {
         const design = await this.designRepo.getByIdAndUserId(designId, userId);
         if (!design) {
@@ -38,12 +39,16 @@ export class EtsyStatusService {
         return updated;
     }
 
+    // fallow-ignore-next-line unused-class-member
     async listShopListings(userId: string): Promise<EtsyListingWithLinkStatus[]> {
         const shopId = await this.etsyConnectionService.getShopId(userId);
-        const [listings, designs] = await Promise.all([
-            this.etsyClient.getShopListingsActive(shopId),
+        const accessToken = await this.etsyConnectionService.getValidAccessToken(userId);
+        const [activeListings, soldOutListings, designs] = await Promise.all([
+            this.etsyClient.getShopListingsByState(accessToken, shopId, 'active'),
+            this.etsyClient.getShopListingsByState(accessToken, shopId, 'sold_out'),
             this.designRepo.getByUserId(userId),
         ]);
+        const listings = [...activeListings, ...soldOutListings];
 
         const designIdByListingId = new Map(
             designs

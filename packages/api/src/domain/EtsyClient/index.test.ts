@@ -426,8 +426,8 @@ describe('EtsyClient', () => {
         });
     });
 
-    describe('getShopListingsActive', () => {
-        it('fetches a single page when count fits within the page limit', async () => {
+    describe('getShopListingsByState', () => {
+        it('fetches a single page when count fits within the page limit, including the first image', async () => {
             fetchMock.mockResolvedValue(
                 new Response(
                     JSON.stringify({
@@ -438,6 +438,7 @@ describe('EtsyClient', () => {
                                 title: 'Silver Ring',
                                 price: { amount: 2550, divisor: 100, currency_code: 'GBP' },
                                 url: 'https://etsy.com/listing/1',
+                                images: [{ url_75x75: 'https://i.etsy.com/1-75x75.jpg' }],
                             },
                             {
                                 listing_id: 2,
@@ -451,17 +452,33 @@ describe('EtsyClient', () => {
                 )
             );
 
-            const result = await client.getShopListingsActive(47408839);
+            const result = await client.getShopListingsByState('access-tok', 47408839, 'sold_out');
 
             expect(result).toEqual([
-                { listingId: 1, title: 'Silver Ring', price: 25.5, url: 'https://etsy.com/listing/1' },
-                { listingId: 2, title: 'Gold Ring', price: 40, url: 'https://etsy.com/listing/2' },
+                {
+                    listingId: 1,
+                    title: 'Silver Ring',
+                    price: 25.5,
+                    url: 'https://etsy.com/listing/1',
+                    state: 'sold_out',
+                    imageUrl: 'https://i.etsy.com/1-75x75.jpg',
+                },
+                {
+                    listingId: 2,
+                    title: 'Gold Ring',
+                    price: 40,
+                    url: 'https://etsy.com/listing/2',
+                    state: 'sold_out',
+                    imageUrl: null,
+                },
             ]);
             expect(fetchMock).toHaveBeenCalledTimes(1);
             const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
-            expect(url).toBe('https://api.etsy.com/v3/application/shops/47408839/listings/active?limit=100&offset=0');
+            expect(url).toBe(
+                'https://api.etsy.com/v3/application/shops/47408839/listings?state=sold_out&includes=Images&limit=100&offset=0'
+            );
             expect((options.headers as Record<string, string>)['x-api-key']).toBe('key123:secret456');
-            expect((options.headers as Record<string, string>).Authorization).toBeUndefined();
+            expect((options.headers as Record<string, string>).Authorization).toBe('Bearer access-tok');
         });
 
         it('paginates when count exceeds the 100-item page limit', async () => {
@@ -479,24 +496,24 @@ describe('EtsyClient', () => {
                 .mockResolvedValueOnce(new Response(JSON.stringify(page(1, 100, 102)), { status: 200 }))
                 .mockResolvedValueOnce(new Response(JSON.stringify(page(101, 2, 102)), { status: 200 }));
 
-            const result = await client.getShopListingsActive(47408839);
+            const result = await client.getShopListingsByState('access-tok', 47408839, 'active');
 
             expect(result).toHaveLength(102);
             expect(fetchMock).toHaveBeenCalledTimes(2);
             const [firstUrl] = fetchMock.mock.calls[0] as [string, RequestInit];
             const [secondUrl] = fetchMock.mock.calls[1] as [string, RequestInit];
             expect(firstUrl).toBe(
-                'https://api.etsy.com/v3/application/shops/47408839/listings/active?limit=100&offset=0'
+                'https://api.etsy.com/v3/application/shops/47408839/listings?state=active&includes=Images&limit=100&offset=0'
             );
             expect(secondUrl).toBe(
-                'https://api.etsy.com/v3/application/shops/47408839/listings/active?limit=100&offset=100'
+                'https://api.etsy.com/v3/application/shops/47408839/listings?state=active&includes=Images&limit=100&offset=100'
             );
         });
 
         it('throws when Etsy responds with an error status', async () => {
             fetchMock.mockResolvedValue(new Response('nope', { status: 500 }));
 
-            await expect(client.getShopListingsActive(1)).rejects.toThrow();
+            await expect(client.getShopListingsByState('access-tok', 1, 'active')).rejects.toThrow();
         });
     });
 });

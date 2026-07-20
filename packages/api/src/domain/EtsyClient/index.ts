@@ -69,6 +69,13 @@ export interface EtsyListingSummary {
     url: string;
 }
 
+export type EtsyShopListingState = 'active' | 'sold_out';
+
+export interface EtsyShopListingSummary extends EtsyListingSummary {
+    state: EtsyShopListingState;
+    imageUrl: string | null;
+}
+
 export interface EtsyListingDetail {
     title: string;
     description: string;
@@ -270,18 +277,22 @@ export class EtsyClient {
         };
     }
 
-    async getShopListingsActive(shopId: number): Promise<EtsyListingSummary[]> {
-        const results: EtsyListingSummary[] = [];
+    async getShopListingsByState(
+        accessToken: string,
+        shopId: number,
+        state: EtsyShopListingState
+    ): Promise<EtsyShopListingSummary[]> {
+        const results: EtsyShopListingSummary[] = [];
         let offset = 0;
 
         for (;;) {
             const response = await fetch(
-                `${API_BASE}/shops/${shopId}/listings/active?limit=${SHOP_LISTINGS_PAGE_LIMIT}&offset=${offset}`,
-                { headers: { 'x-api-key': this.apiKeyHeader() } }
+                `${API_BASE}/shops/${shopId}/listings?state=${state}&includes=Images&limit=${SHOP_LISTINGS_PAGE_LIMIT}&offset=${offset}`,
+                { headers: { 'x-api-key': this.apiKeyHeader(), Authorization: `Bearer ${accessToken}` } }
             );
 
             if (!response.ok) {
-                throw await etsyError('getShopListingsActive', response);
+                throw await etsyError('getShopListingsByState', response);
             }
 
             const body = (await response.json()) as {
@@ -291,6 +302,7 @@ export class EtsyClient {
                     title: string;
                     price: { amount: number; divisor: number };
                     url: string;
+                    images?: Array<{ url_75x75: string }>;
                 }>;
             };
 
@@ -300,6 +312,8 @@ export class EtsyClient {
                     title: r.title,
                     price: r.price.amount / r.price.divisor,
                     url: r.url,
+                    state,
+                    imageUrl: r.images?.[0]?.url_75x75 ?? null,
                 }))
             );
 
