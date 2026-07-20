@@ -16,3 +16,4 @@ export const getMaterialRecalculatePricesEndpoint = (materialId: string) =>
     `${MATERIALS_ENDPOINT}/${materialId}/recalculate-prices`;
 
 export const getEtsyStatusEndpoint = (designId: string) => `${DESIGNS_ENDPOINT}/${designId}/etsy-status`;
+export const getEtsySyncQuantityEndpoint = (designId: string) => `${DESIGNS_ENDPOINT}/${designId}/etsy-sync-quantity`;

@@ -23,6 +23,7 @@ export class DesignService {
         private readonly materialRepo: MaterialRepository
     ) {}
 
+    // fallow-ignore-next-line unused-class-member
     async getDesignsByUserId(userId: string): Promise<Array<Design>> {
         if (!userId) {
             throw Object.assign(new Error('User ID is required'), { status: 400 });
@@ -31,6 +32,7 @@ export class DesignService {
         return this.designRepo.getByUserId(userId);
     }
 
+    // fallow-ignore-next-line unused-class-member
     async getDesign(id: string, userId: string): Promise<Design> {
         if (!id) {
             throw Object.assign(new Error('Design ID is required'), { status: 400 });
@@ -45,6 +47,7 @@ export class DesignService {
         return design;
     }
 
+    // fallow-ignore-next-line unused-class-member
     async addDesign(
         designData: UploadDesign,
         imageBuffers: Array<{ buffer: Buffer; contentType: string }>,
@@ -136,6 +139,7 @@ export class DesignService {
         return design;
     }
 
+    // fallow-ignore-next-line unused-class-member
     async updateDesign(id: string, updates: UpdateDesign, userId: string): Promise<Design> {
         if (!id) {
             throw Object.assign(new Error('Design ID is required'), { status: 400 });
@@ -151,7 +155,11 @@ export class DesignService {
             return this.produceDesigns(id, updates.addQuantity, userId, updates.variantId);
         }
 
-        const { addQuantity, variantId, ...basicUpdates } = updates;
+        if (updates.totalQuantity !== undefined) {
+            return this.setTotalQuantity(id, updates.totalQuantity, userId, updates.variantId);
+        }
+
+        const { addQuantity, variantId, totalQuantity, ...basicUpdates } = updates;
         const updated = { ...existing, ...basicUpdates };
 
         await this.designRepo.update(id, updated);
@@ -159,6 +167,33 @@ export class DesignService {
         return updated;
     }
 
+    // Direct stock correction — unlike produceDesigns, does not consume materials.
+    async setTotalQuantity(designId: string, quantity: number, userId: string, variantId?: string): Promise<Design> {
+        const design = await this.designRepo.getByIdAndUserId(designId, userId);
+
+        if (!design) {
+            throw Object.assign(new Error('Design not found'), { status: 404 });
+        }
+
+        let variants = design.variants;
+        let totalQuantity = quantity;
+
+        if (variantId) {
+            if (!variants?.some((v) => v.id === variantId)) {
+                throw Object.assign(new Error('Variant not found'), { status: 404 });
+            }
+            variants = variants.map((v) => (v.id === variantId ? { ...v, totalQuantity: quantity } : v));
+            totalQuantity = variants.reduce((sum, v) => sum + v.totalQuantity, 0);
+        }
+
+        const updated: Design = { ...design, totalQuantity, variants };
+
+        await this.designRepo.update(designId, updated);
+
+        return updated;
+    }
+
+    // fallow-ignore-next-line unused-class-member
     async editDesignProperties(
         id: string,
         updates: EditDesign,
@@ -334,6 +369,7 @@ export class DesignService {
         return updatedDesign;
     }
 
+    // fallow-ignore-next-line unused-class-member
     async deleteDesign(id: string, userId: string): Promise<void> {
         if (!id) {
             throw Object.assign(new Error('Design ID is required'), { status: 400 });

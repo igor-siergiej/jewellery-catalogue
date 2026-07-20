@@ -17,6 +17,7 @@ import {
     pushDesignToEtsy,
     refreshDesignEtsyStatus,
     startEtsyOAuth,
+    syncDesignEtsyQuantity,
 } from '../handlers/Etsy';
 import { getImage, uploadImage } from '../handlers/Image';
 import {
@@ -57,6 +58,7 @@ export const createRoutes = (): Hono<Env> => {
     app.post('/api/etsy/reconcile/create', authenticate, createDesignFromEtsyListing);
     app.post('/api/etsy/reconcile/link', authenticate, linkEtsyListingToDesign);
     app.get('/api/designs/:id/etsy-status', authenticate, refreshDesignEtsyStatus);
+    app.post('/api/designs/:id/etsy-sync-quantity', authenticate, syncDesignEtsyQuantity);
 
     app.get('/api/designs', authenticate, getDesigns);
     app.post('/api/designs', authenticate, addDesign);

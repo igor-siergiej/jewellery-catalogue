@@ -93,6 +93,52 @@ describe('EtsyStatusService', () => {
         });
     });
 
+    describe('syncQuantityFromEtsy', () => {
+        it("pulls the listing's current quantity onto the design", async () => {
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(
+                makeDesign({ etsy: { listingId: 999, state: 'active', lastPushedAt: 123 }, totalQuantity: 2 })
+            );
+            mockEtsyClient.getListing.mockResolvedValue({ listingId: 999, state: 'active', quantity: 14 });
+
+            const result = await service.syncQuantityFromEtsy('design-1', 'user-1');
+
+            expect(mockEtsyClient.getListing).toHaveBeenCalledWith('at-token', 999);
+            expect(result.totalQuantity).toBe(14);
+            expect(mockDesignRepo.update).toHaveBeenCalledWith(
+                'design-1',
+                expect.objectContaining({ totalQuantity: 14 })
+            );
+        });
+
+        it('throws when the design does not exist', async () => {
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(null);
+
+            await expect(service.syncQuantityFromEtsy('design-1', 'user-1')).rejects.toThrow();
+            expect(mockEtsyClient.getListing).not.toHaveBeenCalled();
+        });
+
+        it('throws when the design is not linked to an Etsy listing', async () => {
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign());
+
+            await expect(service.syncQuantityFromEtsy('design-1', 'user-1')).rejects.toThrow();
+            expect(mockEtsyClient.getListing).not.toHaveBeenCalled();
+        });
+
+        it('throws when the design has variants — no single quantity to sync', async () => {
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(
+                makeDesign({
+                    etsy: { listingId: 999, state: 'active', lastPushedAt: 123 },
+                    variants: [
+                        { id: 'v-1', optionIds: [], name: 'Red', totalQuantity: 1, totalMaterialCosts: 1, price: 1 },
+                    ],
+                })
+            );
+
+            await expect(service.syncQuantityFromEtsy('design-1', 'user-1')).rejects.toThrow();
+            expect(mockEtsyClient.getListing).not.toHaveBeenCalled();
+        });
+    });
+
     describe('listShopListings', () => {
         it("flags listings already linked to one of this user's designs, merging active and sold-out", async () => {
             mockDesignRepo.getByUserId.mockResolvedValue([

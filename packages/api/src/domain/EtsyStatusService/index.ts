@@ -40,6 +40,28 @@ export class EtsyStatusService {
     }
 
     // fallow-ignore-next-line unused-class-member
+    async syncQuantityFromEtsy(designId: string, userId: string): Promise<Design> {
+        const design = await this.designRepo.getByIdAndUserId(designId, userId);
+        if (!design) {
+            throw new APIError('Design not found', 404);
+        }
+        if (!design.etsy?.listingId) {
+            throw new APIError('Design is not linked to an Etsy listing', 400);
+        }
+        if (design.variants && design.variants.length > 0) {
+            throw new APIError('Cannot sync quantity from Etsy for a design with variants', 400);
+        }
+
+        const accessToken = await this.etsyConnectionService.getValidAccessToken(userId);
+        const status = await this.etsyClient.getListing(accessToken, design.etsy.listingId);
+
+        const updated: Design = { ...design, totalQuantity: status.quantity };
+        await this.designRepo.update(designId, updated);
+
+        return updated;
+    }
+
+    // fallow-ignore-next-line unused-class-member
     async listShopListings(userId: string): Promise<EtsyListingWithLinkStatus[]> {
         const shopId = await this.etsyConnectionService.getShopId(userId);
         const accessToken = await this.etsyConnectionService.getValidAccessToken(userId);

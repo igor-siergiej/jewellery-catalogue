@@ -25,9 +25,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { VariantSelector } from '@/components/VariantSelector';
 import { useAlert } from '@/context/Alert';
 import { AlertStoreActions } from '@/context/Alert/types';
+import { useEtsySyncQuantity } from '@/hooks/useEtsySyncQuantity';
 import { WIRE_TYPE_LABELS } from '@/lib/materialLabels';
 
-export interface IDesignUpdateFormProps {
+interface IDesignUpdateFormProps {
     design: Design;
     onSuccess: () => void;
     onCancel: () => void;
@@ -50,6 +51,13 @@ const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess,
     const { dispatch } = useAlert();
 
     const hasVariants = (design.variants?.length ?? 0) > 0;
+    const [stockValue, setStockValue] = useState<number | ''>('');
+    const [isSettingStock, setIsSettingStock] = useState(false);
+    const { sync: syncEtsyQuantity, isSyncing: isSyncingEtsyQuantity } = useEtsySyncQuantity(design.id);
+
+    const currentStockForSelection = hasVariants
+        ? (design.variants?.find((v) => v.id === selectedVariantId)?.totalQuantity ?? 0)
+        : design.totalQuantity;
 
     const { data: allMaterials, isLoading: materialsLoading } = useQuery({
         ...getMaterialsQuery(() => accessToken, login, logout),
@@ -268,6 +276,70 @@ const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess,
         }
     };
 
+    const handleSetStock = async () => {
+        if (stockValue === '' || stockValue < 0) return;
+        if (hasVariants && !selectedVariantId) return;
+
+        setIsSettingStock(true);
+        try {
+            await makeUpdateDesignRequest(
+                design.id,
+                { totalQuantity: stockValue, variantId: selectedVariantId },
+                () => accessToken,
+                login,
+                logout
+            );
+
+            dispatch({
+                type: AlertStoreActions.SHOW_ALERT,
+                payload: { title: 'Success!', message: 'Stock updated!', severity: 'success', variant: 'standard' },
+            });
+
+            setStockValue('');
+            onSuccess();
+        } catch (e) {
+            const message = e instanceof Error ? e.message : 'Unknown Error';
+            dispatch({
+                type: AlertStoreActions.SHOW_ALERT,
+                payload: {
+                    title: 'Error updating stock',
+                    message: `Details: ${message}`,
+                    severity: 'error',
+                    variant: 'standard',
+                },
+            });
+        } finally {
+            setIsSettingStock(false);
+        }
+    };
+
+    const handleSyncFromEtsy = async () => {
+        try {
+            await syncEtsyQuantity();
+            dispatch({
+                type: AlertStoreActions.SHOW_ALERT,
+                payload: {
+                    title: 'Success!',
+                    message: 'Stock synced from Etsy!',
+                    severity: 'success',
+                    variant: 'standard',
+                },
+            });
+            onSuccess();
+        } catch (e) {
+            const message = e instanceof Error ? e.message : 'Unknown Error';
+            dispatch({
+                type: AlertStoreActions.SHOW_ALERT,
+                payload: {
+                    title: 'Error syncing from Etsy',
+                    message: `Details: ${message}`,
+                    severity: 'error',
+                    variant: 'standard',
+                },
+            });
+        }
+    };
+
     if (materialsLoading) {
         return (
             <div className="flex items-center justify-center p-8">
@@ -302,6 +374,60 @@ const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess,
                                 </div>
                             )}
                         </div>
+                    </CardContent>
+                </Card>
+
+                <Separator />
+
+                {/* Set Stock Section — a direct correction, doesn't touch material stock */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Set Stock</CardTitle>
+                        <CardDescription>
+                            Directly correct the {hasVariants ? 'selected variant' : 'design'}'s stock count.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex flex-wrap items-end gap-3">
+                        <div className="space-y-2">
+                            <FormLabel htmlFor="set-stock-quantity">
+                                New Quantity{hasVariants ? ' (select a variant below)' : ''}
+                            </FormLabel>
+                            <Input
+                                id="set-stock-quantity"
+                                className="max-w-[160px]"
+                                type="number"
+                                step="1"
+                                min="0"
+                                placeholder={String(currentStockForSelection)}
+                                disabled={hasVariants && !selectedVariantId}
+                                value={stockValue}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    setStockValue(value === '' ? '' : Number(value));
+                                }}
+                            />
+                        </div>
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            disabled={isSettingStock || stockValue === '' || (hasVariants && !selectedVariantId)}
+                            onClick={handleSetStock}
+                        >
+                            {isSettingStock && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Update Stock
+                        </Button>
+                        {!hasVariants && design.etsy?.listingId && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                disabled={isSyncingEtsyQuantity}
+                                onClick={handleSyncFromEtsy}
+                                title="Pull the current quantity from the linked Etsy listing"
+                            >
+                                {isSyncingEtsyQuantity && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Sync from Etsy
+                            </Button>
+                        )}
                     </CardContent>
                 </Card>
 

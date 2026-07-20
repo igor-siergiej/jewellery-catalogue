@@ -60,6 +60,7 @@ export interface EtsyTaxonomyNode {
 export interface EtsyListingStatus {
     listingId: number;
     state: EtsyListingState;
+    quantity: number;
 }
 
 export interface EtsyListingSummary {
@@ -221,8 +222,8 @@ export class EtsyClient {
             throw await etsyError('getListing', response);
         }
 
-        const body = (await response.json()) as { listing_id: number; state: string };
-        return { listingId: body.listing_id, state: mapListingState(body.state) };
+        const body = (await response.json()) as { listing_id: number; state: string; quantity: number };
+        return { listingId: body.listing_id, state: mapListingState(body.state), quantity: body.quantity };
     }
 
     async getListingDetail(listingId: number): Promise<EtsyListingDetail> {
