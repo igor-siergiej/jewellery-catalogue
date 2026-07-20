@@ -1,3 +1,10 @@
+# [1.35.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.34.2...v1.35.0) (2026-07-20)
+
+
+### Features
+
+* reconcile Etsy listings into catalogue designs (create or link) ([#45](https://github.com/igor-siergiej/jewellery-catalogue/issues/45)) ([e1723a8](https://github.com/igor-siergiej/jewellery-catalogue/commit/e1723a8cf4729bcd63028fb2c0c9d4fddf840812))
+
 ## [1.34.2](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.34.1...v1.34.2) (2026-07-19)
 
 
