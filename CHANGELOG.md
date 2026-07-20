@@ -1,3 +1,10 @@
+## [1.36.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.36.0...v1.36.1) (2026-07-20)
+
+
+### Bug Fixes
+
+* wrap design card title instead of growing the card unbounded ([#49](https://github.com/igor-siergiej/jewellery-catalogue/issues/49)) ([61a7025](https://github.com/igor-siergiej/jewellery-catalogue/commit/61a7025d9177f68c10ee09e1ff12450f180f58fd))
+
 # [1.36.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.35.1...v1.36.0) (2026-07-20)
 
 

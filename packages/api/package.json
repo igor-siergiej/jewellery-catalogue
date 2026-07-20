@@ -1,6 +1,6 @@
 {
   "name": "@jewellery-catalogue/api",
-  "version": "1.36.0",
+  "version": "1.36.1",
   "type": "module",
   "scripts": {
     "start": "bun --watch src/index.ts",
