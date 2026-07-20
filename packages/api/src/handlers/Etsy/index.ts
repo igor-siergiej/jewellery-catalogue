@@ -5,6 +5,7 @@ import { dependencyContainer } from '../../dependencies';
 import { DependencyToken } from '../../dependencies/types';
 import type { EtsyConnectionService } from '../../domain/EtsyConnectionService';
 import type { EtsyPushService } from '../../domain/EtsyPushService';
+import type { EtsyReconcileService } from '../../domain/EtsyReconcileService';
 import type { EtsyStatusService } from '../../domain/EtsyStatusService';
 
 type AuthedCtx = Context<{ Variables: { userId: string } }>;
@@ -102,4 +103,36 @@ export const refreshDesignEtsyStatus = async (c: AuthedCtx) => {
 export const getEtsyShopListings = async (c: AuthedCtx) => {
     const listings = await getStatusService().listShopListings(c.get('userId'));
     return c.json(listings, 200);
+};
+
+const getReconcileService = (): EtsyReconcileService =>
+    dependencyContainer.resolve(DependencyToken.EtsyReconcileService);
+
+export const createDesignFromEtsyListing = async (c: AuthedCtx) => {
+    const { listingId } = (await c.req.json()) as { listingId: number };
+    try {
+        const result = await getReconcileService().createDesignFromListing(listingId, c.get('userId'));
+        return c.json(result, 201);
+    } catch (error) {
+        dependencyContainer.resolve(DependencyToken.Logger).error('Etsy reconcile create failed', {
+            listingId,
+            error: error instanceof Error ? error.message : String(error),
+        });
+        throw error;
+    }
+};
+
+export const linkEtsyListingToDesign = async (c: AuthedCtx) => {
+    const { listingId, designId } = (await c.req.json()) as { listingId: number; designId: string };
+    try {
+        await getReconcileService().linkListingToDesign(listingId, designId, c.get('userId'));
+        return c.json({ message: 'Listing linked to design' }, 200);
+    } catch (error) {
+        dependencyContainer.resolve(DependencyToken.Logger).error('Etsy reconcile link failed', {
+            listingId,
+            designId,
+            error: error instanceof Error ? error.message : String(error),
+        });
+        throw error;
+    }
 };

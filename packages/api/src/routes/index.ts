@@ -6,12 +6,14 @@ import { DependencyToken } from '../dependencies/types';
 import { addDesign, deleteDesign, editDesignProperties, getDesign, getDesigns, updateDesign } from '../handlers/Design';
 import { createDraft, deleteDraft, getDraft, getDrafts, updateDraft, uploadDraftImage } from '../handlers/Draft';
 import {
+    createDesignFromEtsyListing,
     disconnectEtsyConnection,
     etsyOAuthCallback,
     getEtsyConnectionStatus,
     getEtsyShippingProfiles,
     getEtsyShopListings,
     getEtsyTaxonomy,
+    linkEtsyListingToDesign,
     pushDesignToEtsy,
     refreshDesignEtsyStatus,
     startEtsyOAuth,
@@ -52,6 +54,8 @@ export const createRoutes = (): Hono<Env> => {
     app.get('/api/etsy/taxonomy', authenticate, getEtsyTaxonomy);
     app.get('/api/etsy/shipping-profiles', authenticate, getEtsyShippingProfiles);
     app.get('/api/etsy/listings', authenticate, getEtsyShopListings);
+    app.post('/api/etsy/reconcile/create', authenticate, createDesignFromEtsyListing);
+    app.post('/api/etsy/reconcile/link', authenticate, linkEtsyListingToDesign);
     app.get('/api/designs/:id/etsy-status', authenticate, refreshDesignEtsyStatus);
 
     app.get('/api/designs', authenticate, getDesigns);
