@@ -24,6 +24,7 @@ const MainLayoutContent = ({ children }: MainLayoutProps) => {
     const { status: draftStatus } = useDraftStatus();
     const isDesignsPage = location.pathname === '/designs';
     const isMaterialsPage = location.pathname === '/materials';
+    const isListingsPage = location.pathname === '/listings';
     const isViewDesignPage = location.pathname.startsWith('/designs/') && location.pathname !== '/designs';
 
     useEffect(() => {
@@ -59,12 +60,18 @@ const MainLayoutContent = ({ children }: MainLayoutProps) => {
                             )}
                         </span>
                     )}
-                    {(isDesignsPage || isMaterialsPage) && (
+                    {(isDesignsPage || isMaterialsPage || isListingsPage) && (
                         <div className="relative max-w-md">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
                                 type="text"
-                                placeholder={isDesignsPage ? 'Search designs...' : 'Search materials...'}
+                                placeholder={
+                                    isDesignsPage
+                                        ? 'Search designs...'
+                                        : isMaterialsPage
+                                          ? 'Search materials...'
+                                          : 'Search listings...'
+                                }
                                 value={searchQuery}
                                 onChange={handleSearchChange}
                                 className="pl-9 bg-card"
