@@ -14,6 +14,7 @@ export class EtsyReconcileService {
         private readonly idGenerator: IdGenerator
     ) {}
 
+    // fallow-ignore-next-line unused-class-member
     async createDesignFromListing(listingId: number, userId: string): Promise<{ designId: string }> {
         const shopId = await this.etsyConnectionService.getShopId(userId);
         const [listings, designs] = await Promise.all([
@@ -58,6 +59,7 @@ export class EtsyReconcileService {
         return { designId };
     }
 
+    // fallow-ignore-next-line unused-class-member
     async linkListingToDesign(listingId: number, designId: string, userId: string): Promise<void> {
         const design = await this.designRepo.getByIdAndUserId(designId, userId);
         if (!design) {
