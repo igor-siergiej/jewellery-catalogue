@@ -1,3 +1,10 @@
+## [1.40.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.40.0...v1.40.1) (2026-07-20)
+
+
+### Bug Fixes
+
+* correct design card image sizing to fit within card padding ([#55](https://github.com/igor-siergiej/jewellery-catalogue/issues/55)) ([519fb06](https://github.com/igor-siergiej/jewellery-catalogue/commit/519fb06906291cf13c4f5b7a3696e6a545932676))
+
 # [1.40.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.39.0...v1.40.0) (2026-07-20)
 
 
