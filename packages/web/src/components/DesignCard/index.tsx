@@ -76,7 +76,7 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated 
             <Item
                 key={id}
                 variant="outline"
-                className="w-fit max-w-max flex-col items-start bg-card relative cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]"
+                className="w-64 flex-col items-start bg-card relative cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]"
                 onClick={handleCardClick}
             >
                 <div className="absolute top-2 right-2 z-10 flex gap-1">
@@ -108,7 +108,7 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated 
                     </div>
                 </ItemHeader>
                 <ItemContent className="flex-none items-start text-left w-full">
-                    <ItemTitle className="text-lg font-semibold">{name}</ItemTitle>
+                    <ItemTitle className="text-lg font-semibold w-full whitespace-normal break-words">{name}</ItemTitle>
                     <ItemFooter className="flex items-center gap-1 w-full">
                         <div className="flex items-center justify-between w-full">
                             <div className="flex items-center gap-1">
