@@ -3,6 +3,9 @@ import { defineConfig, devices } from '@playwright/test';
 
 const isCI = !!process.env.CI;
 const isStaging = process.env.NODE_ENV === 'staging' || !!process.env.STAGING_BASE_URL;
+// True whenever tests target an already-running, real backend (staging/prod),
+// as opposed to a locally-started app that has no auth backend of its own.
+const isRemoteTarget = isStaging || !!process.env.E2E_BASE_URL;
 
 if (isCI || isStaging) {
     process.env.E2E_API_SERVICE_URL = process.env.E2E_API_SERVICE_URL || 'http://localhost:3001';
@@ -28,7 +31,9 @@ export default defineConfig({
     retries: process.env.CI ? 2 : 0,
     workers: isCI ? 3 : 5,
     reporter: 'html',
-    globalSetup: isCI ? './tests/e2e/global-setup.ts' : undefined,
+    // Mock auth server: needed whenever there's no real auth backend to talk to.
+    // Skip it only when pointed at a real (staging/prod) environment.
+    globalSetup: isRemoteTarget ? undefined : './tests/e2e/global-setup.ts',
     use: {
         baseURL: getBaseURL(),
         trace: 'on-first-retry',
