@@ -1,6 +1,6 @@
 import { useAuth } from '@imapps/web-utils';
 import type { Design } from '@jewellery-catalogue/types';
-import { Clock, Heart, PackageOpen, Trash2 } from 'lucide-react';
+import { Clock, Heart, PackageOpen, ShoppingBag, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import makeDeleteDesignRequest from '../../api/endpoints/deleteDesign';
@@ -28,6 +28,7 @@ export interface DesignCardProps {
 
 export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated }) => {
     const { name, timeRequired, id, imageIds, totalQuantity } = design;
+    const etsyImageUrl = design.etsy?.imageUrls?.[0];
     const [isFavorite, setIsFavorite] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -103,8 +104,21 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated 
                     </Button>
                 </div>
                 <ItemHeader className="basis-auto justify-start">
-                    <div className="w-64 h-64">
+                    <div className="w-64 h-64 relative">
                         <Image imageId={imageIds?.[0] ?? ''} />
+                        {etsyImageUrl && (
+                            <div
+                                className="absolute bottom-2 left-2 h-10 w-10 rounded-md border-2 border-background bg-muted overflow-hidden shadow"
+                                title="Linked Etsy listing image"
+                            >
+                                <img
+                                    src={etsyImageUrl}
+                                    alt="Linked Etsy listing"
+                                    className="h-full w-full object-cover"
+                                />
+                                <ShoppingBag className="absolute -top-1 -right-1 h-3.5 w-3.5 text-primary bg-background rounded-full p-0.5" />
+                            </div>
+                        )}
                     </div>
                 </ItemHeader>
                 <ItemContent className="flex-none items-start text-left w-full">

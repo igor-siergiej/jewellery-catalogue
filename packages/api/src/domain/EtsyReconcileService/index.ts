@@ -106,7 +106,11 @@ export class EtsyReconcileService {
 
         await this.assertListingIsLinkable(listingId, userId);
 
-        const updated: Design = { ...design, etsy: { listingId, state: 'active', lastPushedAt: null } };
+        const detail = await this.etsyClient.getListingDetail(listingId);
+        const updated: Design = {
+            ...design,
+            etsy: { listingId, state: 'active', lastPushedAt: null, imageUrls: detail.imageUrls },
+        };
         await this.designRepo.update(designId, updated);
     }
 }

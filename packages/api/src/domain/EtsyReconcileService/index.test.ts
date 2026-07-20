@@ -203,9 +203,15 @@ describe('EtsyReconcileService.linkListingToDesign', () => {
         mockEtsyClient.getShopListingsByState.mockResolvedValue([
             { listingId: 555, title: 'Silver Ring', price: 25, url: 'https://etsy.com/555' },
         ]);
+        mockEtsyClient.getListingDetail.mockResolvedValue({
+            title: 'Silver Ring',
+            description: 'A lovely ring.',
+            price: 25,
+            imageUrls: ['https://i.etsy.com/555.jpg'],
+        });
     });
 
-    it('writes the etsy link onto an existing unlinked design', async () => {
+    it('writes the etsy link (with the listing image) onto an existing unlinked design', async () => {
         mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign({ id: 'design-9' }));
 
         await makeService().linkListingToDesign(555, 'design-9', 'user-1');
@@ -213,7 +219,12 @@ describe('EtsyReconcileService.linkListingToDesign', () => {
         expect(mockDesignRepo.update).toHaveBeenCalledTimes(1);
         const [id, updated] = mockDesignRepo.update.mock.calls[0]! as [string, Design];
         expect(id).toBe('design-9');
-        expect(updated.etsy).toEqual({ listingId: 555, state: 'active', lastPushedAt: null });
+        expect(updated.etsy).toEqual({
+            listingId: 555,
+            state: 'active',
+            lastPushedAt: null,
+            imageUrls: ['https://i.etsy.com/555.jpg'],
+        });
     });
 
     it('rejects with 404 when the design does not belong to the user', async () => {
