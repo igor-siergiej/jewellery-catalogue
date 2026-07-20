@@ -15,6 +15,7 @@ export const designEtsySchema = z.object({
     state: etsyListingStateSchema,
     lastPushedAt: z.number().nullable(),
     pushIncomplete: z.boolean().optional(),
+    imageUrls: z.array(z.string()).optional(),
 });
 export type DesignEtsy = z.infer<typeof designEtsySchema>;
 
