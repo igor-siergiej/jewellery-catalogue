@@ -1,3 +1,10 @@
+# [1.37.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.36.1...v1.37.0) (2026-07-20)
+
+
+### Features
+
+* add search to Etsy Listings page ([#50](https://github.com/igor-siergiej/jewellery-catalogue/issues/50)) ([421531e](https://github.com/igor-siergiej/jewellery-catalogue/commit/421531e1fcdffe2ed72092eefd76f5be74ad0669))
+
 ## [1.36.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.36.0...v1.36.1) (2026-07-20)
 
 
