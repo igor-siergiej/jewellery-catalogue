@@ -17,6 +17,30 @@ test.describe
             await expect(page.getByText('Listed Design')).toBeVisible({ timeout: 10000 });
         });
 
+        test('long design title wraps instead of overflowing the card', async ({ authenticatedPage: page }) => {
+            const longName = 'A Very Long Design Title That Should Wrap Onto Multiple Lines Instead Of Overflowing';
+            await apiCreateDesign(TOKEN, { name: longName, price: 5.0 });
+
+            await page.goto('/designs');
+            await page.waitForLoadState('networkidle');
+
+            const title = page.locator('[data-slot="item-title"]').filter({ hasText: longName });
+            await expect(title).toBeVisible({ timeout: 10000 });
+
+            const card = page.locator('[data-slot="item"]').filter({ has: title });
+            const cardBox = await card.boundingBox();
+            const titleBox = await title.boundingBox();
+
+            expect(cardBox).not.toBeNull();
+            expect(titleBox).not.toBeNull();
+            // The card stays a fixed width instead of growing to fit the long title on one line.
+            expect(cardBox!.width).toBeLessThan(300);
+            // The title wraps within the card instead of overflowing sideways past it.
+            expect(titleBox!.width).toBeLessThanOrEqual(cardBox!.width);
+            // Wrapped onto more than one line, so it's taller than a single line of this text would be.
+            expect(titleBox!.height).toBeGreaterThan(20);
+        });
+
         test('delete design from designs page', async ({ authenticatedPage: page }) => {
             await apiCreateDesign(TOKEN, { name: 'Deletable Design', price: 2.0 });
 

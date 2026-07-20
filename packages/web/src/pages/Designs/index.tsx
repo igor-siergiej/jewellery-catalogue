@@ -54,7 +54,7 @@ const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, o
         <>
             <Item
                 variant="outline"
-                className="w-fit max-w-max flex-col items-start bg-card relative cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]"
+                className="w-64 flex-col items-start bg-card relative cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]"
                 onClick={handleCardClick}
             >
                 <div className="absolute top-2 right-2 z-10 flex gap-1">
@@ -80,7 +80,9 @@ const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, o
                             Draft
                         </Badge>
                     </div>
-                    <ItemTitle className="text-lg font-semibold">{draft.name}</ItemTitle>
+                    <ItemTitle className="text-lg font-semibold w-full whitespace-normal break-words">
+                        {draft.name}
+                    </ItemTitle>
                     <ItemFooter className="flex items-center gap-1 w-full">
                         <span className="text-xs text-muted-foreground">
                             {new Date(draft.updatedAt).toLocaleString()}
