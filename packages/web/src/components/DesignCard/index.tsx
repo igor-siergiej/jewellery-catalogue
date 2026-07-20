@@ -104,7 +104,7 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated 
                     </Button>
                 </div>
                 <ItemHeader className="basis-auto justify-start">
-                    <div className="w-64 h-64 relative">
+                    <div className="w-56 h-56 relative">
                         <Image imageId={imageIds?.[0] ?? ''} />
                         {etsyImageUrl && (
                             <div
