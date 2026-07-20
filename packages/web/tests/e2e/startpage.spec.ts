@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 import { waitForAuthServices } from './utils/auth-helpers';
 
 test.describe('Given Start Page', () => {
-    test('When the start page is loaded', async ({ page }) => {
+    test('When the start page is loaded @smoke', async ({ page }) => {
         await page.goto('/');
 
         await page.waitForLoadState('networkidle');
@@ -21,7 +21,7 @@ test.describe('Given Start Page', () => {
         await expect(page.locator('body')).not.toContainText('Something went wrong');
     });
 
-    test('should verify page loads without console errors', async ({ page }) => {
+    test('should verify page loads without console errors @smoke', async ({ page }) => {
         const consoleErrors: Array<string> = [];
         const networkErrors: Array<string> = [];
 
