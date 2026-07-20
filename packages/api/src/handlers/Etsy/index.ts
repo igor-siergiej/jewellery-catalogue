@@ -105,6 +105,11 @@ export const getEtsyShopListings = async (c: AuthedCtx) => {
     return c.json(listings, 200);
 };
 
+export const syncDesignEtsyQuantity = async (c: AuthedCtx) => {
+    const design = await getStatusService().syncQuantityFromEtsy(c.req.param('id'), c.get('userId'));
+    return c.json(design, 200);
+};
+
 const getReconcileService = (): EtsyReconcileService =>
     dependencyContainer.resolve(DependencyToken.EtsyReconcileService);
 

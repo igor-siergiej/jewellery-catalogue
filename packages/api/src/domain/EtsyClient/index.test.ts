@@ -387,12 +387,12 @@ describe('EtsyClient', () => {
     describe('getListing', () => {
         it('fetches the listing and maps a draft state through unchanged', async () => {
             fetchMock.mockResolvedValue(
-                new Response(JSON.stringify({ listing_id: 999, state: 'draft' }), { status: 200 })
+                new Response(JSON.stringify({ listing_id: 999, state: 'draft', quantity: 3 }), { status: 200 })
             );
 
             const result = await client.getListing('at-token', 999);
 
-            expect(result).toEqual({ listingId: 999, state: 'draft' });
+            expect(result).toEqual({ listingId: 999, state: 'draft', quantity: 3 });
             const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
             expect(url).toBe('https://api.etsy.com/v3/application/listings/999');
             expect((options.headers as Record<string, string>)['x-api-key']).toBe('key123:secret456');
@@ -401,22 +401,22 @@ describe('EtsyClient', () => {
 
         it('maps an active state through unchanged', async () => {
             fetchMock.mockResolvedValue(
-                new Response(JSON.stringify({ listing_id: 999, state: 'active' }), { status: 200 })
+                new Response(JSON.stringify({ listing_id: 999, state: 'active', quantity: 7 }), { status: 200 })
             );
 
             const result = await client.getListing('at-token', 999);
 
-            expect(result).toEqual({ listingId: 999, state: 'active' });
+            expect(result).toEqual({ listingId: 999, state: 'active', quantity: 7 });
         });
 
         it.each(['inactive', 'sold_out', 'expired'])('maps Etsy state "%s" down to "inactive"', async (etsyState) => {
             fetchMock.mockResolvedValue(
-                new Response(JSON.stringify({ listing_id: 999, state: etsyState }), { status: 200 })
+                new Response(JSON.stringify({ listing_id: 999, state: etsyState, quantity: 0 }), { status: 200 })
             );
 
             const result = await client.getListing('at-token', 999);
 
-            expect(result).toEqual({ listingId: 999, state: 'inactive' });
+            expect(result).toEqual({ listingId: 999, state: 'inactive', quantity: 0 });
         });
 
         it('throws when Etsy responds with an error status', async () => {

@@ -348,6 +348,95 @@ describe('DesignService', () => {
             expect(result.name).toBe(existingDesign.name); // unchanged
             expect(result.description).toBe(updates.description); // updated
         });
+
+        it('delegates to setTotalQuantity when totalQuantity is provided, as a direct correction not production', async () => {
+            const existingWithQuantity = { ...existingDesign, totalQuantity: 2 };
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(existingWithQuantity);
+            mockDesignRepo.update.mockResolvedValue(undefined);
+
+            const result = await service.updateDesign(designId, { totalQuantity: 9 }, userId);
+
+            expect(result.totalQuantity).toBe(9);
+            expect(mockDesignRepo.update).toHaveBeenCalledWith(designId, expect.objectContaining({ totalQuantity: 9 }));
+            expect(mockMaterialRepo.update).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('setTotalQuantity', () => {
+        const designId = 'design-123';
+        const userId = 'user-123';
+        const baseDesign: Design = {
+            id: designId,
+            userId,
+            name: 'Existing Design',
+            description: '',
+            timeRequired: '30',
+            totalMaterialCosts: 15.0,
+            price: 25.0,
+            imageIds: [],
+            materials: [],
+            dateAdded: new Date('2025-01-01'),
+            totalQuantity: 2,
+        };
+
+        it('sets totalQuantity directly without touching material stock', async () => {
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(baseDesign);
+            mockDesignRepo.update.mockResolvedValue(undefined);
+
+            const result = await service.setTotalQuantity(designId, 15, userId);
+
+            expect(result.totalQuantity).toBe(15);
+            expect(mockDesignRepo.update).toHaveBeenCalledWith(designId, { ...baseDesign, totalQuantity: 15 });
+            expect(mockMaterialRepo.update).not.toHaveBeenCalled();
+        });
+
+        it('sets a specific variant totalQuantity and recomputes the design-level total as the sum', async () => {
+            const designWithVariants: Design = {
+                ...baseDesign,
+                totalQuantity: 5,
+                variants: [
+                    {
+                        id: 'v-1',
+                        optionIds: [],
+                        name: 'Red',
+                        totalQuantity: 2,
+                        totalMaterialCosts: 5,
+                        price: 10,
+                    },
+                    {
+                        id: 'v-2',
+                        optionIds: [],
+                        name: 'Blue',
+                        totalQuantity: 3,
+                        totalMaterialCosts: 5,
+                        price: 10,
+                    },
+                ],
+            };
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(designWithVariants);
+            mockDesignRepo.update.mockResolvedValue(undefined);
+
+            const result = await service.setTotalQuantity(designId, 8, userId, 'v-1');
+
+            expect(result.variants?.find((v) => v.id === 'v-1')?.totalQuantity).toBe(8);
+            expect(result.variants?.find((v) => v.id === 'v-2')?.totalQuantity).toBe(3);
+            expect(result.totalQuantity).toBe(11); // 8 + 3
+        });
+
+        it('throws 404 when the variant does not exist on the design', async () => {
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(baseDesign);
+
+            await expect(service.setTotalQuantity(designId, 5, userId, 'missing-variant')).rejects.toMatchObject({
+                status: 404,
+            });
+            expect(mockDesignRepo.update).not.toHaveBeenCalled();
+        });
+
+        it('throws 404 when the design does not exist', async () => {
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(null);
+
+            await expect(service.setTotalQuantity(designId, 5, userId)).rejects.toMatchObject({ status: 404 });
+        });
     });
 
     describe('editDesignProperties — maker docs', () => {
