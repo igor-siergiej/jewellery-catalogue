@@ -17,6 +17,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '../ui/alert-dialog';
+import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Item, ItemContent, ItemFooter, ItemHeader, ItemTitle } from '../ui/item';
@@ -104,7 +105,7 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated 
                     </Button>
                 </div>
                 <ItemHeader className="basis-auto justify-start">
-                    <div className="w-64 h-64 relative">
+                    <div className="w-56 h-56 relative">
                         <Image imageId={imageIds?.[0] ?? ''} />
                         {etsyImageUrl && (
                             <div
@@ -123,20 +124,28 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated 
                 </ItemHeader>
                 <ItemContent className="flex-none items-start text-left w-full">
                     <ItemTitle className="text-lg font-semibold w-full whitespace-normal break-words">{name}</ItemTitle>
-                    <ItemFooter className="flex items-center gap-1 w-full">
-                        <div className="flex items-center justify-between w-full">
-                            <div className="flex items-center gap-1">
-                                <Clock className="h-4 w-4" />
-                                {timeRequired} hours
-                            </div>
+                    <ItemFooter className="flex items-center gap-1.5 w-full flex-wrap">
+                        <Badge
+                            variant="secondary"
+                            className="gap-1 font-normal text-white leading-none [&_svg]:text-white [&_svg]:shrink-0"
+                        >
+                            <Clock className="h-3.5 w-3.5" />
+                            {timeRequired} hours
+                        </Badge>
 
-                            <div className="flex items-center gap-1">
-                                <PackageOpen className="h-4 w-4" />
-                                {design.variants && design.variants.length > 0
-                                    ? `${design.variants.length} variants · ${totalQuantity} in stock`
-                                    : `${totalQuantity} in stock`}
-                            </div>
-                        </div>
+                        <Badge
+                            variant="secondary"
+                            className={
+                                totalQuantity === 0
+                                    ? 'gap-1 font-normal border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400'
+                                    : 'gap-1 font-normal text-white leading-none [&_svg]:text-white [&_svg]:shrink-0'
+                            }
+                        >
+                            <PackageOpen className="h-3.5 w-3.5" />
+                            {design.variants && design.variants.length > 0
+                                ? `${design.variants.length} variants · ${totalQuantity} in stock`
+                                : `${totalQuantity} in stock`}
+                        </Badge>
                     </ItemFooter>
                 </ItemContent>
             </Item>

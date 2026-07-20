@@ -20,7 +20,7 @@ export const Image: React.FC<ImageProps> = ({ imageId }) => {
     return (
         <img
             src={imgSrc}
-            className="w-full h-full object-cover rounded-md"
+            className="w-full h-full object-contain rounded-md"
             onError={() => setError(true)}
             alt={`${imageId}`}
         />
