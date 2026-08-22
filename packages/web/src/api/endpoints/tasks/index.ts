@@ -24,6 +24,9 @@ export const makeCreateTaskRequest = async (
         {
             pathname: TASKS_ENDPOINT,
             method: MethodType.POST,
+            headers: {
+                'Content-Type': 'application/json',
+            },
             operationString: 'create task',
             accessToken: '',
             body: data,
@@ -42,22 +45,12 @@ export const makeUpdateTaskRequest = async (
         {
             pathname: `${TASKS_ENDPOINT}/${id}`,
             method: MethodType.PUT,
+            headers: {
+                'Content-Type': 'application/json',
+            },
             operationString: 'update task',
             accessToken: '',
             body: data,
-        },
-        getAccessToken,
-        onTokenRefresh,
-        onTokenClear
-    );
-
-export const makeDeleteTaskRequest = async (id: string, ...[getAccessToken, onTokenRefresh, onTokenClear]: AuthArgs) =>
-    makeRequestWithAutoRefresh<{ message: string }>(
-        {
-            pathname: `${TASKS_ENDPOINT}/${id}`,
-            method: MethodType.DELETE,
-            operationString: 'delete task',
-            accessToken: '',
         },
         getAccessToken,
         onTokenRefresh,

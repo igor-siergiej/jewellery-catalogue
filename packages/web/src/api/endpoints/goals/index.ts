@@ -1,4 +1,4 @@
-import { type FormGoal, type Goal, MethodType, type UpdateGoal } from '@jewellery-catalogue/types';
+import { type FormGoal, type Goal, MethodType } from '@jewellery-catalogue/types';
 
 import { GOALS_ENDPOINT } from '../../endpoints';
 import { makeRequestWithAutoRefresh } from '../../makeRequest';
@@ -24,40 +24,12 @@ export const makeCreateGoalRequest = async (
         {
             pathname: GOALS_ENDPOINT,
             method: MethodType.POST,
+            headers: {
+                'Content-Type': 'application/json',
+            },
             operationString: 'create goal',
             accessToken: '',
             body: data,
-        },
-        getAccessToken,
-        onTokenRefresh,
-        onTokenClear
-    );
-
-export const makeUpdateGoalRequest = async (
-    id: string,
-    data: UpdateGoal,
-    ...[getAccessToken, onTokenRefresh, onTokenClear]: AuthArgs
-) =>
-    makeRequestWithAutoRefresh<Goal>(
-        {
-            pathname: `${GOALS_ENDPOINT}/${id}`,
-            method: MethodType.PUT,
-            operationString: 'update goal',
-            accessToken: '',
-            body: data,
-        },
-        getAccessToken,
-        onTokenRefresh,
-        onTokenClear
-    );
-
-export const makeDeleteGoalRequest = async (id: string, ...[getAccessToken, onTokenRefresh, onTokenClear]: AuthArgs) =>
-    makeRequestWithAutoRefresh<{ message: string }>(
-        {
-            pathname: `${GOALS_ENDPOINT}/${id}`,
-            method: MethodType.DELETE,
-            operationString: 'delete goal',
-            accessToken: '',
         },
         getAccessToken,
         onTokenRefresh,

@@ -20,8 +20,6 @@
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
-    "@dnd-kit/sortable": "^10.0.0",
-    "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^5.2.2",
     "@imapps/web-utils": "0.5.1",
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -53,7 +51,6 @@
     "concurrently": "^8.2.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
-    "date-fns": "^4.4.0",
     "express": "^5.2.1",
     "fuse.js": "^7.1.0",
     "jsdom": "^26.1.0",
