@@ -1,5 +1,5 @@
 import type { Logger, MongoDbConnection, ObjectStoreConnection } from '@imapps/api-utils';
-import type { Design, Draft, EtsyConnection, Material, UserSettings } from '@jewellery-catalogue/types';
+import type { Design, Draft, EtsyConnection, Material, Task, UserSettings } from '@jewellery-catalogue/types';
 
 import type { DesignRepository } from '../domain/DesignRepository';
 import type { DesignService } from '../domain/DesignService';
@@ -17,6 +17,8 @@ import type { ImageService } from '../domain/ImageService';
 import type { ImageStore } from '../domain/ImageService/types';
 import type { MaterialRepository } from '../domain/MaterialRepository';
 import type { MaterialService } from '../domain/MaterialService';
+import type { TaskRepository } from '../domain/TaskRepository';
+import type { TaskService } from '../domain/TaskService';
 import type { UserSettingsRepository } from '../domain/UserSettingsRepository';
 import type { UserSettingsService } from '../domain/UserSettingsService';
 
@@ -27,6 +29,7 @@ export type Collections = {
     [CollectionNames.Drafts]: Draft;
     [CollectionNames.UserSettings]: UserSettings;
     [CollectionNames.EtsyConnections]: EtsyConnection;
+    [CollectionNames.Tasks]: Task;
 };
 
 export enum DependencyToken {
@@ -39,12 +42,14 @@ export enum DependencyToken {
     DraftRepository = 'DraftRepository',
     UserSettingsRepository = 'UserSettingsRepository',
     EtsyConnectionRepository = 'EtsyConnectionRepository',
+    TaskRepository = 'TaskRepository',
     // Services
     DesignService = 'DesignService',
     MaterialService = 'MaterialService',
     ImageService = 'ImageService',
     DraftService = 'DraftService',
     UserSettingsService = 'UserSettingsService',
+    TaskService = 'TaskService',
     EtsyConnectionService = 'EtsyConnectionService',
     EtsyPushService = 'EtsyPushService',
     EtsyStatusService = 'EtsyStatusService',
@@ -67,12 +72,14 @@ export type Dependencies = {
     [DependencyToken.DraftRepository]: DraftRepository;
     [DependencyToken.UserSettingsRepository]: UserSettingsRepository;
     [DependencyToken.EtsyConnectionRepository]: EtsyConnectionRepository;
+    [DependencyToken.TaskRepository]: TaskRepository;
     // Services
     [DependencyToken.DesignService]: DesignService;
     [DependencyToken.MaterialService]: MaterialService;
     [DependencyToken.ImageService]: ImageService;
     [DependencyToken.DraftService]: DraftService;
     [DependencyToken.UserSettingsService]: UserSettingsService;
+    [DependencyToken.TaskService]: TaskService;
     [DependencyToken.EtsyConnectionService]: EtsyConnectionService;
     [DependencyToken.EtsyPushService]: EtsyPushService;
     [DependencyToken.EtsyStatusService]: EtsyStatusService;
@@ -90,4 +97,5 @@ export enum CollectionNames {
     Drafts = 'drafts',
     UserSettings = 'userSettings',
     EtsyConnections = 'etsyConnections',
+    Tasks = 'tasks',
 }

@@ -12,12 +12,14 @@ import { EtsyReconcileService } from '../domain/EtsyReconcileService';
 import { EtsyStatusService } from '../domain/EtsyStatusService';
 import { ImageService } from '../domain/ImageService';
 import { MaterialService } from '../domain/MaterialService';
+import { TaskService } from '../domain/TaskService';
 import { UserSettingsService } from '../domain/UserSettingsService';
 import { BucketStore } from '../infrastructure/BucketStore';
 import { MongoDesignRepository } from '../infrastructure/MongoDesignRepository';
 import { MongoDraftRepository } from '../infrastructure/MongoDraftRepository';
 import { MongoEtsyConnectionRepository } from '../infrastructure/MongoEtsyConnectionRepository';
 import { MongoMaterialRepository } from '../infrastructure/MongoMaterialRepository';
+import { MongoTaskRepository } from '../infrastructure/MongoTaskRepository';
 import { MongoUserSettingsRepository } from '../infrastructure/MongoUserSettingsRepository';
 import { UuidGenerator } from '../infrastructure/UuidGenerator';
 import { type Dependencies, DependencyToken } from './types';
@@ -224,6 +226,27 @@ export const registerDepdendencies = () => {
                     dependencyContainer.resolve(DependencyToken.EtsyConnectionService),
                     dependencyContainer.resolve(DependencyToken.IdGenerator),
                     dependencyContainer.resolve(DependencyToken.MaterialRepository)
+                );
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.TaskRepository,
+        class {
+            constructor() {
+                return new MongoTaskRepository(dependencyContainer.resolve(DependencyToken.Database));
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.TaskService,
+        class {
+            constructor() {
+                return new TaskService(
+                    dependencyContainer.resolve(DependencyToken.TaskRepository),
+                    dependencyContainer.resolve(DependencyToken.IdGenerator)
                 );
             }
         } as any
