@@ -5,6 +5,8 @@ import { useState } from 'react';
 
 import { getGoalsQuery } from '../../api/endpoints/goals';
 import { getTasksQuery, makeUpdateTaskRequest } from '../../api/endpoints/tasks';
+import GoalProgress from '../../components/GoalProgress';
+import AddGoalDialog from '../../components/GoalProgress/AddGoalDialog';
 import LoadingScreen from '../../components/Loading';
 import TaskBoard from '../../components/TaskBoard';
 import AddTaskDialog from '../../components/TaskBoard/AddTaskDialog';
@@ -17,6 +19,7 @@ const Board = () => {
     const queryClient = useQueryClient();
     const { dispatch } = useAlert();
     const [addTaskOpen, setAddTaskOpen] = useState(false);
+    const [addGoalOpen, setAddGoalOpen] = useState(false);
 
     const { data: tasks, isLoading: tasksLoading } = useQuery(getTasksQuery(() => accessToken, login, logout));
     const { data: goals, isLoading: goalsLoading } = useQuery(getGoalsQuery(() => accessToken, login, logout));
@@ -52,18 +55,32 @@ const Board = () => {
             </div>
             <p className="text-sm text-muted-foreground mb-2">{tasks?.length ?? 0} tasks</p>
             <TaskBoard tasks={tasks ?? []} onStatusChange={handleStatusChange} />
-            <p className="text-sm text-muted-foreground mb-2 mt-6">{goals?.length ?? 0} goals</p>
-            <ul>
+
+            <div className="flex items-center justify-between mb-2 mt-6">
+                <p className="text-sm text-muted-foreground">{goals?.length ?? 0} goals</p>
+                <Button variant="outline" onClick={() => setAddGoalOpen(true)}>
+                    Add Goal
+                </Button>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2">
                 {goals?.map((goal) => (
-                    <li key={goal.id} className="text-sm py-1">
-                        {goal.title}: {goal.currentValue}/{goal.targetValue}
-                    </li>
+                    <GoalProgress
+                        key={goal.id}
+                        goal={goal}
+                        onSynced={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
+                    />
                 ))}
-            </ul>
+            </div>
+
             <AddTaskDialog
                 open={addTaskOpen}
                 onOpenChange={setAddTaskOpen}
                 onCreated={() => queryClient.invalidateQueries({ queryKey: ['tasks'] })}
+            />
+            <AddGoalDialog
+                open={addGoalOpen}
+                onOpenChange={setAddGoalOpen}
+                onCreated={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
             />
         </div>
     );

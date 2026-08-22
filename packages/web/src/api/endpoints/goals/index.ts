@@ -63,3 +63,19 @@ export const makeDeleteGoalRequest = async (id: string, ...[getAccessToken, onTo
         onTokenRefresh,
         onTokenClear
     );
+
+export const makeSyncGoalEtsyValueRequest = async (
+    id: string,
+    ...[getAccessToken, onTokenRefresh, onTokenClear]: AuthArgs
+) =>
+    makeRequestWithAutoRefresh<Goal>(
+        {
+            pathname: `${GOALS_ENDPOINT}/${id}/etsy-sync`,
+            method: MethodType.POST,
+            operationString: 'sync goal from Etsy',
+            accessToken: '',
+        },
+        getAccessToken,
+        onTokenRefresh,
+        onTokenClear
+    );
