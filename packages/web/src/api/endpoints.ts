@@ -1,4 +1,6 @@
 export const MATERIALS_ENDPOINT = '/api/materials';
+export const TASKS_ENDPOINT = '/api/tasks';
+export const GOALS_ENDPOINT = '/api/goals';
 export const DESIGNS_ENDPOINT = '/api/designs';
 export const DRAFTS_ENDPOINT = '/api/drafts';
 export const USER_SETTINGS_ENDPOINT = '/api/user-settings';

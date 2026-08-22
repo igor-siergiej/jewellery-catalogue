@@ -200,7 +200,12 @@ export class EtsyClient {
         return { userId: body.user_id, shopId: body.shop_id };
     }
 
-    async getShop(shopId: number): Promise<{ shopId: number; shopName: string }> {
+    async getShop(shopId: number): Promise<{
+        shopId: number;
+        shopName: string;
+        listingActiveCount: number;
+        transactionSoldCount: number;
+    }> {
         const response = await fetch(`${API_BASE}/shops/${shopId}`, {
             headers: { 'x-api-key': this.apiKeyHeader() },
         });
@@ -209,8 +214,19 @@ export class EtsyClient {
             throw await etsyError('getShop', response);
         }
 
-        const body = (await response.json()) as { shop_id: number; shop_name: string };
-        return { shopId: body.shop_id, shopName: body.shop_name };
+        const body = (await response.json()) as {
+            shop_id: number;
+            shop_name: string;
+            listing_active_count: number;
+            transaction_sold_count: number;
+        };
+
+        return {
+            shopId: body.shop_id,
+            shopName: body.shop_name,
+            listingActiveCount: body.listing_active_count,
+            transactionSoldCount: body.transaction_sold_count,
+        };
     }
 
     async getListing(accessToken: string, listingId: number): Promise<EtsyListingStatus> {

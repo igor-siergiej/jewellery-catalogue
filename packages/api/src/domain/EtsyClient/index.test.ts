@@ -129,16 +129,27 @@ describe('EtsyClient', () => {
     });
 
     describe('getShop', () => {
-        it('fetches shop by id and maps shop_name', async () => {
+        it('fetches shop by id and maps shop_name and listing metrics', async () => {
             fetchMock.mockResolvedValue(
-                new Response(JSON.stringify({ shop_id: 47408839, shop_name: 'MariCrystalJewellery' }), {
-                    status: 200,
-                })
+                new Response(
+                    JSON.stringify({
+                        shop_id: 47408839,
+                        shop_name: 'MariCrystalJewellery',
+                        listing_active_count: 42,
+                        transaction_sold_count: 238,
+                    }),
+                    { status: 200 }
+                )
             );
 
             const result = await client.getShop(47408839);
 
-            expect(result).toEqual({ shopId: 47408839, shopName: 'MariCrystalJewellery' });
+            expect(result).toEqual({
+                shopId: 47408839,
+                shopName: 'MariCrystalJewellery',
+                listingActiveCount: 42,
+                transactionSoldCount: 238,
+            });
             const [url] = fetchMock.mock.calls[0] as [string, RequestInit];
             expect(url).toBe('https://api.etsy.com/v3/application/shops/47408839');
         });

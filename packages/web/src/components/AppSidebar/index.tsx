@@ -1,4 +1,4 @@
-import { Gem, Home, Palette, Plus, PlusCircle, ShoppingBag } from 'lucide-react';
+import { Gem, Home, LayoutGrid, Palette, Plus, PlusCircle, ShoppingBag } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
@@ -25,6 +25,7 @@ const routeIcons = {
     '/addDesign': Plus,
     '/materials': Gem,
     '/addMaterial': PlusCircle,
+    '/board': LayoutGrid,
 };
 
 const AppSidebar = () => {

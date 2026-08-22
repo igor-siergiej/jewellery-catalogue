@@ -19,6 +19,7 @@ import {
     startEtsyOAuth,
     syncDesignEtsyQuantity,
 } from '../handlers/Etsy';
+import { addGoal, deleteGoal, getGoals, syncGoalEtsyValue, updateGoal } from '../handlers/Goal';
 import { getImage, uploadImage } from '../handlers/Image';
 import {
     addMaterial,
@@ -28,6 +29,7 @@ import {
     recalculateMaterialPrices,
     updateMaterial,
 } from '../handlers/Material';
+import { addTask, deleteTask, getTasks, updateTask } from '../handlers/Task';
 import { getUserSettings, recalculatePrices, updateUserSettings } from '../handlers/UserSettings';
 
 type Env = { Variables: { userId: string } };
@@ -81,6 +83,17 @@ export const createRoutes = (): Hono<Env> => {
     app.put('/api/drafts/:id', authenticate, updateDraft);
     app.post('/api/drafts/:id/image', authenticate, uploadDraftImage);
     app.delete('/api/drafts/:id', authenticate, deleteDraft);
+
+    app.get('/api/goals', authenticate, getGoals);
+    app.post('/api/goals', authenticate, addGoal);
+    app.put('/api/goals/:id', authenticate, updateGoal);
+    app.post('/api/goals/:id/etsy-sync', authenticate, syncGoalEtsyValue);
+    app.delete('/api/goals/:id', authenticate, deleteGoal);
+
+    app.get('/api/tasks', authenticate, getTasks);
+    app.post('/api/tasks', authenticate, addTask);
+    app.put('/api/tasks/:id', authenticate, updateTask);
+    app.delete('/api/tasks/:id', authenticate, deleteTask);
 
     app.post('/api/images', authenticate, uploadImage);
     app.get('/api/image/:name', getImage);
