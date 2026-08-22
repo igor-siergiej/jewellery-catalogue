@@ -1,3 +1,10 @@
+# [1.41.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.40.1...v1.41.0) (2026-08-22)
+
+
+### Features
+
+* Goals/Tasks Kanban board ([#56](https://github.com/igor-siergiej/jewellery-catalogue/issues/56)) ([c2f0dd2](https://github.com/igor-siergiej/jewellery-catalogue/commit/c2f0dd23aecac16d6c18dc37f529f7cb9db1d79a))
+
 ## [1.40.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.40.0...v1.40.1) (2026-07-20)
 
 
