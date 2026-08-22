@@ -56,7 +56,28 @@ export class TaskService {
 
         await this.taskRepo.update(id, updated);
 
+        if (existing.status !== 'done' && updated.status === 'done' && updated.recurrence !== 'none') {
+            await this.taskRepo.insert(this.buildNextOccurrence(updated));
+        }
+
         return updated;
+    }
+
+    private buildNextOccurrence(completed: Task): Task {
+        const offsetDays = completed.recurrence === 'daily' ? 1 : 7;
+        const baseDate = completed.dueDate ?? new Date();
+        const nextDueDate = new Date(baseDate);
+        nextDueDate.setDate(nextDueDate.getDate() + offsetDays);
+
+        const now = new Date();
+        return {
+            ...completed,
+            id: this.idGenerator.generate(),
+            status: 'todo',
+            dueDate: nextDueDate,
+            createdAt: now,
+            updatedAt: now,
+        };
     }
 
     async deleteTask(id: string, userId: string): Promise<void> {

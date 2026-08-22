@@ -30,6 +30,15 @@ describe('TaskService', () => {
 
     beforeEach(() => {
         mock.restore();
+        // Reset each mock to clear any residual state
+        (mockTaskRepo.getById as ReturnType<typeof mock>).mockClear?.();
+        (mockTaskRepo.getByIdAndUserId as ReturnType<typeof mock>).mockClear?.();
+        (mockTaskRepo.getByUserId as ReturnType<typeof mock>).mockClear?.();
+        (mockTaskRepo.getAll as ReturnType<typeof mock>).mockClear?.();
+        (mockTaskRepo.insert as ReturnType<typeof mock>).mockClear?.();
+        (mockTaskRepo.update as ReturnType<typeof mock>).mockClear?.();
+        (mockTaskRepo.delete as ReturnType<typeof mock>).mockClear?.();
+        (mockIdGenerator.generate as ReturnType<typeof mock>).mockClear?.();
         service = new TaskService(mockTaskRepo, mockIdGenerator);
     });
 
@@ -88,5 +97,75 @@ describe('TaskService', () => {
         (mockTaskRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(null);
 
         await expect(service.deleteTask('task-1', 'user-1')).rejects.toMatchObject({ status: 404 });
+    });
+
+    it('marking a non-recurring task done does not create a new task', async () => {
+        const existing: Task = {
+            id: 'task-1',
+            userId: 'user-1',
+            title: 'One-off task',
+            subject: 'marketing',
+            importance: 'low',
+            recurrence: 'none',
+            status: 'todo',
+            createdAt: new Date('2026-08-01T00:00:00.000Z'),
+            updatedAt: new Date('2026-08-01T00:00:00.000Z'),
+        };
+        (mockTaskRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
+
+        await service.updateTask('task-1', { status: 'done' }, 'user-1');
+
+        expect(mockTaskRepo.insert).not.toHaveBeenCalled();
+    });
+
+    it('marking a daily recurring task done creates the next occurrence due +1 day', async () => {
+        const existing: Task = {
+            id: 'task-1',
+            userId: 'user-1',
+            title: 'Post daily update',
+            subject: 'marketing',
+            importance: 'low',
+            recurrence: 'daily',
+            status: 'todo',
+            dueDate: new Date('2026-08-10T00:00:00.000Z'),
+            createdAt: new Date('2026-08-01T00:00:00.000Z'),
+            updatedAt: new Date('2026-08-01T00:00:00.000Z'),
+        };
+        (mockTaskRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
+        (mockIdGenerator.generate as ReturnType<typeof mock>).mockReturnValue('task-2');
+
+        await service.updateTask('task-1', { status: 'done' }, 'user-1');
+
+        expect(mockTaskRepo.insert).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: 'task-2',
+                title: 'Post daily update',
+                status: 'todo',
+                dueDate: new Date('2026-08-11T00:00:00.000Z'),
+            })
+        );
+    });
+
+    it('marking a weekly recurring task done creates the next occurrence due +7 days', async () => {
+        const existing: Task = {
+            id: 'task-1',
+            userId: 'user-1',
+            title: 'Review shop analytics',
+            subject: 'finance',
+            importance: 'medium',
+            recurrence: 'weekly',
+            status: 'in_progress',
+            dueDate: new Date('2026-08-10T00:00:00.000Z'),
+            createdAt: new Date('2026-08-01T00:00:00.000Z'),
+            updatedAt: new Date('2026-08-01T00:00:00.000Z'),
+        };
+        (mockTaskRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
+        (mockIdGenerator.generate as ReturnType<typeof mock>).mockReturnValue('task-2');
+
+        await service.updateTask('task-1', { status: 'done' }, 'user-1');
+
+        expect(mockTaskRepo.insert).toHaveBeenCalledWith(
+            expect.objectContaining({ id: 'task-2', dueDate: new Date('2026-08-17T00:00:00.000Z') })
+        );
     });
 });
