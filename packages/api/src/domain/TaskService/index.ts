@@ -1,4 +1,10 @@
-import type { FormTask, Task, UpdateTask } from '@jewellery-catalogue/types';
+import {
+    type FormTask,
+    formTaskSchema,
+    type Task,
+    type UpdateTask,
+    updateTaskSchema,
+} from '@jewellery-catalogue/types';
 
 import type { IdGenerator } from '../IdGenerator';
 import type { TaskRepository } from '../TaskRepository';
@@ -21,17 +27,22 @@ export class TaskService {
             throw Object.assign(new Error('User ID is required'), { status: 400 });
         }
 
+        const result = formTaskSchema.safeParse(taskData);
+        if (!result.success) {
+            throw Object.assign(new Error('Invalid task data'), { status: 400 });
+        }
+
         const now = new Date();
         const task: Task = {
             id: this.idGenerator.generate(),
             userId,
-            title: taskData.title,
-            subject: taskData.subject,
-            importance: taskData.importance,
-            recurrence: taskData.recurrence,
+            title: result.data.title,
+            subject: result.data.subject,
+            importance: result.data.importance,
+            recurrence: result.data.recurrence,
             status: 'todo',
-            dueDate: taskData.dueDate,
-            goalId: taskData.goalId,
+            dueDate: result.data.dueDate,
+            goalId: result.data.goalId,
             createdAt: now,
             updatedAt: now,
         };
@@ -46,13 +57,18 @@ export class TaskService {
             throw Object.assign(new Error('User ID is required'), { status: 400 });
         }
 
+        const result = updateTaskSchema.safeParse(updates);
+        if (!result.success) {
+            throw Object.assign(new Error('Invalid task data'), { status: 400 });
+        }
+
         const existing = await this.taskRepo.getByIdAndUserId(id, userId);
 
         if (!existing) {
             throw Object.assign(new Error('Task not found'), { status: 404 });
         }
 
-        const updated: Task = { ...existing, ...updates, updatedAt: new Date() };
+        const updated: Task = { ...existing, ...result.data, updatedAt: new Date() };
 
         await this.taskRepo.update(id, updated);
 

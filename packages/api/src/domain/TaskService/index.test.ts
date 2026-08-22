@@ -46,6 +46,10 @@ describe('TaskService', () => {
         await expect(service.addTask(formTask, '')).rejects.toMatchObject({ status: 400 });
     });
 
+    it('addTask throws 400 when task data is invalid', async () => {
+        await expect(service.addTask({ ...formTask, title: '' }, 'user-1')).rejects.toMatchObject({ status: 400 });
+    });
+
     it('addTask inserts a task with generated id, todo status, and timestamps', async () => {
         (mockIdGenerator.generate as ReturnType<typeof mock>).mockReturnValue('task-1');
 
@@ -64,12 +68,71 @@ describe('TaskService', () => {
         await expect(service.getTasksByUserId('')).rejects.toMatchObject({ status: 400 });
     });
 
+    it('getTasksByUserId returns the tasks from the repository', async () => {
+        const tasks: Array<Task> = [
+            {
+                id: 'task-1',
+                userId: 'user-1',
+                title: 'Add 50 more listings',
+                subject: 'product',
+                importance: 'high',
+                recurrence: 'none',
+                status: 'todo',
+                createdAt: new Date('2026-08-01T00:00:00.000Z'),
+                updatedAt: new Date('2026-08-01T00:00:00.000Z'),
+            },
+        ];
+        (mockTaskRepo.getByUserId as ReturnType<typeof mock>).mockResolvedValue(tasks);
+
+        const result = await service.getTasksByUserId('user-1');
+
+        expect(result).toEqual(tasks);
+        expect(mockTaskRepo.getByUserId).toHaveBeenCalledWith('user-1');
+    });
+
     it('updateTask throws 404 when task does not exist', async () => {
         (mockTaskRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(null);
 
         await expect(service.updateTask('task-1', { status: 'done' }, 'user-1')).rejects.toMatchObject({
             status: 404,
         });
+    });
+
+    it('updateTask throws 400 when update data is invalid', async () => {
+        await expect(service.updateTask('task-1', { status: 'not-a-status' } as never, 'user-1')).rejects.toMatchObject(
+            { status: 400 }
+        );
+    });
+
+    it('updateTask strips userId, id, and createdAt from the update payload', async () => {
+        const existing: Task = {
+            id: 'task-1',
+            userId: 'user-1',
+            title: 'Add 50 more listings',
+            subject: 'product',
+            importance: 'high',
+            recurrence: 'none',
+            status: 'todo',
+            createdAt: new Date('2026-08-01T00:00:00.000Z'),
+            updatedAt: new Date('2026-08-01T00:00:00.000Z'),
+        };
+        (mockTaskRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
+
+        const result = await service.updateTask(
+            'task-1',
+            {
+                status: 'in_progress',
+                userId: 'attacker-user-id',
+                id: 'attacker-chosen-id',
+                createdAt: new Date('2020-01-01T00:00:00.000Z'),
+            } as never,
+            'user-1'
+        );
+
+        expect(result.userId).toBe('user-1');
+        expect(result.id).toBe('task-1');
+        expect(result.createdAt).toEqual(existing.createdAt);
+        expect(result.status).toBe('in_progress');
     });
 
     it('updateTask merges updates and bumps updatedAt', async () => {

@@ -1,4 +1,11 @@
-import { type FormGoal, formGoalSchema, type Goal, type GoalSource, type UpdateGoal } from '@jewellery-catalogue/types';
+import {
+    type FormGoal,
+    formGoalSchema,
+    type Goal,
+    type GoalSource,
+    type UpdateGoal,
+    updateGoalSchema,
+} from '@jewellery-catalogue/types';
 
 import type { EtsyClient } from '../EtsyClient';
 import type { EtsyConnectionRepository } from '../EtsyConnectionRepository';
@@ -58,13 +65,18 @@ export class GoalService {
             throw Object.assign(new Error('User ID is required'), { status: 400 });
         }
 
+        const result = updateGoalSchema.safeParse(updates);
+        if (!result.success) {
+            throw Object.assign(new Error('Invalid goal data'), { status: 400 });
+        }
+
         const existing = await this.goalRepo.getByIdAndUserId(id, userId);
 
         if (!existing) {
             throw Object.assign(new Error('Goal not found'), { status: 404 });
         }
 
-        const updated: Goal = { ...existing, ...updates, updatedAt: new Date() };
+        const updated: Goal = { ...existing, ...result.data, updatedAt: new Date() };
 
         await this.goalRepo.update(id, updated);
 

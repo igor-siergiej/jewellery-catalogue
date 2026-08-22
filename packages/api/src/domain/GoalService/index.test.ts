@@ -42,7 +42,43 @@ describe('GoalService', () => {
 
     beforeEach(() => {
         mock.restore();
+        // Reset each mock to clear any residual state
+        (mockGoalRepo.getById as ReturnType<typeof mock>).mockClear?.();
+        (mockGoalRepo.getByIdAndUserId as ReturnType<typeof mock>).mockClear?.();
+        (mockGoalRepo.getByUserId as ReturnType<typeof mock>).mockClear?.();
+        (mockGoalRepo.getAll as ReturnType<typeof mock>).mockClear?.();
+        (mockGoalRepo.insert as ReturnType<typeof mock>).mockClear?.();
+        (mockGoalRepo.update as ReturnType<typeof mock>).mockClear?.();
+        (mockGoalRepo.delete as ReturnType<typeof mock>).mockClear?.();
+        (mockIdGenerator.generate as ReturnType<typeof mock>).mockClear?.();
+        (mockEtsyClient.getShop as ReturnType<typeof mock>).mockClear?.();
+        (mockEtsyConnectionRepo.getByUserId as ReturnType<typeof mock>).mockClear?.();
         service = new GoalService(mockGoalRepo, mockIdGenerator, mockEtsyClient, mockEtsyConnectionRepo);
+    });
+
+    it('getGoalsByUserId throws 400 when userId is missing', async () => {
+        await expect(service.getGoalsByUserId('')).rejects.toMatchObject({ status: 400 });
+    });
+
+    it('getGoalsByUserId returns the goals from the repository', async () => {
+        const goals: Array<Goal> = [
+            {
+                id: 'goal-1',
+                userId: 'user-1',
+                title: 'Add 50 more listings',
+                targetValue: 50,
+                currentValue: 0,
+                source: 'manual',
+                createdAt: new Date('2026-08-01T00:00:00.000Z'),
+                updatedAt: new Date('2026-08-01T00:00:00.000Z'),
+            },
+        ];
+        (mockGoalRepo.getByUserId as ReturnType<typeof mock>).mockResolvedValue(goals);
+
+        const result = await service.getGoalsByUserId('user-1');
+
+        expect(result).toEqual(goals);
+        expect(mockGoalRepo.getByUserId).toHaveBeenCalledWith('user-1');
     });
 
     it('addGoal throws 400 when userId is missing', async () => {
@@ -107,6 +143,42 @@ describe('GoalService', () => {
         await expect(service.updateGoal('goal-1', { currentValue: 20 }, 'user-1')).rejects.toMatchObject({
             status: 404,
         });
+    });
+
+    it('updateGoal throws 400 when update data is invalid', async () => {
+        await expect(service.updateGoal('goal-1', { targetValue: -5 } as never, 'user-1')).rejects.toMatchObject({
+            status: 400,
+        });
+    });
+
+    it('updateGoal strips userId, id, and createdAt from the update payload', async () => {
+        const existing: Goal = {
+            id: 'goal-1',
+            userId: 'user-1',
+            title: 'Add 50 more listings',
+            targetValue: 50,
+            currentValue: 0,
+            source: 'manual',
+            createdAt: new Date('2026-08-01T00:00:00.000Z'),
+            updatedAt: new Date('2026-08-01T00:00:00.000Z'),
+        };
+        (mockGoalRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
+
+        const result = await service.updateGoal(
+            'goal-1',
+            {
+                currentValue: 20,
+                userId: 'attacker-user-id',
+                id: 'attacker-chosen-id',
+                createdAt: new Date('2020-01-01T00:00:00.000Z'),
+            } as never,
+            'user-1'
+        );
+
+        expect(result.userId).toBe('user-1');
+        expect(result.id).toBe('goal-1');
+        expect(result.createdAt).toEqual(existing.createdAt);
+        expect(result.currentValue).toBe(20);
     });
 
     it('updateGoal merges currentValue and bumps updatedAt', async () => {
