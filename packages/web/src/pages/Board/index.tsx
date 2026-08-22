@@ -6,10 +6,13 @@ import { getGoalsQuery } from '../../api/endpoints/goals';
 import { getTasksQuery, makeUpdateTaskRequest } from '../../api/endpoints/tasks';
 import LoadingScreen from '../../components/Loading';
 import TaskBoard from '../../components/TaskBoard';
+import { useAlert } from '../../context/Alert';
+import { AlertStoreActions } from '../../context/Alert/types';
 
 const Board = () => {
     const { accessToken, login, logout } = useAuth();
     const queryClient = useQueryClient();
+    const { dispatch } = useAlert();
 
     const { data: tasks, isLoading: tasksLoading } = useQuery(getTasksQuery(() => accessToken, login, logout));
     const { data: goals, isLoading: goalsLoading } = useQuery(getGoalsQuery(() => accessToken, login, logout));
@@ -19,8 +22,22 @@ const Board = () => {
     }
 
     const handleStatusChange = async (taskId: string, status: TaskStatus) => {
-        await makeUpdateTaskRequest(taskId, { status }, () => accessToken, login, logout);
-        queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        try {
+            await makeUpdateTaskRequest(taskId, { status }, () => accessToken, login, logout);
+            queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        } catch (e) {
+            const message = e instanceof Error ? e.message : 'Unknown Error';
+
+            dispatch({
+                type: AlertStoreActions.SHOW_ALERT,
+                payload: {
+                    title: 'Error occured during updating task! :(',
+                    message: `Details: ${message}`,
+                    severity: 'error',
+                    variant: 'standard',
+                },
+            });
+        }
     };
 
     return (
