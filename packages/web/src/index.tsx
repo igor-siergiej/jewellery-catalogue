@@ -11,6 +11,7 @@ import MainLayout from './components/MainLayout';
 import {
     ADD_DESIGN_PAGE,
     ADD_MATERIAL_PAGE,
+    BOARD_PAGE,
     DESIGNS_PAGE,
     HOME_PAGE,
     LISTINGS_PAGE,
@@ -24,6 +25,7 @@ import { AlertProvider } from './context/Alert';
 import { DraftStatusProvider } from './context/DraftStatus';
 import AddDesign from './pages/AddDesign';
 import AddMaterial from './pages/AddMaterial';
+import Board from './pages/Board';
 import Designs from './pages/Designs';
 import Home from './pages/Home';
 import Listings from './pages/Listings';
@@ -135,6 +137,17 @@ function App() {
                     <ProtectedRoute fallbackPath={START_PAGE.route}>
                         <MainLayout>
                             <Settings />
+                        </MainLayout>
+                    </ProtectedRoute>
+                }
+            />
+
+            <Route
+                path={BOARD_PAGE.route}
+                element={
+                    <ProtectedRoute fallbackPath={START_PAGE.route}>
+                        <MainLayout>
+                            <Board />
                         </MainLayout>
                     </ProtectedRoute>
                 }
