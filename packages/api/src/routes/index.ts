@@ -19,6 +19,7 @@ import {
     startEtsyOAuth,
     syncDesignEtsyQuantity,
 } from '../handlers/Etsy';
+import { addGoal, deleteGoal, getGoals, syncGoalEtsyValue, updateGoal } from '../handlers/Goal';
 import { getImage, uploadImage } from '../handlers/Image';
 import {
     addMaterial,
@@ -82,6 +83,12 @@ export const createRoutes = (): Hono<Env> => {
     app.put('/api/drafts/:id', authenticate, updateDraft);
     app.post('/api/drafts/:id/image', authenticate, uploadDraftImage);
     app.delete('/api/drafts/:id', authenticate, deleteDraft);
+
+    app.get('/api/goals', authenticate, getGoals);
+    app.post('/api/goals', authenticate, addGoal);
+    app.put('/api/goals/:id', authenticate, updateGoal);
+    app.post('/api/goals/:id/etsy-sync', authenticate, syncGoalEtsyValue);
+    app.delete('/api/goals/:id', authenticate, deleteGoal);
 
     app.get('/api/tasks', authenticate, getTasks);
     app.post('/api/tasks', authenticate, addTask);

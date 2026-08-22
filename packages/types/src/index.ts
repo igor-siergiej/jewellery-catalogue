@@ -5,6 +5,7 @@ export * from './editDesign/index';
 export * from './etsyConnection/index';
 export * from './formDesign/index';
 export * from './formMaterial/index';
+export * from './goal/index';
 export * from './material/enum';
 export * from './material/index';
 export * from './requiredMaterial/index';
