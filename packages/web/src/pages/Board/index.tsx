@@ -1,7 +1,7 @@
 import { useAuth } from '@imapps/web-utils';
-import type { TaskStatus } from '@jewellery-catalogue/types';
+import type { TaskImportance, TaskStatus, TaskSubject } from '@jewellery-catalogue/types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { getGoalsQuery } from '../../api/endpoints/goals';
 import { getTasksQuery, makeUpdateTaskRequest } from '../../api/endpoints/tasks';
@@ -10,6 +10,7 @@ import AddGoalDialog from '../../components/GoalProgress/AddGoalDialog';
 import LoadingScreen from '../../components/Loading';
 import TaskBoard from '../../components/TaskBoard';
 import AddTaskDialog from '../../components/TaskBoard/AddTaskDialog';
+import TaskFilters from '../../components/TaskBoard/TaskFilters';
 import { Button } from '../../components/ui/button';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
@@ -20,9 +21,31 @@ const Board = () => {
     const { dispatch } = useAlert();
     const [addTaskOpen, setAddTaskOpen] = useState(false);
     const [addGoalOpen, setAddGoalOpen] = useState(false);
+    const [subjectFilter, setSubjectFilter] = useState<TaskSubject | 'all'>('all');
+    const [importanceFilter, setImportanceFilter] = useState<Set<TaskImportance>>(new Set());
 
     const { data: tasks, isLoading: tasksLoading } = useQuery(getTasksQuery(() => accessToken, login, logout));
     const { data: goals, isLoading: goalsLoading } = useQuery(getGoalsQuery(() => accessToken, login, logout));
+
+    const toggleImportanceFilter = (importance: TaskImportance) => {
+        setImportanceFilter((prev) => {
+            const next = new Set(prev);
+            if (next.has(importance)) {
+                next.delete(importance);
+            } else {
+                next.add(importance);
+            }
+            return next;
+        });
+    };
+
+    const filteredTasks = useMemo(() => {
+        return (tasks ?? []).filter((task) => {
+            if (subjectFilter !== 'all' && task.subject !== subjectFilter) return false;
+            if (importanceFilter.size > 0 && !importanceFilter.has(task.importance)) return false;
+            return true;
+        });
+    }, [tasks, subjectFilter, importanceFilter]);
 
     if (tasksLoading || goalsLoading) {
         return <LoadingScreen />;
@@ -54,7 +77,14 @@ const Board = () => {
                 <Button onClick={() => setAddTaskOpen(true)}>Add Task</Button>
             </div>
             <p className="text-sm text-muted-foreground mb-2">{tasks?.length ?? 0} tasks</p>
-            <TaskBoard tasks={tasks ?? []} onStatusChange={handleStatusChange} />
+            <TaskFilters
+                tasks={tasks ?? []}
+                subjectFilter={subjectFilter}
+                importanceFilter={importanceFilter}
+                onSubjectFilterChange={setSubjectFilter}
+                onImportanceFilterChange={toggleImportanceFilter}
+            />
+            <TaskBoard tasks={filteredTasks} onStatusChange={handleStatusChange} />
 
             <div className="flex items-center justify-between mb-2 mt-6">
                 <p className="text-sm text-muted-foreground">{goals?.length ?? 0} goals</p>
