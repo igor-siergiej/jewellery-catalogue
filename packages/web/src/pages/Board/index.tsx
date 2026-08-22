@@ -24,8 +24,24 @@ const Board = () => {
     const [subjectFilter, setSubjectFilter] = useState<TaskSubject | 'all'>('all');
     const [importanceFilter, setImportanceFilter] = useState<Set<TaskImportance>>(new Set());
 
-    const { data: tasks, isLoading: tasksLoading } = useQuery(getTasksQuery(() => accessToken, login, logout));
-    const { data: goals, isLoading: goalsLoading } = useQuery(getGoalsQuery(() => accessToken, login, logout));
+    const {
+        data: tasks,
+        isLoading: tasksLoading,
+        isError: tasksIsError,
+        error: tasksError,
+    } = useQuery({
+        ...getTasksQuery(() => accessToken, login, logout),
+        enabled: !!accessToken,
+    });
+    const {
+        data: goals,
+        isLoading: goalsLoading,
+        isError: goalsIsError,
+        error: goalsError,
+    } = useQuery({
+        ...getGoalsQuery(() => accessToken, login, logout),
+        enabled: !!accessToken,
+    });
 
     const toggleImportanceFilter = (importance: TaskImportance) => {
         setImportanceFilter((prev) => {
@@ -46,6 +62,15 @@ const Board = () => {
             return true;
         });
     }, [tasks, subjectFilter, importanceFilter]);
+
+    if (tasksIsError || goalsIsError) {
+        return (
+            <span>
+                Something went wrong! :(
+                {(tasksError ?? goalsError)?.message}
+            </span>
+        );
+    }
 
     if (tasksLoading || goalsLoading) {
         return <LoadingScreen />;
@@ -76,7 +101,6 @@ const Board = () => {
                 <h1 className="text-2xl font-semibold">Board</h1>
                 <Button onClick={() => setAddTaskOpen(true)}>Add Task</Button>
             </div>
-            <p className="text-sm text-muted-foreground mb-2">{tasks?.length ?? 0} tasks</p>
             <TaskFilters
                 tasks={tasks ?? []}
                 subjectFilter={subjectFilter}

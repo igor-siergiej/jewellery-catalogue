@@ -108,7 +108,10 @@ const AddGoalDialog: React.FC<{ open: boolean; onOpenChange: (open: boolean) => 
                     <Button variant="outline" onClick={() => onOpenChange(false)}>
                         Cancel
                     </Button>
-                    <Button onClick={handleSubmit} disabled={submitting || !title.trim() || !targetValue}>
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={submitting || !title.trim() || !targetValue || !(Number(targetValue) > 0)}
+                    >
                         Add Goal
                     </Button>
                 </DialogFooter>
