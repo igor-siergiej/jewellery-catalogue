@@ -105,8 +105,14 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated 
                     </Button>
                 </div>
                 <ItemHeader className="basis-auto justify-start">
-                    <div className="w-56 h-56 relative">
-                        <Image imageId={imageIds?.[0] ?? ''} />
+                    <div className="w-56 h-56 relative" data-testid="design-card-main-image">
+                        {imageIds?.[0] ? (
+                            <Image imageId={imageIds[0]} />
+                        ) : etsyImageUrl ? (
+                            <img src={etsyImageUrl} alt={name} className="w-full h-full object-contain rounded-md" />
+                        ) : (
+                            <Image imageId="" />
+                        )}
                         {etsyImageUrl && (
                             <div
                                 className="absolute bottom-2 left-2 h-10 w-10 rounded-md border-2 border-background bg-muted overflow-hidden shadow"
