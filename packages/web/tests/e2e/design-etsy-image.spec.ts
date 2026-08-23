@@ -53,4 +53,21 @@ test.describe
             await expect(card).toBeVisible({ timeout: 10000 });
             await expect(card.getByTitle('Linked Etsy listing image')).not.toBeVisible();
         });
+
+        test('design imported from a listing (no uploaded images) shows the listing image as its main image', async ({
+            authenticatedPage: page,
+        }) => {
+            const design = await apiCreateDesign(TOKEN, { name: 'Imported Design', price: 20.0 });
+            await apiLinkDesignToEtsyListing(design.id, 'https://i.etsy.com/456-fullxfull.jpg');
+
+            await page.goto('/designs');
+            await page.waitForLoadState('networkidle');
+
+            const card = findDesignCard(page, 'Imported Design');
+            await expect(card).toBeVisible({ timeout: 10000 });
+            await expect(card.getByTestId('design-card-main-image').locator('img')).toHaveAttribute(
+                'src',
+                'https://i.etsy.com/456-fullxfull.jpg'
+            );
+        });
     });
