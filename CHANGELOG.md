@@ -1,3 +1,10 @@
+## [1.41.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.41.0...v1.41.1) (2026-08-23)
+
+
+### Bug Fixes
+
+* fall back to Etsy listing image as design card main image ([#57](https://github.com/igor-siergiej/jewellery-catalogue/issues/57)) ([0cf4667](https://github.com/igor-siergiej/jewellery-catalogue/commit/0cf4667334dc3dbde7ec1f96a6e759b33f8a159e))
+
 # [1.41.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.40.1...v1.41.0) (2026-08-22)
 
 
