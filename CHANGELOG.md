@@ -1,3 +1,10 @@
+# [1.47.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.46.0...v1.47.0) (2026-08-28)
+
+
+### Features
+
+* persist design favouriting, add favouriting to goals ([#63](https://github.com/igor-siergiej/jewellery-catalogue/issues/63)) ([74900f8](https://github.com/igor-siergiej/jewellery-catalogue/commit/74900f893540255795a5cb0862d2dd91338c7a10))
+
 # [1.46.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.45.0...v1.46.0) (2026-08-28)
 
 
