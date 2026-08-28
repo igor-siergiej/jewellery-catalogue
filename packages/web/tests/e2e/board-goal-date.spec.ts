@@ -22,9 +22,11 @@ test.describe
 
                 await page.getByRole('button', { name: 'Optional' }).click();
 
-                const firstDay = page.locator('[data-day]').first();
-                const dayLabel = await firstDay.getAttribute('data-day');
-                await firstDay.click();
+                // "Today" is always inside the currently-displayed month, unlike an
+                // arbitrary grid cell which may be an outside-month day.
+                const today = page.getByRole('button', { name: /^Today,/ });
+                const dayLabel = await today.getAttribute('data-day');
+                await today.click();
 
                 await page.getByRole('button', { name: 'Save Changes' }).click();
                 await expect(page.getByText('Edit Goal')).not.toBeVisible({ timeout: 10000 });
