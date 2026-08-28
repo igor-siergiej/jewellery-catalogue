@@ -95,6 +95,28 @@ const Board = () => {
         }
     };
 
+    const handleToggleFavourite = async (taskId: string) => {
+        const task = (tasks ?? []).find((t) => t.id === taskId);
+        if (!task) return;
+
+        try {
+            await makeUpdateTaskRequest(taskId, { favourite: !task.favourite }, () => accessToken, login, logout);
+            queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        } catch (e) {
+            const message = e instanceof Error ? e.message : 'Unknown Error';
+
+            dispatch({
+                type: AlertStoreActions.SHOW_ALERT,
+                payload: {
+                    title: 'Error occured during updating task! :(',
+                    message: `Details: ${message}`,
+                    severity: 'error',
+                    variant: 'standard',
+                },
+            });
+        }
+    };
+
     return (
         <div className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -108,7 +130,11 @@ const Board = () => {
                 onSubjectFilterChange={setSubjectFilter}
                 onImportanceFilterChange={toggleImportanceFilter}
             />
-            <TaskBoard tasks={filteredTasks} onStatusChange={handleStatusChange} />
+            <TaskBoard
+                tasks={filteredTasks}
+                onStatusChange={handleStatusChange}
+                onToggleFavourite={handleToggleFavourite}
+            />
 
             <div className="flex items-center justify-between mb-2 mt-6">
                 <p className="text-sm text-muted-foreground">{goals?.length ?? 0} goals</p>

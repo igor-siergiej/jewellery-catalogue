@@ -22,6 +22,7 @@ export const taskSchema = z.object({
     status: taskStatusEnum,
     dueDate: z.coerce.date().optional(),
     goalId: z.string().optional(),
+    favourite: z.boolean().optional(),
     createdAt: z.coerce.date(),
     updatedAt: z.coerce.date(),
 });

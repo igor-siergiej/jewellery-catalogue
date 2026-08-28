@@ -60,6 +60,7 @@ describe('TaskService', () => {
             userId: 'user-1',
             title: 'Add 50 more listings',
             status: 'todo',
+            favourite: false,
         });
         expect(mockTaskRepo.insert).toHaveBeenCalledWith(result);
     });
@@ -153,6 +154,27 @@ describe('TaskService', () => {
 
         expect(result.status).toBe('in_progress');
         expect(result.updatedAt.getTime()).toBeGreaterThan(existing.updatedAt.getTime());
+        expect(mockTaskRepo.update).toHaveBeenCalledWith('task-1', result);
+    });
+
+    it('updateTask toggles favourite', async () => {
+        const existing: Task = {
+            id: 'task-1',
+            userId: 'user-1',
+            title: 'Add 50 more listings',
+            subject: 'product',
+            importance: 'high',
+            recurrence: 'none',
+            status: 'todo',
+            favourite: false,
+            createdAt: new Date('2026-08-01T00:00:00.000Z'),
+            updatedAt: new Date('2026-08-01T00:00:00.000Z'),
+        };
+        (mockTaskRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
+
+        const result = await service.updateTask('task-1', { favourite: true }, 'user-1');
+
+        expect(result.favourite).toBe(true);
         expect(mockTaskRepo.update).toHaveBeenCalledWith('task-1', result);
     });
 

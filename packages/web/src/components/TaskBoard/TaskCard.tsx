@@ -1,5 +1,6 @@
 import { useDraggable } from '@dnd-kit/core';
 import type { Task } from '@jewellery-catalogue/types';
+import { Star } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 
@@ -9,7 +10,10 @@ const IMPORTANCE_VARIANT: Record<Task['importance'], 'default' | 'secondary' | '
     high: 'destructive',
 };
 
-const TaskCard: React.FC<{ task: Task }> = ({ task }) => {
+const TaskCard: React.FC<{ task: Task; onToggleFavourite: (taskId: string) => void }> = ({
+    task,
+    onToggleFavourite,
+}) => {
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: task.id });
 
     const style = transform
@@ -24,7 +28,22 @@ const TaskCard: React.FC<{ task: Task }> = ({ task }) => {
             {...attributes}
             className="rounded-md border bg-card p-3 mb-2 cursor-grab active:cursor-grabbing"
         >
-            <p className="text-sm font-medium mb-1">{task.title}</p>
+            <div className="flex items-start justify-between gap-2 mb-1">
+                <p className="text-sm font-medium">{task.title}</p>
+                <button
+                    type="button"
+                    aria-label={task.favourite ? 'Unfavourite task' : 'Favourite task'}
+                    aria-pressed={!!task.favourite}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleFavourite(task.id);
+                    }}
+                    className="shrink-0 text-muted-foreground hover:text-foreground"
+                >
+                    <Star className={`h-4 w-4 ${task.favourite ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+                </button>
+            </div>
             <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="outline" className="text-xs capitalize">
                     {task.subject}
