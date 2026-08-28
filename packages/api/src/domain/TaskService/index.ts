@@ -46,6 +46,7 @@ export class TaskService {
             dueDate: result.data.dueDate,
             goalId: result.data.goalId,
             favourite: false,
+            description: result.data.description,
             createdAt: now,
             updatedAt: now,
         };

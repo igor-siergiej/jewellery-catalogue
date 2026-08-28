@@ -65,6 +65,14 @@ describe('TaskService', () => {
         expect(mockTaskRepo.insert).toHaveBeenCalledWith(result);
     });
 
+    it('addTask stores an optional description', async () => {
+        (mockIdGenerator.generate as ReturnType<typeof mock>).mockReturnValue('task-1');
+
+        const result = await service.addTask({ ...formTask, description: 'Order from the usual supplier' }, 'user-1');
+
+        expect(result.description).toBe('Order from the usual supplier');
+    });
+
     it('getTasksByUserId throws 400 when userId is missing', async () => {
         await expect(service.getTasksByUserId('')).rejects.toMatchObject({ status: 400 });
     });
