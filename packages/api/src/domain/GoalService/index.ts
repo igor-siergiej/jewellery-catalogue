@@ -20,6 +20,7 @@ export class GoalService {
         private readonly etsyConnectionRepo: EtsyConnectionRepository
     ) {}
 
+    // fallow-ignore-next-line unused-class-member
     async getGoalsByUserId(userId: string): Promise<Array<Goal>> {
         if (!userId) {
             throw Object.assign(new Error('User ID is required'), { status: 400 });
@@ -27,6 +28,7 @@ export class GoalService {
         return this.goalRepo.getByUserId(userId);
     }
 
+    // fallow-ignore-next-line unused-class-member
     async addGoal(goalData: FormGoal, userId: string): Promise<Goal> {
         if (!userId) {
             throw Object.assign(new Error('User ID is required'), { status: 400 });
@@ -51,6 +53,7 @@ export class GoalService {
             currentValue,
             unit: result.data.unit,
             source: result.data.source,
+            targetDate: result.data.targetDate,
             createdAt: now,
             updatedAt: now,
         };
@@ -60,6 +63,7 @@ export class GoalService {
         return goal;
     }
 
+    // fallow-ignore-next-line unused-class-member
     async updateGoal(id: string, updates: UpdateGoal, userId: string): Promise<Goal> {
         if (!userId) {
             throw Object.assign(new Error('User ID is required'), { status: 400 });
@@ -83,6 +87,7 @@ export class GoalService {
         return updated;
     }
 
+    // fallow-ignore-next-line unused-class-member
     async syncFromEtsy(id: string, userId: string): Promise<Goal> {
         if (!userId) {
             throw Object.assign(new Error('User ID is required'), { status: 400 });
@@ -106,6 +111,7 @@ export class GoalService {
         return updated;
     }
 
+    // fallow-ignore-next-line unused-class-member
     async deleteGoal(id: string, userId: string): Promise<void> {
         if (!userId) {
             throw Object.assign(new Error('User ID is required'), { status: 400 });

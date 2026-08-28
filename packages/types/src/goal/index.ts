@@ -11,6 +11,7 @@ export const goalSchema = z.object({
     currentValue: z.number().nonnegative(),
     unit: z.string().optional(),
     source: goalSourceEnum,
+    targetDate: z.coerce.date().optional(),
     createdAt: z.coerce.date(),
     updatedAt: z.coerce.date(),
 });
@@ -22,6 +23,7 @@ export const formGoalSchema = z.object({
     currentValue: z.number().nonnegative().default(0),
     unit: z.string().optional(),
     source: goalSourceEnum.default('manual'),
+    targetDate: z.coerce.date().optional(),
 });
 export type FormGoal = z.infer<typeof formGoalSchema>;
 
