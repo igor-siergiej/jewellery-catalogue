@@ -2,6 +2,7 @@ type Material = Record<string, unknown> & { id: string; name: string };
 type Design = Record<string, unknown> & { id: string; name: string; variants?: DesignVariant[] };
 type DesignVariant = Record<string, unknown> & { id: string; totalMaterialCosts: number };
 type Task = Record<string, unknown> & { id: string; title: string };
+type Goal = Record<string, unknown> & { id: string; title: string };
 
 const getApiUrl = () => process.env.E2E_API_SERVICE_URL || 'http://localhost:3001';
 
@@ -148,6 +149,33 @@ export async function apiDeleteTask(token: string, id: string): Promise<void> {
         headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok && res.status !== 404) throw new Error(`apiDeleteTask failed: ${await res.text()}`);
+}
+
+export async function apiCreateGoal(
+    token: string,
+    goal: {
+        title: string;
+        targetValue: number;
+        currentValue?: number;
+        unit?: string;
+        source?: 'manual' | 'etsy_active_listings' | 'etsy_sales_count';
+    }
+): Promise<Goal> {
+    const res = await fetch(`${getApiUrl()}/api/goals`, {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: JSON.stringify({ currentValue: 0, source: 'manual', ...goal }),
+    });
+    if (!res.ok) throw new Error(`apiCreateGoal failed: ${await res.text()}`);
+    return res.json();
+}
+
+export async function apiDeleteGoal(token: string, id: string): Promise<void> {
+    const res = await fetch(`${getApiUrl()}/api/goals/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok && res.status !== 404) throw new Error(`apiDeleteGoal failed: ${await res.text()}`);
 }
 
 export async function apiCleanup(token: string): Promise<void> {

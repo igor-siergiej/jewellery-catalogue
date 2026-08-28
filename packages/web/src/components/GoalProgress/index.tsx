@@ -15,7 +15,11 @@ const SOURCE_LABEL: Record<Goal['source'], string | null> = {
     etsy_sales_count: 'Etsy · Total sales',
 };
 
-const GoalProgress: React.FC<{ goal: Goal; onSynced: () => void }> = ({ goal, onSynced }) => {
+const GoalProgress: React.FC<{ goal: Goal; onSynced: () => void; onEdit: (goal: Goal) => void }> = ({
+    goal,
+    onSynced,
+    onEdit,
+}) => {
     const { accessToken, login, logout } = useAuth();
     const { dispatch } = useAlert();
     const [syncing, setSyncing] = useState(false);
@@ -45,7 +49,16 @@ const GoalProgress: React.FC<{ goal: Goal; onSynced: () => void }> = ({ goal, on
     };
 
     return (
-        <div className="rounded-md border bg-card p-3 min-w-[200px]">
+        <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onEdit(goal)}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') onEdit(goal);
+            }}
+            aria-label={`Edit goal ${goal.title}`}
+            className="rounded-md border bg-card p-3 min-w-[200px] text-left cursor-pointer"
+        >
             <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">{goal.title}</span>
                 <span className="text-xs text-muted-foreground">
@@ -59,7 +72,10 @@ const GoalProgress: React.FC<{ goal: Goal; onSynced: () => void }> = ({ goal, on
                     <span className="text-xs text-muted-foreground">{sourceLabel}</span>
                     <button
                         type="button"
-                        onClick={handleSync}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleSync();
+                        }}
                         disabled={syncing}
                         className="text-muted-foreground hover:text-foreground disabled:opacity-50"
                         aria-label="Sync from Etsy"
