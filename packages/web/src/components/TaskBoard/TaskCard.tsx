@@ -1,6 +1,6 @@
 import { useDraggable } from '@dnd-kit/core';
 import type { Task } from '@jewellery-catalogue/types';
-import { Star } from 'lucide-react';
+import { Pencil, Star } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 
@@ -10,10 +10,11 @@ const IMPORTANCE_VARIANT: Record<Task['importance'], 'default' | 'secondary' | '
     high: 'destructive',
 };
 
-const TaskCard: React.FC<{ task: Task; onToggleFavourite: (taskId: string) => void }> = ({
-    task,
-    onToggleFavourite,
-}) => {
+const TaskCard: React.FC<{
+    task: Task;
+    onToggleFavourite: (taskId: string) => void;
+    onEdit: (task: Task) => void;
+}> = ({ task, onToggleFavourite, onEdit }) => {
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: task.id });
 
     const style = transform
@@ -30,19 +31,33 @@ const TaskCard: React.FC<{ task: Task; onToggleFavourite: (taskId: string) => vo
         >
             <div className="flex items-start justify-between gap-2 mb-1">
                 <p className="text-sm font-medium">{task.title}</p>
-                <button
-                    type="button"
-                    aria-label={task.favourite ? 'Unfavourite task' : 'Favourite task'}
-                    aria-pressed={!!task.favourite}
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onToggleFavourite(task.id);
-                    }}
-                    className="shrink-0 text-muted-foreground hover:text-foreground"
-                >
-                    <Star className={`h-4 w-4 ${task.favourite ? 'fill-yellow-400 text-yellow-400' : ''}`} />
-                </button>
+                <div className="flex items-center gap-1 shrink-0">
+                    <button
+                        type="button"
+                        aria-label={`Edit task ${task.title}`}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(task);
+                        }}
+                        className="text-muted-foreground hover:text-foreground"
+                    >
+                        <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                        type="button"
+                        aria-label={task.favourite ? 'Unfavourite task' : 'Favourite task'}
+                        aria-pressed={!!task.favourite}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleFavourite(task.id);
+                        }}
+                        className="text-muted-foreground hover:text-foreground"
+                    >
+                        <Star className={`h-4 w-4 ${task.favourite ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+                    </button>
+                </div>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="outline" className="text-xs capitalize">
