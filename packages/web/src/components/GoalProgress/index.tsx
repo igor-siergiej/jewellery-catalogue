@@ -15,7 +15,11 @@ const SOURCE_LABEL: Record<Goal['source'], string | null> = {
     etsy_sales_count: 'Etsy · Total sales',
 };
 
-const GoalProgress: React.FC<{ goal: Goal; onSynced: () => void }> = ({ goal, onSynced }) => {
+const GoalProgress: React.FC<{ goal: Goal; onSynced: () => void; onEdit: (goal: Goal) => void }> = ({
+    goal,
+    onSynced,
+    onEdit,
+}) => {
     const { accessToken, login, logout } = useAuth();
     const { dispatch } = useAlert();
     const [syncing, setSyncing] = useState(false);
@@ -45,21 +49,33 @@ const GoalProgress: React.FC<{ goal: Goal; onSynced: () => void }> = ({ goal, on
     };
 
     return (
-        <div className="rounded-md border bg-card p-3 min-w-[200px]">
-            <div className="flex items-center justify-between mb-2">
+        <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onEdit(goal)}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') onEdit(goal);
+            }}
+            aria-label={`Edit goal ${goal.title}`}
+            className="rounded-md border bg-card p-4 min-w-[220px] text-left cursor-pointer"
+        >
+            <div className="flex items-center justify-between gap-4 mb-3">
                 <span className="text-sm font-medium">{goal.title}</span>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
                     {goal.currentValue}/{goal.targetValue}
                     {goal.unit ? ` ${goal.unit}` : ''}
                 </span>
             </div>
             <Progress value={percent} />
             {sourceLabel && (
-                <div className="flex items-center justify-between mt-2">
+                <div className="flex items-center justify-between gap-4 mt-3">
                     <span className="text-xs text-muted-foreground">{sourceLabel}</span>
                     <button
                         type="button"
-                        onClick={handleSync}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleSync();
+                        }}
                         disabled={syncing}
                         className="text-muted-foreground hover:text-foreground disabled:opacity-50"
                         aria-label="Sync from Etsy"

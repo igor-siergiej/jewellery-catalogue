@@ -1,5 +1,5 @@
 import { useAuth } from '@imapps/web-utils';
-import type { TaskImportance, TaskStatus, TaskSubject } from '@jewellery-catalogue/types';
+import type { Goal, TaskImportance, TaskStatus, TaskSubject } from '@jewellery-catalogue/types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 
@@ -7,6 +7,7 @@ import { getGoalsQuery } from '../../api/endpoints/goals';
 import { getTasksQuery, makeUpdateTaskRequest } from '../../api/endpoints/tasks';
 import GoalProgress from '../../components/GoalProgress';
 import AddGoalDialog from '../../components/GoalProgress/AddGoalDialog';
+import EditGoalDialog from '../../components/GoalProgress/EditGoalDialog';
 import LoadingScreen from '../../components/Loading';
 import TaskBoard from '../../components/TaskBoard';
 import AddTaskDialog from '../../components/TaskBoard/AddTaskDialog';
@@ -21,6 +22,7 @@ const Board = () => {
     const { dispatch } = useAlert();
     const [addTaskOpen, setAddTaskOpen] = useState(false);
     const [addGoalOpen, setAddGoalOpen] = useState(false);
+    const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
     const [subjectFilter, setSubjectFilter] = useState<TaskSubject | 'all'>('all');
     const [importanceFilter, setImportanceFilter] = useState<Set<TaskImportance>>(new Set());
 
@@ -148,6 +150,7 @@ const Board = () => {
                         key={goal.id}
                         goal={goal}
                         onSynced={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
+                        onEdit={setEditingGoal}
                     />
                 ))}
             </div>
@@ -161,6 +164,13 @@ const Board = () => {
                 open={addGoalOpen}
                 onOpenChange={setAddGoalOpen}
                 onCreated={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
+            />
+            <EditGoalDialog
+                goal={editingGoal}
+                onOpenChange={(open) => {
+                    if (!open) setEditingGoal(null);
+                }}
+                onUpdated={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
             />
         </div>
     );

@@ -20,6 +20,7 @@ export const MOCK_TOKEN_DESIGN_ETSY_IMAGE = makeMockToken('68c6f0f5b97c946129015
 export const MOCK_TOKEN_DESIGN_EDIT_NO_PUSH = makeMockToken('68c6f0f5b97c946129015123'); // design-edit-no-etsy-push.spec
 export const MOCK_TOKEN_STOCK_QUANTITY = makeMockToken('68c6f0f5b97c946129015124'); // design-stock-quantity.spec
 export const MOCK_TOKEN_BOARD_FAVOURITE = makeMockToken('68c6f0f5b97c946129015125'); // board-favourite.spec
+export const MOCK_TOKEN_EDIT_GOAL = makeMockToken('68c6f0f5b97c946129015126'); // board-edit-goal.spec
 
 export const MOCK_USER = { id: '68c6f0f5b97c946129015116', username: 'testuser' };
 
