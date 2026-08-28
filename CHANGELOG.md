@@ -1,3 +1,10 @@
+# [1.42.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.41.1...v1.42.0) (2026-08-28)
+
+
+### Features
+
+* add favouriting for tasks on the Board page ([#58](https://github.com/igor-siergiej/jewellery-catalogue/issues/58)) ([ed0e81e](https://github.com/igor-siergiej/jewellery-catalogue/commit/ed0e81e362b7d4efd43e91c126124423ca809ff8))
+
 ## [1.41.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.41.0...v1.41.1) (2026-08-23)
 
 
