@@ -1,3 +1,10 @@
+# [1.43.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.42.0...v1.43.0) (2026-08-28)
+
+
+### Features
+
+* allow editing goals on the Board page ([#59](https://github.com/igor-siergiej/jewellery-catalogue/issues/59)) ([1a685f5](https://github.com/igor-siergiej/jewellery-catalogue/commit/1a685f5115acc7ffc183f3c0dcdee422a62e4c86))
+
 # [1.42.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.41.1...v1.42.0) (2026-08-28)
 
 
