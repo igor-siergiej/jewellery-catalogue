@@ -59,6 +59,7 @@ const TaskCard: React.FC<{
                     </button>
                 </div>
             </div>
+            {task.description && <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{task.description}</p>}
             <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="outline" className="text-xs capitalize">
                     {task.subject}

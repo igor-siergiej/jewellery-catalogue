@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 import { makeUpdateTaskRequest } from '../../api/endpoints/tasks';
 import { useAlert } from '../../context/Alert';
@@ -26,6 +27,7 @@ const EditTaskDialog: React.FC<{ task: Task | null; onOpenChange: (open: boolean
     const [importance, setImportance] = useState<(typeof taskImportanceEnum.options)[number]>('medium');
     const [recurrence, setRecurrence] = useState<(typeof taskRecurrenceEnum.options)[number]>('none');
     const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+    const [description, setDescription] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
@@ -35,6 +37,7 @@ const EditTaskDialog: React.FC<{ task: Task | null; onOpenChange: (open: boolean
         setImportance(task.importance);
         setRecurrence(task.recurrence);
         setDueDate(task.dueDate ? new Date(task.dueDate) : undefined);
+        setDescription(task.description ?? '');
     }, [task]);
 
     const handleSubmit = async () => {
@@ -45,7 +48,14 @@ const EditTaskDialog: React.FC<{ task: Task | null; onOpenChange: (open: boolean
         try {
             await makeUpdateTaskRequest(
                 task.id,
-                { title: title.trim(), subject, importance, recurrence, dueDate },
+                {
+                    title: title.trim(),
+                    subject,
+                    importance,
+                    recurrence,
+                    dueDate,
+                    description: description.trim() || undefined,
+                },
                 () => accessToken,
                 login,
                 logout
@@ -147,6 +157,16 @@ const EditTaskDialog: React.FC<{ task: Task | null; onOpenChange: (open: boolean
                                 <Calendar mode="single" selected={dueDate} onSelect={setDueDate} />
                             </PopoverContent>
                         </Popover>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="edit-task-description">Description</Label>
+                        <Textarea
+                            id="edit-task-description"
+                            placeholder="Optional"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                        />
                     </div>
                 </div>
 

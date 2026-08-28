@@ -23,6 +23,7 @@ export const MOCK_TOKEN_BOARD_FAVOURITE = makeMockToken('68c6f0f5b97c94612901512
 export const MOCK_TOKEN_EDIT_GOAL = makeMockToken('68c6f0f5b97c946129015126'); // board-edit-goal.spec
 export const MOCK_TOKEN_GOAL_DATE = makeMockToken('68c6f0f5b97c946129015127'); // board-goal-date.spec
 export const MOCK_TOKEN_EDIT_TASK = makeMockToken('68c6f0f5b97c946129015128'); // board-edit-task.spec
+export const MOCK_TOKEN_TASK_DESCRIPTION = makeMockToken('68c6f0f5b97c946129015129'); // board-task-description.spec
 
 export const MOCK_USER = { id: '68c6f0f5b97c946129015116', username: 'testuser' };
 

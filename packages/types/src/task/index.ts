@@ -23,6 +23,7 @@ export const taskSchema = z.object({
     dueDate: z.coerce.date().optional(),
     goalId: z.string().optional(),
     favourite: z.boolean().optional(),
+    description: z.string().optional(),
     createdAt: z.coerce.date(),
     updatedAt: z.coerce.date(),
 });
@@ -35,6 +36,7 @@ export const formTaskSchema = z.object({
     recurrence: taskRecurrenceEnum,
     dueDate: z.coerce.date().optional(),
     goalId: z.string().optional(),
+    description: z.string().optional(),
 });
 export type FormTask = z.infer<typeof formTaskSchema>;
 

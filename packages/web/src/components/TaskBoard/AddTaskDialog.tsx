@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 import { makeCreateTaskRequest } from '../../api/endpoints/tasks';
 import { useAlert } from '../../context/Alert';
@@ -25,6 +26,7 @@ const AddTaskDialog: React.FC<{ open: boolean; onOpenChange: (open: boolean) => 
     const [importance, setImportance] = useState<(typeof taskImportanceEnum.options)[number]>('medium');
     const [recurrence, setRecurrence] = useState<(typeof taskRecurrenceEnum.options)[number]>('none');
     const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+    const [description, setDescription] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
     const reset = () => {
@@ -33,6 +35,7 @@ const AddTaskDialog: React.FC<{ open: boolean; onOpenChange: (open: boolean) => 
         setImportance('medium');
         setRecurrence('none');
         setDueDate(undefined);
+        setDescription('');
     };
 
     const handleSubmit = async () => {
@@ -41,7 +44,14 @@ const AddTaskDialog: React.FC<{ open: boolean; onOpenChange: (open: boolean) => 
         setSubmitting(true);
         try {
             await makeCreateTaskRequest(
-                { title: title.trim(), subject, importance, recurrence, dueDate },
+                {
+                    title: title.trim(),
+                    subject,
+                    importance,
+                    recurrence,
+                    dueDate,
+                    description: description.trim() || undefined,
+                },
                 () => accessToken,
                 login,
                 logout
@@ -125,6 +135,12 @@ const AddTaskDialog: React.FC<{ open: boolean; onOpenChange: (open: boolean) => 
                             <Calendar mode="single" selected={dueDate} onSelect={setDueDate} />
                         </PopoverContent>
                     </Popover>
+
+                    <Textarea
+                        placeholder="Description (optional)"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                    />
                 </div>
 
                 <DialogFooter>
