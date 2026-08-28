@@ -3,7 +3,7 @@ import type { Goal, Task, TaskImportance, TaskStatus, TaskSubject } from '@jewel
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 
-import { getGoalsQuery } from '../../api/endpoints/goals';
+import { getGoalsQuery, makeUpdateGoalRequest } from '../../api/endpoints/goals';
 import { getTasksQuery, makeUpdateTaskRequest } from '../../api/endpoints/tasks';
 import GoalProgress from '../../components/GoalProgress';
 import AddGoalDialog from '../../components/GoalProgress/AddGoalDialog';
@@ -121,6 +121,28 @@ const Board = () => {
         }
     };
 
+    const handleToggleGoalFavourite = async (goalId: string) => {
+        const goal = (goals ?? []).find((g) => g.id === goalId);
+        if (!goal) return;
+
+        try {
+            await makeUpdateGoalRequest(goalId, { favourite: !goal.favourite }, () => accessToken, login, logout);
+            queryClient.invalidateQueries({ queryKey: ['goals'] });
+        } catch (e) {
+            const message = e instanceof Error ? e.message : 'Unknown Error';
+
+            dispatch({
+                type: AlertStoreActions.SHOW_ALERT,
+                payload: {
+                    title: 'Error occured during updating goal! :(',
+                    message: `Details: ${message}`,
+                    severity: 'error',
+                    variant: 'standard',
+                },
+            });
+        }
+    };
+
     return (
         <div className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -154,6 +176,7 @@ const Board = () => {
                         goal={goal}
                         onSynced={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
                         onEdit={setEditingGoal}
+                        onToggleFavourite={handleToggleGoalFavourite}
                     />
                 ))}
             </div>

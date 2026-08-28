@@ -8,6 +8,7 @@ export const updateDesignSchema = z.object({
     addQuantity: z.number().int().positive('Quantity must be at least 1').optional(),
     totalQuantity: z.number().int().nonnegative('Quantity cannot be negative').optional(),
     variantId: z.string().optional(),
+    favourite: z.boolean().optional(),
 });
 
 export type UpdateDesign = z.infer<typeof updateDesignSchema>;

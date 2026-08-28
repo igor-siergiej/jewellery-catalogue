@@ -1,6 +1,6 @@
 import { useAuth } from '@imapps/web-utils';
 import type { Goal } from '@jewellery-catalogue/types';
-import { RefreshCw } from 'lucide-react';
+import { Heart, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 
 import { Progress } from '@/components/ui/progress';
@@ -15,11 +15,12 @@ const SOURCE_LABEL: Record<Goal['source'], string | null> = {
     etsy_sales_count: 'Etsy · Total sales',
 };
 
-const GoalProgress: React.FC<{ goal: Goal; onSynced: () => void; onEdit: (goal: Goal) => void }> = ({
-    goal,
-    onSynced,
-    onEdit,
-}) => {
+const GoalProgress: React.FC<{
+    goal: Goal;
+    onSynced: () => void;
+    onEdit: (goal: Goal) => void;
+    onToggleFavourite: (goalId: string) => void;
+}> = ({ goal, onSynced, onEdit, onToggleFavourite }) => {
     const { accessToken, login, logout } = useAuth();
     const { dispatch } = useAlert();
     const [syncing, setSyncing] = useState(false);
@@ -61,10 +62,24 @@ const GoalProgress: React.FC<{ goal: Goal; onSynced: () => void; onEdit: (goal: 
         >
             <div className="flex items-center justify-between gap-4 mb-3">
                 <span className="text-sm font-medium">{goal.title}</span>
-                <span className="text-xs text-muted-foreground whitespace-nowrap">
-                    {goal.currentValue}/{goal.targetValue}
-                    {goal.unit ? ` ${goal.unit}` : ''}
-                </span>
+                <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        {goal.currentValue}/{goal.targetValue}
+                        {goal.unit ? ` ${goal.unit}` : ''}
+                    </span>
+                    <button
+                        type="button"
+                        aria-label={goal.favourite ? 'Unfavourite goal' : 'Favourite goal'}
+                        aria-pressed={!!goal.favourite}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleFavourite(goal.id);
+                        }}
+                        className="text-muted-foreground hover:text-foreground"
+                    >
+                        <Heart className={`h-4 w-4 ${goal.favourite ? 'fill-red-500 text-red-500' : ''}`} />
+                    </button>
+                </div>
             </div>
             <Progress value={percent} />
             {goal.targetDate && (

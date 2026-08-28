@@ -54,6 +54,7 @@ export class GoalService {
             unit: result.data.unit,
             source: result.data.source,
             targetDate: result.data.targetDate,
+            favourite: false,
             createdAt: now,
             updatedAt: now,
         };

@@ -132,6 +132,7 @@ export class DesignService {
             variationGroups,
             variants,
             designType: designData.designType,
+            favourite: false,
         };
 
         await this.designRepo.insert(design);

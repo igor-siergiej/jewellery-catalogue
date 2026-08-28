@@ -4,6 +4,7 @@ import { Clock, Heart, PackageOpen, ShoppingBag, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import makeDeleteDesignRequest from '../../api/endpoints/deleteDesign';
+import makeUpdateDesignRequest from '../../api/endpoints/updateDesign';
 import { VIEW_DESIGN_PAGE } from '../../constants/routes';
 import DesignUpdateForm from '../DesignUpdateForm';
 import { Image } from '../Image';
@@ -28,9 +29,8 @@ export interface DesignCardProps {
 }
 
 export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated }) => {
-    const { name, timeRequired, id, imageIds, totalQuantity } = design;
+    const { name, timeRequired, id, imageIds, totalQuantity, favourite } = design;
     const etsyImageUrl = design.etsy?.imageUrls?.[0];
-    const [isFavorite, setIsFavorite] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const navigate = useNavigate();
@@ -40,9 +40,10 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated 
         navigate(VIEW_DESIGN_PAGE.getRoute(id));
     };
 
-    const handleFavoriteClick = (e: React.MouseEvent) => {
+    const handleFavoriteClick = async (e: React.MouseEvent) => {
         e.stopPropagation();
-        setIsFavorite(!isFavorite);
+        await makeUpdateDesignRequest(id, { favourite: !favourite }, () => accessToken, login, logout);
+        onDesignUpdated?.();
     };
 
     const handleEditClick = (e: React.MouseEvent) => {
@@ -91,8 +92,15 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated 
                     >
                         <PackageOpen className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="icon" className="h-8 w-8 text-black" onClick={handleFavoriteClick}>
-                        <Heart className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 text-black"
+                        onClick={handleFavoriteClick}
+                        aria-label={favourite ? 'Unfavourite design' : 'Favourite design'}
+                        aria-pressed={!!favourite}
+                    >
+                        <Heart className={`h-4 w-4 ${favourite ? 'fill-red-500 text-red-500' : ''}`} />
                     </Button>
                     <Button
                         variant="outline"

@@ -167,6 +167,7 @@ describe('DesignService', () => {
             );
             expect(result.id).toBe('design-id-123');
             expect(result.dateAdded).toBeInstanceOf(Date);
+            expect(result.favourite).toBe(false);
         });
 
         it('should parse materials from string', async () => {
@@ -347,6 +348,15 @@ describe('DesignService', () => {
             expect(result).toEqual(expectedUpdated);
             expect(result.name).toBe(existingDesign.name); // unchanged
             expect(result.description).toBe(updates.description); // updated
+        });
+
+        it('toggles favourite', async () => {
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue({ ...existingDesign, favourite: false });
+            mockDesignRepo.update.mockResolvedValue(undefined);
+
+            const result = await service.updateDesign(designId, { favourite: true }, userId);
+
+            expect(result.favourite).toBe(true);
         });
 
         it('delegates to setTotalQuantity when totalQuantity is provided, as a direct correction not production', async () => {
