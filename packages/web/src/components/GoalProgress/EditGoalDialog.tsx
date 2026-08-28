@@ -3,9 +3,11 @@ import { type Goal, type GoalSource, goalSourceEnum } from '@jewellery-catalogue
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { makeUpdateGoalRequest } from '../../api/endpoints/goals';
@@ -30,6 +32,7 @@ const EditGoalDialog: React.FC<{ goal: Goal | null; onOpenChange: (open: boolean
     const [currentValue, setCurrentValue] = useState('');
     const [unit, setUnit] = useState('');
     const [source, setSource] = useState<GoalSource>('manual');
+    const [targetDate, setTargetDate] = useState<Date | undefined>(undefined);
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
@@ -39,6 +42,7 @@ const EditGoalDialog: React.FC<{ goal: Goal | null; onOpenChange: (open: boolean
         setCurrentValue(String(goal.currentValue));
         setUnit(goal.unit ?? '');
         setSource(goal.source);
+        setTargetDate(goal.targetDate ? new Date(goal.targetDate) : undefined);
     }, [goal]);
 
     const handleSubmit = async () => {
@@ -58,6 +62,7 @@ const EditGoalDialog: React.FC<{ goal: Goal | null; onOpenChange: (open: boolean
                     currentValue: current,
                     unit: unit.trim() || undefined,
                     source,
+                    targetDate,
                 },
                 () => accessToken,
                 login,
@@ -145,6 +150,20 @@ const EditGoalDialog: React.FC<{ goal: Goal | null; onOpenChange: (open: boolean
                                 ))}
                             </SelectContent>
                         </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>Target date</Label>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button variant="outline" className="w-full justify-start font-normal">
+                                    {targetDate ? targetDate.toLocaleDateString() : 'Optional'}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0">
+                                <Calendar mode="single" selected={targetDate} onSelect={setTargetDate} />
+                            </PopoverContent>
+                        </Popover>
                     </div>
                 </div>
 

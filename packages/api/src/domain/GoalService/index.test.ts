@@ -107,6 +107,15 @@ describe('GoalService', () => {
         expect(mockEtsyClient.getShop).not.toHaveBeenCalled();
     });
 
+    it('addGoal stores an optional targetDate', async () => {
+        (mockIdGenerator.generate as ReturnType<typeof mock>).mockReturnValue('goal-1');
+        const targetDate = new Date('2026-12-25T00:00:00.000Z');
+
+        const result = await service.addGoal({ ...formGoal, targetDate }, 'user-1');
+
+        expect(result.targetDate).toEqual(targetDate);
+    });
+
     it('addGoal fetches currentValue from Etsy when source is etsy_active_listings', async () => {
         (mockIdGenerator.generate as ReturnType<typeof mock>).mockReturnValue('goal-2');
         (mockEtsyConnectionRepo.getByUserId as ReturnType<typeof mock>).mockResolvedValue(connection);

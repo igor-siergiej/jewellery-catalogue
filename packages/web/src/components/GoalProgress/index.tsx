@@ -67,6 +67,11 @@ const GoalProgress: React.FC<{ goal: Goal; onSynced: () => void; onEdit: (goal: 
                 </span>
             </div>
             <Progress value={percent} />
+            {goal.targetDate && (
+                <p className="text-xs text-muted-foreground mt-2">
+                    Target: {new Date(goal.targetDate).toLocaleDateString()}
+                </p>
+            )}
             {sourceLabel && (
                 <div className="flex items-center justify-between gap-4 mt-3">
                     <span className="text-xs text-muted-foreground">{sourceLabel}</span>
