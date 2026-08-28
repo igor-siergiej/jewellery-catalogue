@@ -1,3 +1,10 @@
+# [1.44.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.43.0...v1.44.0) (2026-08-28)
+
+
+### Features
+
+* add optional target date to goals ([#60](https://github.com/igor-siergiej/jewellery-catalogue/issues/60)) ([54e0d3f](https://github.com/igor-siergiej/jewellery-catalogue/commit/54e0d3f0a718f8a4aa7be49b60e4973a7917b0be))
+
 # [1.43.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.42.0...v1.43.0) (2026-08-28)
 
 
