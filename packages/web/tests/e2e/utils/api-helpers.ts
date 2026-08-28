@@ -142,6 +142,14 @@ export async function apiCreateTask(
     return res.json();
 }
 
+export async function apiDeleteTask(token: string, id: string): Promise<void> {
+    const res = await fetch(`${getApiUrl()}/api/tasks/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok && res.status !== 404) throw new Error(`apiDeleteTask failed: ${await res.text()}`);
+}
+
 export async function apiCleanup(token: string): Promise<void> {
     const [materials, designs] = await Promise.all([apiGetMaterials(token), apiGetDesigns(token)]);
     await Promise.all([
