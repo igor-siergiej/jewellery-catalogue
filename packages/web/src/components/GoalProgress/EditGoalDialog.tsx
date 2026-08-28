@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { makeUpdateGoalRequest } from '../../api/endpoints/goals';
@@ -84,42 +85,67 @@ const EditGoalDialog: React.FC<{ goal: Goal | null; onOpenChange: (open: boolean
     return (
         <Dialog open={!!goal} onOpenChange={onOpenChange}>
             <DialogContent>
-                <DialogHeader>
+                <DialogHeader className="pb-2">
                     <DialogTitle>Edit Goal</DialogTitle>
                 </DialogHeader>
 
-                <div className="space-y-3">
-                    <Input placeholder="Goal title" value={title} onChange={(e) => setTitle(e.target.value)} />
-                    <Input
-                        type="number"
-                        placeholder="Target (e.g. 50)"
-                        value={targetValue}
-                        onChange={(e) => setTargetValue(e.target.value)}
-                    />
-                    <Input
-                        type="number"
-                        placeholder="Current progress"
-                        value={currentValue}
-                        onChange={(e) => setCurrentValue(e.target.value)}
-                    />
-                    <Input
-                        placeholder="Unit (optional, e.g. listings)"
-                        value={unit}
-                        onChange={(e) => setUnit(e.target.value)}
-                    />
+                <div className="space-y-5">
+                    <div className="space-y-2">
+                        <Label htmlFor="edit-goal-title">Title</Label>
+                        <Input
+                            id="edit-goal-title"
+                            placeholder="Goal title"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                        />
+                    </div>
 
-                    <Select value={source} onValueChange={(v) => setSource(v as GoalSource)}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Track from" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {goalSourceEnum.options.map((opt) => (
-                                <SelectItem key={opt} value={opt}>
-                                    {SOURCE_LABEL[opt]}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <div className="space-y-2">
+                        <Label htmlFor="edit-goal-target">Target</Label>
+                        <Input
+                            id="edit-goal-target"
+                            type="number"
+                            placeholder="e.g. 50"
+                            value={targetValue}
+                            onChange={(e) => setTargetValue(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="edit-goal-current">Current progress</Label>
+                        <Input
+                            id="edit-goal-current"
+                            type="number"
+                            value={currentValue}
+                            onChange={(e) => setCurrentValue(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="edit-goal-unit">Unit</Label>
+                        <Input
+                            id="edit-goal-unit"
+                            placeholder="Optional, e.g. listings"
+                            value={unit}
+                            onChange={(e) => setUnit(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="edit-goal-source">Track from</Label>
+                        <Select value={source} onValueChange={(v) => setSource(v as GoalSource)}>
+                            <SelectTrigger id="edit-goal-source">
+                                <SelectValue placeholder="Track from" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {goalSourceEnum.options.map((opt) => (
+                                    <SelectItem key={opt} value={opt}>
+                                        {SOURCE_LABEL[opt]}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
 
                 <DialogFooter>

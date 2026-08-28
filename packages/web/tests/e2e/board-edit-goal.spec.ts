@@ -20,11 +20,8 @@ test.describe
                 await page.getByRole('button', { name: 'Edit goal Sell more rings' }).click();
                 await expect(page.getByText('Edit Goal')).toBeVisible({ timeout: 10000 });
 
-                const titleInput = page.getByPlaceholder('Goal title');
-                await titleInput.fill('Sell way more rings');
-
-                const targetInput = page.getByPlaceholder('Target (e.g. 50)');
-                await targetInput.fill('25');
+                await page.getByLabel('Title').fill('Sell way more rings');
+                await page.getByLabel('Target').fill('25');
 
                 await page.getByRole('button', { name: 'Save Changes' }).click();
                 await expect(page.getByText('Edit Goal')).not.toBeVisible({ timeout: 10000 });
