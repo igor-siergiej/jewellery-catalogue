@@ -1,3 +1,10 @@
+# [1.46.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.45.0...v1.46.0) (2026-08-28)
+
+
+### Features
+
+* add optional description to tasks ([#62](https://github.com/igor-siergiej/jewellery-catalogue/issues/62)) ([511f53a](https://github.com/igor-siergiej/jewellery-catalogue/commit/511f53a8c5fc713b79187c0910c163061a6de7d5))
+
 # [1.45.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.44.0...v1.45.0) (2026-08-28)
 
 
