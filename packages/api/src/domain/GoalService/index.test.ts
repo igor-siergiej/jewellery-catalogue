@@ -209,6 +209,25 @@ describe('GoalService', () => {
         expect(mockGoalRepo.update).toHaveBeenCalledWith('goal-1', result);
     });
 
+    it('updateGoal toggles favourite', async () => {
+        const existing: Goal = {
+            id: 'goal-1',
+            userId: 'user-1',
+            title: 'Add 50 more listings',
+            targetValue: 50,
+            currentValue: 0,
+            source: 'manual',
+            favourite: false,
+            createdAt: new Date('2026-08-01T00:00:00.000Z'),
+            updatedAt: new Date('2026-08-01T00:00:00.000Z'),
+        };
+        (mockGoalRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
+
+        const result = await service.updateGoal('goal-1', { favourite: true }, 'user-1');
+
+        expect(result.favourite).toBe(true);
+    });
+
     it('deleteGoal throws 404 when goal does not exist', async () => {
         (mockGoalRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(null);
 

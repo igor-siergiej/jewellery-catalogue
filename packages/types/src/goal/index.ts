@@ -12,6 +12,7 @@ export const goalSchema = z.object({
     unit: z.string().optional(),
     source: goalSourceEnum,
     targetDate: z.coerce.date().optional(),
+    favourite: z.boolean().optional(),
     createdAt: z.coerce.date(),
     updatedAt: z.coerce.date(),
 });
