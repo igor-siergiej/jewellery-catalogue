@@ -17,7 +17,8 @@ const Column: React.FC<{
     label: string;
     tasks: Array<Task>;
     onToggleFavourite: (taskId: string) => void;
-}> = ({ status, label, tasks, onToggleFavourite }) => {
+    onEdit: (task: Task) => void;
+}> = ({ status, label, tasks, onToggleFavourite, onEdit }) => {
     const { setNodeRef, isOver } = useDroppable({ id: status });
 
     return (
@@ -30,7 +31,7 @@ const Column: React.FC<{
                 <span className="text-xs text-muted-foreground">{tasks.length}</span>
             </div>
             {sortFavouritesFirst(tasks).map((task) => (
-                <TaskCard key={task.id} task={task} onToggleFavourite={onToggleFavourite} />
+                <TaskCard key={task.id} task={task} onToggleFavourite={onToggleFavourite} onEdit={onEdit} />
             ))}
         </div>
     );
@@ -40,7 +41,8 @@ const TaskBoard: React.FC<{
     tasks: Array<Task>;
     onStatusChange: (taskId: string, status: TaskStatus) => void;
     onToggleFavourite: (taskId: string) => void;
-}> = ({ tasks, onStatusChange, onToggleFavourite }) => {
+    onEdit: (task: Task) => void;
+}> = ({ tasks, onStatusChange, onToggleFavourite, onEdit }) => {
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
         if (!over) return;
@@ -63,6 +65,7 @@ const TaskBoard: React.FC<{
                         label={col.label}
                         tasks={tasks.filter((t) => t.status === col.status)}
                         onToggleFavourite={onToggleFavourite}
+                        onEdit={onEdit}
                     />
                 ))}
             </div>

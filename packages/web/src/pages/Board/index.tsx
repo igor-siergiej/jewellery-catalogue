@@ -1,5 +1,5 @@
 import { useAuth } from '@imapps/web-utils';
-import type { Goal, TaskImportance, TaskStatus, TaskSubject } from '@jewellery-catalogue/types';
+import type { Goal, Task, TaskImportance, TaskStatus, TaskSubject } from '@jewellery-catalogue/types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 
@@ -11,6 +11,7 @@ import EditGoalDialog from '../../components/GoalProgress/EditGoalDialog';
 import LoadingScreen from '../../components/Loading';
 import TaskBoard from '../../components/TaskBoard';
 import AddTaskDialog from '../../components/TaskBoard/AddTaskDialog';
+import EditTaskDialog from '../../components/TaskBoard/EditTaskDialog';
 import TaskFilters from '../../components/TaskBoard/TaskFilters';
 import { Button } from '../../components/ui/button';
 import { useAlert } from '../../context/Alert';
@@ -23,6 +24,7 @@ const Board = () => {
     const [addTaskOpen, setAddTaskOpen] = useState(false);
     const [addGoalOpen, setAddGoalOpen] = useState(false);
     const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
+    const [editingTask, setEditingTask] = useState<Task | null>(null);
     const [subjectFilter, setSubjectFilter] = useState<TaskSubject | 'all'>('all');
     const [importanceFilter, setImportanceFilter] = useState<Set<TaskImportance>>(new Set());
 
@@ -136,6 +138,7 @@ const Board = () => {
                 tasks={filteredTasks}
                 onStatusChange={handleStatusChange}
                 onToggleFavourite={handleToggleFavourite}
+                onEdit={setEditingTask}
             />
 
             <div className="flex items-center justify-between mb-2 mt-6">
@@ -171,6 +174,13 @@ const Board = () => {
                     if (!open) setEditingGoal(null);
                 }}
                 onUpdated={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
+            />
+            <EditTaskDialog
+                task={editingTask}
+                onOpenChange={(open) => {
+                    if (!open) setEditingTask(null);
+                }}
+                onUpdated={() => queryClient.invalidateQueries({ queryKey: ['tasks'] })}
             />
         </div>
     );
