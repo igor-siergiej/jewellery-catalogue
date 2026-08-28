@@ -15,6 +15,7 @@ export class TaskService {
         private readonly idGenerator: IdGenerator
     ) {}
 
+    // fallow-ignore-next-line unused-class-member
     async getTasksByUserId(userId: string): Promise<Array<Task>> {
         if (!userId) {
             throw Object.assign(new Error('User ID is required'), { status: 400 });
@@ -22,6 +23,7 @@ export class TaskService {
         return this.taskRepo.getByUserId(userId);
     }
 
+    // fallow-ignore-next-line unused-class-member
     async addTask(taskData: FormTask, userId: string): Promise<Task> {
         if (!userId) {
             throw Object.assign(new Error('User ID is required'), { status: 400 });
@@ -53,6 +55,7 @@ export class TaskService {
         return task;
     }
 
+    // fallow-ignore-next-line unused-class-member
     async updateTask(id: string, updates: UpdateTask, userId: string): Promise<Task> {
         if (!userId) {
             throw Object.assign(new Error('User ID is required'), { status: 400 });
@@ -97,6 +100,7 @@ export class TaskService {
         };
     }
 
+    // fallow-ignore-next-line unused-class-member
     async deleteTask(id: string, userId: string): Promise<void> {
         if (!userId) {
             throw Object.assign(new Error('User ID is required'), { status: 400 });
