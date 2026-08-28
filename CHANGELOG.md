@@ -1,3 +1,10 @@
+## [1.47.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.47.0...v1.47.1) (2026-08-28)
+
+
+### Bug Fixes
+
+* date-picker calendar rendering cramped/broken across all size classes ([#64](https://github.com/igor-siergiej/jewellery-catalogue/issues/64)) ([bf51480](https://github.com/igor-siergiej/jewellery-catalogue/commit/bf51480a6ce76c4ee813b56e767b925c301f399b))
+
 # [1.47.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.46.0...v1.47.0) (2026-08-28)
 
 
