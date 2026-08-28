@@ -43,6 +43,7 @@ export class TaskService {
             status: 'todo',
             dueDate: result.data.dueDate,
             goalId: result.data.goalId,
+            favourite: false,
             createdAt: now,
             updatedAt: now,
         };

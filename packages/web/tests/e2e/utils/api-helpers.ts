@@ -1,6 +1,7 @@
 type Material = Record<string, unknown> & { id: string; name: string };
 type Design = Record<string, unknown> & { id: string; name: string; variants?: DesignVariant[] };
 type DesignVariant = Record<string, unknown> & { id: string; totalMaterialCosts: number };
+type Task = Record<string, unknown> & { id: string; title: string };
 
 const getApiUrl = () => process.env.E2E_API_SERVICE_URL || 'http://localhost:3001';
 
@@ -118,6 +119,26 @@ export async function apiProduceDesignVariant(
         body: JSON.stringify({ addQuantity: quantity, variantId }),
     });
     if (!res.ok) throw new Error(`apiProduceDesignVariant failed: ${await res.text()}`);
+    return res.json();
+}
+
+export async function apiCreateTask(
+    token: string,
+    task: {
+        title: string;
+        subject?: 'marketing' | 'product' | 'finance';
+        importance?: 'low' | 'medium' | 'high';
+        recurrence?: 'none' | 'daily' | 'weekly';
+        dueDate?: string;
+        goalId?: string;
+    }
+): Promise<Task> {
+    const res = await fetch(`${getApiUrl()}/api/tasks`, {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: JSON.stringify({ subject: 'product', importance: 'medium', recurrence: 'none', ...task }),
+    });
+    if (!res.ok) throw new Error(`apiCreateTask failed: ${await res.text()}`);
     return res.json();
 }
 

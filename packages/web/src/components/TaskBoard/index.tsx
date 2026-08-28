@@ -9,7 +9,15 @@ const COLUMNS: Array<{ status: TaskStatus; label: string }> = [
     { status: 'done', label: 'Done' },
 ];
 
-const Column: React.FC<{ status: TaskStatus; label: string; tasks: Array<Task> }> = ({ status, label, tasks }) => {
+const sortFavouritesFirst = (tasks: Array<Task>): Array<Task> =>
+    [...tasks].sort((a, b) => Number(!!b.favourite) - Number(!!a.favourite));
+
+const Column: React.FC<{
+    status: TaskStatus;
+    label: string;
+    tasks: Array<Task>;
+    onToggleFavourite: (taskId: string) => void;
+}> = ({ status, label, tasks, onToggleFavourite }) => {
     const { setNodeRef, isOver } = useDroppable({ id: status });
 
     return (
@@ -21,17 +29,18 @@ const Column: React.FC<{ status: TaskStatus; label: string; tasks: Array<Task> }
                 <span className="text-sm font-semibold">{label}</span>
                 <span className="text-xs text-muted-foreground">{tasks.length}</span>
             </div>
-            {tasks.map((task) => (
-                <TaskCard key={task.id} task={task} />
+            {sortFavouritesFirst(tasks).map((task) => (
+                <TaskCard key={task.id} task={task} onToggleFavourite={onToggleFavourite} />
             ))}
         </div>
     );
 };
 
-const TaskBoard: React.FC<{ tasks: Array<Task>; onStatusChange: (taskId: string, status: TaskStatus) => void }> = ({
-    tasks,
-    onStatusChange,
-}) => {
+const TaskBoard: React.FC<{
+    tasks: Array<Task>;
+    onStatusChange: (taskId: string, status: TaskStatus) => void;
+    onToggleFavourite: (taskId: string) => void;
+}> = ({ tasks, onStatusChange, onToggleFavourite }) => {
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
         if (!over) return;
@@ -53,6 +62,7 @@ const TaskBoard: React.FC<{ tasks: Array<Task>; onStatusChange: (taskId: string,
                         status={col.status}
                         label={col.label}
                         tasks={tasks.filter((t) => t.status === col.status)}
+                        onToggleFavourite={onToggleFavourite}
                     />
                 ))}
             </div>
