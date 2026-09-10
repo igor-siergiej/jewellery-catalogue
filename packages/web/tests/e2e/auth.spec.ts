@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test';
 import {
     clearAuthState,
     generateUniqueUsername,
+    loginUser,
     pageContent,
     registerUser,
     selectors,
@@ -193,6 +194,20 @@ test.describe('Authentication Flow', () => {
             // Check for validation messages
             await expect(page.locator(selectors.usernameRequiredError)).toBeVisible();
             await expect(page.locator(selectors.passwordRequiredError)).toBeVisible();
+        });
+
+        test('should log in with valid credentials and navigate to home', async ({ page }) => {
+            const username = generateUniqueUsername();
+            const password = testCredentials.validPassword;
+
+            // Create the account, then start from a signed-out state.
+            await registerUser(page, username, password);
+            await clearAuthState(page);
+
+            await loginUser(page, username, password);
+
+            expect(page.url()).toContain('/home');
+            await expect(page.locator(selectors.errorAlert)).not.toBeVisible();
         });
 
         test('should show error for invalid credentials', async ({ page }) => {
