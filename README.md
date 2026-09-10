@@ -1,244 +1,95 @@
 # Jewellery Catalogue
 
-A modern jewellery catalogue application for browsing and managing jewellery collections. Built with React (frontend), Koa (API), MongoDB, and MinIO.
+[![PR checks](https://github.com/igor-siergiej/jewellery-catalogue/actions/workflows/pull-request.yml/badge.svg)](https://github.com/igor-siergiej/jewellery-catalogue/actions/workflows/pull-request.yml)
 
-## Tech Stack
+A catalogue and stock manager for a handmade-jewellery business: record designs
+and the materials they use, track stock as pieces are made and sold, and keep
+Etsy listings in sync — import a listing into a design, or push a design out as a
+draft listing.
 
-- **Frontend**: React 19 with Vite, TypeScript, TailwindCSS
-- **Backend API**: Koa 3, TypeScript, Bun
-- **Database**: MongoDB
-- **Storage**: MinIO (object storage)
-- **Package Manager**: Bun 1
-- **Linting**: Biome 2.2.5
-- **Testing**: Bun test (API), Playwright (E2E)
-- **CI/CD**: GitHub Actions with Semgrep security scanning
+**Live:** https://jewellery-catalogue.imapps.uk
 
-## Prerequisites
+<!-- TODO: add a screenshot or short GIF of the designs + materials view -->
 
-- **Bun 1+** - JavaScript runtime and package manager
-- **Node.js 22+** - Required for some tooling (optional if using Bun)
-- **MongoDB** - Local instance or cloud (Atlas)
-- **MinIO** - Object storage for images
-- **.env file** - Configuration (see [.env.example](.env.example))
+## What it does
 
-## Getting Started
+- **Designs & materials.** A design is built from required materials (beads,
+  wire, findings…) and can have variation groups. Each material carries a cost;
+  changing a material's cost propagates through to every variant's total
+  material cost.
+- **Stock.** "Produce" a design (or a specific variant) to draw down material
+  stock and add finished-piece stock; a low-stock dashboard surfaces what needs
+  making.
+- **Etsy sync.** Connect a shop over OAuth, import an existing listing (image and
+  fields) into a design, push a design to Etsy as a draft listing, and reconcile
+  stock between the catalogue and live listings.
+- **Goals & tasks.** A lightweight board for tracking making goals against
+  deadlines.
 
-### 1. Install Dependencies
+## Architecture
 
-```bash
-bun install
-```
+Bun-workspace monorepo — `packages/web`, `packages/api`, `packages/types`
+(shared interfaces and form models).
 
-All npm packages (@imapps/* utilities) are published to the public npm registry.
+- **web** — React 19 + TypeScript + Vite 7. Tailwind 4, Radix/shadcn UI, React
+  Query for server state, React Router 7, react-hook-form + Zod for the design
+  and material forms. Unit tests in Vitest, e2e in Playwright.
+- **api** — Koa 3 + TypeScript on the Bun runtime. Domain services
+  (`DesignService`, `MaterialService`, `DraftService`, `GoalService`,
+  `TaskService`) sit over MongoDB repositories built on a shared
+  `BaseRepository`; `handlers/` and `routes/` are the HTTP edge; `dependencies/`
+  wires the DI container.
+- **Etsy integration** lives in its own cluster of services —
+  `EtsyConnectionService` (OAuth + `EtsyOAuthStateStore`), `EtsyClient`,
+  `EtsyPushService`, `EtsyReconcileService`, `EtsyStatusService`.
+- **data** — MongoDB (native driver). Design and listing images are stored in
+  MinIO / S3-compatible object storage.
+- **auth** — a separate auth service issues JWTs; a local `mock-auth-server`
+  stands in for it in development.
 
-### 2. Setup Environment
+## Running it
 
-Copy `.env.example` and configure:
+Requires **Bun 1.x**, a local **MongoDB**, and **MinIO**. Copy the env templates
+and fill them in:
+
 ```bash
 cp packages/api/.env.example packages/api/.env
+bun install
+bun start                 # web on :3000, api from packages/api/.env
+bun start:with-mock       # same, with the mock auth server
 ```
-
-### 3. Start Development Servers
-
-**Both API and Web (concurrently):**
-```bash
-bun start
-```
-
-**Web only (with mock auth):**
-```bash
-bun start:web:with-mock
-```
-
-**API only (watch mode):**
-```bash
-bun start:api
-```
-
-**Web only (Vite dev server):**
-```bash
-bun start:web
-```
-
-## Development
-
-### Linting & Formatting
 
 ```bash
-bun lint          # Check for linting issues
-bun lint:fix      # Auto-fix issues
-bun format        # Format code with Biome
-```
-
-### Type Checking
-
-```bash
-bun tsc --noEmit
-```
-
-### Testing
-
-**API tests (Bun test):**
-```bash
-bun --filter @jewellery-catalogue/api test
-```
-
-**With coverage:**
-```bash
-bun --filter @jewellery-catalogue/api test:coverage
-```
-
-**E2E tests (Playwright):**
-```bash
-cd packages/web
-bun pw:e2e              # Run all E2E tests
-bun pw:e2e:headed      # Run with visible browser
-bun pw:e2e:debug       # Debug mode
-bun pw:open            # Interactive test UI
-```
-
-### Building
-
-**API (Bun build):**
-```bash
-bun --filter @jewellery-catalogue/api build
-```
-Outputs optimized bundle to `packages/api/build/index.js`
-
-**Web (Vite build):**
-```bash
-bun --filter @jewellery-catalogue/web build
-```
-Outputs static site to `packages/web/build/`
-
-## Project Structure
-
-```
-.
-├── packages/
-│   ├── api/              # Koa API server
-│   │   ├── src/
-│   │   │   ├── handlers/   # API route handlers
-│   │   │   ├── domain/     # Business logic
-│   │   │   ├── repositories/ # Data access
-│   │   │   └── dependencies/ # DI container setup
-│   │   ├── Dockerfile    # Bun-based API container
-│   │   └── package.json
-│   ├── web/              # React frontend
-│   │   ├── src/
-│   │   │   ├── components/
-│   │   │   ├── pages/
-│   │   │   └── api/      # API client
-│   │   ├── Dockerfile    # Nginx + static build
-│   │   └── package.json
-│   └── types/            # Shared TypeScript types
-├── bunfig.toml          # Bun configuration
-├── biome.json           # Linting/formatting rules
-└── .github/workflows/   # CI/CD pipelines
-```
-
-## Bun Migration Notes
-
-This project was migrated from Yarn to Bun for package management and runtime. Key changes:
-
-- **Package Manager**: `yarn` → `bun`
-- **Script Filtering**: `yarn workspace` → `bun --filter`
-- **API Dev Server**: `vite-node` → `bun --watch`
-- **API Build**: `tsup` → `bun build`
-- **Testing**: `vitest` → `bun test`
-- **Docker**: Uses `oven/bun:1-alpine` base image
-
-The web frontend still uses Vite for development (Bun doesn't replace Vite for frontend).
-
-## Environment Variables
-
-### API Server (`packages/api/.env`)
-
-```env
-PORT=4001
-NODE_ENV=development
-
-# MongoDB
-MONGODB_URI=mongodb://localhost:27017/jewellery-catalogue
-
-# MinIO
-MINIO_ENDPOINT=localhost
-MINIO_PORT=9000
-MINIO_ACCESS_KEY=minioadmin
-MINIO_SECRET_KEY=minioadmin
-MINIO_USE_SSL=false
-MINIO_BUCKET_NAME=jewellery-catalogue
-```
-
-### Web App (`packages/web/.env`)
-
-```env
-VITE_API_URL=http://localhost:4001
-VITE_AUTH_URL=http://localhost:3001
-```
-
-## Docker
-
-### Build Images
-
-**API (Bun-based):**
-```bash
-docker build -f packages/api/Dockerfile \
-  --secret id=CI_JOB_TOKEN=<github-token> \
-  -t jewellery-api:latest .
-```
-
-**Web (Nginx + static):**
-```bash
-docker build -f packages/web/Dockerfile \
-  --secret id=CI_JOB_TOKEN=<github-token> \
-  -t jewellery-web:latest .
-```
-
-### Run Containers
-
-```bash
-# API (port 4001)
-docker run -p 4001:4001 jewellery-api:latest
-
-# Web (port 3000)
-docker run -p 3000:80 jewellery-web:latest
+bun lint                                        # Biome
+bun tsc --noEmit                                # type-check
+bun --filter @jewellery-catalogue/api test      # API tests (Bun runner)
+RUN_INTEGRATION_TESTS=1 bun --filter @jewellery-catalogue/api test integration
+cd packages/web && bun pw:e2e                   # Playwright e2e
 ```
 
 ## CI/CD
 
-GitHub Actions workflows handle:
-- **Linting** - Biome code style checks
-- **Type Checking** - TypeScript strict mode
-- **Testing** - Bun test suite
-- **Security Scanning** - Semgrep (security-audit, TypeScript, OWASP rules)
-- **Release** - Semantic versioning and NPM publishing
+- **`pull-request.yml`** on every PR: lint → API tests → integration tests
+  (dockerised MongoDB) → Playwright e2e → dead-code check. Semgrep security
+  scanning (security-audit, TypeScript, OWASP).
+- **`ci-cd.yml`** on merge to `main`: the same checks → semantic-release →
+  Docker image build/publish (ghcr.io) → deploy. Runs on Dokploy.
 
-## Troubleshooting
+## Decisions
 
-### Tests Failing with Mock Issues
+- **Etsy is a bounded context, not sprinkled through the app.** Every call to
+  Etsy goes through the `Etsy*` services; the rest of the domain deals in
+  designs and materials and never knows about listings. OAuth state has its own
+  store so a failed connect can't wedge anything else.
+- **Cost propagation is computed in the domain, not the UI.** A material price
+  change recalculates variant totals server-side, so every client sees the same
+  number and the maths is unit-tested in one place.
+- **Integration tests against a real MongoDB.** The repository layer is thin but
+  easy to get subtly wrong (query shape, indexes), so `RUN_INTEGRATION_TESTS`
+  spins up a container and exercises it for real rather than mocking the driver.
+- **Separate auth service.** Shared with the other apps in this account; a mock
+  server keeps local dev from depending on it.
 
-The API uses `bun:test` with `mock()` for module mocking. If tests fail:
+## Licence
 
-1. Ensure `packages/api/src/test-setup.ts` is properly configured
-2. Check `bunfig.toml` has correct test preload path
-3. Run `bun --filter @jewellery-catalogue/api test` with verbose output
-
-### Biome Configuration Errors
-
-If linting fails with configuration errors:
-
-1. Verify `biome.json` is valid (use `biome migrate --write`)
-2. Ensure `@imapps/biome-config` is installed (`bun install`)
-3. GitHub Actions workflows disable submodule checkout to avoid config conflicts
-
-## Development Tips
-
-- Use `bun install --no-cache` to refresh dependencies if seeing stale packages
-- `bun run` automatically respects `.env` files in the workspace
-- Watch mode: `bun --watch src/index.ts` for TypeScript files
-- Filter by workspace: `bun --filter @jewellery-catalogue/api <script>`
-
-## License
-
-See LICENSE file for details.
+AGPL-3.0-or-later. See [LICENSE](LICENSE).
