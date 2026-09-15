@@ -1,3 +1,10 @@
+# [1.49.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.48.0...v1.49.0) (2026-09-15)
+
+
+### Features
+
+* pre-select a default Etsy category per design type in Settings ([#68](https://github.com/igor-siergiej/jewellery-catalogue/issues/68)) ([2230fe5](https://github.com/igor-siergiej/jewellery-catalogue/commit/2230fe54aa7db843f9848b0fda76f00b23960c0a))
+
 # [1.48.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.47.1...v1.48.0) (2026-09-15)
 
 
