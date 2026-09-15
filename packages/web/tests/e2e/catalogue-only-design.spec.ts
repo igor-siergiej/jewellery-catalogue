@@ -21,6 +21,15 @@ test.describe
             const design = await apiCreateDesign(TOKEN, { name: 'Catalogue Only Design', price: 10.0 });
 
             try {
+                // designType is required by the edit form's validation but isn't part of
+                // apiCreateDesign's input shape, so set it via a follow-up PUT.
+                const linkRes = await fetch(`${API_URL}/api/designs/${design.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TOKEN}` },
+                    body: JSON.stringify({ designType: 'RING' }),
+                });
+                expect(linkRes.ok).toBe(true);
+
                 await page.goto(`/designs/${design.id}`);
                 await page.waitForLoadState('networkidle');
 
