@@ -43,7 +43,7 @@ const makeEditDesignRequest = async (
                 Array.isArray(value)
             ) {
                 formData.append(key, JSON.stringify(value));
-            } else if (typeof value === 'string' || typeof value === 'number') {
+            } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
                 formData.append(key, value.toString());
             }
         }

@@ -121,6 +121,7 @@ export const editDesignProperties = async (c: Ctx) => {
         variants,
         designType,
         makingNotes,
+        catalogueOnly,
         keepImageIds: keepImageIdsRaw,
         keepDiagramImageIds: keepDiagramImageIdsRaw,
     } = body as unknown as Partial<EditDesign> & {
@@ -130,6 +131,7 @@ export const editDesignProperties = async (c: Ctx) => {
         keepImageIds?: string;
         keepDiagramImageIds?: string;
         designType?: string;
+        catalogueOnly?: string;
     };
 
     const keepImageIds: string[] =
@@ -156,6 +158,7 @@ export const editDesignProperties = async (c: Ctx) => {
     if (designType !== undefined) updates.designType = designType as EditDesign['designType'];
     if (lowStockThreshold !== undefined) updates.lowStockThreshold = Number(lowStockThreshold);
     if (makingNotes !== undefined) updates.makingNotes = makingNotes as EditDesign['makingNotes'];
+    if (catalogueOnly !== undefined) updates.catalogueOnly = catalogueOnly === 'true';
 
     const design = await getDesignService().editDesignProperties(
         c.req.param('id'),

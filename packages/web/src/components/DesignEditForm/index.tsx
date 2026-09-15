@@ -8,6 +8,7 @@ import { type SubmitHandler, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
@@ -53,6 +54,7 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
             variationGroups: design.variationGroups ?? [],
             variants: design.variants ?? [],
             designType: design.designType,
+            catalogueOnly: design.catalogueOnly ?? false,
         },
     });
 
@@ -215,6 +217,35 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                                             ))}
                                         </ButtonGroup>
                                     </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                </div>
+
+                <hr className="border-t border-border" />
+
+                {/* Catalogue Only Section */}
+                <div className="grid grid-cols-12 gap-4">
+                    <div className="col-span-4">
+                        <h2 className="text-lg font-medium text-center pt-1.5">Listing</h2>
+                    </div>
+                    <div className="col-span-8">
+                        <FormField
+                            control={form.control}
+                            name="catalogueOnly"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-start gap-3 space-y-0">
+                                    <FormControl>
+                                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                    <div className="space-y-1 leading-none">
+                                        <FormLabel>Catalogue only</FormLabel>
+                                        <FormDescription>
+                                            Keep this design in the catalogue only — it cannot be sent to Etsy.
+                                        </FormDescription>
+                                    </div>
                                     <FormMessage />
                                 </FormItem>
                             )}
