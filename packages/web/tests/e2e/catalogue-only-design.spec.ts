@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test';
 import { expect, test } from './fixtures';
 import { MOCK_TOKEN_CATALOGUE_ONLY } from './mocks/auth';
-import { apiCreateDesign, apiDeleteDesign, apiGetDesigns } from './utils/api-helpers';
+import { apiCreateBead, apiCreateDesign, apiDeleteDesign, apiGetDesigns } from './utils/api-helpers';
 
 const TOKEN = MOCK_TOKEN_CATALOGUE_ONLY;
 const API_URL = process.env.E2E_API_SERVICE_URL || 'http://localhost:3001';
@@ -18,7 +18,13 @@ test.describe
         test('marking a design catalogue-only persists, shows on the card, and blocks Etsy push @smoke', async ({
             authenticatedPage: page,
         }) => {
-            const design = await apiCreateDesign(TOKEN, { name: 'Catalogue Only Design', price: 10.0 });
+            const bead = await apiCreateBead(TOKEN, { name: 'Catalogue Only Bead' });
+            const design = await apiCreateDesign(TOKEN, {
+                name: 'Catalogue Only Design',
+                price: 10.0,
+                materials: [{ ...bead, requiredQuantity: 1 }],
+                totalMaterialCosts: (bead as { pricePerBead: number }).pricePerBead,
+            });
 
             try {
                 // designType is required by the edit form's validation but isn't part of
