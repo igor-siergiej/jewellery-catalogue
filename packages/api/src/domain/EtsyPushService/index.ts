@@ -41,6 +41,10 @@ export class EtsyPushService {
             throw new APIError('Design is already on Etsy', 409);
         }
 
+        if (design.catalogueOnly) {
+            throw new APIError('Design is marked catalogue-only and cannot be sent to Etsy', 400);
+        }
+
         const groups = design.variationGroups ?? [];
         if (groups.length > MAX_VARIATION_GROUPS) {
             throw new APIError(`Etsy supports at most ${MAX_VARIATION_GROUPS} variation properties`, 400);

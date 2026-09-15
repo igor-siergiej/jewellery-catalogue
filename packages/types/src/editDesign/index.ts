@@ -17,6 +17,7 @@ export const editDesignSchema = z.object({
     designType: z.nativeEnum(DesignType).optional(),
     diagramImageIds: z.array(z.string()).optional(),
     makingNotes: z.string().optional(),
+    catalogueOnly: z.boolean().optional(),
 });
 
 export type EditDesign = z.infer<typeof editDesignSchema>;

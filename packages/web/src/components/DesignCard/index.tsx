@@ -29,7 +29,7 @@ export interface DesignCardProps {
 }
 
 export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated }) => {
-    const { name, timeRequired, id, imageIds, totalQuantity, favourite } = design;
+    const { name, timeRequired, id, imageIds, totalQuantity, favourite, catalogueOnly } = design;
     const etsyImageUrl = design.etsy?.imageUrls?.[0];
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -160,6 +160,12 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated 
                                 ? `${design.variants.length} variants · ${totalQuantity} in stock`
                                 : `${totalQuantity} in stock`}
                         </Badge>
+
+                        {catalogueOnly && (
+                            <Badge variant="outline" className="gap-1 font-normal">
+                                Catalogue only
+                            </Badge>
+                        )}
                     </ItemFooter>
                 </ItemContent>
             </Item>

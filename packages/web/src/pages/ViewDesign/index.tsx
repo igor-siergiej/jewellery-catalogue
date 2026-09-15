@@ -62,6 +62,7 @@ const ViewDesign = () => {
         diagramImageIds,
         makingNotes,
         etsy,
+        catalogueOnly,
     } = design ?? {};
 
     useEtsyStatus(id ?? '', !!id && !!etsy?.listingId);
@@ -119,38 +120,47 @@ const ViewDesign = () => {
                             <PackageOpen className="h-4 w-4 mr-2" />
                             Manage Inventory
                         </Button>
-                        {etsyConnected && (
-                            <>
-                                {etsy?.listingId && (
-                                    <a
-                                        href={`https://www.etsy.com/your/shops/me/listing-editor/edit/${etsy.listingId}`}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+                        {catalogueOnly ? (
+                            <Badge
+                                variant="outline"
+                                title="This design is kept in the catalogue only and cannot be sent to Etsy"
+                            >
+                                Catalogue only
+                            </Badge>
+                        ) : (
+                            etsyConnected && (
+                                <>
+                                    {etsy?.listingId && (
+                                        <a
+                                            href={`https://www.etsy.com/your/shops/me/listing-editor/edit/${etsy.listingId}`}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+                                        >
+                                            {etsy.state === 'active'
+                                                ? 'Active'
+                                                : etsy.state === 'inactive'
+                                                  ? 'Inactive'
+                                                  : 'Draft'}{' '}
+                                            on Etsy
+                                            <ExternalLink className="h-3 w-3" />
+                                        </a>
+                                    )}
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        disabled={!!etsy?.listingId && !etsy.pushIncomplete}
+                                        title={
+                                            etsy?.listingId && !etsy.pushIncomplete
+                                                ? 'This design is already on Etsy'
+                                                : undefined
+                                        }
+                                        onClick={() => setEtsyDialogOpen(true)}
                                     >
-                                        {etsy.state === 'active'
-                                            ? 'Active'
-                                            : etsy.state === 'inactive'
-                                              ? 'Inactive'
-                                              : 'Draft'}{' '}
-                                        on Etsy
-                                        <ExternalLink className="h-3 w-3" />
-                                    </a>
-                                )}
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    disabled={!!etsy?.listingId && !etsy.pushIncomplete}
-                                    title={
-                                        etsy?.listingId && !etsy.pushIncomplete
-                                            ? 'This design is already on Etsy'
-                                            : undefined
-                                    }
-                                    onClick={() => setEtsyDialogOpen(true)}
-                                >
-                                    Send to Etsy
-                                </Button>
-                            </>
+                                        Send to Etsy
+                                    </Button>
+                                </>
+                            )
                         )}
                     </div>
                 </div>

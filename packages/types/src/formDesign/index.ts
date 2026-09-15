@@ -24,6 +24,7 @@ export const formDesignSchema = z
         variationGroups: z.array(variationGroupSchema).optional().default([]),
         variants: z.array(designVariantSchema).optional().default([]),
         designType: z.nativeEnum(DesignType).optional(),
+        catalogueOnly: z.boolean().optional().default(false),
     })
     .superRefine((data, ctx) => {
         const hasSharedMaterials = data.materials.length > 0;

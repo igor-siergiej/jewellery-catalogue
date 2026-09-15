@@ -39,6 +39,7 @@ export const designSchema = z.object({
     designType: z.nativeEnum(DesignType).optional(),
     etsy: designEtsySchema.optional(),
     favourite: z.boolean().optional(),
+    catalogueOnly: z.boolean().optional(),
 });
 
 export type Design = z.infer<typeof designSchema>;

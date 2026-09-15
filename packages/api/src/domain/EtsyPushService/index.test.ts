@@ -222,6 +222,13 @@ describe('EtsyPushService', () => {
             expect(mockEtsyClient.createDraftListing).not.toHaveBeenCalled();
         });
 
+        it('rejects when the design is marked catalogue-only', async () => {
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign({ catalogueOnly: true }));
+
+            await expect(service.push('design-1', 'user-1')).rejects.toThrow();
+            expect(mockEtsyClient.createDraftListing).not.toHaveBeenCalled();
+        });
+
         it('rejects re-push when the design already has a completed etsy.listingId', async () => {
             mockDesignRepo.getByIdAndUserId.mockResolvedValue(
                 makeDesign({
