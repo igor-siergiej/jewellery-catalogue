@@ -13,6 +13,7 @@ import { useEtsyConnection } from '../../hooks/useEtsyConnection';
 import { useEtsyShippingProfiles } from '../../hooks/useEtsyShippingProfiles';
 import { useEtsyTaxonomy } from '../../hooks/useEtsyTaxonomy';
 import { useUserSettings } from '../../hooks/useUserSettings';
+import { getDefaultTaxonomyId } from '../../utils/getDefaultTaxonomyId';
 
 const Settings = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -77,6 +78,27 @@ const Settings = () => {
         etsyTaxonomyMap,
         etsyShippingProfileId,
     ]);
+
+    useEffect(() => {
+        if (taxonomyLoading || taxonomyOptions.length === 0) return;
+
+        setLocalEtsyTaxonomyMap((prev) => {
+            let changed = false;
+            const next = { ...prev };
+
+            for (const designType of Object.values(DesignType)) {
+                if (next[designType] === undefined) {
+                    const defaultId = getDefaultTaxonomyId(designType, taxonomyOptions);
+                    if (defaultId !== undefined) {
+                        next[designType] = defaultId;
+                        changed = true;
+                    }
+                }
+            }
+
+            return changed ? next : prev;
+        });
+    }, [taxonomyOptions, taxonomyLoading]);
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: runs once on mount to strip the ?etsy param from the URL
     useEffect(() => {
