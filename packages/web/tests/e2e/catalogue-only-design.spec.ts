@@ -65,7 +65,7 @@ test.describe
                 await page.waitForLoadState('networkidle');
                 const card = findDesignCard(page, 'Catalogue Only Design');
                 await expect(card).toBeVisible({ timeout: 10000 });
-                await expect(card.getByText('Catalogue only')).toBeVisible();
+                await expect(card.getByText('Catalogue only', { exact: true })).toBeVisible();
 
                 const pushRes = await fetch(`${API_URL}/api/designs/${design.id}/etsy-push`, {
                     method: 'POST',
