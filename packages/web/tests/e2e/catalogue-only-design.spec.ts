@@ -53,7 +53,9 @@ test.describe
                 await patchResponse;
 
                 await expect(page.getByText('Design updated successfully!')).toBeVisible({ timeout: 10000 });
-                await expect(page.getByText('Catalogue only')).toBeVisible();
+                await expect(
+                    page.getByTitle('This design is kept in the catalogue only and cannot be sent to Etsy')
+                ).toBeVisible();
 
                 const designs = await apiGetDesigns(TOKEN);
                 const updated = designs.find((d) => d.id === design.id);
