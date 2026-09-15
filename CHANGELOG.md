@@ -1,3 +1,10 @@
+# [1.48.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.47.1...v1.48.0) (2026-09-15)
+
+
+### Features
+
+* allow a design to be marked catalogue-only, blocking Etsy push ([#67](https://github.com/igor-siergiej/jewellery-catalogue/issues/67)) ([125d202](https://github.com/igor-siergiej/jewellery-catalogue/commit/125d20278edc27db16a6d5fc5ce835d9c4b7332a))
+
 ## [1.47.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.47.0...v1.47.1) (2026-08-28)
 
 
