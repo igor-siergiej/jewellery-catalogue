@@ -1,6 +1,8 @@
 import { DndContext, type DragEndEvent, useDroppable } from '@dnd-kit/core';
 import type { Task, TaskStatus } from '@jewellery-catalogue/types';
 
+import { sortFavouritesFirst } from '@/lib/sortFavouritesFirst';
+
 import TaskCard from './TaskCard';
 
 const COLUMNS: Array<{ status: TaskStatus; label: string }> = [
@@ -8,9 +10,6 @@ const COLUMNS: Array<{ status: TaskStatus; label: string }> = [
     { status: 'in_progress', label: 'In Progress' },
     { status: 'done', label: 'Done' },
 ];
-
-const sortFavouritesFirst = (tasks: Array<Task>): Array<Task> =>
-    [...tasks].sort((a, b) => Number(!!b.favourite) - Number(!!a.favourite));
 
 const Column: React.FC<{
     status: TaskStatus;
