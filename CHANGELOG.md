@@ -1,3 +1,10 @@
+# [1.51.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.50.0...v1.51.0) (2026-09-21)
+
+
+### Features
+
+* add checklists to tasks on the Board page ([#70](https://github.com/igor-siergiej/jewellery-catalogue/issues/70)) ([c5fcabe](https://github.com/igor-siergiej/jewellery-catalogue/commit/c5fcabe50583ae8edbaea8150a272c37137e9518))
+
 # [1.50.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.49.0...v1.50.0) (2026-09-21)
 
 
