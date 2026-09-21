@@ -29,6 +29,7 @@ import LoadingScreen from '../../components/Loading';
 import { ADD_DESIGN_PAGE } from '../../constants/routes';
 import { useSearch } from '../../context/SearchContext';
 import { DESIGN_TYPE_LABELS } from '../../lib/materialLabels';
+import { sortFavouritesFirst } from '../../lib/sortFavouritesFirst';
 
 const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, onDeleted }) => {
     const { accessToken, login, logout } = useAuth();
@@ -153,7 +154,9 @@ const Designs = () => {
     }
 
     const searchedData = searchQuery && fuse ? fuse.search(searchQuery).map((result) => result.item) : data;
-    const filteredData = typeFilter === 'all' ? searchedData : searchedData.filter((d) => d.designType === typeFilter);
+    const filteredData = sortFavouritesFirst(
+        typeFilter === 'all' ? searchedData : searchedData.filter((d) => d.designType === typeFilter)
+    );
 
     const searchedDrafts = searchQuery
         ? (drafts ?? []).filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()))
