@@ -1,3 +1,10 @@
+# [1.50.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.49.0...v1.50.0) (2026-09-21)
+
+
+### Features
+
+* sort favourited designs to the top of the designs page ([#69](https://github.com/igor-siergiej/jewellery-catalogue/issues/69)) ([e83797a](https://github.com/igor-siergiej/jewellery-catalogue/commit/e83797a0c5776e703a0255c7949deb66eefe19ad))
+
 # [1.49.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.48.0...v1.49.0) (2026-09-15)
 
 
