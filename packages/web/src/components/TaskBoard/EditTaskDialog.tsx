@@ -1,5 +1,11 @@
 import { useAuth } from '@imapps/web-utils';
-import { type Task, taskImportanceEnum, taskRecurrenceEnum, taskSubjectEnum } from '@jewellery-catalogue/types';
+import {
+    type Task,
+    type TaskChecklistItem,
+    taskImportanceEnum,
+    taskRecurrenceEnum,
+    taskSubjectEnum,
+} from '@jewellery-catalogue/types';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -14,6 +20,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { makeUpdateTaskRequest } from '../../api/endpoints/tasks';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
+import ChecklistEditor from './ChecklistEditor';
 
 const EditTaskDialog: React.FC<{ task: Task | null; onOpenChange: (open: boolean) => void; onUpdated: () => void }> = ({
     task,
@@ -28,6 +35,7 @@ const EditTaskDialog: React.FC<{ task: Task | null; onOpenChange: (open: boolean
     const [recurrence, setRecurrence] = useState<(typeof taskRecurrenceEnum.options)[number]>('none');
     const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
     const [description, setDescription] = useState('');
+    const [checklist, setChecklist] = useState<Array<TaskChecklistItem>>([]);
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
@@ -38,6 +46,7 @@ const EditTaskDialog: React.FC<{ task: Task | null; onOpenChange: (open: boolean
         setRecurrence(task.recurrence);
         setDueDate(task.dueDate ? new Date(task.dueDate) : undefined);
         setDescription(task.description ?? '');
+        setChecklist(task.checklist ?? []);
     }, [task]);
 
     const handleSubmit = async () => {
@@ -55,6 +64,7 @@ const EditTaskDialog: React.FC<{ task: Task | null; onOpenChange: (open: boolean
                     recurrence,
                     dueDate,
                     description: description.trim() || undefined,
+                    checklist,
                 },
                 () => accessToken,
                 login,
@@ -168,6 +178,8 @@ const EditTaskDialog: React.FC<{ task: Task | null; onOpenChange: (open: boolean
                             onChange={(e) => setDescription(e.target.value)}
                         />
                     </div>
+
+                    <ChecklistEditor idPrefix="edit-task" items={checklist} onChange={setChecklist} />
                 </div>
 
                 <DialogFooter>

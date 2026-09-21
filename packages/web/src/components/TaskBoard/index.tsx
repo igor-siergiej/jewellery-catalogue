@@ -16,8 +16,9 @@ const Column: React.FC<{
     label: string;
     tasks: Array<Task>;
     onToggleFavourite: (taskId: string) => void;
+    onToggleChecklistItem: (taskId: string, itemId: string) => void;
     onEdit: (task: Task) => void;
-}> = ({ status, label, tasks, onToggleFavourite, onEdit }) => {
+}> = ({ status, label, tasks, onToggleFavourite, onToggleChecklistItem, onEdit }) => {
     const { setNodeRef, isOver } = useDroppable({ id: status });
 
     return (
@@ -30,7 +31,13 @@ const Column: React.FC<{
                 <span className="text-xs text-muted-foreground">{tasks.length}</span>
             </div>
             {sortFavouritesFirst(tasks).map((task) => (
-                <TaskCard key={task.id} task={task} onToggleFavourite={onToggleFavourite} onEdit={onEdit} />
+                <TaskCard
+                    key={task.id}
+                    task={task}
+                    onToggleFavourite={onToggleFavourite}
+                    onToggleChecklistItem={onToggleChecklistItem}
+                    onEdit={onEdit}
+                />
             ))}
         </div>
     );
@@ -40,8 +47,9 @@ const TaskBoard: React.FC<{
     tasks: Array<Task>;
     onStatusChange: (taskId: string, status: TaskStatus) => void;
     onToggleFavourite: (taskId: string) => void;
+    onToggleChecklistItem: (taskId: string, itemId: string) => void;
     onEdit: (task: Task) => void;
-}> = ({ tasks, onStatusChange, onToggleFavourite, onEdit }) => {
+}> = ({ tasks, onStatusChange, onToggleFavourite, onToggleChecklistItem, onEdit }) => {
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
         if (!over) return;
@@ -64,6 +72,7 @@ const TaskBoard: React.FC<{
                         label={col.label}
                         tasks={tasks.filter((t) => t.status === col.status)}
                         onToggleFavourite={onToggleFavourite}
+                        onToggleChecklistItem={onToggleChecklistItem}
                         onEdit={onEdit}
                     />
                 ))}

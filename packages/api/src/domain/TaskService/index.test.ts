@@ -261,4 +261,37 @@ describe('TaskService', () => {
             expect.objectContaining({ id: 'task-2', dueDate: new Date('2026-08-17T00:00:00.000Z') })
         );
     });
+
+    it('resets checklist items to unchecked on the next occurrence of a recurring task', async () => {
+        const existing: Task = {
+            id: 'task-1',
+            userId: 'user-1',
+            title: 'Restock packaging',
+            subject: 'product',
+            importance: 'medium',
+            recurrence: 'weekly',
+            status: 'todo',
+            dueDate: new Date('2026-08-10T00:00:00.000Z'),
+            checklist: [
+                { id: 'item-1', text: 'Count boxes', done: true },
+                { id: 'item-2', text: 'Order labels', done: true },
+            ],
+            createdAt: new Date('2026-08-01T00:00:00.000Z'),
+            updatedAt: new Date('2026-08-01T00:00:00.000Z'),
+        };
+        (mockTaskRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
+        (mockIdGenerator.generate as ReturnType<typeof mock>).mockReturnValue('task-2');
+
+        await service.updateTask('task-1', { status: 'done' }, 'user-1');
+
+        expect(mockTaskRepo.insert).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: 'task-2',
+                checklist: [
+                    { id: 'item-1', text: 'Count boxes', done: false },
+                    { id: 'item-2', text: 'Order labels', done: false },
+                ],
+            })
+        );
+    });
 });

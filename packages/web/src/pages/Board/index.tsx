@@ -121,6 +121,30 @@ const Board = () => {
         }
     };
 
+    const handleToggleChecklistItem = async (taskId: string, itemId: string) => {
+        const task = (tasks ?? []).find((t) => t.id === taskId);
+        if (!task?.checklist) return;
+
+        const checklist = task.checklist.map((item) => (item.id === itemId ? { ...item, done: !item.done } : item));
+
+        try {
+            await makeUpdateTaskRequest(taskId, { checklist }, () => accessToken, login, logout);
+            queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        } catch (e) {
+            const message = e instanceof Error ? e.message : 'Unknown Error';
+
+            dispatch({
+                type: AlertStoreActions.SHOW_ALERT,
+                payload: {
+                    title: 'Error occured during updating task! :(',
+                    message: `Details: ${message}`,
+                    severity: 'error',
+                    variant: 'standard',
+                },
+            });
+        }
+    };
+
     const handleToggleGoalFavourite = async (goalId: string) => {
         const goal = (goals ?? []).find((g) => g.id === goalId);
         if (!goal) return;
@@ -160,6 +184,7 @@ const Board = () => {
                 tasks={filteredTasks}
                 onStatusChange={handleStatusChange}
                 onToggleFavourite={handleToggleFavourite}
+                onToggleChecklistItem={handleToggleChecklistItem}
                 onEdit={setEditingTask}
             />
 

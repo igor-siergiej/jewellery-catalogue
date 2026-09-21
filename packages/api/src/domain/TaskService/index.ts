@@ -47,6 +47,7 @@ export class TaskService {
             goalId: result.data.goalId,
             favourite: false,
             description: result.data.description,
+            checklist: result.data.checklist,
             createdAt: now,
             updatedAt: now,
         };
@@ -95,6 +96,7 @@ export class TaskService {
             ...completed,
             id: this.idGenerator.generate(),
             status: 'todo',
+            checklist: completed.checklist?.map((item) => ({ ...item, done: false })),
             dueDate: nextDueDate,
             createdAt: now,
             updatedAt: now,
