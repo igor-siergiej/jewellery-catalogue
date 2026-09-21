@@ -3,6 +3,7 @@ import type { Task } from '@jewellery-catalogue/types';
 import { Pencil, Star } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const IMPORTANCE_VARIANT: Record<Task['importance'], 'default' | 'secondary' | 'destructive'> = {
     low: 'secondary',
@@ -13,8 +14,9 @@ const IMPORTANCE_VARIANT: Record<Task['importance'], 'default' | 'secondary' | '
 const TaskCard: React.FC<{
     task: Task;
     onToggleFavourite: (taskId: string) => void;
+    onToggleChecklistItem: (taskId: string, itemId: string) => void;
     onEdit: (task: Task) => void;
-}> = ({ task, onToggleFavourite, onEdit }) => {
+}> = ({ task, onToggleFavourite, onToggleChecklistItem, onEdit }) => {
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: task.id });
 
     const style = transform
@@ -60,6 +62,29 @@ const TaskCard: React.FC<{
                 </div>
             </div>
             {task.description && <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{task.description}</p>}
+            {task.checklist && task.checklist.length > 0 && (
+                <div className="mb-2 space-y-1">
+                    <p className="text-xs text-muted-foreground">
+                        Checklist {task.checklist.filter((item) => item.done).length}/{task.checklist.length}
+                    </p>
+                    {task.checklist.map((item) => (
+                        <div key={item.id} className="flex items-center gap-2">
+                            <Checkbox
+                                checked={item.done}
+                                aria-label={item.done ? `Uncheck ${item.text}` : `Check ${item.text}`}
+                                onPointerDown={(e) => e.stopPropagation()}
+                                onClick={(e) => e.stopPropagation()}
+                                onCheckedChange={() => onToggleChecklistItem(task.id, item.id)}
+                            />
+                            <span
+                                className={`text-xs ${item.done ? 'line-through text-muted-foreground' : 'text-foreground'}`}
+                            >
+                                {item.text}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+            )}
             <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="outline" className="text-xs capitalize">
                     {task.subject}

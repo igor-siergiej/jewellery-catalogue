@@ -12,6 +12,13 @@ export type TaskRecurrence = z.infer<typeof taskRecurrenceEnum>;
 export const taskStatusEnum = z.enum(['todo', 'in_progress', 'done']);
 export type TaskStatus = z.infer<typeof taskStatusEnum>;
 
+export const taskChecklistItemSchema = z.object({
+    id: z.string(),
+    text: z.string().min(1),
+    done: z.boolean(),
+});
+export type TaskChecklistItem = z.infer<typeof taskChecklistItemSchema>;
+
 export const taskSchema = z.object({
     id: z.string(),
     userId: z.string(),
@@ -24,6 +31,7 @@ export const taskSchema = z.object({
     goalId: z.string().optional(),
     favourite: z.boolean().optional(),
     description: z.string().optional(),
+    checklist: z.array(taskChecklistItemSchema).optional(),
     createdAt: z.coerce.date(),
     updatedAt: z.coerce.date(),
 });
@@ -37,6 +45,7 @@ export const formTaskSchema = z.object({
     dueDate: z.coerce.date().optional(),
     goalId: z.string().optional(),
     description: z.string().optional(),
+    checklist: z.array(taskChecklistItemSchema).optional(),
 });
 export type FormTask = z.infer<typeof formTaskSchema>;
 

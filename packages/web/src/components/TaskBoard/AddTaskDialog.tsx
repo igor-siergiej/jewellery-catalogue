@@ -1,5 +1,10 @@
 import { useAuth } from '@imapps/web-utils';
-import { taskImportanceEnum, taskRecurrenceEnum, taskSubjectEnum } from '@jewellery-catalogue/types';
+import {
+    type TaskChecklistItem,
+    taskImportanceEnum,
+    taskRecurrenceEnum,
+    taskSubjectEnum,
+} from '@jewellery-catalogue/types';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -13,6 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { makeCreateTaskRequest } from '../../api/endpoints/tasks';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
+import ChecklistEditor from './ChecklistEditor';
 
 const AddTaskDialog: React.FC<{ open: boolean; onOpenChange: (open: boolean) => void; onCreated: () => void }> = ({
     open,
@@ -27,6 +33,7 @@ const AddTaskDialog: React.FC<{ open: boolean; onOpenChange: (open: boolean) => 
     const [recurrence, setRecurrence] = useState<(typeof taskRecurrenceEnum.options)[number]>('none');
     const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
     const [description, setDescription] = useState('');
+    const [checklist, setChecklist] = useState<Array<TaskChecklistItem>>([]);
     const [submitting, setSubmitting] = useState(false);
 
     const reset = () => {
@@ -36,6 +43,7 @@ const AddTaskDialog: React.FC<{ open: boolean; onOpenChange: (open: boolean) => 
         setRecurrence('none');
         setDueDate(undefined);
         setDescription('');
+        setChecklist([]);
     };
 
     const handleSubmit = async () => {
@@ -51,6 +59,7 @@ const AddTaskDialog: React.FC<{ open: boolean; onOpenChange: (open: boolean) => 
                     recurrence,
                     dueDate,
                     description: description.trim() || undefined,
+                    checklist,
                 },
                 () => accessToken,
                 login,
@@ -141,6 +150,8 @@ const AddTaskDialog: React.FC<{ open: boolean; onOpenChange: (open: boolean) => 
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                     />
+
+                    <ChecklistEditor idPrefix="add-task" items={checklist} onChange={setChecklist} />
                 </div>
 
                 <DialogFooter>
