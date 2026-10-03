@@ -6,4 +6,5 @@ export interface DraftRepository {
     insert(draft: Draft): Promise<void>;
     update(id: string, draft: Draft): Promise<void>;
     delete(id: string): Promise<void>;
+    imageBelongsToUser(imageId: string, userId: string): Promise<boolean>;
 }

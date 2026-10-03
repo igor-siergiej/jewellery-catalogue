@@ -140,4 +140,28 @@ describe('MongoDesignRepository', () => {
             expect(result).toEqual([design]);
         });
     });
+
+    describe('imageBelongsToUser', () => {
+        it('returns true when a design with the imageId is owned by the user', async () => {
+            mockDesignsCollection.findOne.mockResolvedValue({ _id: 'doc-id' });
+
+            const result = await repository.imageBelongsToUser('image-123', 'user-123');
+
+            expect(mockDesignsCollection.findOne).toHaveBeenCalledWith(
+                {
+                    userId: 'user-123',
+                    $or: [{ imageIds: 'image-123' }, { diagramImageIds: 'image-123' }, { imageId: 'image-123' }],
+                },
+                { projection: { _id: 1 } }
+            );
+            expect(result).toBe(true);
+        });
+
+        it('returns false when no design contains the imageId for the user', async () => {
+            mockDesignsCollection.findOne.mockResolvedValue(null);
+
+            const result = await repository.imageBelongsToUser('image-missing', 'user-123');
+            expect(result).toBe(false);
+        });
+    });
 });

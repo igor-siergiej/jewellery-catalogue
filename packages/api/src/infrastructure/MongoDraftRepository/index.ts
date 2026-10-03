@@ -31,4 +31,9 @@ export class MongoDraftRepository extends MongoRepository<Draft> implements Draf
     async delete(id: string): Promise<void> {
         await this.collection().deleteOne({ id });
     }
+
+    async imageBelongsToUser(imageId: string, userId: string): Promise<boolean> {
+        const doc = await this.collection().findOne({ userId, imageId }, { projection: { _id: 1 } });
+        return doc !== null;
+    }
 }
