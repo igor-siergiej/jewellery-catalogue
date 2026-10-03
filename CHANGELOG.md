@@ -1,3 +1,10 @@
+## [1.51.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.51.0...v1.51.1) (2026-10-03)
+
+
+### Bug Fixes
+
+* **api:** enforce per-user ownership on image GET (IMA-51 IDOR) ([#72](https://github.com/igor-siergiej/jewellery-catalogue/issues/72)) ([98c97c8](https://github.com/igor-siergiej/jewellery-catalogue/commit/98c97c83a08eef0f14b289cbc5d98c758989d6dd))
+
 # [1.51.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.50.0...v1.51.0) (2026-09-21)
 
 
