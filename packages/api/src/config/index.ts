@@ -2,6 +2,7 @@ import { ConfigService, parsers } from '@imapps/api-utils';
 
 const schema = {
     port: { parser: parsers.number, from: 'PORT' },
+    authUrl: { parser: parsers.string, from: 'AUTH_URL' },
     connectionUri: { parser: parsers.string, from: 'CONNECTION_URI' },
     databaseName: { parser: parsers.string, from: 'DATABASE_NAME' },
     bucketName: { parser: parsers.string, from: 'BUCKET_NAME' },

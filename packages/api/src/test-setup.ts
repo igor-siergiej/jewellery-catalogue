@@ -1,4 +1,5 @@
 process.env.PORT = '3000';
+process.env.AUTH_URL = 'http://localhost:3008';
 process.env.CONNECTION_URI = 'mongodb://localhost:27017/test';
 process.env.DATABASE_NAME = 'test';
 process.env.BUCKET_NAME = 'test';

@@ -45,4 +45,15 @@ export class MongoDesignRepository extends MongoRepository<Design> implements De
             .toArray();
         return docs.map((d) => this.migrate(d));
     }
+
+    async imageBelongsToUser(imageId: string, userId: string): Promise<boolean> {
+        const doc = await this.collection().findOne(
+            {
+                userId,
+                $or: [{ imageIds: imageId }, { diagramImageIds: imageId }, { imageId }],
+            },
+            { projection: { _id: 1 } }
+        );
+        return doc !== null;
+    }
 }

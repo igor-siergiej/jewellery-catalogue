@@ -52,7 +52,9 @@ export default defineConfig({
     webServer: isCI
         ? [
               {
-                  command: `bash -c "cd ${ROOT} && bun run --filter @jewellery-catalogue/api start"`,
+                  // Drop --watch and the workspace filter for e2e: file-watching isn't needed
+                  // and 'bun run --filter' adds ~3-5s of cold-start overhead.
+                  command: `bash -c "cd ${ROOT}/packages/api && bun src/index.ts"`,
                   url: 'http://localhost:3001/api/health',
                   reuseExistingServer: false,
                   timeout: 30000,
@@ -64,6 +66,7 @@ export default defineConfig({
                       BUCKET_ENDPOINT: 'localhost:9000',
                       BUCKET_ACCESS_KEY: 'minioadmin',
                       BUCKET_SECRET_KEY: 'minioadmin',
+                      AUTH_URL: 'http://localhost:3008',
                       ETSY_API_KEY: 'test',
                       ETSY_SHARED_SECRET: 'test',
                       ETSY_REDIRECT_URI: 'http://localhost:3001/api/etsy/oauth/callback',

@@ -1,4 +1,3 @@
-import { authenticate } from '@imapps/api-utils/hono';
 import { Hono } from 'hono';
 
 import { dependencyContainer } from '../dependencies';
@@ -31,6 +30,7 @@ import {
 } from '../handlers/Material';
 import { addTask, deleteTask, getTasks, updateTask } from '../handlers/Task';
 import { getUserSettings, recalculatePrices, updateUserSettings } from '../handlers/UserSettings';
+import { authenticate, authenticateImageRequest } from '../middleware/auth';
 
 type Env = { Variables: { userId: string } };
 
@@ -96,7 +96,7 @@ export const createRoutes = (): Hono<Env> => {
     app.delete('/api/tasks/:id', authenticate, deleteTask);
 
     app.post('/api/images', authenticate, uploadImage);
-    app.get('/api/image/:name', getImage);
+    app.get('/api/image/:name', authenticateImageRequest, getImage);
 
     return app;
 };
