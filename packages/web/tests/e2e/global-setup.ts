@@ -57,6 +57,40 @@ export default async function globalSetup(): Promise<() => void> {
             return;
         }
 
+        if (req.method === 'GET' && req.url === '/verify') {
+            const authHeader = req.headers.authorization;
+            const token = authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : undefined;
+            if (!token) {
+                res.writeHead(401);
+                res.end(JSON.stringify({ success: false, message: 'Missing token' }));
+                return;
+            }
+            const parts = token.split('.');
+            if (parts.length !== 3) {
+                res.writeHead(401);
+                res.end(JSON.stringify({ success: false, message: 'Malformed token' }));
+                return;
+            }
+            try {
+                const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8')) as {
+                    id?: string;
+                    username?: string;
+                    exp?: number;
+                };
+                if (!payload.id || !payload.username || (payload.exp && payload.exp * 1000 < Date.now())) {
+                    res.writeHead(401);
+                    res.end(JSON.stringify({ success: false, message: 'Invalid token' }));
+                    return;
+                }
+                res.writeHead(200);
+                res.end(JSON.stringify({ success: true, payload: { id: payload.id, username: payload.username } }));
+            } catch {
+                res.writeHead(401);
+                res.end(JSON.stringify({ success: false, message: 'Invalid token' }));
+            }
+            return;
+        }
+
         if (req.method === 'POST' && req.url === '/register') {
             const { username, password } = await readBody(req);
             if (registeredUsers.has(username)) {
