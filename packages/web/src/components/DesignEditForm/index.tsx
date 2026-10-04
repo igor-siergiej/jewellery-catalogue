@@ -155,11 +155,11 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} onKeyDown={handleFormKeyDown} className="space-y-6">
                 {/* Design Details Section */}
-                <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-4">
-                        <h2 className="text-lg font-medium text-center pt-1.5">Design Details</h2>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                    <div className="md:col-span-4">
+                        <h2 className="text-lg font-medium pt-1.5 md:text-center">Design Details</h2>
                     </div>
-                    <div className="col-span-8">
+                    <div className="md:col-span-8">
                         <div className="flex gap-4">
                             <div className="flex-1">
                                 <FormField
@@ -190,11 +190,11 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                 <hr className="border-t border-border" />
 
                 {/* Design Type Section */}
-                <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-4">
-                        <h2 className="text-lg font-medium text-center pt-1.5">Design Type</h2>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                    <div className="md:col-span-4">
+                        <h2 className="text-lg font-medium pt-1.5 md:text-center">Design Type</h2>
                     </div>
-                    <div className="col-span-8">
+                    <div className="md:col-span-8">
                         <FormField
                             control={form.control}
                             name="designType"
@@ -227,11 +227,11 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                 <hr className="border-t border-border" />
 
                 {/* Catalogue Only Section */}
-                <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-4">
-                        <h2 className="text-lg font-medium text-center pt-1.5">Listing</h2>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                    <div className="md:col-span-4">
+                        <h2 className="text-lg font-medium pt-1.5 md:text-center">Listing</h2>
                     </div>
-                    <div className="col-span-8">
+                    <div className="md:col-span-8">
                         <FormField
                             control={form.control}
                             name="catalogueOnly"
@@ -256,11 +256,11 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                 <hr className="border-t border-border" />
 
                 {/* Upload Images Section */}
-                <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                    <div className="md:col-span-4">
                         <h2 className="text-lg font-medium text-center h-[30px] leading-[30px]">Upload Images</h2>
                     </div>
-                    <div className="col-span-8">
+                    <div className="md:col-span-8">
                         <FormField
                             control={form.control}
                             name="images"
@@ -283,14 +283,14 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                 <hr className="border-t border-border" />
 
                 {/* Maker Docs Section */}
-                <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                    <div className="md:col-span-4">
                         <h2 className="text-lg font-medium text-center">Maker Docs</h2>
                         <p className="text-xs text-muted-foreground text-center mt-1">
                             Private — diagrams and notes never sent to Etsy
                         </p>
                     </div>
-                    <div className="col-span-8">
+                    <div className="md:col-span-8">
                         <MakerDocsSection control={form.control} />
                     </div>
                 </div>
@@ -298,8 +298,8 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                 <hr className="border-t border-border" />
 
                 {/* Add Materials Section */}
-                <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                    <div className="md:col-span-4">
                         <h2 className="text-lg font-medium text-center">
                             {hasVariationGroups ? 'Shared Materials' : 'Add Materials'}
                         </h2>
@@ -307,7 +307,7 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                             <p className="text-xs text-muted-foreground text-center mt-1">Used in every variant</p>
                         )}
                     </div>
-                    <div className="col-span-8">
+                    <div className="md:col-span-8">
                         <FormField
                             control={form.control}
                             name="materials"
@@ -336,14 +336,14 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                 <hr className="border-t border-border" />
 
                 {/* Variation Groups Section */}
-                <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                    <div className="md:col-span-4">
                         <h2 className="text-lg font-medium text-center">Variations</h2>
                         <p className="text-xs text-muted-foreground text-center mt-1">
                             Optional — define selectable options like gemstone or wire type
                         </p>
                     </div>
-                    <div className="col-span-8">
+                    <div className="md:col-span-8">
                         <FormField
                             control={form.control}
                             name="variationGroups"
@@ -372,11 +372,11 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                 <hr className="border-t border-border" />
 
                 {/* Set Price Section */}
-                <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                    <div className="md:col-span-4">
                         <h2 className="text-lg font-medium text-center">Set Price</h2>
                     </div>
-                    <div className="col-span-8">
+                    <div className="md:col-span-8">
                         <PriceBreakdown
                             materialsCost={(() => {
                                 if (hasVariationGroups) {
@@ -454,11 +454,11 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                 <hr className="border-t border-border" />
 
                 {/* Add Description Section */}
-                <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                    <div className="md:col-span-4">
                         <h2 className="text-lg font-medium text-center">Add Description</h2>
                     </div>
-                    <div className="col-span-8">
+                    <div className="md:col-span-8">
                         <FormField
                             control={form.control}
                             name="description"
@@ -482,11 +482,11 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                 <hr className="border-t border-border" />
 
                 {/* Low Stock Threshold Section */}
-                <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                    <div className="md:col-span-4">
                         <h2 className="text-lg font-medium text-center">Stock Alert</h2>
                     </div>
-                    <div className="col-span-8">
+                    <div className="md:col-span-8">
                         <FormField
                             control={form.control}
                             name="lowStockThreshold"
