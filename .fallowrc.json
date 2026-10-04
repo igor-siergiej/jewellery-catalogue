@@ -21,6 +21,7 @@
   ],
   "ignoreUnresolvedImports": ["bun:test"],
   "ignoreDependencies": [
+    "workbox-window",
     "@tiptap/pm",
     "class-variance-authority",
     "vaul",
