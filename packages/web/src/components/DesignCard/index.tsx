@@ -79,7 +79,7 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated 
             <Item
                 key={id}
                 variant="outline"
-                className="w-64 flex-col items-start bg-card relative cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]"
+                className="w-full md:w-64 flex-col items-start bg-card relative cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]"
                 onClick={handleCardClick}
             >
                 <div className="absolute top-2 right-2 z-10 flex gap-1">
@@ -113,7 +113,10 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated 
                     </Button>
                 </div>
                 <ItemHeader className="basis-auto justify-start">
-                    <div className="w-56 h-56 relative" data-testid="design-card-main-image">
+                    <div
+                        className="w-full aspect-square md:w-56 md:h-56 md:aspect-auto relative"
+                        data-testid="design-card-main-image"
+                    >
                         {imageIds?.[0] ? (
                             <Image imageId={imageIds[0]} />
                         ) : etsyImageUrl ? (

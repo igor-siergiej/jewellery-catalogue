@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LinkDesignDialog } from '../../components/LinkDesignDialog';
 import LoadingScreen from '../../components/Loading';
+import { DesktopOnly, MobileCard, MobileCardList } from '../../components/MobileCardList';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '../../components/ui/empty';
@@ -101,78 +102,138 @@ const Listings = () => {
                     </EmptyHeader>
                 </Empty>
             ) : (
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="hidden sm:table-cell" />
-                            <TableHead>Title</TableHead>
-                            <TableHead>Price</TableHead>
-                            <TableHead>Linked Design</TableHead>
-                            <TableHead>Etsy</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
+                <>
+                    <MobileCardList>
                         {filteredListings.map((listing) => (
-                            <TableRow key={listing.listingId}>
-                                <TableCell className="hidden sm:table-cell">
-                                    {listing.imageUrl ? (
+                            <MobileCard
+                                key={listing.listingId}
+                                title={listing.title}
+                                badges={listing.state === 'sold_out' && <Badge variant="secondary">Sold out</Badge>}
+                                media={
+                                    listing.imageUrl ? (
                                         <img
                                             src={listing.imageUrl}
                                             alt={listing.title}
-                                            className="h-10 w-10 rounded object-cover"
+                                            className="h-14 w-14 shrink-0 rounded object-cover"
                                         />
                                     ) : (
-                                        <div className="h-10 w-10 rounded bg-muted" />
-                                    )}
-                                </TableCell>
-                                <TableCell className="font-medium">
-                                    <div className="flex items-center gap-2">
-                                        {listing.title}
-                                        {listing.state === 'sold_out' && <Badge variant="secondary">Sold out</Badge>}
-                                    </div>
-                                </TableCell>
-                                <TableCell>£{listing.price.toFixed(2)}</TableCell>
-                                <TableCell>
-                                    {listing.linkedDesignId ? (
-                                        <Link
-                                            to={VIEW_DESIGN_PAGE.getRoute(listing.linkedDesignId)}
-                                            className="text-primary hover:underline"
-                                        >
-                                            View design
-                                        </Link>
-                                    ) : (
-                                        <div className="flex flex-wrap gap-2">
-                                            <Button
-                                                size="sm"
-                                                disabled={isCreating}
-                                                onClick={() => handleCreate(listing.listingId)}
-                                            >
-                                                Create design
+                                        <div className="h-14 w-14 shrink-0 rounded bg-muted" />
+                                    )
+                                }
+                                facts={[{ label: 'Price', value: `£${listing.price.toFixed(2)}` }]}
+                                actions={
+                                    <>
+                                        {listing.linkedDesignId ? (
+                                            <Button asChild variant="outline" className="h-10 flex-1">
+                                                <Link to={VIEW_DESIGN_PAGE.getRoute(listing.linkedDesignId)}>
+                                                    View design
+                                                </Link>
                                             </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="secondary"
-                                                onClick={() => setLinkDialogListingId(listing.listingId)}
-                                            >
-                                                Link existing
-                                            </Button>
-                                        </div>
-                                    )}
-                                </TableCell>
-                                <TableCell>
-                                    <a
-                                        href={listing.url}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
-                                    >
-                                        View <ExternalLink className="h-3 w-3" />
-                                    </a>
-                                </TableCell>
-                            </TableRow>
+                                        ) : (
+                                            <>
+                                                <Button
+                                                    className="h-10 flex-1"
+                                                    disabled={isCreating}
+                                                    onClick={() => handleCreate(listing.listingId)}
+                                                >
+                                                    Create design
+                                                </Button>
+                                                <Button
+                                                    variant="secondary"
+                                                    className="h-10 flex-1"
+                                                    onClick={() => setLinkDialogListingId(listing.listingId)}
+                                                >
+                                                    Link existing
+                                                </Button>
+                                            </>
+                                        )}
+                                        <Button asChild variant="outline" className="h-10 flex-1">
+                                            <a href={listing.url} target="_blank" rel="noreferrer">
+                                                Etsy <ExternalLink className="h-3 w-3" />
+                                            </a>
+                                        </Button>
+                                    </>
+                                }
+                            />
                         ))}
-                    </TableBody>
-                </Table>
+                    </MobileCardList>
+                    <DesktopOnly>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="hidden sm:table-cell" />
+                                    <TableHead>Title</TableHead>
+                                    <TableHead>Price</TableHead>
+                                    <TableHead>Linked Design</TableHead>
+                                    <TableHead>Etsy</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {filteredListings.map((listing) => (
+                                    <TableRow key={listing.listingId}>
+                                        <TableCell className="hidden sm:table-cell">
+                                            {listing.imageUrl ? (
+                                                <img
+                                                    src={listing.imageUrl}
+                                                    alt={listing.title}
+                                                    className="h-10 w-10 rounded object-cover"
+                                                />
+                                            ) : (
+                                                <div className="h-10 w-10 rounded bg-muted" />
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="font-medium">
+                                            <div className="flex items-center gap-2">
+                                                {listing.title}
+                                                {listing.state === 'sold_out' && (
+                                                    <Badge variant="secondary">Sold out</Badge>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>£{listing.price.toFixed(2)}</TableCell>
+                                        <TableCell>
+                                            {listing.linkedDesignId ? (
+                                                <Link
+                                                    to={VIEW_DESIGN_PAGE.getRoute(listing.linkedDesignId)}
+                                                    className="text-primary hover:underline"
+                                                >
+                                                    View design
+                                                </Link>
+                                            ) : (
+                                                <div className="flex flex-wrap gap-2">
+                                                    <Button
+                                                        size="sm"
+                                                        disabled={isCreating}
+                                                        onClick={() => handleCreate(listing.listingId)}
+                                                    >
+                                                        Create design
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="secondary"
+                                                        onClick={() => setLinkDialogListingId(listing.listingId)}
+                                                    >
+                                                        Link existing
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            <a
+                                                href={listing.url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
+                                            >
+                                                View <ExternalLink className="h-3 w-3" />
+                                            </a>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </DesktopOnly>
+                </>
             )}
 
             {linkDialogListingId !== null && (

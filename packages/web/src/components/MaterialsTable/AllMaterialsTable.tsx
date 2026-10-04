@@ -5,6 +5,7 @@ import { useState } from 'react';
 
 import makeDeleteMaterialRequest from '@/api/endpoints/deleteMaterial';
 import MaterialUpdateForm from '@/components/MaterialUpdateForm';
+import { DesktopOnly, MobileCard, MobileCardList, MobileSortSelect } from '@/components/MobileCardList';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -108,7 +109,87 @@ const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({
 
     return (
         <>
-            <div className="rounded-md border bg-card">
+            <MobileSortSelect
+                options={[
+                    { field: 'name', label: 'Name' },
+                    { field: 'materialCode', label: 'Material Code' },
+                    { field: 'brand', label: 'Brand' },
+                    { field: 'type', label: 'Type' },
+                    { field: 'pricePerPack', label: 'Price/Pack' },
+                    { field: 'diameter', label: 'Diameter' },
+                ]}
+                sortField={sortField}
+                sortDirection={sortDirection}
+                onSort={onSort}
+            />
+            <MobileCardList>
+                {materials.length === 0 ? (
+                    <p className="rounded-md border bg-card p-6 text-center text-sm text-muted-foreground">
+                        No materials found.
+                    </p>
+                ) : (
+                    materials.map((material, index) => {
+                        const m = material as any;
+                        const perUnit = m.pricePerMeter ?? m.pricePerBead ?? m.pricePerPiece;
+                        const stock =
+                            'totalLength' in material
+                                ? `${(m.totalLength as number).toFixed(2)}m`
+                                : 'totalQuantity' in material
+                                  ? Math.round(m.totalQuantity)
+                                  : '-';
+
+                        return (
+                            <MobileCard
+                                key={material.id || `material-${index}`}
+                                title={material.name}
+                                badges={
+                                    <Badge variant="secondary" className="capitalize">
+                                        {material.type.toLowerCase().replace('_', ' ')}
+                                    </Badge>
+                                }
+                                facts={[
+                                    { label: 'Brand', value: material.brand },
+                                    { label: 'Code', value: material.materialCode || '-' },
+                                    { label: 'Stock', value: stock },
+                                    { label: 'Price/pack', value: formatPrice(m.pricePerPack) || '-' },
+                                    { label: 'Per unit', value: perUnit != null ? formatPrice(perUnit) : '-' },
+                                    { label: 'Colour', value: m.colour || '-' },
+                                ]}
+                                actions={
+                                    <>
+                                        <Button
+                                            variant="outline"
+                                            className="h-10 flex-1"
+                                            onClick={() => handleOpenPurchaseUrl(material.purchaseUrl)}
+                                            disabled={!material.purchaseUrl}
+                                        >
+                                            <ShoppingBasket className="h-4 w-4" />
+                                            Buy
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="h-10 flex-1"
+                                            onClick={() => handleEdit(material)}
+                                        >
+                                            <Edit className="h-4 w-4" />
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="h-10 flex-1 text-destructive hover:text-destructive"
+                                            onClick={() => setMaterialToDelete(material)}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                            Delete
+                                        </Button>
+                                    </>
+                                }
+                            />
+                        );
+                    })
+                )}
+            </MobileCardList>
+            <DesktopOnly className="rounded-md border bg-card">
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
@@ -220,7 +301,7 @@ const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({
                         )}
                     </TableBody>
                 </Table>
-            </div>
+            </DesktopOnly>
 
             <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
                 <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">

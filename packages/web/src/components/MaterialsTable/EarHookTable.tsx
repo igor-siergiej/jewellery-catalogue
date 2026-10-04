@@ -1,8 +1,8 @@
 import type { EarHook } from '@jewellery-catalogue/types';
 import { ArrowDown, ArrowUp, ArrowUpDown, Edit, ShoppingBasket } from 'lucide-react';
 import { useState } from 'react';
-
 import MaterialUpdateForm from '@/components/MaterialUpdateForm';
+import { DesktopOnly, MobileCard, MobileCardList, MobileSortSelect } from '@/components/MobileCardList';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -75,7 +75,75 @@ const EarHookTable: React.FC<IEarHookTableProps> = ({
 
     return (
         <>
-            <div className="rounded-md border bg-card">
+            <MobileSortSelect
+                options={[
+                    { field: 'name', label: 'Name' },
+                    { field: 'materialCode', label: 'Material Code' },
+                    { field: 'brand', label: 'Brand' },
+                    { field: 'wireType', label: 'Wire Type' },
+                    { field: 'metalType', label: 'Metal Type' },
+                    { field: 'totalQuantity', label: 'Total Quantity' },
+                    { field: 'quantityPerPack', label: 'Quantity/Pack' },
+                    { field: 'pricePerPack', label: 'Price/Pack' },
+                    { field: 'pricePerPiece', label: 'Price/piece' },
+                ]}
+                sortField={sortField}
+                sortDirection={sortDirection}
+                onSort={onSort}
+            />
+            <MobileCardList>
+                {materials.length === 0 ? (
+                    <p className="rounded-md border bg-card p-6 text-center text-sm text-muted-foreground">
+                        No materials found.
+                    </p>
+                ) : (
+                    materials.map((material) => (
+                        <MobileCard
+                            key={material.id}
+                            title={material.name}
+                            badges={
+                                <>
+                                    <Badge variant="secondary">{WIRE_TYPE_LABELS[material.wireType]}</Badge>
+                                    <Badge variant="outline">{METAL_TYPE_LABELS[material.metalType]}</Badge>
+                                </>
+                            }
+                            facts={[
+                                { label: 'Brand', value: material.brand },
+                                { label: 'Code', value: material.materialCode || '-' },
+                                { label: 'Stock', value: Math.round(material.totalQuantity) },
+                                { label: 'Per pack', value: Math.round(material.quantityPerPack) },
+                                { label: 'Price/pack', value: `£${material.pricePerPack.toFixed(2)}` },
+                                {
+                                    label: 'Price/piece',
+                                    value: material.pricePerPiece ? `£${material.pricePerPiece.toFixed(2)}` : '-',
+                                },
+                            ]}
+                            actions={
+                                <>
+                                    <Button
+                                        variant="outline"
+                                        className="h-10 flex-1"
+                                        onClick={() => handleOpenPurchaseUrl(material.purchaseUrl)}
+                                        disabled={!material.purchaseUrl}
+                                    >
+                                        <ShoppingBasket className="h-4 w-4" />
+                                        Buy
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        className="h-10 flex-1"
+                                        onClick={() => handleEdit(material)}
+                                    >
+                                        <Edit className="h-4 w-4" />
+                                        Edit
+                                    </Button>
+                                </>
+                            }
+                        />
+                    ))
+                )}
+            </MobileCardList>
+            <DesktopOnly className="rounded-md border bg-card">
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
@@ -144,7 +212,7 @@ const EarHookTable: React.FC<IEarHookTableProps> = ({
                         )}
                     </TableBody>
                 </Table>
-            </div>
+            </DesktopOnly>
 
             <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
                 <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">

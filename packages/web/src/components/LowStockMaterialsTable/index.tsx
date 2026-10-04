@@ -3,6 +3,7 @@ import { AlertCircle, Edit, ShoppingBasket } from 'lucide-react';
 import { useState } from 'react';
 
 import MaterialUpdateForm from '@/components/MaterialUpdateForm';
+import { DesktopOnly, MobileCard, MobileCardList } from '@/components/MobileCardList';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -63,7 +64,70 @@ const LowStockMaterialsTable: React.FC<ILowStockMaterialsTableProps> = ({ materi
 
     return (
         <>
-            <div className="rounded-md border bg-card">
+            <MobileCardList>
+                {materials.length === 0 ? (
+                    <p className="rounded-md border bg-card p-6 text-center text-sm text-muted-foreground">
+                        No low-stock materials.
+                    </p>
+                ) : (
+                    materials.map((material, index) => {
+                        const m = material as any;
+                        const stock =
+                            'totalLength' in material
+                                ? `${(m.totalLength as number).toFixed(2)}m`
+                                : 'totalQuantity' in material
+                                  ? Math.round(m.totalQuantity)
+                                  : '-';
+
+                        return (
+                            <MobileCard
+                                key={material.id || `material-${index}`}
+                                title={material.name}
+                                badges={
+                                    <>
+                                        <Badge variant="secondary" className="capitalize">
+                                            {material.type.toLowerCase().replace('_', ' ')}
+                                        </Badge>
+                                        {getSeverityBadge(material)}
+                                    </>
+                                }
+                                facts={[
+                                    { label: 'Brand', value: material.brand },
+                                    { label: 'Code', value: material.materialCode || '-' },
+                                    {
+                                        label: 'Packs',
+                                        value: `${getMaterialCurrentPacks(material)} / ${material.lowStockThreshold ?? '-'}`,
+                                    },
+                                    { label: 'Total stock', value: stock },
+                                    { label: 'Price/pack', value: formatPrice(m.pricePerPack) || '-' },
+                                ]}
+                                actions={
+                                    <>
+                                        <Button
+                                            variant="outline"
+                                            className="h-10 flex-1"
+                                            onClick={() => handleOpenPurchaseUrl(material.purchaseUrl)}
+                                            disabled={!material.purchaseUrl}
+                                        >
+                                            <ShoppingBasket className="h-4 w-4" />
+                                            Buy
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="h-10 flex-1"
+                                            onClick={() => handleEdit(material)}
+                                        >
+                                            <Edit className="h-4 w-4" />
+                                            Edit
+                                        </Button>
+                                    </>
+                                }
+                            />
+                        );
+                    })
+                )}
+            </MobileCardList>
+            <DesktopOnly className="rounded-md border bg-card">
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
@@ -153,7 +217,7 @@ const LowStockMaterialsTable: React.FC<ILowStockMaterialsTableProps> = ({ materi
                         )}
                     </TableBody>
                 </Table>
-            </div>
+            </DesktopOnly>
 
             <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
                 <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">

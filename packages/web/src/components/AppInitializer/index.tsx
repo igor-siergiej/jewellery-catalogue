@@ -13,7 +13,7 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ children }) => {
         return (
             <div className="flex flex-col items-center justify-center h-screen gap-4">
                 <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                <p className="text-muted-foreground">Loading Shoppingo...</p>
+                <p className="text-muted-foreground">Loading Jewellery Catalogue...</p>
             </div>
         );
     }

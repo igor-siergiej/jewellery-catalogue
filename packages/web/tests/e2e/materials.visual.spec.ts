@@ -20,7 +20,7 @@ test.describe('Materials page visual regression', () => {
         await apiCreateBead(authToken, { name: 'Visual Red Bead', colour: 'red' });
         await apiCreateBead(authToken, { name: 'Visual Blue Bead', colour: 'blue', diameter: 6 });
         await page.goto('/materials');
-        await expect(page.getByRole('cell', { name: 'Visual Red Bead' })).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Visual Red Bead')).toBeVisible({ timeout: 10000 });
         await settle(page);
         await expectNoHorizontalScroll(page);
         await expect(page).toHaveScreenshot('materials-populated.png', { fullPage: true });
