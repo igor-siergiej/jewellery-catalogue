@@ -1,3 +1,10 @@
+## [1.52.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.52.0...v1.52.1) (2026-10-04)
+
+
+### Bug Fixes
+
+* **web:** mobile follow-ups for auth layout, dialogs and tap targets ([#74](https://github.com/igor-siergiej/jewellery-catalogue/issues/74)) ([88f3349](https://github.com/igor-siergiej/jewellery-catalogue/commit/88f3349c00fd0f77c1daa289eaaff76845cea93f))
+
 # [1.52.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.51.1...v1.52.0) (2026-10-04)
 
 
