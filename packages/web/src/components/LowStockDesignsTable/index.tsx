@@ -60,12 +60,12 @@ const LowStockDesignsTable: React.FC<ILowStockDesignsTableProps> = ({ rows, onDe
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
-                            <TableHead className="font-semibold">Image</TableHead>
+                            <TableHead className="font-semibold hidden md:table-cell">Image</TableHead>
                             <TableHead className="font-semibold">Name</TableHead>
-                            <TableHead className="font-semibold">Quantity</TableHead>
+                            <TableHead className="font-semibold hidden md:table-cell">Quantity</TableHead>
                             <TableHead className="font-semibold">Stock Status</TableHead>
                             <TableHead className="font-semibold">Severity</TableHead>
-                            <TableHead className="font-semibold">Price</TableHead>
+                            <TableHead className="font-semibold hidden md:table-cell">Price</TableHead>
                             <TableHead className="font-semibold text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -88,19 +88,21 @@ const LowStockDesignsTable: React.FC<ILowStockDesignsTableProps> = ({ rows, onDe
 
                                 return (
                                     <TableRow key={rowKey} className="hover:bg-muted/50">
-                                        <TableCell>
+                                        <TableCell className="hidden md:table-cell">
                                             <div className="h-12 w-12 rounded-md overflow-hidden bg-muted flex items-center justify-center">
                                                 <Image imageId={design.imageIds?.[0] ?? ''} />
                                             </div>
                                         </TableCell>
                                         <TableCell className="font-medium">{displayName}</TableCell>
-                                        <TableCell>{quantity}</TableCell>
+                                        <TableCell className="hidden md:table-cell">{quantity}</TableCell>
                                         <TableCell className="font-medium flex items-center gap-2">
                                             <AlertCircle className="h-4 w-4 text-orange-500" />
                                             {quantity} / {threshold ?? '-'} items
                                         </TableCell>
                                         <TableCell>{getSeverityBadge(quantity, threshold)}</TableCell>
-                                        <TableCell>£{Number(price).toFixed(2)}</TableCell>
+                                        <TableCell className="hidden md:table-cell">
+                                            £{Number(price).toFixed(2)}
+                                        </TableCell>
                                         <TableCell>
                                             <div className="flex items-center justify-end gap-2">
                                                 <Button

@@ -2,14 +2,44 @@ import fs from 'node:fs';
 import path from 'node:path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
+import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
     const isDev = mode === 'development';
     const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
-    const appVersion = process.env.APP_VERSION || packageJson.version || (isDev ? 'localhost' : '');
+    // Dev server pins the version so release bumps do not drift e2e visual baselines.
+    const appVersion = process.env.APP_VERSION || (isDev ? 'localhost' : packageJson.version) || '';
 
     return {
-        plugins: [react()],
+        plugins: [
+            react(),
+            VitePWA({
+                strategies: 'injectManifest',
+                srcDir: 'src',
+                filename: 'sw.ts',
+                registerType: 'prompt',
+                injectRegister: false,
+                injectManifest: {
+                    globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,webmanifest}'],
+                },
+                manifest: {
+                    name: 'Jewellery Catalogue',
+                    short_name: 'Jewellery',
+                    description: 'Catalogue of jewellery designs, materials and Etsy listings',
+                    start_url: '/',
+                    scope: '/',
+                    display: 'standalone',
+                    background_color: '#CCDAF4',
+                    theme_color: '#CCDAF4',
+                    icons: [
+                        { src: 'logo-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+                        { src: 'logo-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+                        { src: 'logo-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+                    ],
+                },
+                devOptions: { enabled: false },
+            }),
+        ],
         resolve: {
             alias: {
                 '@': path.resolve(__dirname, './src'),

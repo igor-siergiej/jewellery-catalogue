@@ -29,6 +29,28 @@ export const MOCK_TOKEN_GOAL_FAVOURITE = makeMockToken('68c6f0f5b97c94612901512b
 export const MOCK_TOKEN_CATALOGUE_ONLY = makeMockToken('68c6f0f5b97c94612901512c'); // catalogue-only-design.spec
 export const MOCK_TOKEN_TASK_CHECKLIST = makeMockToken('68c6f0f5b97c94612901512d'); // board-task-checklist.spec
 
+// Visual specs run once per visual project, so each project gets its own user to keep parallel workers isolated
+export const MOCK_TOKEN_VISUAL_START_MOBILE = makeMockToken('68c6f0f5b97c946129015130'); // start.visual.spec (mobile)
+export const MOCK_TOKEN_VISUAL_START_DESKTOP = makeMockToken('68c6f0f5b97c946129015131'); // start.visual.spec (desktop)
+export const MOCK_TOKEN_VISUAL_HOME_MOBILE = makeMockToken('68c6f0f5b97c946129015132'); // home.visual.spec (mobile)
+export const MOCK_TOKEN_VISUAL_HOME_DESKTOP = makeMockToken('68c6f0f5b97c946129015133'); // home.visual.spec (desktop)
+export const MOCK_TOKEN_VISUAL_DESIGNS_MOBILE = makeMockToken('68c6f0f5b97c946129015134'); // designs.visual.spec (mobile)
+export const MOCK_TOKEN_VISUAL_DESIGNS_DESKTOP = makeMockToken('68c6f0f5b97c946129015135'); // designs.visual.spec (desktop)
+export const MOCK_TOKEN_VISUAL_VIEW_DESIGN_MOBILE = makeMockToken('68c6f0f5b97c946129015136'); // view_design.visual.spec (mobile)
+export const MOCK_TOKEN_VISUAL_VIEW_DESIGN_DESKTOP = makeMockToken('68c6f0f5b97c946129015137'); // view_design.visual.spec (desktop)
+export const MOCK_TOKEN_VISUAL_ADD_DESIGN_MOBILE = makeMockToken('68c6f0f5b97c946129015138'); // add_design.visual.spec (mobile)
+export const MOCK_TOKEN_VISUAL_ADD_DESIGN_DESKTOP = makeMockToken('68c6f0f5b97c946129015139'); // add_design.visual.spec (desktop)
+export const MOCK_TOKEN_VISUAL_MATERIALS_MOBILE = makeMockToken('68c6f0f5b97c94612901513a'); // materials.visual.spec (mobile)
+export const MOCK_TOKEN_VISUAL_MATERIALS_DESKTOP = makeMockToken('68c6f0f5b97c94612901513b'); // materials.visual.spec (desktop)
+export const MOCK_TOKEN_VISUAL_ADD_MATERIAL_MOBILE = makeMockToken('68c6f0f5b97c94612901513c'); // add_material.visual.spec (mobile)
+export const MOCK_TOKEN_VISUAL_ADD_MATERIAL_DESKTOP = makeMockToken('68c6f0f5b97c94612901513d'); // add_material.visual.spec (desktop)
+export const MOCK_TOKEN_VISUAL_LISTINGS_MOBILE = makeMockToken('68c6f0f5b97c94612901513e'); // listings.visual.spec (mobile)
+export const MOCK_TOKEN_VISUAL_LISTINGS_DESKTOP = makeMockToken('68c6f0f5b97c94612901513f'); // listings.visual.spec (desktop)
+export const MOCK_TOKEN_VISUAL_BOARD_MOBILE = makeMockToken('68c6f0f5b97c946129015140'); // board.visual.spec (mobile)
+export const MOCK_TOKEN_VISUAL_BOARD_DESKTOP = makeMockToken('68c6f0f5b97c946129015141'); // board.visual.spec (desktop)
+export const MOCK_TOKEN_VISUAL_SETTINGS_MOBILE = makeMockToken('68c6f0f5b97c946129015142'); // settings.visual.spec (mobile)
+export const MOCK_TOKEN_VISUAL_SETTINGS_DESKTOP = makeMockToken('68c6f0f5b97c946129015143'); // settings.visual.spec (desktop)
+
 export const MOCK_USER = { id: '68c6f0f5b97c946129015116', username: 'testuser' };
 
 export async function mockAuthRoutes(page: Page, token = MOCK_TOKEN) {

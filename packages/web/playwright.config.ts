@@ -43,10 +43,24 @@ export default defineConfig({
         navigationTimeout: 30000,
     },
     timeout: 60000,
+    expect: {
+        toHaveScreenshot: { maxDiffPixelRatio: 0.02 },
+    },
     projects: [
         {
             name: 'chromium',
             use: { ...devices['Desktop Chrome'] },
+            testIgnore: /.*\.visual\.spec\.ts/,
+        },
+        {
+            name: 'mobile-visual',
+            use: { ...devices['Pixel 7'] },
+            testMatch: /.*\.visual\.spec\.ts/,
+        },
+        {
+            name: 'desktop-visual',
+            use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 720 } },
+            testMatch: /.*\.visual\.spec\.ts/,
         },
     ],
     webServer: isCI

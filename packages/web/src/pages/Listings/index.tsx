@@ -104,7 +104,7 @@ const Listings = () => {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead />
+                            <TableHead className="hidden sm:table-cell" />
                             <TableHead>Title</TableHead>
                             <TableHead>Price</TableHead>
                             <TableHead>Linked Design</TableHead>
@@ -114,7 +114,7 @@ const Listings = () => {
                     <TableBody>
                         {filteredListings.map((listing) => (
                             <TableRow key={listing.listingId}>
-                                <TableCell>
+                                <TableCell className="hidden sm:table-cell">
                                     {listing.imageUrl ? (
                                         <img
                                             src={listing.imageUrl}
@@ -141,7 +141,7 @@ const Listings = () => {
                                             View design
                                         </Link>
                                     ) : (
-                                        <div className="flex gap-2">
+                                        <div className="flex flex-wrap gap-2">
                                             <Button
                                                 size="sm"
                                                 disabled={isCreating}

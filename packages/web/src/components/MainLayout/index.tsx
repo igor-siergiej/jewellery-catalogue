@@ -42,7 +42,7 @@ const MainLayoutContent = ({ children }: MainLayoutProps) => {
     return (
         <SidebarProvider>
             <AppSidebar />
-            <SidebarInset className="overflow-y-auto max-h-screen">
+            <SidebarInset className="min-w-0 md:max-h-screen md:overflow-y-auto">
                 <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
                     <SidebarTrigger className="-ml-1" />
                     <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
@@ -61,7 +61,7 @@ const MainLayoutContent = ({ children }: MainLayoutProps) => {
                         </span>
                     )}
                     {(isDesignsPage || isMaterialsPage || isListingsPage) && (
-                        <div className="relative max-w-md">
+                        <div className="relative min-w-0 max-w-md flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
                                 type="text"
@@ -95,7 +95,7 @@ const MainLayoutContent = ({ children }: MainLayoutProps) => {
                         </Button>
                     </div>
                 </header>
-                <div className="flex flex-1 flex-col gap-4 p-4">
+                <div className="flex min-w-0 flex-1 flex-col gap-4 p-4">
                     <main>{children ?? <Outlet />}</main>
                 </div>
             </SidebarInset>

@@ -10,6 +10,7 @@
     "maxCognitive": 65535,
     "maxCrap": 1000000.0
   },
+  "entry": ["packages/web/src/sw.ts"],
   "ignorePatterns": [
     "**/*.test.ts",
     "**/*.test.tsx",
@@ -20,6 +21,7 @@
   ],
   "ignoreUnresolvedImports": ["bun:test"],
   "ignoreDependencies": [
+    "workbox-window",
     "@tiptap/pm",
     "class-variance-authority",
     "vaul",
