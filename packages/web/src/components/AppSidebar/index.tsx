@@ -31,7 +31,7 @@ const routeIcons = {
 const AppSidebar = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { state } = useSidebar();
+    const { state, isMobile, setOpenMobile } = useSidebar();
     const isCollapsed = state === 'collapsed';
 
     return (
@@ -55,7 +55,10 @@ const AppSidebar = () => {
                                         <SidebarMenuButton asChild isActive={isActive}>
                                             <button
                                                 type="button"
-                                                onClick={() => navigate(route.route)}
+                                                onClick={() => {
+                                                    navigate(route.route);
+                                                    if (isMobile) setOpenMobile(false);
+                                                }}
                                                 className="w-full justify-start"
                                             >
                                                 {IconComponent && <IconComponent />}

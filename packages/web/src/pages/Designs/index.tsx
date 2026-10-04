@@ -55,7 +55,7 @@ const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, o
         <>
             <Item
                 variant="outline"
-                className="w-64 flex-col items-start bg-card relative cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]"
+                className="w-full md:w-64 flex-col items-start bg-card relative cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]"
                 onClick={handleCardClick}
             >
                 <div className="absolute top-2 right-2 z-10 flex gap-1">
@@ -71,7 +71,7 @@ const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, o
                     </Button>
                 </div>
                 <ItemHeader className="basis-auto justify-center">
-                    <div className="w-64 h-64 flex items-center justify-center rounded-md bg-primary/10 border border-primary/20">
+                    <div className="w-full aspect-square md:w-64 md:h-64 md:aspect-auto flex items-center justify-center rounded-md bg-primary/10 border border-primary/20">
                         <FileEdit className="h-16 w-16 text-primary/40" />
                     </div>
                 </ItemHeader>
@@ -201,7 +201,7 @@ const Designs = () => {
                     </EmptyHeader>
                 </Empty>
             ) : (
-                <div className="flex flex-wrap justify-center gap-6">
+                <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:justify-center md:gap-6">
                     {draftCards}
                     {designs}
                 </div>

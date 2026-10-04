@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 import DesignUpdateForm from '@/components/DesignUpdateForm';
 import { Image } from '@/components/Image';
+import { DesktopOnly, MobileCard, MobileCardList } from '@/components/MobileCardList';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -56,7 +57,61 @@ const LowStockDesignsTable: React.FC<ILowStockDesignsTableProps> = ({ rows, onDe
 
     return (
         <>
-            <div className="rounded-md border bg-card">
+            <MobileCardList>
+                {rows.length === 0 ? (
+                    <p className="rounded-md border bg-card p-6 text-center text-sm text-muted-foreground">
+                        No low-stock designs.
+                    </p>
+                ) : (
+                    rows.map(({ design, variant }, index) => {
+                        const quantity = variant ? variant.totalQuantity : design.totalQuantity;
+                        const threshold = variant
+                            ? (variant.lowStockThreshold ?? design.lowStockThreshold)
+                            : design.lowStockThreshold;
+                        const displayName = variant ? `${design.name} — ${variant.name}` : design.name;
+                        const price = variant ? variant.price : design.price;
+                        const rowKey = variant ? `${design.id}-${variant.id}` : design.id || `design-${index}`;
+
+                        return (
+                            <MobileCard
+                                key={rowKey}
+                                title={displayName}
+                                badges={getSeverityBadge(quantity, threshold)}
+                                media={
+                                    <div className="h-14 w-14 shrink-0 rounded-md overflow-hidden bg-muted flex items-center justify-center">
+                                        <Image imageId={design.imageIds?.[0] ?? ''} />
+                                    </div>
+                                }
+                                facts={[
+                                    { label: 'Stock', value: `${quantity} / ${threshold ?? '-'} items` },
+                                    { label: 'Price', value: `£${Number(price).toFixed(2)}` },
+                                ]}
+                                actions={
+                                    <>
+                                        <Button
+                                            variant="outline"
+                                            className="h-10 flex-1"
+                                            onClick={() => handleView(design.id)}
+                                        >
+                                            <Eye className="h-4 w-4" />
+                                            View
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="h-10 flex-1"
+                                            onClick={() => handleEdit(design, variant)}
+                                        >
+                                            <Edit className="h-4 w-4" />
+                                            Edit
+                                        </Button>
+                                    </>
+                                }
+                            />
+                        );
+                    })
+                )}
+            </MobileCardList>
+            <DesktopOnly className="rounded-md border bg-card">
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
@@ -131,7 +186,7 @@ const LowStockDesignsTable: React.FC<ILowStockDesignsTableProps> = ({ rows, onDe
                         )}
                     </TableBody>
                 </Table>
-            </div>
+            </DesktopOnly>
 
             <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
                 <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">

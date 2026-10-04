@@ -1,15 +1,16 @@
 import type { Material } from '@jewellery-catalogue/types';
 import { AlertCircle, Edit, ShoppingBasket } from 'lucide-react';
 import { useState } from 'react';
-
+import { MaterialCards } from '@/components/MaterialsTable/MaterialCards';
 import MaterialUpdateForm from '@/components/MaterialUpdateForm';
+import { DesktopOnly } from '@/components/MobileCardList';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getMaterialCurrentPacks } from '@/utils/lowStock';
 
-export interface ILowStockMaterialsTableProps {
+interface ILowStockMaterialsTableProps {
     materials: Array<Material>;
     onMaterialUpdated?: () => void;
 }
@@ -63,7 +64,40 @@ const LowStockMaterialsTable: React.FC<ILowStockMaterialsTableProps> = ({ materi
 
     return (
         <>
-            <div className="rounded-md border bg-card">
+            <MaterialCards
+                materials={materials}
+                emptyText="No low-stock materials."
+                onEdit={handleEdit}
+                badges={(material) => (
+                    <>
+                        <Badge variant="secondary" className="capitalize">
+                            {material.type.toLowerCase().replace('_', ' ')}
+                        </Badge>
+                        {getSeverityBadge(material)}
+                    </>
+                )}
+                facts={(material) => {
+                    const m = material as any;
+                    const stock =
+                        'totalLength' in material
+                            ? `${(m.totalLength as number).toFixed(2)}m`
+                            : 'totalQuantity' in material
+                              ? Math.round(m.totalQuantity)
+                              : '-';
+
+                    return [
+                        { label: 'Brand', value: material.brand },
+                        { label: 'Code', value: material.materialCode || '-' },
+                        {
+                            label: 'Packs',
+                            value: `${getMaterialCurrentPacks(material)} / ${material.lowStockThreshold ?? '-'}`,
+                        },
+                        { label: 'Total stock', value: stock },
+                        { label: 'Price/pack', value: formatPrice(m.pricePerPack) || '-' },
+                    ];
+                }}
+            />
+            <DesktopOnly className="rounded-md border bg-card">
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
@@ -153,7 +187,7 @@ const LowStockMaterialsTable: React.FC<ILowStockMaterialsTableProps> = ({ materi
                         )}
                     </TableBody>
                 </Table>
-            </div>
+            </DesktopOnly>
 
             <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
                 <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">

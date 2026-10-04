@@ -1,15 +1,16 @@
 import type { EarHook } from '@jewellery-catalogue/types';
 import { ArrowDown, ArrowUp, ArrowUpDown, Edit, ShoppingBasket } from 'lucide-react';
 import { useState } from 'react';
-
 import MaterialUpdateForm from '@/components/MaterialUpdateForm';
+import { DesktopOnly } from '@/components/MobileCardList';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { METAL_TYPE_LABELS, WIRE_TYPE_LABELS } from '@/lib/materialLabels';
+import { MaterialCards } from './MaterialCards';
 
-export interface IEarHookTableProps {
+interface IEarHookTableProps {
     materials: Array<EarHook>;
     onMaterialUpdated?: () => void;
     sortField?: string | null;
@@ -75,7 +76,43 @@ const EarHookTable: React.FC<IEarHookTableProps> = ({
 
     return (
         <>
-            <div className="rounded-md border bg-card">
+            <MaterialCards
+                materials={materials}
+                emptyText="No materials found."
+                sortOptions={[
+                    { field: 'name', label: 'Name' },
+                    { field: 'materialCode', label: 'Material Code' },
+                    { field: 'brand', label: 'Brand' },
+                    { field: 'wireType', label: 'Wire Type' },
+                    { field: 'metalType', label: 'Metal Type' },
+                    { field: 'totalQuantity', label: 'Total Quantity' },
+                    { field: 'quantityPerPack', label: 'Quantity/Pack' },
+                    { field: 'pricePerPack', label: 'Price/Pack' },
+                    { field: 'pricePerPiece', label: 'Price/piece' },
+                ]}
+                sortField={sortField}
+                sortDirection={sortDirection}
+                onSort={onSort}
+                onEdit={handleEdit}
+                badges={(material) => (
+                    <>
+                        <Badge variant="secondary">{WIRE_TYPE_LABELS[material.wireType]}</Badge>
+                        <Badge variant="outline">{METAL_TYPE_LABELS[material.metalType]}</Badge>
+                    </>
+                )}
+                facts={(material) => [
+                    { label: 'Brand', value: material.brand },
+                    { label: 'Code', value: material.materialCode || '-' },
+                    { label: 'Stock', value: Math.round(material.totalQuantity) },
+                    { label: 'Per pack', value: Math.round(material.quantityPerPack) },
+                    { label: 'Price/pack', value: `£${material.pricePerPack.toFixed(2)}` },
+                    {
+                        label: 'Price/piece',
+                        value: material.pricePerPiece ? `£${material.pricePerPiece.toFixed(2)}` : '-',
+                    },
+                ]}
+            />
+            <DesktopOnly className="rounded-md border bg-card">
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
@@ -144,7 +181,7 @@ const EarHookTable: React.FC<IEarHookTableProps> = ({
                         )}
                     </TableBody>
                 </Table>
-            </div>
+            </DesktopOnly>
 
             <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
                 <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
