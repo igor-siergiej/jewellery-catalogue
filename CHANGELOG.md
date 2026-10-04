@@ -1,3 +1,10 @@
+# [1.52.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.51.1...v1.52.0) (2026-10-04)
+
+
+### Features
+
+* **web:** mobile layout fixes, PWA and visual regression specs ([#73](https://github.com/igor-siergiej/jewellery-catalogue/issues/73)) ([5a2321f](https://github.com/igor-siergiej/jewellery-catalogue/commit/5a2321fc0b918689090b2c815fcb4e3d5220ec6b))
+
 ## [1.51.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.51.0...v1.51.1) (2026-10-03)
 
 
