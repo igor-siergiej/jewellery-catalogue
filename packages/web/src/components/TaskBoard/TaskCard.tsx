@@ -42,7 +42,7 @@ const TaskCard: React.FC<{
                             e.stopPropagation();
                             onEdit(task);
                         }}
-                        className="text-muted-foreground hover:text-foreground"
+                        className="-m-1 p-2.5 text-muted-foreground hover:text-foreground"
                     >
                         <Pencil className="h-3.5 w-3.5" />
                     </button>
@@ -55,7 +55,7 @@ const TaskCard: React.FC<{
                             e.stopPropagation();
                             onToggleFavourite(task.id);
                         }}
-                        className="text-muted-foreground hover:text-foreground"
+                        className="-m-1 p-2.5 text-muted-foreground hover:text-foreground"
                     >
                         <Star className={`h-4 w-4 ${task.favourite ? 'fill-yellow-400 text-yellow-400' : ''}`} />
                     </button>
