@@ -8,6 +8,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { GlobalAlert } from './components/Alert';
 import AppInitializer from './components/AppInitializer';
 import MainLayout from './components/MainLayout';
+import UpdatePrompt from './components/UpdatePrompt';
 import {
     ADD_DESIGN_PAGE,
     ADD_MATERIAL_PAGE,
@@ -23,6 +24,7 @@ import {
 } from './constants/routes';
 import { AlertProvider } from './context/Alert';
 import { DraftStatusProvider } from './context/DraftStatus';
+import { PWAProvider } from './contexts/PWAContext';
 import AddDesign from './pages/AddDesign';
 import AddMaterial from './pages/AddMaterial';
 import Board from './pages/Board';
@@ -167,12 +169,15 @@ const initializeApp = async () => {
                         <UserProvider>
                             <AuthProvider>
                                 <AppInitializer>
-                                    <AlertProvider>
-                                        <DraftStatusProvider>
-                                            <GlobalAlert />
-                                            <App />
-                                        </DraftStatusProvider>
-                                    </AlertProvider>
+                                    <PWAProvider>
+                                        <AlertProvider>
+                                            <DraftStatusProvider>
+                                                <GlobalAlert />
+                                                <UpdatePrompt />
+                                                <App />
+                                            </DraftStatusProvider>
+                                        </AlertProvider>
+                                    </PWAProvider>
                                 </AppInitializer>
                             </AuthProvider>
                         </UserProvider>

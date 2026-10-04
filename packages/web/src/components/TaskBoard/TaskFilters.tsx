@@ -24,7 +24,11 @@ const TaskFilters: React.FC<{
 }> = ({ tasks, subjectFilter, importanceFilter, onSubjectFilterChange, onImportanceFilterChange }) => {
     return (
         <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
-            <Tabs value={subjectFilter} onValueChange={(v) => onSubjectFilterChange(v as TaskSubject | 'all')}>
+            <Tabs
+                className="min-w-0 max-w-full"
+                value={subjectFilter}
+                onValueChange={(v) => onSubjectFilterChange(v as TaskSubject | 'all')}
+            >
                 <TabsList>
                     <TabsTrigger value="all">All ({tasks.length})</TabsTrigger>
                     {taskSubjectEnum.options.map((subject) => (

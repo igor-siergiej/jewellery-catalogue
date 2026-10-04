@@ -209,12 +209,12 @@ const AddDesign: React.FC = () => {
                         </div>
 
                         {/* Design Details Section */}
-                        <div className="grid grid-cols-12 gap-4">
-                            <div className="col-span-4">
-                                <h2 className="text-lg font-medium text-center pt-1.5">Design Details</h2>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                            <div className="md:col-span-4">
+                                <h2 className="text-lg font-medium pt-1.5 md:text-center">Design Details</h2>
                             </div>
-                            <div className="col-span-8">
-                                <div className="flex gap-4">
+                            <div className="md:col-span-8">
+                                <div className="flex flex-col gap-4 sm:flex-row">
                                     <div className="flex-1">
                                         <FormField
                                             control={form.control}
@@ -244,11 +244,11 @@ const AddDesign: React.FC = () => {
                         <hr className="border-t border-border" />
 
                         {/* Design Type Section */}
-                        <div className="grid grid-cols-12 gap-4">
-                            <div className="col-span-4">
-                                <h2 className="text-lg font-medium text-center pt-1.5">Design Type</h2>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                            <div className="md:col-span-4">
+                                <h2 className="text-lg font-medium pt-1.5 md:text-center">Design Type</h2>
                             </div>
-                            <div className="col-span-8">
+                            <div className="md:col-span-8">
                                 <FormField
                                     control={form.control}
                                     name="designType"
@@ -281,13 +281,13 @@ const AddDesign: React.FC = () => {
                         <hr className="border-t border-border" />
 
                         {/* Upload Images Section */}
-                        <div className="grid grid-cols-12 gap-4">
-                            <div className="col-span-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                            <div className="md:col-span-4">
                                 <h2 className="text-lg font-medium text-center h-[30px] leading-[30px]">
                                     Upload Images
                                 </h2>
                             </div>
-                            <div className="col-span-8">
+                            <div className="md:col-span-8">
                                 <FormField
                                     control={form.control}
                                     name="images"
@@ -310,14 +310,14 @@ const AddDesign: React.FC = () => {
                         <hr className="border-t border-border" />
 
                         {/* Maker Docs Section */}
-                        <div className="grid grid-cols-12 gap-4">
-                            <div className="col-span-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                            <div className="md:col-span-4">
                                 <h2 className="text-lg font-medium text-center">Maker Docs</h2>
                                 <p className="text-xs text-muted-foreground text-center mt-1">
                                     Private — diagrams and notes never sent to Etsy
                                 </p>
                             </div>
-                            <div className="col-span-8">
+                            <div className="md:col-span-8">
                                 <MakerDocsSection control={form.control} />
                             </div>
                         </div>
@@ -325,8 +325,8 @@ const AddDesign: React.FC = () => {
                         <hr className="border-t border-border" />
 
                         {/* Add Materials Section */}
-                        <div className="grid grid-cols-12 gap-4">
-                            <div className="col-span-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                            <div className="md:col-span-4">
                                 <h2 className="text-lg font-medium text-center">
                                     {hasVariationGroups ? 'Shared Materials' : 'Add Materials'}
                                 </h2>
@@ -336,7 +336,7 @@ const AddDesign: React.FC = () => {
                                     </p>
                                 )}
                             </div>
-                            <div className="col-span-8">
+                            <div className="md:col-span-8">
                                 <FormField
                                     control={form.control}
                                     name="materials"
@@ -366,14 +366,14 @@ const AddDesign: React.FC = () => {
                         <hr className="border-t border-border" />
 
                         {/* Variation Groups Section */}
-                        <div className="grid grid-cols-12 gap-4">
-                            <div className="col-span-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                            <div className="md:col-span-4">
                                 <h2 className="text-lg font-medium text-center">Variations</h2>
                                 <p className="text-xs text-muted-foreground text-center mt-1">
                                     Optional — define selectable options like gemstone or wire type
                                 </p>
                             </div>
-                            <div className="col-span-8">
+                            <div className="md:col-span-8">
                                 <FormField
                                     control={form.control}
                                     name="variationGroups"
@@ -402,11 +402,11 @@ const AddDesign: React.FC = () => {
                         <hr className="border-t border-border" />
 
                         {/* Set Price Section */}
-                        <div className="grid grid-cols-12 gap-4">
-                            <div className="col-span-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                            <div className="md:col-span-4">
                                 <h2 className="text-lg font-medium text-center">Set Price</h2>
                             </div>
-                            <div className="col-span-8">
+                            <div className="md:col-span-8">
                                 <PriceBreakdown
                                     materialsCost={(() => {
                                         if (hasVariationGroups) {
@@ -484,11 +484,11 @@ const AddDesign: React.FC = () => {
                         <hr className="border-t border-border" />
 
                         {/* Add Description Section */}
-                        <div className="grid grid-cols-12 gap-4">
-                            <div className="col-span-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                            <div className="md:col-span-4">
                                 <h2 className="text-lg font-medium text-center">Add Description</h2>
                             </div>
-                            <div className="col-span-8">
+                            <div className="md:col-span-8">
                                 <FormField
                                     control={form.control}
                                     name="description"
@@ -512,11 +512,11 @@ const AddDesign: React.FC = () => {
                         <hr className="border-t border-border" />
 
                         {/* Low Stock Threshold Section */}
-                        <div className="grid grid-cols-12 gap-4">
-                            <div className="col-span-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+                            <div className="md:col-span-4">
                                 <h2 className="text-lg font-medium text-center">Stock Alert</h2>
                             </div>
-                            <div className="col-span-8">
+                            <div className="md:col-span-8">
                                 <FormField
                                     control={form.control}
                                     name="lowStockThreshold"

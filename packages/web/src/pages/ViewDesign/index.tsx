@@ -100,14 +100,14 @@ const ViewDesign = () => {
         <>
             <div className="max-w-6xl mx-auto px-6 py-8">
                 {/* Page header */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-8">
                     <Link
                         to="/designs"
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        className="hidden text-sm text-muted-foreground hover:text-foreground transition-colors md:inline"
                     >
                         ← All Designs
                     </Link>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                         <Button
                             variant="outline"
                             onClick={() => setEditPropertiesDialogOpen(true)}

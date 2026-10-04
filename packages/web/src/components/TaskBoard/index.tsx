@@ -24,7 +24,7 @@ const Column: React.FC<{
     return (
         <div
             ref={setNodeRef}
-            className={`flex-1 min-w-[240px] rounded-md border bg-muted/30 p-3 ${isOver ? 'ring-2 ring-primary' : ''}`}
+            className={`flex-1 md:min-w-[240px] rounded-md border bg-muted/30 p-3 ${isOver ? 'ring-2 ring-primary' : ''}`}
         >
             <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-semibold">{label}</span>
@@ -64,7 +64,7 @@ const TaskBoard: React.FC<{
 
     return (
         <DndContext onDragEnd={handleDragEnd}>
-            <div className="flex gap-4">
+            <div className="flex flex-col gap-4 md:flex-row">
                 {COLUMNS.map((col) => (
                     <Column
                         key={col.status}

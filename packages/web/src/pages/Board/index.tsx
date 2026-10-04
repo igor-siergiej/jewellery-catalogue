@@ -168,7 +168,7 @@ const Board = () => {
     };
 
     return (
-        <div className="p-6">
+        <div className="p-0 sm:p-6">
             <div className="flex items-center justify-between mb-4">
                 <h1 className="text-2xl font-semibold">Board</h1>
                 <Button onClick={() => setAddTaskOpen(true)}>Add Task</Button>

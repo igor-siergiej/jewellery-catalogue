@@ -178,6 +178,19 @@ export async function apiDeleteGoal(token: string, id: string): Promise<void> {
     if (!res.ok && res.status !== 404) throw new Error(`apiDeleteGoal failed: ${await res.text()}`);
 }
 
+export async function apiCleanupBoard(token: string): Promise<void> {
+    const getJson = async (path: string): Promise<{ id: string }[]> => {
+        const res = await fetch(`${getApiUrl()}${path}`, { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) throw new Error(`GET ${path} failed: ${await res.text()}`);
+        return res.json();
+    };
+    const [tasks, goals] = await Promise.all([getJson('/api/tasks'), getJson('/api/goals')]);
+    await Promise.all([
+        ...tasks.map((t) => apiDeleteTask(token, t.id)),
+        ...goals.map((g) => apiDeleteGoal(token, g.id)),
+    ]);
+}
+
 export async function apiCleanup(token: string): Promise<void> {
     const [materials, designs] = await Promise.all([apiGetMaterials(token), apiGetDesigns(token)]);
     await Promise.all([

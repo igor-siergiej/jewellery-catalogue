@@ -22,7 +22,7 @@ export const GlobalAlert: React.FC = () => {
     if (!state.open) return null;
 
     return (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 min-w-[500px] shadow-lg">
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-[500px] shadow-lg">
             <Alert
                 className={`relative ${state.severity === 'error' ? 'border-destructive bg-destructive/10' : 'border-primary bg-primary/10'}`}
             >
