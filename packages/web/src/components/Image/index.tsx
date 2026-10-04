@@ -1,5 +1,8 @@
+import { useAuth } from '@imapps/web-utils';
 import { AlertTriangle } from 'lucide-react';
 import { useState } from 'react';
+
+import { getImageSrc } from '../../utils/imageSrc';
 
 export interface ImageProps {
     imageId: string;
@@ -7,9 +10,9 @@ export interface ImageProps {
 
 export const Image: React.FC<ImageProps> = ({ imageId }) => {
     const [error, setError] = useState(false);
-    const imgSrc = `/api/image/${imageId}`;
+    const { accessToken } = useAuth();
 
-    if (error) {
+    if (error || !imageId) {
         return (
             <div className="flex items-center justify-center w-full h-full bg-muted rounded-md">
                 <AlertTriangle className="h-8 w-8 text-muted-foreground" />
@@ -19,7 +22,7 @@ export const Image: React.FC<ImageProps> = ({ imageId }) => {
 
     return (
         <img
-            src={imgSrc}
+            src={getImageSrc(imageId, accessToken)}
             className="w-full h-full object-contain rounded-md"
             onError={() => setError(true)}
             alt={`${imageId}`}
