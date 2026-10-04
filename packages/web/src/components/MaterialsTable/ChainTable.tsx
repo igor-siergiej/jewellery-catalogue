@@ -2,14 +2,15 @@ import type { Chain } from '@jewellery-catalogue/types';
 import { ArrowDown, ArrowUp, ArrowUpDown, Edit, ShoppingBasket } from 'lucide-react';
 import { useState } from 'react';
 import MaterialUpdateForm from '@/components/MaterialUpdateForm';
-import { DesktopOnly, MobileCard, MobileCardList, MobileSortSelect } from '@/components/MobileCardList';
+import { DesktopOnly } from '@/components/MobileCardList';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { METAL_TYPE_LABELS, WIRE_TYPE_LABELS } from '@/lib/materialLabels';
+import { MaterialCards } from './MaterialCards';
 
-export interface IChainTableProps {
+interface IChainTableProps {
     materials: Array<Chain>;
     onMaterialUpdated?: () => void;
     sortField?: string | null;
@@ -69,8 +70,10 @@ const ChainTable: React.FC<IChainTableProps> = ({ materials, onMaterialUpdated, 
 
     return (
         <>
-            <MobileSortSelect
-                options={[
+            <MaterialCards
+                materials={materials}
+                emptyText="No materials found."
+                sortOptions={[
                     { field: 'name', label: 'Name' },
                     { field: 'materialCode', label: 'Material Code' },
                     { field: 'brand', label: 'Brand' },
@@ -85,60 +88,26 @@ const ChainTable: React.FC<IChainTableProps> = ({ materials, onMaterialUpdated, 
                 sortField={sortField}
                 sortDirection={sortDirection}
                 onSort={onSort}
-            />
-            <MobileCardList>
-                {materials.length === 0 ? (
-                    <p className="rounded-md border bg-card p-6 text-center text-sm text-muted-foreground">
-                        No materials found.
-                    </p>
-                ) : (
-                    materials.map((material) => (
-                        <MobileCard
-                            key={material.id}
-                            title={material.name}
-                            badges={
-                                <>
-                                    <Badge variant="secondary">{WIRE_TYPE_LABELS[material.wireType]}</Badge>
-                                    <Badge variant="outline">{METAL_TYPE_LABELS[material.metalType]}</Badge>
-                                </>
-                            }
-                            facts={[
-                                { label: 'Brand', value: material.brand },
-                                { label: 'Code', value: material.materialCode || '-' },
-                                { label: 'Diameter', value: `${material.diameter.toFixed(2)}mm` },
-                                { label: 'Stock', value: `${material.totalLength.toFixed(2)}m` },
-                                { label: 'Per pack', value: `${material.lengthPerPack.toFixed(2)}m` },
-                                { label: 'Price/pack', value: `£${material.pricePerPack.toFixed(2)}` },
-                                {
-                                    label: 'Price/m',
-                                    value: material.pricePerMeter ? `£${material.pricePerMeter.toFixed(2)}` : '-',
-                                },
-                            ]}
-                            actions={
-                                <>
-                                    <Button
-                                        variant="outline"
-                                        className="h-10 flex-1"
-                                        onClick={() => handleOpenPurchaseUrl(material.purchaseUrl)}
-                                        disabled={!material.purchaseUrl}
-                                    >
-                                        <ShoppingBasket className="h-4 w-4" />
-                                        Buy
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        className="h-10 flex-1"
-                                        onClick={() => handleEdit(material)}
-                                    >
-                                        <Edit className="h-4 w-4" />
-                                        Edit
-                                    </Button>
-                                </>
-                            }
-                        />
-                    ))
+                onEdit={handleEdit}
+                badges={(material) => (
+                    <>
+                        <Badge variant="secondary">{WIRE_TYPE_LABELS[material.wireType]}</Badge>
+                        <Badge variant="outline">{METAL_TYPE_LABELS[material.metalType]}</Badge>
+                    </>
                 )}
-            </MobileCardList>
+                facts={(material) => [
+                    { label: 'Brand', value: material.brand },
+                    { label: 'Code', value: material.materialCode || '-' },
+                    { label: 'Diameter', value: `${material.diameter.toFixed(2)}mm` },
+                    { label: 'Stock', value: `${material.totalLength.toFixed(2)}m` },
+                    { label: 'Per pack', value: `${material.lengthPerPack.toFixed(2)}m` },
+                    { label: 'Price/pack', value: `£${material.pricePerPack.toFixed(2)}` },
+                    {
+                        label: 'Price/m',
+                        value: material.pricePerMeter ? `£${material.pricePerMeter.toFixed(2)}` : '-',
+                    },
+                ]}
+            />
             <DesktopOnly className="rounded-md border bg-card">
                 <Table>
                     <TableHeader>

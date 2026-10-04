@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 import makeDeleteMaterialRequest from '@/api/endpoints/deleteMaterial';
 import MaterialUpdateForm from '@/components/MaterialUpdateForm';
-import { DesktopOnly, MobileCard, MobileCardList, MobileSortSelect } from '@/components/MobileCardList';
+import { DesktopOnly } from '@/components/MobileCardList';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -21,7 +21,9 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
-export interface IAllMaterialsTableProps {
+import { MaterialCards } from './MaterialCards';
+
+interface IAllMaterialsTableProps {
     materials: Array<Material>;
     onMaterialUpdated?: () => void;
     sortField?: string | null;
@@ -109,8 +111,10 @@ const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({
 
     return (
         <>
-            <MobileSortSelect
-                options={[
+            <MaterialCards
+                materials={materials}
+                emptyText="No materials found."
+                sortOptions={[
                     { field: 'name', label: 'Name' },
                     { field: 'materialCode', label: 'Material Code' },
                     { field: 'brand', label: 'Brand' },
@@ -121,74 +125,42 @@ const AllMaterialsTable: React.FC<IAllMaterialsTableProps> = ({
                 sortField={sortField}
                 sortDirection={sortDirection}
                 onSort={onSort}
-            />
-            <MobileCardList>
-                {materials.length === 0 ? (
-                    <p className="rounded-md border bg-card p-6 text-center text-sm text-muted-foreground">
-                        No materials found.
-                    </p>
-                ) : (
-                    materials.map((material, index) => {
-                        const m = material as any;
-                        const perUnit = m.pricePerMeter ?? m.pricePerBead ?? m.pricePerPiece;
-                        const stock =
-                            'totalLength' in material
-                                ? `${(m.totalLength as number).toFixed(2)}m`
-                                : 'totalQuantity' in material
-                                  ? Math.round(m.totalQuantity)
-                                  : '-';
-
-                        return (
-                            <MobileCard
-                                key={material.id || `material-${index}`}
-                                title={material.name}
-                                badges={
-                                    <Badge variant="secondary" className="capitalize">
-                                        {material.type.toLowerCase().replace('_', ' ')}
-                                    </Badge>
-                                }
-                                facts={[
-                                    { label: 'Brand', value: material.brand },
-                                    { label: 'Code', value: material.materialCode || '-' },
-                                    { label: 'Stock', value: stock },
-                                    { label: 'Price/pack', value: formatPrice(m.pricePerPack) || '-' },
-                                    { label: 'Per unit', value: perUnit != null ? formatPrice(perUnit) : '-' },
-                                    { label: 'Colour', value: m.colour || '-' },
-                                ]}
-                                actions={
-                                    <>
-                                        <Button
-                                            variant="outline"
-                                            className="h-10 flex-1"
-                                            onClick={() => handleOpenPurchaseUrl(material.purchaseUrl)}
-                                            disabled={!material.purchaseUrl}
-                                        >
-                                            <ShoppingBasket className="h-4 w-4" />
-                                            Buy
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            className="h-10 flex-1"
-                                            onClick={() => handleEdit(material)}
-                                        >
-                                            <Edit className="h-4 w-4" />
-                                            Edit
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            className="h-10 flex-1 text-destructive hover:text-destructive"
-                                            onClick={() => setMaterialToDelete(material)}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                            Delete
-                                        </Button>
-                                    </>
-                                }
-                            />
-                        );
-                    })
+                onEdit={handleEdit}
+                badges={(material) => (
+                    <Badge variant="secondary" className="capitalize">
+                        {material.type.toLowerCase().replace('_', ' ')}
+                    </Badge>
                 )}
-            </MobileCardList>
+                facts={(material) => {
+                    const m = material as any;
+                    const perUnit = m.pricePerMeter ?? m.pricePerBead ?? m.pricePerPiece;
+                    const stock =
+                        'totalLength' in material
+                            ? `${(m.totalLength as number).toFixed(2)}m`
+                            : 'totalQuantity' in material
+                              ? Math.round(m.totalQuantity)
+                              : '-';
+
+                    return [
+                        { label: 'Brand', value: material.brand },
+                        { label: 'Code', value: material.materialCode || '-' },
+                        { label: 'Stock', value: stock },
+                        { label: 'Price/pack', value: formatPrice(m.pricePerPack) || '-' },
+                        { label: 'Per unit', value: perUnit != null ? formatPrice(perUnit) : '-' },
+                        { label: 'Colour', value: m.colour || '-' },
+                    ];
+                }}
+                extraActions={(material) => (
+                    <Button
+                        variant="outline"
+                        className="h-10 flex-1 text-destructive hover:text-destructive"
+                        onClick={() => setMaterialToDelete(material)}
+                    >
+                        <Trash2 className="h-4 w-4" />
+                        Delete
+                    </Button>
+                )}
+            />
             <DesktopOnly className="rounded-md border bg-card">
                 <Table>
                     <TableHeader>
