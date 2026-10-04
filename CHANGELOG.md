@@ -1,3 +1,10 @@
+## [1.52.2](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.52.1...v1.52.2) (2026-10-04)
+
+
+### Bug Fixes
+
+* **web:** send access token with image requests, skip empty image ids ([#75](https://github.com/igor-siergiej/jewellery-catalogue/issues/75)) ([8052bd9](https://github.com/igor-siergiej/jewellery-catalogue/commit/8052bd9ed2a7bd87475242d3ee1b4119ded56cc1)), closes [#72](https://github.com/igor-siergiej/jewellery-catalogue/issues/72)
+
 ## [1.52.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.52.0...v1.52.1) (2026-10-04)
 
 
