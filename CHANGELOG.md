@@ -1,3 +1,10 @@
+# [1.54.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.53.0...v1.54.0) (2026-10-05)
+
+
+### Features
+
+* **api:** purge done tasks 30 days after completion ([#78](https://github.com/igor-siergiej/jewellery-catalogue/issues/78)) ([fc3ec91](https://github.com/igor-siergiej/jewellery-catalogue/commit/fc3ec91e436d5659bb9a2c22f69bdc2cad9f26f3))
+
 # [1.53.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.52.2...v1.53.0) (2026-10-04)
 
 
