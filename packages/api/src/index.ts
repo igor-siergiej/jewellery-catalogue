@@ -8,6 +8,7 @@ import { DependencyToken } from './dependencies/types';
 import { createRoutes } from './routes';
 
 const port = config.get('port');
+const PURGE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 const allowedOrigins = [
     'http://localhost:3000',
@@ -54,6 +55,20 @@ export const onStartup = async () => {
         await draftsCollection.createIndex({ userId: 1 });
         await draftsCollection.createIndex({ id: 1, userId: 1 });
         appLogger.info('Database indexes created');
+
+        const taskService = dependencyContainer.resolve(DependencyToken.TaskService);
+        const purgeCompletedTasks = async () => {
+            try {
+                const deleted = await taskService.purgeCompletedTasks();
+                appLogger.info('Purged completed tasks', { deleted });
+            } catch (error: unknown) {
+                appLogger.error('Failed to purge completed tasks', {
+                    error: error instanceof Error ? error.message : error,
+                });
+            }
+        };
+        await purgeCompletedTasks();
+        setInterval(purgeCompletedTasks, PURGE_INTERVAL_MS).unref();
 
         const app = createApp({ logger: appLogger, allowedOrigins });
         app.route('/', createRoutes());

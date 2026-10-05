@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test';
+import { beforeEach, describe, expect, it, type Mock, mock } from 'bun:test';
 import type { FormTask, Task } from '@jewellery-catalogue/types';
 
 import type { IdGenerator } from '../IdGenerator';
@@ -13,6 +13,7 @@ const mockTaskRepo: TaskRepository = {
     insert: mock(),
     update: mock(),
     delete: mock(),
+    deleteCompletedBefore: mock(),
 };
 
 const mockIdGenerator: IdGenerator = { generate: mock() };
@@ -38,6 +39,7 @@ describe('TaskService', () => {
         (mockTaskRepo.insert as ReturnType<typeof mock>).mockClear?.();
         (mockTaskRepo.update as ReturnType<typeof mock>).mockClear?.();
         (mockTaskRepo.delete as ReturnType<typeof mock>).mockClear?.();
+        (mockTaskRepo.deleteCompletedBefore as Mock<(cutoff: Date) => Promise<number>>).mockClear();
         (mockIdGenerator.generate as ReturnType<typeof mock>).mockClear?.();
         service = new TaskService(mockTaskRepo, mockIdGenerator);
     });
@@ -293,5 +295,101 @@ describe('TaskService', () => {
                 ],
             })
         );
+    });
+
+    describe('completedAt', () => {
+        const baseTask: Task = {
+            id: 'task-1',
+            userId: 'user-1',
+            title: 'Order beads',
+            subject: 'product',
+            importance: 'medium',
+            recurrence: 'none',
+            status: 'todo',
+            createdAt: new Date('2026-08-01T00:00:00.000Z'),
+            updatedAt: new Date('2026-08-01T00:00:00.000Z'),
+        };
+        const getExisting = mockTaskRepo.getByIdAndUserId as Mock<(id: string, userId: string) => Promise<Task | null>>;
+
+        it('stamps completedAt when a task moves to done', async () => {
+            getExisting.mockResolvedValue(baseTask);
+            const before = Date.now();
+
+            const result = await service.updateTask('task-1', { status: 'done' }, 'user-1');
+
+            expect(result.completedAt).toBeInstanceOf(Date);
+            expect(result.completedAt?.getTime()).toBeGreaterThanOrEqual(before);
+        });
+
+        it('clears completedAt when a done task is reopened', async () => {
+            getExisting.mockResolvedValue({
+                ...baseTask,
+                status: 'done',
+                completedAt: new Date('2026-08-05T00:00:00.000Z'),
+            });
+
+            const result = await service.updateTask('task-1', { status: 'in_progress' }, 'user-1');
+
+            expect(result.completedAt).toBeUndefined();
+        });
+
+        it('keeps the original completedAt when a done task is edited', async () => {
+            const completedAt = new Date('2026-08-05T00:00:00.000Z');
+            getExisting.mockResolvedValue({ ...baseTask, status: 'done', completedAt });
+
+            const result = await service.updateTask('task-1', { favourite: true }, 'user-1');
+
+            expect(result.completedAt).toEqual(completedAt);
+        });
+
+        it('pins a legacy done task without completedAt to its previous updatedAt when edited', async () => {
+            getExisting.mockResolvedValue({
+                ...baseTask,
+                status: 'done',
+                updatedAt: new Date('2026-08-05T00:00:00.000Z'),
+            });
+
+            const result = await service.updateTask('task-1', { favourite: true }, 'user-1');
+
+            expect(result.completedAt).toEqual(new Date('2026-08-05T00:00:00.000Z'));
+        });
+
+        it('ignores a client supplied completedAt', async () => {
+            getExisting.mockResolvedValue(baseTask);
+
+            const result = await service.updateTask(
+                'task-1',
+                { completedAt: new Date('2020-01-01T00:00:00.000Z') } as never,
+                'user-1'
+            );
+
+            expect(result.completedAt).toBeUndefined();
+        });
+
+        it('does not carry completedAt onto the next occurrence of a recurring task', async () => {
+            getExisting.mockResolvedValue({
+                ...baseTask,
+                recurrence: 'daily',
+                dueDate: new Date('2026-08-10T00:00:00.000Z'),
+            });
+            (mockIdGenerator.generate as Mock<() => string>).mockReturnValue('task-2');
+
+            await service.updateTask('task-1', { status: 'done' }, 'user-1');
+
+            const inserted = (mockTaskRepo.insert as Mock<(task: Task) => Promise<void>>).mock.calls[0]?.[0] as Task;
+            expect(inserted.status).toBe('todo');
+            expect(inserted.completedAt).toBeUndefined();
+        });
+    });
+
+    describe('purgeCompletedTasks', () => {
+        it('deletes tasks completed more than 30 days before now and returns the count', async () => {
+            (mockTaskRepo.deleteCompletedBefore as Mock<(cutoff: Date) => Promise<number>>).mockResolvedValue(3);
+
+            const deleted = await service.purgeCompletedTasks(new Date('2026-09-30T12:00:00.000Z'));
+
+            expect(deleted).toBe(3);
+            expect(mockTaskRepo.deleteCompletedBefore).toHaveBeenCalledWith(new Date('2026-08-31T12:00:00.000Z'));
+        });
     });
 });
