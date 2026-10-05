@@ -32,6 +32,7 @@ export const taskSchema = z.object({
     favourite: z.boolean().optional(),
     description: z.string().optional(),
     checklist: z.array(taskChecklistItemSchema).optional(),
+    completedAt: z.coerce.date().optional(),
     createdAt: z.coerce.date(),
     updatedAt: z.coerce.date(),
 });
@@ -49,5 +50,7 @@ export const formTaskSchema = z.object({
 });
 export type FormTask = z.infer<typeof formTaskSchema>;
 
-export const updateTaskSchema = taskSchema.partial().omit({ id: true, userId: true, createdAt: true });
+export const updateTaskSchema = taskSchema
+    .partial()
+    .omit({ id: true, userId: true, createdAt: true, completedAt: true });
 export type UpdateTask = z.infer<typeof updateTaskSchema>;

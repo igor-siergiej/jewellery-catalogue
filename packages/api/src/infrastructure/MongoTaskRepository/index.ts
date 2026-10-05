@@ -23,4 +23,12 @@ export class MongoTaskRepository extends MongoRepository<Task> implements TaskRe
     async getByIdAndUserId(id: string, userId: string): Promise<Task | null> {
         return this.collection().findOne({ id, userId }, { projection: { _id: 0 } });
     }
+
+    async deleteCompletedBefore(cutoff: Date): Promise<number> {
+        const result = await this.collection().deleteMany({
+            status: 'done',
+            $or: [{ completedAt: { $lt: cutoff } }, { completedAt: { $exists: false }, updatedAt: { $lt: cutoff } }],
+        });
+        return result.deletedCount;
+    }
 }
