@@ -9,6 +9,8 @@ import { buildListingPrompt, LISTING_SYSTEM_PROMPT, listingCopyReplySchema } fro
 import type { VisionLlm } from './types';
 
 export const MAX_LISTING_PHOTOS = 3;
+// Photos are base64-inlined into one JSON request; cap the total raw bytes to stay inside fal limits.
+export const MAX_LISTING_PHOTO_BYTES = 4 * 1024 * 1024;
 
 export class EtsyListingCopyService {
     constructor(
@@ -42,10 +44,19 @@ export class EtsyListingCopyService {
     // The bucket is private, so fal cannot fetch our URLs; photos go inline as data URIs.
     private async loadPhotos(imageIds: string[]): Promise<string[]> {
         const urls: string[] = [];
+        let totalBytes = 0;
         for (const imageId of imageIds) {
             try {
                 const image = await this.imageService.getImage(imageId);
                 const buffer = await streamToBuffer(image.stream);
+                if (totalBytes + buffer.length > MAX_LISTING_PHOTO_BYTES) {
+                    this.logger?.warn('Skipping listing photo that would exceed the size budget', {
+                        imageId,
+                        size: buffer.length,
+                    });
+                    continue;
+                }
+                totalBytes += buffer.length;
                 urls.push(`data:${image.contentType};base64,${buffer.toString('base64')}`);
             } catch (error) {
                 this.logger?.warn('Skipping listing photo that failed to load', {
@@ -54,6 +65,7 @@ export class EtsyListingCopyService {
                 });
             }
         }
+        this.logger?.info('Sending listing photos', { count: urls.length, totalBytes });
         return urls;
     }
 }

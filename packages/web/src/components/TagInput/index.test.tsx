@@ -34,6 +34,20 @@ describe('TagInput', () => {
         expect((screen.getByLabelText('Add tag') as HTMLInputElement).value).toBe('a'.repeat(21));
     });
 
+    it('clears the error when the draft text changes', () => {
+        render(<Harness />);
+        add('a'.repeat(21));
+        fireEvent.change(screen.getByLabelText('Add tag'), { target: { value: 'ok' } });
+        expect(screen.queryByRole('alert')).toBeNull();
+    });
+
+    it('clears the error when a blank draft is committed', () => {
+        render(<Harness />);
+        add('a'.repeat(21));
+        add('   ');
+        expect(screen.queryByRole('alert')).toBeNull();
+    });
+
     it('disables input once 13 tags are present', () => {
         render(<Harness initial={Array.from({ length: ETSY_TAGS_MAX }, (_, i) => `tag ${i}`)} />);
         expect((screen.getByLabelText('Add tag') as HTMLInputElement).disabled).toBe(true);

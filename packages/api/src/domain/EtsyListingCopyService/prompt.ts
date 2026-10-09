@@ -10,6 +10,7 @@ import {
     METAL_TYPE,
     normaliseEtsyTag,
     type RequiredMaterial,
+    replaceInvalidEtsyTitleChars,
     WIRE_TYPE,
 } from '@jewellery-catalogue/types';
 import { z } from 'zod';
@@ -82,7 +83,7 @@ Return ONLY a JSON object, no markdown or prose: {"title": string, "description"
 title:
 - At most ${ETSY_TITLE_MAX} characters. Put the phrase a shopper would search first, e.g. "Silver Wire Wrapped Amethyst Drop Earrings".
 - Then material, colour, style and gift context, reading naturally. No keyword stuffing, no repeated words, no ALL CAPS.
-- Use at most one each of the characters % : &.
+- Use at most one each of the characters % : & +. No emoji or currency symbols.
 
 tags:
 - Exactly ${ETSY_TAGS_MAX} distinct tags, each at most ${ETSY_TAG_MAX_LENGTH} characters including spaces.
@@ -99,16 +100,7 @@ const truncateAtWord = (text: string, max: number): string => {
     if (text.length <= max) return text;
     const lastSpace = text.slice(0, max + 1).lastIndexOf(' ');
     const cut = lastSpace > 0 ? text.slice(0, lastSpace) : text.slice(0, max);
-    return cut.replace(/[\s,|:&-]+$/, '');
-};
-
-const keepFirstSpecialChars = (title: string): string => {
-    const seen = new Set<string>();
-    return title.replace(/[%:&]/g, (ch) => {
-        if (seen.has(ch)) return ' ';
-        seen.add(ch);
-        return ch;
-    });
+    return cut.replace(/[\s,|:&+-]+$/, '');
 };
 
 export const sanitiseListingCopy = (raw: { title: string; description: string; tags: string[] }): EtsyListingCopy => {
@@ -121,7 +113,7 @@ export const sanitiseListingCopy = (raw: { title: string; description: string; t
     }
 
     return {
-        title: truncateAtWord(keepFirstSpecialChars(raw.title).replace(/\s+/g, ' ').trim(), ETSY_TITLE_MAX),
+        title: truncateAtWord(replaceInvalidEtsyTitleChars(raw.title).replace(/\s+/g, ' ').trim(), ETSY_TITLE_MAX),
         description: raw.description
             .replace(/\r\n?/g, '\n')
             .replace(/\n{3,}/g, '\n\n')

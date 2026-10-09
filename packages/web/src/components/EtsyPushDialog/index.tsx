@@ -1,4 +1,10 @@
-import { type Design, ETSY_TITLE_MAX, type EtsyListingCopy, htmlToPlainText } from '@jewellery-catalogue/types';
+import {
+    type Design,
+    ETSY_TITLE_MAX,
+    type EtsyListingCopy,
+    etsyListingSchema,
+    htmlToPlainText,
+} from '@jewellery-catalogue/types';
 import { Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -44,7 +50,7 @@ const EtsyPushDialog: React.FC<EtsyPushDialogProps> = ({ design, open, onOpenCha
 
     const seed = (): EtsyListingCopy =>
         design.etsyListing ?? {
-            title: design.name,
+            title: design.name.slice(0, ETSY_TITLE_MAX),
             description: renderTemplate(etsyDescriptionTemplate, design.description, design.materials),
             tags: [],
         };
@@ -70,7 +76,10 @@ const EtsyPushDialog: React.FC<EtsyPushDialogProps> = ({ design, open, onOpenCha
     }, [open, design.id]);
 
     const taxonomyId = design.designType ? etsyTaxonomyMap[design.designType] : undefined;
-    const canSend = !!taxonomyId && title.trim().length > 0 && description.trim().length > 0;
+    // The server ignores title/description/tags when resuming an interrupted push.
+    const resuming = !!design.etsy?.pushIncomplete;
+    const titleValid = etsyListingSchema.shape.title.safeParse(title).success;
+    const canSend = !!taxonomyId && (resuming || (titleValid && description.trim().length > 0));
 
     const handleGenerate = () => generate(undefined, { onSuccess: applyCopy });
 
@@ -96,12 +105,17 @@ const EtsyPushDialog: React.FC<EtsyPushDialogProps> = ({ design, open, onOpenCha
                             type="button"
                             variant="outline"
                             onClick={handleGenerate}
-                            disabled={isGenerating || isPushing}
+                            disabled={isGenerating || isPushing || resuming}
                         >
                             <Sparkles className="h-4 w-4" />
                             {isGenerating ? 'Generating…' : 'Generate with AI'}
                         </Button>
                     </div>
+                    {resuming && (
+                        <p className="text-sm text-muted-foreground">
+                            Resuming an interrupted upload — the listing text was already sent to Etsy.
+                        </p>
+                    )}
                     {generateError && (
                         <p role="alert" className="text-sm text-destructive">
                             {generateErrorMessage(generateError)}
@@ -119,8 +133,16 @@ const EtsyPushDialog: React.FC<EtsyPushDialogProps> = ({ design, open, onOpenCha
                             id="etsy-title"
                             value={title}
                             maxLength={ETSY_TITLE_MAX}
+                            disabled={resuming}
                             onChange={(e) => setTitle(e.target.value)}
                         />
+                        {!resuming && title.trim().length > 0 && !titleValid && (
+                            <p className="text-xs text-destructive">
+                                {title.trim().length > ETSY_TITLE_MAX
+                                    ? `Etsy titles can be at most ${ETSY_TITLE_MAX} characters.`
+                                    : 'Etsy titles can use %, :, & and + once each and no emoji.'}
+                            </p>
+                        )}
                     </div>
 
                     <div className="space-y-1.5">
@@ -128,6 +150,7 @@ const EtsyPushDialog: React.FC<EtsyPushDialogProps> = ({ design, open, onOpenCha
                         <Textarea
                             id="etsy-description"
                             value={description}
+                            disabled={resuming}
                             onChange={(e) => setDescription(e.target.value)}
                             rows={8}
                         />
@@ -135,7 +158,7 @@ const EtsyPushDialog: React.FC<EtsyPushDialogProps> = ({ design, open, onOpenCha
 
                     <div className="space-y-1.5">
                         <Label htmlFor="etsy-tags">Tags</Label>
-                        <TagInput id="etsy-tags" value={tags} onChange={setTags} />
+                        <TagInput id="etsy-tags" value={tags} onChange={setTags} disabled={resuming} />
                     </div>
 
                     <div className="space-y-1.5">

@@ -5,7 +5,7 @@ import type { Design } from '@jewellery-catalogue/types';
 
 import type { DesignRepository } from '../DesignRepository';
 import type { ImageService } from '../ImageService';
-import { EtsyListingCopyService, MAX_LISTING_PHOTOS } from './index';
+import { EtsyListingCopyService, MAX_LISTING_PHOTO_BYTES, MAX_LISTING_PHOTOS } from './index';
 import type { VisionLlm } from './types';
 
 const designRepo = { getByIdAndUserId: mock() };
@@ -73,6 +73,23 @@ describe('EtsyListingCopyService', () => {
         await service.generate('d1', 'u1');
 
         expect(vision.completeStructured.mock.calls[0][0].imageUrls).toHaveLength(1);
+    });
+
+    it('skips a photo that would exceed the byte budget and keeps later photos', async () => {
+        designRepo.getByIdAndUserId.mockResolvedValue(design({ imageIds: ['a', 'big', 'c'] }));
+        imageService.getImage.mockImplementation(async (name: string) => ({
+            stream: Readable.from([
+                name === 'big' ? Buffer.alloc(MAX_LISTING_PHOTO_BYTES) : Buffer.from(`bytes-${name}`),
+            ]),
+            contentType: 'image/jpeg',
+            cacheControl: 'public',
+        }));
+
+        await service.generate('d1', 'u1');
+
+        expect(vision.completeStructured.mock.calls[0][0].imageUrls).toEqual(
+            ['a', 'c'].map((n) => `data:image/jpeg;base64,${Buffer.from(`bytes-${n}`).toString('base64')}`)
+        );
     });
 
     it('404s for a design the user does not own', async () => {

@@ -4,10 +4,11 @@ import {
     DesignType,
     ETSY_TAGS_MAX,
     ETSY_TITLE_MAX,
+    etsyListingSchema,
     type RequiredMaterial,
 } from '@jewellery-catalogue/types';
 
-import { buildListingPrompt, listingCopyReplySchema, sanitiseListingCopy } from './prompt';
+import { buildListingPrompt, LISTING_SYSTEM_PROMPT, listingCopyReplySchema, sanitiseListingCopy } from './prompt';
 
 const bead = {
     id: 'b1',
@@ -119,6 +120,21 @@ describe('sanitiseListingCopy', () => {
     it('keeps only the first of each %, : and & in the title', () => {
         const { title } = sanitiseListingCopy({ title: 'Ring & Band & Gift: Silver: 925', description: 'd', tags: [] });
         expect(title).toBe('Ring & Band Gift: Silver 925');
+    });
+
+    it('keeps only the first + and replaces emoji, currency, ^ and ½ with spaces', () => {
+        const { title } = sanitiseListingCopy({
+            title: 'Ring + Band + Gift 💍 £20 $5 ^ ½ Silver',
+            description: 'd',
+            tags: [],
+        });
+        expect(title).toBe('Ring + Band Gift 20 5 Silver');
+        expect(etsyListingSchema.shape.title.safeParse(title).success).toBe(true);
+    });
+
+    it('system prompt names the once-each characters and bans emoji and currency', () => {
+        expect(LISTING_SYSTEM_PROMPT).toContain('% : & +');
+        expect(LISTING_SYSTEM_PROMPT).toContain('No emoji or currency symbols');
     });
 
     it('normalises, dedupes, drops invalid tags and caps at 13', () => {

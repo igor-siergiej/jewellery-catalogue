@@ -9,15 +9,19 @@ interface TagInputProps {
     id: string;
     value: string[];
     onChange: (tags: string[]) => void;
+    disabled?: boolean;
 }
 
-const TagInput: React.FC<TagInputProps> = ({ id, value, onChange }) => {
+const TagInput: React.FC<TagInputProps> = ({ id, value, onChange, disabled = false }) => {
     const [draft, setDraft] = useState('');
     const [error, setError] = useState<string | null>(null);
     const full = value.length >= ETSY_TAGS_MAX;
 
     const commit = () => {
-        if (!draft.trim()) return;
+        if (!draft.trim()) {
+            setError(null);
+            return;
+        }
         const tag = normaliseEtsyTag(draft);
         if (!tag) {
             setError(`Tags must be 1–${ETSY_TAG_MAX_LENGTH} characters of letters, numbers, spaces, - or '.`);
@@ -48,6 +52,7 @@ const TagInput: React.FC<TagInputProps> = ({ id, value, onChange }) => {
                                 <button
                                     type="button"
                                     aria-label={`Remove tag ${tag}`}
+                                    disabled={disabled}
                                     className="rounded-sm p-0.5 hover:bg-muted"
                                     onClick={() => onChange(value.filter((t) => t !== tag))}
                                 >
@@ -64,8 +69,11 @@ const TagInput: React.FC<TagInputProps> = ({ id, value, onChange }) => {
                     aria-label="Add tag"
                     placeholder={full ? 'Tag limit reached' : 'Type a tag and press Enter'}
                     value={draft}
-                    disabled={full}
-                    onChange={(e) => setDraft(e.target.value)}
+                    disabled={full || disabled}
+                    onChange={(e) => {
+                        setDraft(e.target.value);
+                        setError(null);
+                    }}
                     onKeyDown={handleKeyDown}
                     onBlur={commit}
                 />
