@@ -13,6 +13,8 @@ const schema = {
     etsySharedSecret: { parser: parsers.string, from: 'ETSY_SHARED_SECRET' },
     etsyRedirectUri: { parser: parsers.string, from: 'ETSY_REDIRECT_URI' },
     webAppUrl: { parser: parsers.string, from: 'WEB_APP_URL' },
+    falKey: { parser: parsers.string, from: 'FAL_KEY', optional: true },
+    falModel: { parser: parsers.string, from: 'FAL_MODEL', optional: true },
 } as const;
 
 export const config = new ConfigService(schema);
