@@ -141,3 +141,9 @@ export const linkEtsyListingToDesign = async (c: AuthedCtx) => {
         throw error;
     }
 };
+
+export const generateEtsyListingCopy = async (c: AuthedCtx) => {
+    const service = dependencyContainer.resolve(DependencyToken.EtsyListingCopyService);
+    const copy = await service.generate(c.req.param('id'), c.get('userId'));
+    return c.json(copy, 200);
+};

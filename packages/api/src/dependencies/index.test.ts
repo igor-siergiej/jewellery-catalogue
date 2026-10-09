@@ -54,6 +54,18 @@ describe('Dependencies', () => {
             expect(container.constructors?.[DependencyToken.MaterialRepository]).toBeDefined();
         });
 
+        it('should register VisionLlm', () => {
+            registerDepdendencies();
+            const container = dependencyContainer as any;
+            expect(container.constructors?.[DependencyToken.VisionLlm]).toBeDefined();
+        });
+
+        it('should register EtsyListingCopyService', () => {
+            registerDepdendencies();
+            const container = dependencyContainer as any;
+            expect(container.constructors?.[DependencyToken.EtsyListingCopyService]).toBeDefined();
+        });
+
         it('should register MaterialService', () => {
             registerDepdendencies();
             const container = dependencyContainer as any;
@@ -72,11 +84,11 @@ describe('Dependencies', () => {
             expect(container.constructors?.[DependencyToken.DesignService]).toBeDefined();
         });
 
-        it('should register exactly 25 dependencies', () => {
+        it('should register exactly 27 dependencies', () => {
             registerDepdendencies();
             const container = dependencyContainer as any;
             const registeredCount = Object.keys(container.constructors || {}).length;
-            expect(registeredCount).toBe(25);
+            expect(registeredCount).toBe(27);
         });
 
         it('should register all expected tokens', () => {

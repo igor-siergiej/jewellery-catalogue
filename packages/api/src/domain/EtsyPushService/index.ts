@@ -1,6 +1,7 @@
 import { APIError } from '@imapps/api-utils/hono';
 import type { Design } from '@jewellery-catalogue/types';
 
+import { streamToBuffer } from '../../utils/streamToBuffer';
 import type { DesignRepository } from '../DesignRepository';
 import type { EtsyClient } from '../EtsyClient';
 import type { EtsyConnectionService } from '../EtsyConnectionService';
@@ -9,14 +10,6 @@ import type { UserSettingsService } from '../UserSettingsService';
 import { buildDraftListingInput, buildInventoryProducts, renderDescriptionTemplate } from './mappers';
 
 const MAX_VARIATION_GROUPS = 2;
-
-async function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
-    const chunks: Buffer[] = [];
-    for await (const chunk of stream) {
-        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as ArrayBufferLike));
-    }
-    return Buffer.concat(chunks);
-}
 
 export class EtsyPushService {
     constructor(

@@ -6,6 +6,7 @@ import { DesignService } from '../domain/DesignService';
 import { DraftService } from '../domain/DraftService';
 import { EtsyClient } from '../domain/EtsyClient';
 import { EtsyConnectionService } from '../domain/EtsyConnectionService';
+import { EtsyListingCopyService } from '../domain/EtsyListingCopyService';
 import { EtsyOAuthStateStore } from '../domain/EtsyOAuthStateStore';
 import { EtsyPushService } from '../domain/EtsyPushService';
 import { EtsyReconcileService } from '../domain/EtsyReconcileService';
@@ -16,6 +17,7 @@ import { MaterialService } from '../domain/MaterialService';
 import { TaskService } from '../domain/TaskService';
 import { UserSettingsService } from '../domain/UserSettingsService';
 import { BucketStore } from '../infrastructure/BucketStore';
+import { FalVisionClient } from '../infrastructure/FalVisionClient';
 import { MongoDesignRepository } from '../infrastructure/MongoDesignRepository';
 import { MongoDraftRepository } from '../infrastructure/MongoDraftRepository';
 import { MongoEtsyConnectionRepository } from '../infrastructure/MongoEtsyConnectionRepository';
@@ -200,6 +202,33 @@ export const registerDepdendencies = () => {
                     dependencyContainer.resolve(DependencyToken.EtsyClient),
                     dependencyContainer.resolve(DependencyToken.EtsyConnectionService),
                     dependencyContainer.resolve(DependencyToken.UserSettingsService)
+                );
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.VisionLlm,
+        class {
+            constructor() {
+                return new FalVisionClient(
+                    config.get('falKey') ?? '',
+                    dependencyContainer.resolve(DependencyToken.Logger),
+                    config.get('falModel') || undefined
+                );
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.EtsyListingCopyService,
+        class {
+            constructor() {
+                return new EtsyListingCopyService(
+                    dependencyContainer.resolve(DependencyToken.DesignRepository),
+                    dependencyContainer.resolve(DependencyToken.ImageService),
+                    dependencyContainer.resolve(DependencyToken.VisionLlm),
+                    dependencyContainer.resolve(DependencyToken.Logger)
                 );
             }
         } as any
