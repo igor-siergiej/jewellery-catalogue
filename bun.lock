@@ -29,11 +29,12 @@
     },
     "packages/api": {
       "name": "@jewellery-catalogue/api",
-      "version": "1.51.1",
+      "version": "1.54.0",
       "dependencies": {
         "@imapps/api-utils": "0.6.0",
         "hono": "^4.6.14",
         "mongodb": "^6.13.1",
+        "zod": "^4.1.12",
       },
       "devDependencies": {
         "@types/bun": "^1.1.14",
@@ -43,14 +44,14 @@
     },
     "packages/types": {
       "name": "@jewellery-catalogue/types",
-      "version": "1.51.1",
+      "version": "1.54.0",
       "dependencies": {
         "zod": "^4.1.12",
       },
     },
     "packages/web": {
       "name": "@jewellery-catalogue/web",
-      "version": "1.51.1",
+      "version": "1.54.0",
       "dependencies": {
         "@dnd-kit/core": "^6.3.1",
         "@hookform/resolvers": "^5.2.2",
