@@ -86,6 +86,20 @@ describe('buildListingPrompt', () => {
         );
         expect(prompt).toContain('Stone: Amethyst round bead');
     });
+
+    it('labels chain length as finished length only for necklaces and bracelets', () => {
+        expect(buildListingPrompt(design(), 0)).toContain('approximate finished length');
+        const earrings = buildListingPrompt(design({ designType: DesignType.EARRINGS }), 0);
+        expect(earrings).toContain('not a finished size');
+        expect(earrings).not.toContain('approximate finished length');
+    });
+
+    it('labels gilt as just gilt whatever the wire type', () => {
+        const gilt = { ...chain, metalType: 'GILT', wireType: 'PLATED' } as unknown as RequiredMaterial;
+        const prompt = buildListingPrompt(design({ materials: [gilt] }), 0);
+        expect(prompt).toContain('— gilt,');
+        expect(prompt).not.toContain('gilt plated');
+    });
 });
 
 describe('sanitiseListingCopy', () => {
@@ -119,6 +133,17 @@ describe('sanitiseListingCopy', () => {
         expect(result.tags).toHaveLength(ETSY_TAGS_MAX);
         expect(new Set(result.tags).size).toBe(ETSY_TAGS_MAX);
         expect(result.tags.every((t) => t.length <= 20)).toBe(true);
+    });
+
+    it('keeps a tag of exactly 20 chars, drops 21 and cleans punctuation', () => {
+        const result = sanitiseListingCopy({
+            title: 't',
+            description: 'd',
+            tags: ['a'.repeat(20), 'x'.repeat(21), 'Gift, For Her!'],
+        });
+        expect(result.tags).toContain('a'.repeat(20));
+        expect(result.tags).not.toContain('x'.repeat(21));
+        expect(result.tags).toContain('gift for her');
     });
 
     it('normalises description line endings and blank-line runs', () => {

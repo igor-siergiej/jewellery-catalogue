@@ -7,7 +7,7 @@ import {
     type EtsyListingCopy,
     htmlToPlainText,
     MaterialType,
-    type METAL_TYPE,
+    METAL_TYPE,
     normaliseEtsyTag,
     type RequiredMaterial,
     WIRE_TYPE,
@@ -23,21 +23,27 @@ const DESIGN_TYPE_LABEL: Record<DesignType, string> = {
 };
 
 // FULL is deliberately just the metal name: "solid silver" is a hallmarking claim we can't verify.
+// GILT already means gold-coated, so it is never qualified by the wire type.
 const metalLabel = (wireType: WIRE_TYPE, metalType: METAL_TYPE): string => {
+    if (metalType === METAL_TYPE.GILT) return 'gilt';
     const metal = metalType.toLowerCase();
     if (wireType === WIRE_TYPE.FILLED) return `${metal} filled`;
     if (wireType === WIRE_TYPE.PLATED) return `${metal} plated`;
     return metal;
 };
 
-const describeMaterial = (m: RequiredMaterial): string => {
+const describeMaterial = (m: RequiredMaterial, designType: DesignType | undefined): string => {
     switch (m.type) {
         case MaterialType.BEAD:
             return `Bead: ${m.name} — colour ${m.colour}, ${m.diameter}mm diameter, ${m.requiredQuantity} used`;
         case MaterialType.WIRE:
             return `Wire: ${m.name} — ${metalLabel(m.wireType, m.metalType)}, ${m.diameter}mm thick (${m.requiredLength}cm of wire used to make it; not a finished size)`;
         case MaterialType.CHAIN:
-            return `Chain: ${m.name} — ${metalLabel(m.wireType, m.metalType)}, ${m.diameter}mm links, ${m.requiredLength}cm of chain used`;
+            return `Chain: ${m.name} — ${metalLabel(m.wireType, m.metalType)}, ${m.diameter}mm links, ${m.requiredLength}cm of chain used (${
+                designType === DesignType.NECKLACE || designType === DesignType.BRACELET
+                    ? 'approximate finished length'
+                    : 'material used; not a finished size'
+            })`;
         case MaterialType.EAR_HOOK:
             return `Ear hooks: ${m.name} — ${metalLabel(m.wireType, m.metalType)}`;
     }
@@ -50,7 +56,7 @@ export const buildListingPrompt = (design: Design, photoCount: number): string =
         `Maker's description: ${htmlToPlainText(design.description).trim() || '(none)'}`,
         'Materials:',
         ...(design.materials.length > 0
-            ? design.materials.map((m) => `- ${describeMaterial(m)}`)
+            ? design.materials.map((m) => `- ${describeMaterial(m, design.designType)}`)
             : ['- (none recorded)']),
     ];
 
@@ -69,7 +75,7 @@ export const buildListingPrompt = (design: Design, photoCount: number): string =
 
 export const LISTING_SYSTEM_PROMPT = `You are an Etsy SEO copywriter for a small UK shop selling handmade jewellery. Write in British English.
 
-Use ONLY the facts provided and what is clearly visible in the photos. Never invent gemstones, metals, hallmarks, sizes or measurements. If a bead's material is not stated, describe its colour and shape instead of naming a stone. The chain length used is a fair approximate length for necklaces and bracelets; otherwise only state sizes that appear in the facts.
+Use ONLY the facts provided and what is clearly visible in the photos. Never invent gemstones, metals, hallmarks, sizes or measurements. If a bead's material is not stated, describe its colour and shape instead of naming a stone. Lengths of chain or wire used are NOT finished dimensions unless the facts explicitly say "approximate finished length"; bead diameter may be stated. Do not state any other sizes.
 
 Return ONLY a JSON object, no markdown or prose: {"title": string, "description": string, "tags": string[]}
 
