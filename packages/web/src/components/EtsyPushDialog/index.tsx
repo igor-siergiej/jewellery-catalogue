@@ -84,7 +84,7 @@ const EtsyPushDialog: React.FC<EtsyPushDialogProps> = ({ design, open, onOpenCha
     const handleGenerate = () => generate(undefined, { onSuccess: applyCopy });
 
     const handleSend = async () => {
-        await push({ title: title.trim(), description, tags, price });
+        await push(resuming ? { price } : { title: title.trim(), description, tags, price });
         onOpenChange(false);
     };
 
@@ -140,7 +140,7 @@ const EtsyPushDialog: React.FC<EtsyPushDialogProps> = ({ design, open, onOpenCha
                             <p className="text-xs text-destructive">
                                 {title.trim().length > ETSY_TITLE_MAX
                                     ? `Etsy titles can be at most ${ETSY_TITLE_MAX} characters.`
-                                    : 'Etsy titles can use %, :, & and + once each and no emoji.'}
+                                    : 'Etsy titles can use %, :, & and + once each, and no emoji or symbols like £ or ½.'}
                             </p>
                         )}
                     </div>

@@ -1,5 +1,5 @@
 import type { Design } from '@jewellery-catalogue/types';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import EtsyPushDialog from '.';
@@ -7,8 +7,9 @@ import EtsyPushDialog from '.';
 vi.mock('../../hooks/useUserSettings', () => ({
     useUserSettings: () => ({ etsyDescriptionTemplate: '{description}', etsyTaxonomyMap: { RING: 1 } }),
 }));
+const push = vi.fn().mockResolvedValue({});
 vi.mock('../../hooks/useEtsyPush', () => ({
-    useEtsyPush: () => ({ push: vi.fn(), isPushing: false, pushError: null }),
+    useEtsyPush: () => ({ push, isPushing: false, pushError: null }),
 }));
 vi.mock('../../hooks/useGenerateEtsyListing', () => ({
     useGenerateEtsyListing: () => ({
@@ -53,7 +54,9 @@ describe('EtsyPushDialog', () => {
         expect(sendButton().disabled).toBe(false);
         fireEvent.change(titleInput(), { target: { value: 'Ring & Band & Gift' } });
         expect(sendButton().disabled).toBe(true);
-        expect(screen.getByText('Etsy titles can use %, :, & and + once each and no emoji.')).toBeTruthy();
+        expect(
+            screen.getByText('Etsy titles can use %, :, & and + once each, and no emoji or symbols like £ or ½.')
+        ).toBeTruthy();
         fireEvent.change(titleInput(), { target: { value: 'Ring 💍' } });
         expect(sendButton().disabled).toBe(true);
     });
@@ -69,5 +72,13 @@ describe('EtsyPushDialog', () => {
         expect((screen.getByLabelText('Description') as HTMLTextAreaElement).disabled).toBe(true);
         expect((screen.getByLabelText('Add tag') as HTMLInputElement).disabled).toBe(true);
         expect(sendButton().disabled).toBe(false);
+    });
+
+    it('sends only the price when resuming an interrupted push', async () => {
+        push.mockClear();
+        const etsy = { pushIncomplete: true } as Design['etsy'];
+        render(<EtsyPushDialog design={design({ etsy, description: '' })} open onOpenChange={() => {}} />);
+        fireEvent.click(sendButton());
+        await waitFor(() => expect(push).toHaveBeenCalledWith({ price: 10 }));
     });
 });
