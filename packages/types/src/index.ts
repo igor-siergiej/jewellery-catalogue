@@ -3,6 +3,7 @@ export * from './design/index';
 export * from './draft/index';
 export * from './editDesign/index';
 export * from './etsyConnection/index';
+export * from './etsyListing/index';
 export * from './formDesign/index';
 export * from './formMaterial/index';
 export * from './goal/index';
