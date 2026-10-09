@@ -65,7 +65,7 @@ const getPushService = (): EtsyPushService => dependencyContainer.resolve(Depend
 
 const pushOverridesSchema = z.object({
     title: etsyListingSchema.shape.title.optional(),
-    description: z.string().optional(),
+    description: etsyListingSchema.shape.description.optional(),
     tags: etsyListingSchema.shape.tags.optional(),
     price: z.number().nonnegative().optional(),
 });
