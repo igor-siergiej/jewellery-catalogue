@@ -78,6 +78,17 @@ describe('FalVisionClient', () => {
         expect(calls).toHaveLength(1);
     });
 
+    it('throws 502 on a fetch timeout without retrying', async () => {
+        const calls = capture([
+            () => {
+                throw new DOMException('The operation timed out.', 'TimeoutError');
+            },
+        ]);
+
+        await expect(call(new FalVisionClient('secret'))).rejects.toMatchObject({ status: 502 });
+        expect(calls).toHaveLength(1);
+    });
+
     it('reports configuration from the api key', () => {
         expect(new FalVisionClient('').isConfigured()).toBe(false);
         expect(new FalVisionClient('k').isConfigured()).toBe(true);
