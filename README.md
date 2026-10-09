@@ -42,6 +42,11 @@ Bun-workspace monorepo — `packages/web`, `packages/api`, `packages/types`
 - **Etsy integration** lives in its own cluster of services —
   `EtsyConnectionService` (OAuth + `EtsyOAuthStateStore`), `EtsyClient`,
   `EtsyPushService`, `EtsyReconcileService`, `EtsyStatusService`.
+- **AI listing copy** — `EtsyListingCopyService` drafts the Etsy title,
+  description and 13 tags from a design's materials and photos via fal.ai
+  (`FAL_KEY`, optional `FAL_MODEL`, default `google/gemini-2.5-flash`). Without
+  `FAL_KEY` the "Generate with AI" button reports it isn't configured; pushing
+  still works.
 - **data** — MongoDB (native driver). Design and listing images are stored in
   MinIO / S3-compatible object storage.
 - **auth** — a separate auth service issues JWTs; a local `mock-auth-server`
