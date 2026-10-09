@@ -349,4 +349,67 @@ describe('EtsyPushService', () => {
             );
         });
     });
+
+    describe('push — listing copy', () => {
+        it('sends title/tags overrides to Etsy and persists them as etsyListing', async () => {
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(makeDesign());
+            mockEtsyClient.createDraftListing.mockResolvedValue({ listingId: 999 });
+
+            const result = await service.push('design-1', 'user-1', {
+                title: 'Silver Wire Ring',
+                description: 'Edited',
+                tags: ['silver ring'],
+            });
+
+            expect(mockEtsyClient.createDraftListing).toHaveBeenCalledWith(
+                'at-token',
+                47408839,
+                expect.objectContaining({ title: 'Silver Wire Ring', description: 'Edited', tags: ['silver ring'] })
+            );
+            expect(result.etsyListing).toEqual({
+                title: 'Silver Wire Ring',
+                description: 'Edited',
+                tags: ['silver ring'],
+            });
+            expect(mockDesignRepo.update).toHaveBeenLastCalledWith(
+                'design-1',
+                expect.objectContaining({ etsyListing: result.etsyListing })
+            );
+        });
+
+        it('falls back to saved etsyListing, then to name/template with no tags', async () => {
+            const saved = { title: 'Saved Title', description: 'Saved desc', tags: ['saved tag'] };
+            mockDesignRepo.getByIdAndUserId.mockResolvedValueOnce(makeDesign({ etsyListing: saved }));
+            mockEtsyClient.createDraftListing.mockResolvedValue({ listingId: 1 });
+            await service.push('design-1', 'user-1');
+            expect(mockEtsyClient.createDraftListing).toHaveBeenLastCalledWith(
+                'at-token',
+                47408839,
+                expect.objectContaining(saved)
+            );
+
+            mockDesignRepo.getByIdAndUserId.mockResolvedValueOnce(makeDesign());
+            await service.push('design-1', 'user-1');
+            expect(mockEtsyClient.createDraftListing).toHaveBeenLastCalledWith(
+                'at-token',
+                47408839,
+                expect.objectContaining({ title: 'Silver Ring', description: 'A lovely ring.', tags: [] })
+            );
+        });
+
+        it('keeps the saved etsyListing when resuming an incomplete push', async () => {
+            const saved = { title: 'Saved', description: 'd', tags: [] };
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue(
+                makeDesign({
+                    etsyListing: saved,
+                    etsy: { listingId: 5, state: 'draft', lastPushedAt: null, pushIncomplete: true },
+                })
+            );
+
+            const result = await service.push('design-1', 'user-1', { title: 'Ignored on resume' });
+
+            expect(mockEtsyClient.createDraftListing).not.toHaveBeenCalled();
+            expect(result.etsyListing).toEqual(saved);
+        });
+    });
 });

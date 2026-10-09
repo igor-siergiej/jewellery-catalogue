@@ -22,6 +22,7 @@ export interface EtsyTokenResponse {
 export interface EtsyDraftListingInput {
     title: string;
     description: string;
+    tags?: string[];
     price: number;
     quantity: number;
     whoMade: string;
@@ -365,6 +366,7 @@ export class EtsyClient {
                 taxonomy_id: input.taxonomyId,
                 shipping_profile_id: input.shippingProfileId,
                 readiness_state_id: input.readinessStateId,
+                ...(input.tags && input.tags.length > 0 ? { tags: input.tags } : {}),
             }),
         });
 

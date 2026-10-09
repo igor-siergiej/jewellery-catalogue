@@ -1,5 +1,5 @@
 import { APIError } from '@imapps/api-utils/hono';
-import type { Design } from '@jewellery-catalogue/types';
+import type { Design, EtsyListingCopy } from '@jewellery-catalogue/types';
 
 import { streamToBuffer } from '../../utils/streamToBuffer';
 import type { DesignRepository } from '../DesignRepository';
@@ -23,7 +23,7 @@ export class EtsyPushService {
     async push(
         designId: string,
         userId: string,
-        overrides: { description?: string; price?: number } = {}
+        overrides: { title?: string; description?: string; tags?: string[]; price?: number } = {}
     ): Promise<Design> {
         const design = await this.designRepo.getByIdAndUserId(designId, userId);
         if (!design) {
@@ -46,6 +46,7 @@ export class EtsyPushService {
         const settings = await this.userSettingsService.get(userId);
         const { accessToken, shopId } = await this.etsyConnectionService.getPushCredentials(userId);
 
+        let etsyListing: EtsyListingCopy | undefined = design.etsyListing;
         let listingId = design.etsy?.listingId;
 
         if (!listingId) {
@@ -58,13 +59,20 @@ export class EtsyPushService {
                 settings.etsyShippingProfileId ?? (await this.resolveDefaultShippingProfileId(accessToken, shopId));
             const readinessStateId = await this.resolveDefaultReadinessStateId(accessToken, shopId);
 
-            const description =
-                overrides.description ?? renderDescriptionTemplate(settings.etsyDescriptionTemplate, design);
+            const saved = design.etsyListing;
+            etsyListing = {
+                title: overrides.title ?? saved?.title ?? design.name,
+                description:
+                    overrides.description ??
+                    saved?.description ??
+                    renderDescriptionTemplate(settings.etsyDescriptionTemplate, design),
+                tags: overrides.tags ?? saved?.tags ?? [],
+            };
             const price = overrides.price ?? design.price;
 
             const draftInput = buildDraftListingInput({
                 design,
-                description,
+                ...etsyListing,
                 price,
                 taxonomyId,
                 shippingProfileId,
@@ -75,6 +83,7 @@ export class EtsyPushService {
 
             await this.designRepo.update(designId, {
                 ...design,
+                etsyListing,
                 etsy: { listingId, state: 'draft', lastPushedAt: null, pushIncomplete: true },
             });
         }
@@ -101,6 +110,7 @@ export class EtsyPushService {
 
         const updated: Design = {
             ...design,
+            ...(etsyListing ? { etsyListing } : {}),
             etsy: { listingId, state: 'draft', lastPushedAt: Date.now(), pushIncomplete: false },
         };
         await this.designRepo.update(designId, updated);

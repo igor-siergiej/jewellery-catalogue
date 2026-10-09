@@ -156,6 +156,30 @@ describe('EtsyClient', () => {
     });
 
     describe('createDraftListing', () => {
+        it('sends tags only when there are some', async () => {
+            fetchMock.mockImplementation(async () => new Response(JSON.stringify({ listing_id: 1 }), { status: 200 }));
+            const base = {
+                title: 't',
+                description: 'd',
+                price: 1,
+                quantity: 1,
+                whoMade: 'i_did',
+                whenMade: 'made_to_order',
+                isSupply: false,
+                taxonomyId: 1,
+                shippingProfileId: 1,
+                readinessStateId: 1,
+            };
+
+            await client.createDraftListing('at', 1, { ...base, tags: ['silver ring', 'gift for her'] });
+            await client.createDraftListing('at', 1, { ...base, tags: [] });
+
+            const withTags = JSON.parse((fetchMock.mock.calls[0] as [string, RequestInit])[1].body as string);
+            const withoutTags = JSON.parse((fetchMock.mock.calls[1] as [string, RequestInit])[1].body as string);
+            expect(withTags.tags).toEqual(['silver ring', 'gift for her']);
+            expect('tags' in withoutTags).toBe(false);
+        });
+
         it('posts the mapped body to the shop listings endpoint and maps the response', async () => {
             fetchMock.mockResolvedValue(new Response(JSON.stringify({ listing_id: 999 }), { status: 200 }));
 
