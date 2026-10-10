@@ -115,6 +115,13 @@ export const getEtsyShopListings = async (c: AuthedCtx) => {
     return c.json(listings, 200);
 };
 
+export const getUnmatchedEtsySales = async (c: AuthedCtx) => {
+    const sales = await dependencyContainer
+        .resolve(DependencyToken.EtsyOrderSyncService)
+        .listUnmatchedSales(c.get('userId'));
+    return c.json(sales, 200);
+};
+
 export const syncDesignEtsyQuantity = async (c: AuthedCtx) => {
     const design = await getStatusService().syncQuantityFromEtsy(c.req.param('id'), c.get('userId'));
     return c.json(design, 200);

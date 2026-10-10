@@ -13,6 +13,7 @@ import {
     getEtsyShippingProfiles,
     getEtsyShopListings,
     getEtsyTaxonomy,
+    getUnmatchedEtsySales,
     linkEtsyListingToDesign,
     pushDesignToEtsy,
     refreshDesignEtsyStatus,
@@ -59,6 +60,7 @@ export const createRoutes = (): Hono<Env> => {
     app.get('/api/etsy/taxonomy', authenticate, getEtsyTaxonomy);
     app.get('/api/etsy/shipping-profiles', authenticate, getEtsyShippingProfiles);
     app.get('/api/etsy/listings', authenticate, getEtsyShopListings);
+    app.get('/api/etsy/sales/unmatched', authenticate, getUnmatchedEtsySales);
     app.post('/api/etsy/reconcile/create', authenticate, createDesignFromEtsyListing);
     app.post('/api/etsy/reconcile/link', authenticate, linkEtsyListingToDesign);
     app.get('/api/designs/:id/etsy-status', authenticate, refreshDesignEtsyStatus);

@@ -65,4 +65,25 @@ describe.if(RUN)('MongoEtsyConnectionRepository (integration)', () => {
 
         expect(await repo.getByUserId('user-1')).toBeNull();
     });
+
+    it('getAll returns every connection', async () => {
+        await repo.upsert(makeConnection('user-1'));
+        await repo.upsert(makeConnection('user-2'));
+
+        expect((await repo.getAll()).map((c) => c.userId).sort()).toEqual(['user-1', 'user-2']);
+    });
+
+    it('setOrdersSyncedThrough and markBroken update only their own field', async () => {
+        const connection = makeConnection('user-1');
+        await repo.upsert(connection);
+
+        await repo.setOrdersSyncedThrough('user-1', 1_700_000_000);
+        await repo.markBroken('user-1');
+
+        expect(await repo.getByUserId('user-1')).toEqual({
+            ...connection,
+            ordersSyncedThrough: 1_700_000_000,
+            broken: true,
+        });
+    });
 });

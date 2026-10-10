@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
-import { EtsyClient, generateCodeChallenge, generateCodeVerifier, generateState } from './index';
+import { EtsyClient, EtsyForbiddenError, generateCodeChallenge, generateCodeVerifier, generateState } from './index';
 
 describe('PKCE helpers', () => {
     it('generateCodeVerifier produces a 43-128 char unreserved-URI string', () => {
@@ -549,6 +549,78 @@ describe('EtsyClient', () => {
             fetchMock.mockResolvedValue(new Response('nope', { status: 500 }));
 
             await expect(client.getShopListingsByState('access-tok', 1, 'active')).rejects.toThrow();
+        });
+    });
+
+    describe('getShopReceipts', () => {
+        const receiptBody = (overrides: Record<string, unknown> = {}) => ({
+            receipt_id: 11,
+            status: 'Paid',
+            is_paid: true,
+            created_timestamp: 1_700_000_000,
+            updated_timestamp: 1_700_000_500,
+            transactions: [
+                {
+                    transaction_id: 21,
+                    listing_id: 31,
+                    title: 'Silver Ring',
+                    quantity: 2,
+                    price: { amount: 2500, divisor: 100 },
+                    variations: [{ formatted_name: 'Stone', formatted_value: 'Opal' }],
+                },
+            ],
+            ...overrides,
+        });
+
+        it('requests receipts modified since the watermark and maps them', async () => {
+            fetchMock.mockResolvedValue(
+                new Response(JSON.stringify({ count: 1, results: [receiptBody()] }), { status: 200 })
+            );
+
+            const receipts = await client.getShopReceipts('access-tok', 99, 1_699_999_000);
+
+            const [url] = fetchMock.mock.calls[0] as [string];
+            expect(url).toContain('/shops/99/receipts?min_last_modified=1699999000');
+            expect(receipts).toEqual([
+                {
+                    receiptId: 11,
+                    status: 'Paid',
+                    isPaid: true,
+                    createdAt: 1_700_000_000_000,
+                    updatedAt: 1_700_000_500,
+                    transactions: [
+                        {
+                            transactionId: 21,
+                            listingId: 31,
+                            title: 'Silver Ring',
+                            quantity: 2,
+                            price: 25,
+                            variations: [{ name: 'Stone', value: 'Opal' }],
+                        },
+                    ],
+                },
+            ]);
+        });
+
+        it('pages through results until count is reached', async () => {
+            const page = (n: number) =>
+                Array.from({ length: n }, (_, i) => receiptBody({ receipt_id: i, transactions: [] }));
+            fetchMock
+                .mockResolvedValueOnce(
+                    new Response(JSON.stringify({ count: 101, results: page(100) }), { status: 200 })
+                )
+                .mockResolvedValueOnce(new Response(JSON.stringify({ count: 101, results: page(1) }), { status: 200 }));
+
+            const receipts = await client.getShopReceipts('access-tok', 99, 0);
+
+            expect(receipts).toHaveLength(101);
+            expect(fetchMock.mock.calls[1]?.[0]).toContain('offset=100');
+        });
+
+        it('throws EtsyForbiddenError on 403 so callers can prompt a reconnect', async () => {
+            fetchMock.mockResolvedValue(new Response('missing scope transactions_r', { status: 403 }));
+
+            await expect(client.getShopReceipts('access-tok', 99, 0)).rejects.toBeInstanceOf(EtsyForbiddenError);
         });
     });
 });

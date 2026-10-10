@@ -2,7 +2,7 @@ import type { MongoDbConnection } from '@imapps/api-utils';
 import type { Design } from '@jewellery-catalogue/types';
 
 import { CollectionNames, type Collections } from '../../dependencies/types';
-import type { DesignRepository } from '../../domain/DesignRepository';
+import type { ApplyEtsySaleArgs, ApplyEtsySaleResult, DesignRepository } from '../../domain/DesignRepository';
 import { MongoRepository } from '../MongoRepository';
 
 export class MongoDesignRepository extends MongoRepository<Design> implements DesignRepository {
@@ -44,6 +44,49 @@ export class MongoDesignRepository extends MongoRepository<Design> implements De
             )
             .toArray();
         return docs.map((d) => this.migrate(d));
+    }
+
+    async applyEtsySale(args: ApplyEtsySaleArgs): Promise<ApplyEtsySaleResult> {
+        const { designId, userId, variantId, transactionId, quantity } = args;
+        const decrement = (field: string) => ({ $max: [0, { $subtract: [{ $ifNull: [field, 0] }, quantity] }] });
+        const recordSale = {
+            etsySaleIds: { $concatArrays: [{ $ifNull: ['$etsySaleIds', []] }, [transactionId]] },
+        };
+
+        // One single-document update both deducts stock and records the transaction id, so a
+        // retry after a crash can never deduct the same sale twice.
+        const pipeline = variantId
+            ? [
+                  {
+                      $set: {
+                          ...recordSale,
+                          variants: {
+                              $map: {
+                                  input: '$variants',
+                                  as: 'v',
+                                  in: {
+                                      $cond: [
+                                          { $eq: ['$$v.id', variantId] },
+                                          { $mergeObjects: ['$$v', { totalQuantity: decrement('$$v.totalQuantity') }] },
+                                          '$$v',
+                                      ],
+                                  },
+                              },
+                          },
+                      },
+                  },
+                  { $set: { totalQuantity: { $sum: '$variants.totalQuantity' } } },
+              ]
+            : [{ $set: { ...recordSale, totalQuantity: decrement('$totalQuantity') } }];
+
+        const result = await this.collection().updateOne(
+            { id: designId, userId, etsySaleIds: { $ne: transactionId } },
+            pipeline
+        );
+        if (result.matchedCount === 1) return 'applied';
+
+        const exists = await this.collection().findOne({ id: designId, userId }, { projection: { _id: 1 } });
+        return exists ? 'already_applied' : 'design_not_found';
     }
 
     async imageBelongsToUser(imageId: string, userId: string): Promise<boolean> {

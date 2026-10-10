@@ -1,5 +1,14 @@
 import type { Logger, MongoDbConnection, ObjectStoreConnection } from '@imapps/api-utils';
-import type { Design, Draft, EtsyConnection, Goal, Material, Task, UserSettings } from '@jewellery-catalogue/types';
+import type {
+    Design,
+    Draft,
+    EtsyConnection,
+    Goal,
+    Material,
+    Sale,
+    Task,
+    UserSettings,
+} from '@jewellery-catalogue/types';
 
 import type { DesignRepository } from '../domain/DesignRepository';
 import type { DesignService } from '../domain/DesignService';
@@ -11,6 +20,7 @@ import type { EtsyConnectionService } from '../domain/EtsyConnectionService';
 import type { EtsyListingCopyService } from '../domain/EtsyListingCopyService';
 import type { VisionLlm } from '../domain/EtsyListingCopyService/types';
 import type { EtsyOAuthStateStore } from '../domain/EtsyOAuthStateStore';
+import type { EtsyOrderSyncService } from '../domain/EtsyOrderSyncService';
 import type { EtsyPushService } from '../domain/EtsyPushService';
 import type { EtsyReconcileService } from '../domain/EtsyReconcileService';
 import type { EtsyStatusService } from '../domain/EtsyStatusService';
@@ -21,6 +31,7 @@ import type { ImageService } from '../domain/ImageService';
 import type { ImageStore } from '../domain/ImageService/types';
 import type { MaterialRepository } from '../domain/MaterialRepository';
 import type { MaterialService } from '../domain/MaterialService';
+import type { SaleRepository } from '../domain/SaleRepository';
 import type { TaskRepository } from '../domain/TaskRepository';
 import type { TaskService } from '../domain/TaskService';
 import type { UserSettingsRepository } from '../domain/UserSettingsRepository';
@@ -35,6 +46,7 @@ export type Collections = {
     [CollectionNames.EtsyConnections]: EtsyConnection;
     [CollectionNames.Goals]: Goal;
     [CollectionNames.Tasks]: Task;
+    [CollectionNames.Sales]: Sale;
 };
 
 export enum DependencyToken {
@@ -49,6 +61,7 @@ export enum DependencyToken {
     EtsyConnectionRepository = 'EtsyConnectionRepository',
     GoalRepository = 'GoalRepository',
     TaskRepository = 'TaskRepository',
+    SaleRepository = 'SaleRepository',
     // Services
     DesignService = 'DesignService',
     MaterialService = 'MaterialService',
@@ -62,6 +75,7 @@ export enum DependencyToken {
     EtsyStatusService = 'EtsyStatusService',
     EtsyReconcileService = 'EtsyReconcileService',
     EtsyListingCopyService = 'EtsyListingCopyService',
+    EtsyOrderSyncService = 'EtsyOrderSyncService',
     // Infrastructure
     IdGenerator = 'IdGenerator',
     ImageStore = 'ImageStore',
@@ -83,6 +97,7 @@ export type Dependencies = {
     [DependencyToken.EtsyConnectionRepository]: EtsyConnectionRepository;
     [DependencyToken.GoalRepository]: GoalRepository;
     [DependencyToken.TaskRepository]: TaskRepository;
+    [DependencyToken.SaleRepository]: SaleRepository;
     // Services
     [DependencyToken.DesignService]: DesignService;
     [DependencyToken.MaterialService]: MaterialService;
@@ -96,6 +111,7 @@ export type Dependencies = {
     [DependencyToken.EtsyStatusService]: EtsyStatusService;
     [DependencyToken.EtsyReconcileService]: EtsyReconcileService;
     [DependencyToken.EtsyListingCopyService]: EtsyListingCopyService;
+    [DependencyToken.EtsyOrderSyncService]: EtsyOrderSyncService;
     // Infrastructure
     [DependencyToken.IdGenerator]: IdGenerator;
     [DependencyToken.ImageStore]: ImageStore;
@@ -112,4 +128,5 @@ export enum CollectionNames {
     EtsyConnections = 'etsyConnections',
     Goals = 'goals',
     Tasks = 'tasks',
+    Sales = 'sales',
 }

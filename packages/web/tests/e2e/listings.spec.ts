@@ -109,3 +109,59 @@ test.describe('Etsy Listings search', () => {
         await expect(activeRow.getByText('Sold out')).not.toBeVisible();
     });
 });
+
+test.describe('Unmatched Etsy sales', () => {
+    const SALE = {
+        userId: 'u',
+        listingId: 9,
+        receiptId: 1,
+        quantity: 2,
+        price: 15,
+        soldAt: Date.UTC(2026, 9, 1),
+        status: 'unmatched',
+    };
+
+    test('lists sales that could not be matched, linking to the design when one is known', async ({
+        authenticatedPage: page,
+    }) => {
+        await mockConnectedListings(page);
+        await page.route('**/api/etsy/sales/unmatched', (route) =>
+            route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify([
+                    { ...SALE, transactionId: 1, title: 'Mystery Ring', designId: null, variantId: null },
+                    {
+                        ...SALE,
+                        transactionId: 2,
+                        title: 'Opal Pendant',
+                        designId: 'design-42',
+                        variantId: null,
+                        variationLabel: 'Stone: Ruby',
+                    },
+                ]),
+            })
+        );
+
+        await page.goto('/listings');
+
+        const section = page.getByTestId('unmatched-etsy-sales');
+        await expect(section).toBeVisible();
+        await expect(section.getByText('Mystery Ring')).toBeVisible();
+        await expect(section.getByText('No linked design')).toBeVisible();
+        await expect(section.getByText(/Stone: Ruby/)).toBeVisible();
+        await expect(section.getByRole('link', { name: /view design/i })).toHaveAttribute('href', /design-42/);
+    });
+
+    test('hides the section when every sale was matched', async ({ authenticatedPage: page }) => {
+        await mockConnectedListings(page);
+        await page.route('**/api/etsy/sales/unmatched', (route) =>
+            route.fulfill({ status: 200, contentType: 'application/json', body: '[]' })
+        );
+
+        await page.goto('/listings');
+
+        await expect(page.getByText('Silver Moon Pendant Necklace').first()).toBeVisible();
+        await expect(page.getByTestId('unmatched-etsy-sales')).toHaveCount(0);
+    });
+});
