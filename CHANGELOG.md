@@ -1,3 +1,10 @@
+# [1.55.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.54.0...v1.55.0) (2026-10-10)
+
+
+### Features
+
+* AI-generated Etsy title, description and tags ([#79](https://github.com/igor-siergiej/jewellery-catalogue/issues/79)) ([edc1688](https://github.com/igor-siergiej/jewellery-catalogue/commit/edc1688e80bfc8d908d8cd72cb36c11eb6aeb0c6))
+
 # [1.54.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.53.0...v1.54.0) (2026-10-05)
 
 
