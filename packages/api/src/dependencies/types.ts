@@ -14,7 +14,6 @@ import type {
 import type { AiUsageRepository } from '../domain/AiUsageRepository';
 import type { DesignRepository } from '../domain/DesignRepository';
 import type { DesignService } from '../domain/DesignService';
-import type { DesignSuggestionService } from '../domain/DesignSuggestionService';
 import type { DraftRepository } from '../domain/DraftRepository';
 import type { DraftService } from '../domain/DraftService';
 import type { EtsyClient } from '../domain/EtsyClient';
@@ -88,7 +87,6 @@ export enum DependencyToken {
     EtsyOrderSyncService = 'EtsyOrderSyncService',
     SalesReportService = 'SalesReportService',
     ProductionPlanner = 'ProductionPlanner',
-    DesignSuggestionService = 'DesignSuggestionService',
     PriceSuggestionService = 'PriceSuggestionService',
     EtsyListingRefreshService = 'EtsyListingRefreshService',
     ExportService = 'ExportService',
@@ -131,7 +129,6 @@ export type Dependencies = {
     [DependencyToken.EtsyOrderSyncService]: EtsyOrderSyncService;
     [DependencyToken.SalesReportService]: SalesReportService;
     [DependencyToken.ProductionPlanner]: ProductionPlanner;
-    [DependencyToken.DesignSuggestionService]: DesignSuggestionService;
     [DependencyToken.PriceSuggestionService]: PriceSuggestionService;
     [DependencyToken.EtsyListingRefreshService]: EtsyListingRefreshService;
     [DependencyToken.ExportService]: ExportService;

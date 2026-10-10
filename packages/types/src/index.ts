@@ -1,7 +1,6 @@
 export * from './aiUsage/index';
 export * from './baseMaterial/index';
 export * from './design/index';
-export * from './designSuggestion/index';
 export * from './draft/index';
 export * from './editDesign/index';
 export * from './etsyConnection/index';
