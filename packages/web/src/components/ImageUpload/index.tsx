@@ -86,7 +86,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ setImage, onChange, hasError 
                     <img src={preview} alt="Preview" className="w-full h-full object-cover absolute inset-0" />
                 ) : (
                     <div className="w-full h-full">
-                        <Image imageId={value as string} size="thumb" />
+                        <Image imageId={value as string} />
                     </div>
                 )}
                 <div className="flex gap-2 z-10 absolute bottom-3 right-3">
