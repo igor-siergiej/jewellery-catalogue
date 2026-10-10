@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { aiErrorMessage } from '@/utils/aiErrorMessage';
 import { runWithConcurrency } from '@/utils/runWithConcurrency';
 
 const CONCURRENCY = 2;
@@ -74,8 +75,8 @@ export const ListingCopyRefresh = ({ listings }: { listings: EtsyListingWithLink
             try {
                 const proposal = await makeProposeListingCopyRequest(listingId, () => accessToken, login, logout);
                 setItem(listingId, { status: 'ready', proposal });
-            } catch {
-                setItem(listingId, { status: 'failed', message: "Couldn't generate new copy." });
+            } catch (error) {
+                setItem(listingId, { status: 'failed', message: aiErrorMessage(error, "Couldn't generate new copy.") });
             }
         });
         setRunning(false);

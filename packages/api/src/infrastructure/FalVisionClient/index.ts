@@ -6,7 +6,7 @@ import type { VisionCompletionOptions, VisionLlm } from '../../domain/EtsyListin
 
 const FAL_VISION_URL = 'https://fal.run/openrouter/router/vision';
 const FAL_TEXT_URL = 'https://fal.run/openrouter/router';
-const DEFAULT_FAL_MODEL = 'google/gemini-2.5-flash';
+export const DEFAULT_FAL_MODEL = 'google/gemini-2.5-flash';
 const TEMPERATURE = 0.7;
 const MAX_TOKENS = 1500;
 const TIMEOUT_MS = 45000;

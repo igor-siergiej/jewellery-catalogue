@@ -15,6 +15,8 @@ const schema = {
     webAppUrl: { parser: parsers.string, from: 'WEB_APP_URL' },
     falKey: { parser: parsers.string, from: 'FAL_KEY', optional: true },
     falModel: { parser: parsers.string, from: 'FAL_MODEL', optional: true },
+    aiLimitPerHour: { parser: parsers.number, from: 'AI_LIMIT_PER_HOUR', optional: true },
+    aiLimitPerDay: { parser: parsers.number, from: 'AI_LIMIT_PER_DAY', optional: true },
 } as const;
 
 export const config = new ConfigService(schema);

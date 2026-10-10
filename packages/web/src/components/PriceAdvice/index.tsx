@@ -4,13 +4,11 @@ import { Loader2, Sparkles } from 'lucide-react';
 
 import { makePriceSuggestionRequest } from '@/api/endpoints/priceSuggestion';
 import { Button } from '@/components/ui/button';
+import { aiErrorMessage } from '@/utils/aiErrorMessage';
 
 const money = (value: number) => `£${value.toFixed(2)}`;
 
-const errorMessage = (error: Error): string =>
-    error.message.includes('503')
-        ? "AI suggestions aren't set up yet. Add FAL_KEY to the API to enable them."
-        : "Couldn't get a price suggestion. Try again.";
+const errorMessage = (error: Error): string => aiErrorMessage(error, "Couldn't get a price suggestion. Try again.");
 
 // An optional second opinion; the deterministic SuggestedPrice in the edit form stays the default.
 export const PriceAdvice = ({ designId }: { designId: string }) => {

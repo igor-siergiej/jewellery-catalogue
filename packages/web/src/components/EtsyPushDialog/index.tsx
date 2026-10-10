@@ -22,7 +22,7 @@ import { Input } from '@/components/ui/input';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-
+import { aiErrorMessage } from '@/utils/aiErrorMessage';
 import { useEtsyPush } from '../../hooks/useEtsyPush';
 import { useGenerateEtsyListing } from '../../hooks/useGenerateEtsyListing';
 import { useUserSettings } from '../../hooks/useUserSettings';
@@ -39,9 +39,7 @@ const renderTemplate = (template: string, description: string, materials: Array<
         .replace(/\{materials\}/g, materials.map((m) => m.name).join(', '));
 
 const generateErrorMessage = (error: Error): string =>
-    error.message.includes('503')
-        ? "AI generation isn't set up yet. Add FAL_KEY to the API to enable it."
-        : "Couldn't generate the listing. Your text is unchanged; try again.";
+    aiErrorMessage(error, "Couldn't generate the listing. Your text is unchanged; try again.");
 
 const EtsyPushDialog: React.FC<EtsyPushDialogProps> = ({ design, open, onOpenChange }) => {
     const { etsyDescriptionTemplate, etsyTaxonomyMap } = useUserSettings();

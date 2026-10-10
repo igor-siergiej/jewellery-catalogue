@@ -1,5 +1,6 @@
 import type { Logger, MongoDbConnection, ObjectStoreConnection } from '@imapps/api-utils';
 import type {
+    AiUsageRecord,
     Design,
     Draft,
     EtsyConnection,
@@ -10,6 +11,7 @@ import type {
     UserSettings,
 } from '@jewellery-catalogue/types';
 
+import type { AiUsageRepository } from '../domain/AiUsageRepository';
 import type { DesignRepository } from '../domain/DesignRepository';
 import type { DesignService } from '../domain/DesignService';
 import type { DesignSuggestionService } from '../domain/DesignSuggestionService';
@@ -52,6 +54,7 @@ export type Collections = {
     [CollectionNames.Goals]: Goal;
     [CollectionNames.Tasks]: Task;
     [CollectionNames.Sales]: Sale;
+    [CollectionNames.AiUsage]: AiUsageRecord;
 };
 
 export enum DependencyToken {
@@ -67,6 +70,7 @@ export enum DependencyToken {
     GoalRepository = 'GoalRepository',
     TaskRepository = 'TaskRepository',
     SaleRepository = 'SaleRepository',
+    AiUsageRepository = 'AiUsageRepository',
     // Services
     DesignService = 'DesignService',
     MaterialService = 'MaterialService',
@@ -108,6 +112,7 @@ export type Dependencies = {
     [DependencyToken.GoalRepository]: GoalRepository;
     [DependencyToken.TaskRepository]: TaskRepository;
     [DependencyToken.SaleRepository]: SaleRepository;
+    [DependencyToken.AiUsageRepository]: AiUsageRepository;
     // Services
     [DependencyToken.DesignService]: DesignService;
     [DependencyToken.MaterialService]: MaterialService;
@@ -144,4 +149,5 @@ export enum CollectionNames {
     Goals = 'goals',
     Tasks = 'tasks',
     Sales = 'sales',
+    AiUsage = 'aiUsage',
 }

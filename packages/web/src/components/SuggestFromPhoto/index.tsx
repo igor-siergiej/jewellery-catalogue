@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { makeSuggestDesignFromPhotoRequest } from '@/api/endpoints/designSuggestion';
 import { Button } from '@/components/ui/button';
 import { ADD_MATERIAL_PAGE } from '@/constants/routes';
+import { aiErrorMessage } from '@/utils/aiErrorMessage';
 
 interface SuggestFromPhotoProps {
     images: Array<File | string>;
@@ -15,9 +16,7 @@ interface SuggestFromPhotoProps {
 }
 
 const errorMessage = (error: Error): string =>
-    error.message.includes('503')
-        ? "AI suggestions aren't set up yet. Add FAL_KEY to the API to enable them."
-        : "Couldn't get a suggestion from the photo. Your form is unchanged; try again.";
+    aiErrorMessage(error, "Couldn't get a suggestion from the photo. Your form is unchanged; try again.");
 
 export const SuggestFromPhoto = ({ images, materials, onSuggestion }: SuggestFromPhotoProps) => {
     const { accessToken, login, logout } = useAuth();

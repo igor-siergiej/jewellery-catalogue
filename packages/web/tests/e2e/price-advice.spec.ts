@@ -71,6 +71,26 @@ test.describe
             await page.goto(`/designs/${design.id}`);
             await page.getByRole('button', { name: 'Ask AI for a price range' }).click();
 
-            await expect(page.getByText("AI suggestions aren't set up yet.")).toBeVisible();
+            await expect(page.getByText("AI features aren't set up yet.")).toBeVisible();
+        });
+
+        test('explains the usage limit when the API returns 429', async ({ authenticatedPage: page }) => {
+            const bead = await apiCreateBead(TOKEN, { name: 'Price Bead' });
+            const design = await apiCreateDesign(TOKEN, {
+                name: 'Price Ring',
+                materials: [{ ...bead, requiredQuantity: 1 }],
+            });
+            await page.route('**/api/designs/*/price-suggestion', (route) =>
+                route.fulfill({
+                    status: 429,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ error: 'AI limit reached: 20 requests per hour. Try again later.' }),
+                })
+            );
+
+            await page.goto(`/designs/${design.id}`);
+            await page.getByRole('button', { name: 'Ask AI for a price range' }).click();
+
+            await expect(page.getByText("You've reached the AI usage limit for now.")).toBeVisible();
         });
     });

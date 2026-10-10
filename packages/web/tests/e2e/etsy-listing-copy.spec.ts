@@ -84,7 +84,7 @@ test.describe('Etsy listing copy', () => {
         const dialog = await openPushDialog(page, 'Copy Gen Failure');
         await dialog.getByRole('button', { name: 'Generate with AI' }).click();
 
-        await expect(dialog.getByText("AI generation isn't set up yet")).toBeVisible();
+        await expect(dialog.getByText("AI features aren't set up yet")).toBeVisible();
         await expect(dialog.getByLabel('Title')).toHaveValue('Copy Gen Failure');
         await expect(dialog.getByLabel('Description')).toHaveValue(/^TEMPLATE:/);
     });
