@@ -11,6 +11,7 @@ import DesignUpdateForm from '../../components/DesignUpdateForm';
 import EtsyPushDialog from '../../components/EtsyPushDialog';
 import { Image } from '../../components/Image';
 import LoadingScreen from '../../components/Loading';
+import { PriceAdvice } from '../../components/PriceAdvice';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
@@ -299,6 +300,8 @@ const ViewDesign = () => {
                                 <span className="text-xs text-muted-foreground">threshold</span>
                             </div>
                         </div>
+
+                        {id && <PriceAdvice designId={id} />}
 
                         {/* Description */}
                         {hasDescription && (

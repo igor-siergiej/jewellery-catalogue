@@ -25,3 +25,10 @@ export const suggestDesignFromPhoto = async (c: Ctx) => {
         .suggest(c.get('userId'), { photos, imageIds });
     return c.json(suggestion, 200);
 };
+
+export const suggestDesignPrice = async (c: Ctx) => {
+    const suggestion = await dependencyContainer
+        .resolve(DependencyToken.PriceSuggestionService)
+        .suggest(c.req.param('id'), c.get('userId'));
+    return c.json(suggestion, 200);
+};

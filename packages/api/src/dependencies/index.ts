@@ -16,6 +16,7 @@ import { EtsyStatusService } from '../domain/EtsyStatusService';
 import { GoalService } from '../domain/GoalService';
 import { ImageService } from '../domain/ImageService';
 import { MaterialService } from '../domain/MaterialService';
+import { PriceSuggestionService } from '../domain/PriceSuggestionService';
 import { ProductionPlanner } from '../domain/ProductionPlanner';
 import { SalesReportService } from '../domain/SalesReportService';
 import { TaskService } from '../domain/TaskService';
@@ -229,6 +230,20 @@ export const registerDepdendencies = () => {
                     dependencyContainer.resolve(DependencyToken.DesignRepository),
                     dependencyContainer.resolve(DependencyToken.DraftRepository),
                     dependencyContainer.resolve(DependencyToken.Logger)
+                );
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.PriceSuggestionService,
+        class {
+            constructor() {
+                return new PriceSuggestionService(
+                    dependencyContainer.resolve(DependencyToken.DesignRepository),
+                    dependencyContainer.resolve(DependencyToken.SaleRepository),
+                    dependencyContainer.resolve(DependencyToken.UserSettingsService),
+                    dependencyContainer.resolve(DependencyToken.VisionLlm)
                 );
             }
         } as any
