@@ -28,6 +28,7 @@ export class EtsyOrderSyncService {
         private readonly now: () => number = Date.now
     ) {}
 
+    // fallow-ignore-next-line unused-class-member
     async syncAll(): Promise<void> {
         const connections = await this.connectionRepo.getAll();
 
