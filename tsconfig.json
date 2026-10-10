@@ -5,13 +5,15 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "target": "ESNext",
+    "strict": false,
     "noImplicitAny": true,
     "preserveConstEnums": true,
     "noUnusedLocals": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "types": ["bun"]
   },
   "files": [],
   "references": [
