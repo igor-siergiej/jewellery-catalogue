@@ -1,5 +1,5 @@
 import { useAuth, useUser } from '@imapps/web-utils';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Edit, ExternalLink, PackageOpen } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -18,6 +18,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { MATERIALS_PAGE } from '../../constants/routes';
 import { useEtsyConnection } from '../../hooks/useEtsyConnection';
 import { useEtsyStatus } from '../../hooks/useEtsyStatus';
+import { PRODUCIBLE_QUERY_KEY, useProducible } from '../../hooks/useProducible';
 import {
     DESIGN_TYPE_LABELS,
     MATERIAL_TYPE_LABELS,
@@ -25,6 +26,7 @@ import {
     WIRE_TYPE_LABELS,
 } from '../../lib/materialLabels';
 import { cn } from '../../lib/utils';
+import { canMakeLabel } from '../../utils/canMakeLabel';
 
 const ViewDesign = () => {
     const { id } = useParams<{ id: string }>();
@@ -66,12 +68,17 @@ const ViewDesign = () => {
     } = design ?? {};
 
     useEtsyStatus(id ?? '', !!id && !!etsy?.listingId);
+    const queryClient = useQueryClient();
+    const producible = useProducible().get(id ?? '');
+    const canMake = canMakeLabel(producible);
+    const variantCanMake = new Map(producible?.variants.map((v) => [v.variantId, v.canMake]));
 
     const hasDescription = description && description !== '<p></p>';
 
     const handleSuccess = () => {
         setEditDialogOpen(false);
         refetch();
+        queryClient.invalidateQueries({ queryKey: PRODUCIBLE_QUERY_KEY });
     };
 
     const handleCancel = () => {
@@ -82,6 +89,7 @@ const ViewDesign = () => {
         setEditPropertiesDialogOpen(false);
         setImageIndex(0);
         refetch();
+        queryClient.invalidateQueries({ queryKey: PRODUCIBLE_QUERY_KEY });
     };
 
     const handlePropertiesCancel = () => {
@@ -245,6 +253,11 @@ const ViewDesign = () => {
                                 <Badge variant="secondary" className="text-xs">
                                     {totalQuantity ?? 0} in stock
                                 </Badge>
+                                {canMake && (
+                                    <Badge variant="outline" className="text-xs" data-testid="can-make">
+                                        {canMake}
+                                    </Badge>
+                                )}
                             </div>
                         </div>
 
@@ -339,6 +352,7 @@ const ViewDesign = () => {
                                             <TableHead>Material Costs</TableHead>
                                             <TableHead>Price</TableHead>
                                             <TableHead>In Stock</TableHead>
+                                            <TableHead>Can Make</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -348,6 +362,7 @@ const ViewDesign = () => {
                                                 <TableCell>£{variant.totalMaterialCosts.toFixed(2)}</TableCell>
                                                 <TableCell>£{variant.price.toFixed(2)}</TableCell>
                                                 <TableCell>{variant.totalQuantity}</TableCell>
+                                                <TableCell>{variantCanMake.get(variant.id) ?? '—'}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>

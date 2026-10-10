@@ -10,6 +10,7 @@ import type {
 } from '@jewellery-catalogue/types';
 import { MaterialType } from '@jewellery-catalogue/types';
 
+import { requiredStockAmount, stockOnHand } from '../../utils/material-conversion';
 import type { DesignRepository } from '../DesignRepository';
 import type { IdGenerator } from '../IdGenerator';
 import type { ImageService } from '../ImageService';
@@ -23,7 +24,6 @@ export class DesignService {
         private readonly materialRepo: MaterialRepository
     ) {}
 
-    // fallow-ignore-next-line unused-class-member
     async getDesignsByUserId(userId: string): Promise<Array<Design>> {
         if (!userId) {
             throw Object.assign(new Error('User ID is required'), { status: 400 });
@@ -32,7 +32,6 @@ export class DesignService {
         return this.designRepo.getByUserId(userId);
     }
 
-    // fallow-ignore-next-line unused-class-member
     async getDesign(id: string, userId: string): Promise<Design> {
         if (!id) {
             throw Object.assign(new Error('Design ID is required'), { status: 400 });
@@ -47,7 +46,6 @@ export class DesignService {
         return design;
     }
 
-    // fallow-ignore-next-line unused-class-member
     async addDesign(
         designData: UploadDesign,
         imageBuffers: Array<{ buffer: Buffer; contentType: string }>,
@@ -140,7 +138,6 @@ export class DesignService {
         return design;
     }
 
-    // fallow-ignore-next-line unused-class-member
     async updateDesign(id: string, updates: UpdateDesign, userId: string): Promise<Design> {
         if (!id) {
             throw Object.assign(new Error('Design ID is required'), { status: 400 });
@@ -194,7 +191,6 @@ export class DesignService {
         return updated;
     }
 
-    // fallow-ignore-next-line unused-class-member
     async editDesignProperties(
         id: string,
         updates: EditDesign,
@@ -298,15 +294,11 @@ export class DesignService {
 
             switch (material.type) {
                 case MaterialType.WIRE:
-                case MaterialType.CHAIN: {
-                    totalRequired = ((requiredMaterial as any).requiredLength / 100) * quantity;
-                    currentStock = (material as any).totalLength;
-                    break;
-                }
+                case MaterialType.CHAIN:
                 case MaterialType.BEAD:
                 case MaterialType.EAR_HOOK: {
-                    totalRequired = (requiredMaterial as any).requiredQuantity * quantity;
-                    currentStock = (material as any).totalQuantity;
+                    totalRequired = requiredStockAmount(requiredMaterial) * quantity;
+                    currentStock = stockOnHand(material);
                     break;
                 }
                 default:
@@ -370,7 +362,6 @@ export class DesignService {
         return updatedDesign;
     }
 
-    // fallow-ignore-next-line unused-class-member
     async deleteDesign(id: string, userId: string): Promise<void> {
         if (!id) {
             throw Object.assign(new Error('Design ID is required'), { status: 400 });

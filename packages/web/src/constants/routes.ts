@@ -51,6 +51,11 @@ export const LISTINGS_PAGE: NavRoute = {
     route: '/listings',
 };
 
+export const SHOPPING_LIST_PAGE: NavRoute = {
+    name: 'Shopping List',
+    route: '/shopping-list',
+};
+
 export const BOARD_PAGE: NavRoute = {
     name: 'Board',
     route: '/board',

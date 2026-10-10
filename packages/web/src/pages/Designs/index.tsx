@@ -2,9 +2,9 @@ import { useAuth } from '@imapps/web-utils';
 import { DesignType, type Draft } from '@jewellery-catalogue/types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Fuse from 'fuse.js';
-import { FileEdit, Sparkles, Trash2 } from 'lucide-react';
+import { FileEdit, ShoppingCart, Sparkles, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import {
     AlertDialog,
@@ -26,10 +26,12 @@ import { getDraftsQuery, makeDeleteDraftRequest } from '../../api/endpoints/draf
 import { getDesignsQuery } from '../../api/endpoints/getDesigns';
 import { DesignCard } from '../../components/DesignCard';
 import LoadingScreen from '../../components/Loading';
-import { ADD_DESIGN_PAGE } from '../../constants/routes';
+import { ADD_DESIGN_PAGE, SHOPPING_LIST_PAGE } from '../../constants/routes';
 import { useSearch } from '../../context/SearchContext';
+import { PRODUCIBLE_QUERY_KEY, useProducible } from '../../hooks/useProducible';
 import { DESIGN_TYPE_LABELS } from '../../lib/materialLabels';
 import { sortFavouritesFirst } from '../../lib/sortFavouritesFirst';
+import { canMakeLabel } from '../../utils/canMakeLabel';
 
 const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, onDeleted }) => {
     const { accessToken, login, logout } = useAuth();
@@ -126,6 +128,8 @@ const Designs = () => {
         enabled: !!accessToken,
     });
 
+    const producible = useProducible();
+
     const { data: drafts } = useQuery({
         ...getDraftsQuery('design', () => accessToken, login, logout),
         enabled: !!accessToken,
@@ -164,7 +168,17 @@ const Designs = () => {
     const filteredDrafts = typeFilter === 'all' ? searchedDrafts : [];
 
     const designs = filteredData.map((design) => {
-        return <DesignCard key={design.id} design={design} onDesignUpdated={() => refetch()} />;
+        return (
+            <DesignCard
+                key={design.id}
+                design={design}
+                canMake={canMakeLabel(producible.get(design.id))}
+                onDesignUpdated={() => {
+                    refetch();
+                    queryClient.invalidateQueries({ queryKey: PRODUCIBLE_QUERY_KEY });
+                }}
+            />
+        );
     });
 
     const draftCards = filteredDrafts.map((draft) => (
@@ -175,16 +189,27 @@ const Designs = () => {
 
     return (
         <div className="space-y-4">
-            <Tabs value={typeFilter} onValueChange={(v) => setTypeFilter(v as DesignType | 'all')}>
-                <TabsList>
-                    <TabsTrigger value="all">All ({data.length})</TabsTrigger>
-                    {(Object.keys(DesignType) as Array<DesignType>).map((type) => (
-                        <TabsTrigger key={type} value={type}>
-                            {DESIGN_TYPE_LABELS[type]} ({data.filter((d) => d.designType === type).length})
-                        </TabsTrigger>
-                    ))}
-                </TabsList>
-            </Tabs>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+                <Tabs
+                    className="min-w-0 max-w-full"
+                    value={typeFilter}
+                    onValueChange={(v) => setTypeFilter(v as DesignType | 'all')}
+                >
+                    <TabsList>
+                        <TabsTrigger value="all">All ({data.length})</TabsTrigger>
+                        {(Object.keys(DesignType) as Array<DesignType>).map((type) => (
+                            <TabsTrigger key={type} value={type}>
+                                {DESIGN_TYPE_LABELS[type]} ({data.filter((d) => d.designType === type).length})
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+                </Tabs>
+                <Button asChild variant="outline" size="sm">
+                    <Link to={SHOPPING_LIST_PAGE.route}>
+                        <ShoppingCart className="h-4 w-4" /> Shopping list
+                    </Link>
+                </Button>
+            </div>
 
             {isEmpty ? (
                 <Empty>
