@@ -31,10 +31,10 @@ draft listing.
 Bun-workspace monorepo — `packages/web`, `packages/api`, `packages/types`
 (shared interfaces and form models).
 
-- **web** — React 19 + TypeScript + Vite 7. Tailwind 4, Radix/shadcn UI, React
+- **web** — React 19 + TypeScript + Vite 8. Tailwind 4, Radix/shadcn UI, React
   Query for server state, React Router 7, react-hook-form + Zod for the design
   and material forms. Unit tests in Vitest, e2e in Playwright.
-- **api** — Koa 3 + TypeScript on the Bun runtime. Domain services
+- **api** — Hono 4 + TypeScript on the Bun runtime. Domain services
   (`DesignService`, `MaterialService`, `DraftService`, `GoalService`,
   `TaskService`) sit over MongoDB repositories built on a shared
   `BaseRepository`; `handlers/` and `routes/` are the HTTP edge; `dependencies/`
