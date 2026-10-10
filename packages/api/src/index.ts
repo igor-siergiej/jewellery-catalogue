@@ -9,6 +9,7 @@ import { createRoutes } from './routes';
 
 const port = config.get('port');
 const PURGE_INTERVAL_MS = 24 * 60 * 60 * 1000;
+const ETSY_ORDER_SYNC_INTERVAL_MS = 15 * 60 * 1000;
 
 const allowedOrigins = [
     'http://localhost:3000',
@@ -54,6 +55,7 @@ export const onStartup = async () => {
         const draftsCollection = database.getCollection('drafts' as any);
         await draftsCollection.createIndex({ userId: 1 });
         await draftsCollection.createIndex({ id: 1, userId: 1 });
+        await dependencyContainer.resolve(DependencyToken.SaleRepository).ensureIndexes();
         appLogger.info('Database indexes created');
 
         const taskService = dependencyContainer.resolve(DependencyToken.TaskService);
@@ -69,6 +71,17 @@ export const onStartup = async () => {
         };
         await purgeCompletedTasks();
         setInterval(purgeCompletedTasks, PURGE_INTERVAL_MS).unref();
+
+        // Not awaited: an Etsy outage must not delay startup. syncAll logs its own per-shop failures.
+        const etsyOrderSync = dependencyContainer.resolve(DependencyToken.EtsyOrderSyncService);
+        const syncEtsyOrders = () =>
+            etsyOrderSync
+                .syncAll()
+                .catch((error: unknown) =>
+                    appLogger.error('Etsy order sync failed', { error: error instanceof Error ? error.message : error })
+                );
+        syncEtsyOrders();
+        setInterval(syncEtsyOrders, ETSY_ORDER_SYNC_INTERVAL_MS).unref();
 
         const app = createApp({ logger: appLogger, allowedOrigins });
         app.route('/', createRoutes());

@@ -42,6 +42,8 @@ export const designSchema = z.object({
     etsyListing: etsyListingSchema.optional(),
     favourite: z.boolean().optional(),
     catalogueOnly: z.boolean().optional(),
+    // Etsy transaction ids already deducted from stock, so a sale is never applied twice.
+    etsySaleIds: z.array(z.number()).optional(),
 });
 
 export type Design = z.infer<typeof designSchema>;

@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { LinkDesignDialog } from '../../components/LinkDesignDialog';
 import LoadingScreen from '../../components/Loading';
 import { DesktopOnly, MobileCard, MobileCardList } from '../../components/MobileCardList';
+import { UnmatchedEtsySales } from '../../components/UnmatchedEtsySales';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '../../components/ui/empty';
@@ -14,10 +15,12 @@ import { useSearch } from '../../context/SearchContext';
 import { useEtsyConnection } from '../../hooks/useEtsyConnection';
 import { useEtsyListings } from '../../hooks/useEtsyListings';
 import { useEtsyReconcile } from '../../hooks/useEtsyReconcile';
+import { useUnmatchedEtsySales } from '../../hooks/useUnmatchedEtsySales';
 
 const Listings = () => {
     const { connected: etsyConnected, isLoading: isConnectionLoading } = useEtsyConnection();
     const { listings, isLoading, isError } = useEtsyListings(etsyConnected);
+    const { sales: unmatchedSales } = useUnmatchedEtsySales(etsyConnected);
     const navigate = useNavigate();
     const { createFromListing, isCreating } = useEtsyReconcile();
     const [linkDialogListingId, setLinkDialogListingId] = useState<number | null>(null);
@@ -78,6 +81,8 @@ const Listings = () => {
                     sitting on Etsy outside this app aren't included.
                 </p>
             </div>
+
+            <UnmatchedEtsySales sales={unmatchedSales} />
 
             {listings.length === 0 ? (
                 <Empty>

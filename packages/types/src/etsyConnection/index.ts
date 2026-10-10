@@ -9,6 +9,8 @@ export const etsyConnectionSchema = z.object({
     refreshToken: z.string(),
     connectedAt: z.number(), // epoch ms
     broken: z.boolean().optional(),
+    // Receipts modified at or after this time (epoch seconds) are synced on the next poll.
+    ordersSyncedThrough: z.number().optional(),
 });
 
 export type EtsyConnection = z.infer<typeof etsyConnectionSchema>;

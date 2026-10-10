@@ -21,6 +21,7 @@
   ],
   "ignoreUnresolvedImports": ["bun:test"],
   "ignoreDependencies": [
+    "@jewellery-catalogue/types",
     "workbox-window",
     "@tiptap/pm",
     "class-variance-authority",

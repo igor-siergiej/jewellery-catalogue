@@ -23,4 +23,18 @@ export class MongoEtsyConnectionRepository extends MongoRepository<EtsyConnectio
     async deleteByUserId(userId: string): Promise<void> {
         await this.collection().deleteOne({ userId });
     }
+
+    async getAll(): Promise<EtsyConnection[]> {
+        return this.collection()
+            .find({}, { projection: { _id: 0 } })
+            .toArray();
+    }
+
+    async setOrdersSyncedThrough(userId: string, epochSeconds: number): Promise<void> {
+        await this.collection().updateOne({ userId }, { $set: { ordersSyncedThrough: epochSeconds } });
+    }
+
+    async markBroken(userId: string): Promise<void> {
+        await this.collection().updateOne({ userId }, { $set: { broken: true } });
+    }
 }

@@ -105,6 +105,27 @@ export interface EtsyListingInventory {
     products: EtsyInventoryProductResult[];
 }
 
+export interface EtsyReceiptTransaction {
+    transactionId: number;
+    listingId: number;
+    title: string;
+    quantity: number;
+    price: number;
+    variations: Array<{ name: string; value: string }>;
+}
+
+export interface EtsyReceipt {
+    receiptId: number;
+    status: string;
+    isPaid: boolean;
+    createdAt: number; // epoch ms
+    updatedAt: number; // epoch seconds, as Etsy reports it
+    transactions: EtsyReceiptTransaction[];
+}
+
+// Thrown when the token lacks a scope (e.g. transactions_r) so callers can ask the user to reconnect.
+export class EtsyForbiddenError extends Error {}
+
 const mapListingState = (state: string): EtsyListingState =>
     state === 'draft' || state === 'active' ? state : 'inactive';
 
@@ -332,6 +353,70 @@ export class EtsyClient {
                     url: r.url,
                     state,
                     imageUrl: r.images?.[0]?.url_75x75 ?? null,
+                }))
+            );
+
+            offset += SHOP_LISTINGS_PAGE_LIMIT;
+            if (offset >= body.count || body.results.length < SHOP_LISTINGS_PAGE_LIMIT) break;
+        }
+
+        return results;
+    }
+
+    async getShopReceipts(accessToken: string, shopId: number, minLastModified: number): Promise<EtsyReceipt[]> {
+        const results: EtsyReceipt[] = [];
+        let offset = 0;
+
+        for (;;) {
+            const response = await fetch(
+                `${API_BASE}/shops/${shopId}/receipts?min_last_modified=${minLastModified}&sort_on=updated&sort_order=asc&limit=${SHOP_LISTINGS_PAGE_LIMIT}&offset=${offset}`,
+                { headers: { 'x-api-key': this.apiKeyHeader(), Authorization: `Bearer ${accessToken}` } }
+            );
+
+            if (response.status === 403) {
+                throw new EtsyForbiddenError(`Etsy getShopReceipts forbidden: ${await response.text()}`);
+            }
+            if (!response.ok) {
+                throw await etsyError('getShopReceipts', response);
+            }
+
+            const body = (await response.json()) as {
+                count: number;
+                results: Array<{
+                    receipt_id: number;
+                    status: string;
+                    is_paid: boolean;
+                    created_timestamp: number;
+                    updated_timestamp: number;
+                    transactions: Array<{
+                        transaction_id: number;
+                        listing_id: number;
+                        title: string;
+                        quantity: number;
+                        price: { amount: number; divisor: number };
+                        variations?: Array<{ formatted_name: string; formatted_value: string }>;
+                    }>;
+                }>;
+            };
+
+            results.push(
+                ...body.results.map((r) => ({
+                    receiptId: r.receipt_id,
+                    status: r.status,
+                    isPaid: r.is_paid,
+                    createdAt: r.created_timestamp * 1000,
+                    updatedAt: r.updated_timestamp,
+                    transactions: r.transactions.map((t) => ({
+                        transactionId: t.transaction_id,
+                        listingId: t.listing_id,
+                        title: t.title,
+                        quantity: t.quantity,
+                        price: t.price.amount / t.price.divisor,
+                        variations: (t.variations ?? []).map((v) => ({
+                            name: v.formatted_name,
+                            value: v.formatted_value,
+                        })),
+                    })),
                 }))
             );
 

@@ -8,6 +8,7 @@ import { EtsyClient } from '../domain/EtsyClient';
 import { EtsyConnectionService } from '../domain/EtsyConnectionService';
 import { EtsyListingCopyService } from '../domain/EtsyListingCopyService';
 import { EtsyOAuthStateStore } from '../domain/EtsyOAuthStateStore';
+import { EtsyOrderSyncService } from '../domain/EtsyOrderSyncService';
 import { EtsyPushService } from '../domain/EtsyPushService';
 import { EtsyReconcileService } from '../domain/EtsyReconcileService';
 import { EtsyStatusService } from '../domain/EtsyStatusService';
@@ -23,6 +24,7 @@ import { MongoDraftRepository } from '../infrastructure/MongoDraftRepository';
 import { MongoEtsyConnectionRepository } from '../infrastructure/MongoEtsyConnectionRepository';
 import { MongoGoalRepository } from '../infrastructure/MongoGoalRepository';
 import { MongoMaterialRepository } from '../infrastructure/MongoMaterialRepository';
+import { MongoSaleRepository } from '../infrastructure/MongoSaleRepository';
 import { MongoTaskRepository } from '../infrastructure/MongoTaskRepository';
 import { MongoUserSettingsRepository } from '../infrastructure/MongoUserSettingsRepository';
 import { UuidGenerator } from '../infrastructure/UuidGenerator';
@@ -156,6 +158,31 @@ export const registerDepdendencies = () => {
         class {
             constructor() {
                 return new MongoEtsyConnectionRepository(dependencyContainer.resolve(DependencyToken.Database));
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.SaleRepository,
+        class {
+            constructor() {
+                return new MongoSaleRepository(dependencyContainer.resolve(DependencyToken.Database));
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.EtsyOrderSyncService,
+        class {
+            constructor() {
+                return new EtsyOrderSyncService(
+                    dependencyContainer.resolve(DependencyToken.EtsyConnectionRepository),
+                    dependencyContainer.resolve(DependencyToken.EtsyConnectionService),
+                    dependencyContainer.resolve(DependencyToken.EtsyClient),
+                    dependencyContainer.resolve(DependencyToken.DesignRepository),
+                    dependencyContainer.resolve(DependencyToken.SaleRepository),
+                    dependencyContainer.resolve(DependencyToken.Logger)
+                );
             }
         } as any
     );
