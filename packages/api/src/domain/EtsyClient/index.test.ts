@@ -623,4 +623,25 @@ describe('EtsyClient', () => {
             await expect(client.getShopReceipts('access-tok', 99, 0)).rejects.toBeInstanceOf(EtsyForbiddenError);
         });
     });
+
+    describe('updateListingCopy', () => {
+        it('PATCHes title, description and tags on the shop listing', async () => {
+            fetchMock.mockResolvedValue(new Response('{}', { status: 200 }));
+
+            await client.updateListingCopy('access-tok', 9, 111, { title: 'T', description: 'D', tags: ['a'] });
+
+            const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+            expect(url).toBe('https://api.etsy.com/v3/application/shops/9/listings/111');
+            expect(options.method).toBe('PATCH');
+            expect(JSON.parse(options.body as string)).toEqual({ title: 'T', description: 'D', tags: ['a'] });
+        });
+
+        it('throws when Etsy rejects the update', async () => {
+            fetchMock.mockResolvedValue(new Response('bad', { status: 400 }));
+
+            await expect(
+                client.updateListingCopy('access-tok', 9, 111, { title: 'T', description: 'D', tags: [] })
+            ).rejects.toThrow();
+        });
+    });
 });

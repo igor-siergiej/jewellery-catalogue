@@ -3,6 +3,7 @@ import { ExternalLink, ShoppingBag } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LinkDesignDialog } from '../../components/LinkDesignDialog';
+import { ListingCopyRefresh } from '../../components/ListingCopyRefresh';
 import LoadingScreen from '../../components/Loading';
 import { DesktopOnly, MobileCard, MobileCardList } from '../../components/MobileCardList';
 import { UnmatchedEtsySales } from '../../components/UnmatchedEtsySales';
@@ -83,6 +84,8 @@ const Listings = () => {
             </div>
 
             <UnmatchedEtsySales sales={unmatchedSales} />
+
+            <ListingCopyRefresh listings={listings.filter((l) => l.linkedDesignId !== null)} />
 
             {listings.length === 0 ? (
                 <Empty>

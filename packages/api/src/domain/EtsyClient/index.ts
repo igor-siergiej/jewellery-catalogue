@@ -83,6 +83,7 @@ export interface EtsyListingDetail {
     description: string;
     price: number;
     imageUrls: string[];
+    tags: string[];
 }
 
 export interface EtsyInventoryProductOffering {
@@ -278,6 +279,7 @@ export class EtsyClient {
             description: string;
             price: { amount: number; divisor: number };
             images?: Array<{ url_fullxfull: string }>;
+            tags?: string[];
         };
 
         return {
@@ -285,6 +287,7 @@ export class EtsyClient {
             description: body.description,
             price: body.price.amount / body.price.divisor,
             imageUrls: (body.images ?? []).map((img) => img.url_fullxfull),
+            tags: body.tags ?? [],
         };
     }
 
@@ -532,6 +535,27 @@ export class EtsyClient {
 
         const body = (await response.json()) as { results: Array<{ listing_image_id: number }> };
         return { imageIds: body.results.map((r) => r.listing_image_id) };
+    }
+
+    async updateListingCopy(
+        accessToken: string,
+        shopId: number,
+        listingId: number,
+        copy: { title: string; description: string; tags: string[] }
+    ): Promise<void> {
+        const response = await fetch(`${API_BASE}/shops/${shopId}/listings/${listingId}`, {
+            method: 'PATCH',
+            headers: {
+                'x-api-key': this.apiKeyHeader(),
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ title: copy.title, description: copy.description, tags: copy.tags }),
+        });
+
+        if (!response.ok) {
+            throw await etsyError('updateListingCopy', response);
+        }
     }
 
     async updateListingInventory(

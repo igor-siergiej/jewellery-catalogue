@@ -8,6 +8,7 @@ import { DraftService } from '../domain/DraftService';
 import { EtsyClient } from '../domain/EtsyClient';
 import { EtsyConnectionService } from '../domain/EtsyConnectionService';
 import { EtsyListingCopyService } from '../domain/EtsyListingCopyService';
+import { EtsyListingRefreshService } from '../domain/EtsyListingRefreshService';
 import { EtsyOAuthStateStore } from '../domain/EtsyOAuthStateStore';
 import { EtsyOrderSyncService } from '../domain/EtsyOrderSyncService';
 import { EtsyPushService } from '../domain/EtsyPushService';
@@ -244,6 +245,20 @@ export const registerDepdendencies = () => {
                     dependencyContainer.resolve(DependencyToken.SaleRepository),
                     dependencyContainer.resolve(DependencyToken.UserSettingsService),
                     dependencyContainer.resolve(DependencyToken.VisionLlm)
+                );
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.EtsyListingRefreshService,
+        class {
+            constructor() {
+                return new EtsyListingRefreshService(
+                    dependencyContainer.resolve(DependencyToken.DesignRepository),
+                    dependencyContainer.resolve(DependencyToken.EtsyListingCopyService),
+                    dependencyContainer.resolve(DependencyToken.EtsyClient),
+                    dependencyContainer.resolve(DependencyToken.EtsyConnectionService)
                 );
             }
         } as any
