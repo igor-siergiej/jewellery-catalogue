@@ -185,7 +185,7 @@ const ViewDesign = () => {
                                 >
                                     {imageIds.map((id) => (
                                         <div key={id} className="w-full h-full flex-shrink-0">
-                                            <Image imageId={id} />
+                                            <Image imageId={id} size="display" />
                                         </div>
                                     ))}
                                 </div>
@@ -326,7 +326,7 @@ const ViewDesign = () => {
                                                 key={id}
                                                 className="w-24 h-24 rounded-md overflow-hidden border border-border"
                                             >
-                                                <Image imageId={id} />
+                                                <Image imageId={id} size="display" />
                                             </div>
                                         ))}
                                     </div>

@@ -29,6 +29,7 @@ import { MongoMaterialRepository } from '../infrastructure/MongoMaterialReposito
 import { MongoSaleRepository } from '../infrastructure/MongoSaleRepository';
 import { MongoTaskRepository } from '../infrastructure/MongoTaskRepository';
 import { MongoUserSettingsRepository } from '../infrastructure/MongoUserSettingsRepository';
+import { SharpImageResizer } from '../infrastructure/SharpImageResizer';
 import { UuidGenerator } from '../infrastructure/UuidGenerator';
 import { type Dependencies, DependencyToken } from './types';
 
@@ -92,7 +93,8 @@ export const registerDepdendencies = () => {
                 return new ImageService(
                     dependencyContainer.resolve(DependencyToken.ImageStore),
                     undefined,
-                    dependencyContainer.resolve(DependencyToken.Logger)
+                    dependencyContainer.resolve(DependencyToken.Logger),
+                    new SharpImageResizer()
                 );
             }
         } as any

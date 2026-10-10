@@ -29,7 +29,7 @@ function Thumbnail({ item, onRemove }: { item: File | string; onRemove: () => vo
             {item instanceof File && preview ? (
                 <img src={preview} alt="Preview" className="w-full h-full object-cover" />
             ) : typeof item === 'string' ? (
-                <Image imageId={item} />
+                <Image imageId={item} size="thumb" />
             ) : null}
             <Button
                 type="button"

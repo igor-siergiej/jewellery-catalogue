@@ -10,6 +10,11 @@ describe('getImageSrc', () => {
     it('omits the token when not available', () => {
         expect(getImageSrc('abc123', null)).toBe('/api/image/abc123');
     });
+
+    it('requests a resized image when a size is given', () => {
+        expect(getImageSrc('abc123', 'tok.en', 'thumb')).toBe('/api/image/abc123?size=thumb&token=tok.en');
+        expect(getImageSrc('abc123', null, 'display')).toBe('/api/image/abc123?size=display');
+    });
 });
 
 describe('addTokenToImageUrls', () => {

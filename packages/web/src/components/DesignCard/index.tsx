@@ -119,7 +119,7 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
                         data-testid="design-card-main-image"
                     >
                         {imageIds?.[0] ? (
-                            <Image imageId={imageIds[0]} />
+                            <Image imageId={imageIds[0]} size="thumb" />
                         ) : etsyImageUrl ? (
                             <img src={etsyImageUrl} alt={name} className="w-full h-full object-contain rounded-md" />
                         ) : (

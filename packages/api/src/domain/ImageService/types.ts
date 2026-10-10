@@ -7,3 +7,11 @@ export interface ImageStore {
 export interface ImageGenerator {
     generateImage(prompt: string): Promise<{ buffer: Buffer; contentType: string }>;
 }
+
+export const IMAGE_SIZES = ['thumb', 'display'] as const;
+export type ImageSize = (typeof IMAGE_SIZES)[number];
+
+export interface ImageResizer {
+    // Returns a WebP no larger than maxDimension on either side (never upscaled).
+    toWebp(buffer: Buffer, maxDimension: number): Promise<Buffer>;
+}

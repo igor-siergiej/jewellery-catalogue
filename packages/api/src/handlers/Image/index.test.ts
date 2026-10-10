@@ -43,11 +43,11 @@ const installRepos = (designOwned: boolean, draftOwned: boolean) => {
     };
 };
 
-const makeCtx = (name: string, userId: string) => {
+const makeCtx = (name: string, userId: string, query: Record<string, string> = {}) => {
     const captured: { headers: Record<string, string>; body?: unknown; status?: number } = { headers: {} };
     const ctx = {
         get: (k: string) => (k === 'userId' ? userId : undefined),
-        req: { param: () => name },
+        req: { param: () => name, query: (key: string) => query[key] },
         header: (h: string, v: string) => {
             captured.headers[h] = v;
         },
@@ -87,7 +87,7 @@ describe('getImage', () => {
         await getImage(ctx as never);
 
         expect(designImageBelongsToUser).toHaveBeenCalledWith('img-owned', 'user-1');
-        expect(imageServiceGet).toHaveBeenCalledWith('img-owned');
+        expect(imageServiceGet).toHaveBeenCalledWith('img-owned', undefined);
         expect(captured.headers['Content-Type']).toBe('image/jpeg');
         expect(captured.headers['Cache-Control']).toBe('public, max-age=31536000, immutable');
     });
@@ -99,7 +99,7 @@ describe('getImage', () => {
         await getImage(ctx as never);
 
         expect(draftImageBelongsToUser).toHaveBeenCalledWith('img-draft', 'user-1');
-        expect(imageServiceGet).toHaveBeenCalledWith('img-draft');
+        expect(imageServiceGet).toHaveBeenCalledWith('img-draft', undefined);
     });
 
     it("does not serve another user's image (cross-user IDOR)", async () => {
@@ -109,6 +109,31 @@ describe('getImage', () => {
         const { ctx } = makeCtx('img-other', 'user-1');
 
         await expect(getImage(ctx as never)).rejects.toMatchObject({ status: 404 });
+    });
+
+    it('passes a requested size through to the image service', async () => {
+        installRepos(true, false);
+        const { ctx } = makeCtx('img-owned', 'user-1', { size: 'thumb' });
+
+        await getImage(ctx as never);
+
+        expect(imageServiceGet).toHaveBeenCalledWith('img-owned', 'thumb');
+    });
+
+    it('applies the ownership check to resized images too', async () => {
+        installRepos(false, false);
+        const { ctx } = makeCtx('img-other', 'user-1', { size: 'display' });
+
+        await expect(getImage(ctx as never)).rejects.toMatchObject({ status: 404 });
+        expect(imageServiceGet).not.toHaveBeenCalled();
+    });
+
+    it('rejects an unknown size with 400', async () => {
+        installRepos(true, false);
+        const { ctx } = makeCtx('img-owned', 'user-1', { size: 'huge' });
+
+        await expect(getImage(ctx as never)).rejects.toMatchObject({ status: 400 });
+        expect(imageServiceGet).not.toHaveBeenCalled();
     });
 });
 
