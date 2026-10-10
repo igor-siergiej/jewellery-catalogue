@@ -1,3 +1,4 @@
+export * from './aiUsage/index';
 export * from './baseMaterial/index';
 export * from './design/index';
 export * from './designSuggestion/index';

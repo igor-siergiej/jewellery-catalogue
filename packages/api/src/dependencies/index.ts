@@ -24,6 +24,7 @@ import { TaskService } from '../domain/TaskService';
 import { UserSettingsService } from '../domain/UserSettingsService';
 import { BucketStore } from '../infrastructure/BucketStore';
 import { FalVisionClient } from '../infrastructure/FalVisionClient';
+import { MongoAiUsageRepository } from '../infrastructure/MongoAiUsageRepository';
 import { MongoDesignRepository } from '../infrastructure/MongoDesignRepository';
 import { MongoDraftRepository } from '../infrastructure/MongoDraftRepository';
 import { MongoEtsyConnectionRepository } from '../infrastructure/MongoEtsyConnectionRepository';
@@ -260,6 +261,15 @@ export const registerDepdendencies = () => {
                     dependencyContainer.resolve(DependencyToken.EtsyClient),
                     dependencyContainer.resolve(DependencyToken.EtsyConnectionService)
                 );
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.AiUsageRepository,
+        class {
+            constructor() {
+                return new MongoAiUsageRepository(dependencyContainer.resolve(DependencyToken.Database));
             }
         } as any
     );

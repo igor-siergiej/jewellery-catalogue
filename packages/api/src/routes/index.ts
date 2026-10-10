@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-
+import { config } from '../config';
 import { dependencyContainer } from '../dependencies';
 import { DependencyToken } from '../dependencies/types';
 import { addDesign, deleteDesign, editDesignProperties, getDesign, getDesigns, updateDesign } from '../handlers/Design';
@@ -37,9 +37,24 @@ import { getProducible, getShoppingList } from '../handlers/ProductionPlan';
 import { getSalesReport } from '../handlers/Sales';
 import { addTask, deleteTask, getTasks, updateTask } from '../handlers/Task';
 import { getUserSettings, recalculatePrices, updateUserSettings } from '../handlers/UserSettings';
+import { DEFAULT_FAL_MODEL } from '../infrastructure/FalVisionClient';
+import { createAiUsageMiddleware } from '../middleware/aiUsage';
 import { authenticate, authenticateImageRequest } from '../middleware/auth';
 
 type Env = { Variables: { userId: string } };
+
+const DEFAULT_AI_LIMIT_PER_HOUR = 20;
+const DEFAULT_AI_LIMIT_PER_DAY = 100;
+
+const aiUsage = createAiUsageMiddleware({
+    repo: () => dependencyContainer.resolve(DependencyToken.AiUsageRepository),
+    logger: () => dependencyContainer.resolve(DependencyToken.Logger),
+    limits: () => ({
+        perHour: config.get('aiLimitPerHour') ?? DEFAULT_AI_LIMIT_PER_HOUR,
+        perDay: config.get('aiLimitPerDay') ?? DEFAULT_AI_LIMIT_PER_DAY,
+    }),
+    model: () => config.get('falModel') || DEFAULT_FAL_MODEL,
+});
 
 export const createRoutes = (): Hono<Env> => {
     const app = new Hono<Env>();
@@ -61,12 +76,22 @@ export const createRoutes = (): Hono<Env> => {
     app.get('/api/etsy/connection', authenticate, getEtsyConnectionStatus);
     app.delete('/api/etsy/connection', authenticate, disconnectEtsyConnection);
     app.post('/api/designs/:id/etsy-push', authenticate, pushDesignToEtsy);
-    app.post('/api/designs/:id/etsy-listing/generate', authenticate, generateEtsyListingCopy);
-    app.post('/api/designs/:id/price-suggestion', authenticate, suggestDesignPrice);
+    app.post(
+        '/api/designs/:id/etsy-listing/generate',
+        authenticate,
+        aiUsage('etsy.listingCopy'),
+        generateEtsyListingCopy
+    );
+    app.post('/api/designs/:id/price-suggestion', authenticate, aiUsage('design.priceSuggestion'), suggestDesignPrice);
     app.get('/api/etsy/taxonomy', authenticate, getEtsyTaxonomy);
     app.get('/api/etsy/shipping-profiles', authenticate, getEtsyShippingProfiles);
     app.get('/api/etsy/listings', authenticate, getEtsyShopListings);
-    app.post('/api/etsy/listings/:listingId/copy/propose', authenticate, proposeEtsyListingCopy);
+    app.post(
+        '/api/etsy/listings/:listingId/copy/propose',
+        authenticate,
+        aiUsage('etsy.listingCopyRefresh'),
+        proposeEtsyListingCopy
+    );
     app.put('/api/etsy/listings/:listingId/copy', authenticate, applyEtsyListingCopy);
     app.get('/api/etsy/sales/unmatched', authenticate, getUnmatchedEtsySales);
     app.get('/api/sales/report', authenticate, getSalesReport);
@@ -78,7 +103,12 @@ export const createRoutes = (): Hono<Env> => {
     app.get('/api/designs', authenticate, getDesigns);
     app.post('/api/designs', authenticate, addDesign);
     app.post('/api/designs/recalculate-prices', authenticate, recalculatePrices);
-    app.post('/api/designs/suggest-from-photo', authenticate, suggestDesignFromPhoto);
+    app.post(
+        '/api/designs/suggest-from-photo',
+        authenticate,
+        aiUsage('design.suggestFromPhoto'),
+        suggestDesignFromPhoto
+    );
     app.get('/api/designs/producible', authenticate, getProducible);
     app.post('/api/shopping-list', authenticate, getShoppingList);
     app.get('/api/designs/:id', authenticate, getDesign);
