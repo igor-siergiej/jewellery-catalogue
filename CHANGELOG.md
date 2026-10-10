@@ -1,3 +1,10 @@
+# [1.59.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.58.0...v1.59.0) (2026-10-10)
+
+
+### Features
+
+* resize uploaded images to WebP thumbnails and display sizes ([#90](https://github.com/igor-siergiej/jewellery-catalogue/issues/90)) ([e26e577](https://github.com/igor-siergiej/jewellery-catalogue/commit/e26e5774a992cc650e87a3b319deb2b4d9d3c8f8))
+
 # [1.58.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.57.0...v1.58.0) (2026-10-10)
 
 
