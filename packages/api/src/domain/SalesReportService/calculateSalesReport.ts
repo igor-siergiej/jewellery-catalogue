@@ -3,7 +3,7 @@ import type { Design, Sale, SalesReportDesignRow, SalesReportTotals } from '@jew
 const round2 = (value: number): number => Math.round(value * 100) / 100;
 
 // timeRequired is stored as "HH:MM"; anything unparseable counts as no time.
-export const hoursFromTimeRequired = (timeRequired: string): number => {
+const hoursFromTimeRequired = (timeRequired: string): number => {
     const [hours, minutes] = timeRequired.split(':').map((part) => Number.parseInt(part, 10));
     const total = (hours || 0) + (minutes || 0) / 60;
     return Number.isFinite(total) ? total : 0;

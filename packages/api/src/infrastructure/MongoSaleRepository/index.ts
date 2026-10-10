@@ -6,18 +6,18 @@ import type { SaleRepository } from '../../domain/SaleRepository';
 
 const DUPLICATE_KEY_ERROR = 11000;
 
+export const ensureSaleIndexes = async (db: MongoDbConnection<Collections>): Promise<void> => {
+    const sales = db.getCollection(CollectionNames.Sales);
+    await sales.createIndex({ transactionId: 1 }, { unique: true });
+    await sales.createIndex({ userId: 1, status: 1 });
+    await sales.createIndex({ userId: 1, soldAt: 1 });
+};
+
 export class MongoSaleRepository implements SaleRepository {
     constructor(private readonly db: MongoDbConnection<Collections>) {}
 
     private collection() {
         return this.db.getCollection(CollectionNames.Sales);
-    }
-
-    // fallow-ignore-next-line unused-class-member
-    async ensureIndexes(): Promise<void> {
-        await this.collection().createIndex({ transactionId: 1 }, { unique: true });
-        await this.collection().createIndex({ userId: 1, status: 1 });
-        await this.collection().createIndex({ userId: 1, soldAt: 1 });
     }
 
     async insertIfNew(sale: Sale): Promise<boolean> {

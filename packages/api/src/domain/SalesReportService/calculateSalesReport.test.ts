@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 import type { Design, Sale } from '@jewellery-catalogue/types';
 
-import { calculateSalesReport, hoursFromTimeRequired } from './calculateSalesReport';
+import { calculateSalesReport } from './calculateSalesReport';
 
 const makeDesign = (overrides: Partial<Design> = {}): Design => ({
     id: 'ring',
@@ -34,19 +34,6 @@ const makeSale = (overrides: Partial<Sale> = {}): Sale => ({
     soldAt: 0,
     status: 'applied',
     ...overrides,
-});
-
-describe('hoursFromTimeRequired', () => {
-    it('parses HH:MM into hours', () => {
-        expect(hoursFromTimeRequired('01:30')).toBe(1.5);
-        expect(hoursFromTimeRequired('00:15')).toBe(0.25);
-    });
-
-    it('treats empty or malformed values as no time', () => {
-        expect(hoursFromTimeRequired('')).toBe(0);
-        expect(hoursFromTimeRequired('abc')).toBe(0);
-        expect(hoursFromTimeRequired('2')).toBe(2);
-    });
 });
 
 describe('calculateSalesReport', () => {
@@ -85,6 +72,21 @@ describe('calculateSalesReport', () => {
             },
         ]);
         expect(report.totals).toMatchObject({ unitsSold: 3, revenue: 90, profit: 33, marginPercent: 36.67 });
+    });
+
+    it.each([
+        ['00:15', 2.5],
+        ['', 0],
+        ['abc', 0],
+        ['2', 20],
+    ])('charges making time %p at the hourly rate (labour %p)', (timeRequired, labourCost) => {
+        const report = calculateSalesReport({
+            sales: [makeSale()],
+            designs: [makeDesign({ timeRequired })],
+            hourlyRate: 10,
+        });
+
+        expect(report.designs[0]?.labourCost).toBe(labourCost);
     });
 
     it("uses the sold variant's material cost when the sale has one", () => {

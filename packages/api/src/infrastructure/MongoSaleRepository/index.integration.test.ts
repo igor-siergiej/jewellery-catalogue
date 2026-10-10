@@ -3,7 +3,7 @@ import type { Design, Sale } from '@jewellery-catalogue/types';
 
 import { createTestContext, type TestContext } from '../../test-helpers/mongodb';
 import { MongoDesignRepository } from '../MongoDesignRepository';
-import { MongoSaleRepository } from './index';
+import { ensureSaleIndexes, MongoSaleRepository } from './index';
 
 const RUN = !!process.env.RUN_INTEGRATION_TESTS;
 
@@ -46,7 +46,7 @@ describe.if(RUN)('MongoSaleRepository (integration)', () => {
     beforeAll(async () => {
         ctx = await createTestContext();
         repo = new MongoSaleRepository(ctx.mongoDb);
-        await repo.ensureIndexes();
+        await ensureSaleIndexes(ctx.mongoDb);
     });
 
     beforeEach(async () => {
