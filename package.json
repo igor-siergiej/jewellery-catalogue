@@ -38,7 +38,7 @@
     "lint-staged": "^16.4.0",
     "semantic-release": "^24.2.9",
     "typescript": "^5.9.3",
-    "vite": "^7.3.7"
+    "vite": "^8.3.4"
   },
   "packageManager": "bun@1",
   "version": "1.55.0",
