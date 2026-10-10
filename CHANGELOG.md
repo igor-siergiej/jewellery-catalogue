@@ -1,3 +1,10 @@
+# [1.57.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.56.0...v1.57.0) (2026-10-10)
+
+
+### Features
+
+* sales and profit dashboard on Home ([#88](https://github.com/igor-siergiej/jewellery-catalogue/issues/88)) ([0ebff44](https://github.com/igor-siergiej/jewellery-catalogue/commit/0ebff4421f2bb0f37156507bdccf93ee1c1cdb7d))
+
 # [1.56.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.55.0...v1.56.0) (2026-10-10)
 
 
