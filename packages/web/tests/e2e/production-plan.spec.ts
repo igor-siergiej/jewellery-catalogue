@@ -37,13 +37,13 @@ test.describe
             await expect(page.getByTestId('can-make')).toHaveText('Can make 2');
 
             await page.goto('/designs');
-            await page.getByRole('link', { name: 'Shopping list' }).click();
+            await page.getByRole('link', { name: 'Shopping list', exact: true }).click();
             await expect(page).toHaveURL(/\/shopping-list$/);
 
-            await page.getByRole('button', { name: 'Add design' }).click();
-            await page.getByLabel('Design').selectOption({ label: 'Plan Bracelet' });
-            await page.getByLabel('Quantity').fill('5');
-            await page.getByRole('button', { name: 'Build list' }).click();
+            await page.getByRole('button', { name: 'Add item', exact: true }).click();
+            await page.getByRole('combobox', { name: 'Design', exact: true }).selectOption({ label: 'Plan Bracelet' });
+            await page.getByRole('spinbutton', { name: 'Quantity', exact: true }).fill('5');
+            await page.getByRole('button', { name: 'Build list', exact: true }).click();
 
             // Need 100, have 50: one 50-bead pack at £5.
             const result = page.getByTestId('shopping-list-result');

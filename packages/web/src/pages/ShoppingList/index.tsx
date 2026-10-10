@@ -208,7 +208,7 @@ const ShoppingList = () => {
                     })}
                     <div className="flex flex-wrap gap-2">
                         <Button variant="outline" onClick={addRow} disabled={designs.length === 0}>
-                            <Plus className="h-4 w-4" /> Add design
+                            <Plus className="h-4 w-4" /> Add item
                         </Button>
                         <Button
                             onClick={() => {

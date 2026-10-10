@@ -190,7 +190,11 @@ const Designs = () => {
     return (
         <div className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
-                <Tabs value={typeFilter} onValueChange={(v) => setTypeFilter(v as DesignType | 'all')}>
+                <Tabs
+                    className="min-w-0 max-w-full"
+                    value={typeFilter}
+                    onValueChange={(v) => setTypeFilter(v as DesignType | 'all')}
+                >
                     <TabsList>
                         <TabsTrigger value="all">All ({data.length})</TabsTrigger>
                         {(Object.keys(DesignType) as Array<DesignType>).map((type) => (
