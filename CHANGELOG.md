@@ -1,3 +1,10 @@
+# [1.63.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.62.0...v1.63.0) (2026-10-10)
+
+
+### Features
+
+* **api:** per-user AI usage limits and call tracking ([#94](https://github.com/igor-siergiej/jewellery-catalogue/issues/94)) ([c70e3f9](https://github.com/igor-siergiej/jewellery-catalogue/commit/c70e3f94ed49d0934d5d60c2dd6a5b73d32249a7))
+
 # [1.62.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.61.0...v1.62.0) (2026-10-10)
 
 
