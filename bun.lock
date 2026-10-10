@@ -5,7 +5,6 @@
     "": {
       "name": "jewellery-catalogue",
       "dependencies": {
-        "@imapps/api-utils": "0.6.0",
         "fuse.js": "^7.5.0",
       },
       "devDependencies": {
@@ -30,7 +29,7 @@
       "name": "@jewellery-catalogue/api",
       "version": "1.55.0",
       "dependencies": {
-        "@imapps/api-utils": "0.6.0",
+        "@imapps/api-utils": "0.11.0",
         "hono": "^4.13.13",
         "mongodb": "^6.21.0",
         "zod": "^4.6.5",
@@ -54,7 +53,7 @@
       "dependencies": {
         "@dnd-kit/core": "^6.3.1",
         "@hookform/resolvers": "^5.9.1",
-        "@imapps/web-utils": "0.5.1",
+        "@imapps/web-utils": "0.11.0",
         "@radix-ui/react-alert-dialog": "^1.1.24",
         "@radix-ui/react-checkbox": "^1.3.12",
         "@radix-ui/react-collapsible": "^1.1.21",
@@ -422,11 +421,11 @@
 
     "@hookform/resolvers": ["@hookform/resolvers@5.9.1", "", { "dependencies": { "@standard-schema/utils": "^0.3.0" }, "peerDependencies": { "@sinclair/typebox": ">=0.25.24", "@standard-schema/spec": "^1.0.0", "@typeschema/main": ">=0.13.7", "@vinejs/vine": "^2.0.0 || ^3.0.0 || ^4.0.0", "ajv": "^8.12.0", "ajv-errors": "^3.0.0", "ajv-formats": "^2.1.1", "arktype": "^2.0.0", "ata-validator": "^1.2.0", "class-transformer": ">=0.4.0", "class-validator": ">=0.12.0", "computed-types": "^1.0.0", "effect": "^3.10.3", "fluentvalidation-ts": "^3.0.0", "fp-ts": "^2.7.0", "io-ts": "^2.0.0", "joi": "^17.0.0 || ^18.0.0", "nope-validator": ">=0.12.0", "react-hook-form": "^7.55.0", "superstruct": ">=0.12.0", "typanion": "^3.3.2", "valibot": ">=0.31.0 || ^1.0.0-beta.4 || ^1.0.0-rc", "vest": ">=6.0.0", "yup": "^1.0.0", "zod": "^3.25.0 || ^4.0.0" }, "optionalPeers": ["@sinclair/typebox", "@standard-schema/spec", "@typeschema/main", "@vinejs/vine", "ajv", "ajv-errors", "ajv-formats", "arktype", "ata-validator", "class-transformer", "class-validator", "computed-types", "effect", "fluentvalidation-ts", "fp-ts", "io-ts", "joi", "nope-validator", "superstruct", "typanion", "valibot", "vest", "yup", "zod"] }, "sha512-7b7vsbraJxKgjVSA1Nur9tLwj539WGJUBLA7QNvXnFoT2pM5Z7G+6rlukk4B2/QrTZy6huRtH6wKeESPKuIr6w=="],
 
-    "@imapps/api-utils": ["@imapps/api-utils@0.6.0", "", { "dependencies": { "hono": "^4.6.14", "minio": "^8.0.0", "mongodb": "^6.19.0" } }, "sha512-YRXMzQaPswxf86o6LwMz8+PrfOG7+g/FksszSUTx4J3mtCXS6ttVLJ3FFiDubeJhkKBj3+lzDLCUhU5MtaBl6Q=="],
+    "@imapps/api-utils": ["@imapps/api-utils@0.11.0", "", { "dependencies": { "hono": "^4.6.14", "minio": "^8.0.0", "mongodb": "^6.19.0" } }, "sha512-0Sqw4Qn9WzbeBiOJwc11qF1d6gl2KlsA4ly+ux+tUBMM/Lq0lSTobEQTqMaUE3/iZyAwAicliUz95gz/vbU47Q=="],
 
     "@imapps/dev-scripts": ["@imapps/dev-scripts@0.1.0", "", { "bin": { "fallow-audit": "bin/fallow-audit.sh" } }, "sha512-FpacCF4XlHTFF/5BmjQWBxrn1sIZCKvZkkJgJqaCw6s8V0WAjOmc0MIb8UQpFNXgxNmHStIvXrOSAf+frreeGA=="],
 
-    "@imapps/web-utils": ["@imapps/web-utils@0.5.1", "", { "peerDependencies": { "react": ">=18.0.0", "react-router-dom": ">=6.0.0" } }, "sha512-f8TwIKq06onX5pn8jIFmu6vu3Wqhf/M6kMaLEMUgfdxsCpXBUDgKIFRdaCM4oZ0vjTSH6Ru+pf6ZYToTb+qdVg=="],
+    "@imapps/web-utils": ["@imapps/web-utils@0.11.0", "", { "peerDependencies": { "react": ">=18.0.0", "react-router-dom": ">=6.0.0" } }, "sha512-LwTXit05cq31qCfL55F5ZZ4M+s6qSP3IBohO/RRlOuq+j5R+kc4ynYR3LHsq/Q3ARl3rWvJFJAW2zUHTH0jz2g=="],
 
     "@isaacs/cliui": ["@isaacs/cliui@8.0.2", "", { "dependencies": { "string-width": "^5.1.2", "string-width-cjs": "npm:string-width@^4.2.0", "strip-ansi": "^7.0.1", "strip-ansi-cjs": "npm:strip-ansi@^6.0.1", "wrap-ansi": "^8.1.0", "wrap-ansi-cjs": "npm:wrap-ansi@^7.0.0" } }, "sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA=="],
 
