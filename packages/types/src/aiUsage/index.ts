@@ -1,6 +1,6 @@
 export interface AiUsageRecord {
     userId: string;
-    // e.g. 'etsy.listingCopy', 'design.suggestFromPhoto'
+    // e.g. 'etsy.listingCopy', 'design.priceSuggestion'
     feature: string;
     model: string;
     latencyMs: number;

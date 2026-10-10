@@ -1,13 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@imapps/web-utils';
-import {
-    type DesignSuggestion,
-    DesignType,
-    type FormDesign,
-    formDesignSchema,
-    MaterialType,
-    type RequiredMaterial,
-} from '@jewellery-catalogue/types';
+import { DesignType, type FormDesign, formDesignSchema } from '@jewellery-catalogue/types';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -29,7 +22,6 @@ import MultiImageUpload from '../../components/MultiImageUpload';
 import PriceBreakdown from '../../components/PriceBreakdown';
 import RichTextEditor from '../../components/RichTextEditor';
 import SuggestedPrice from '../../components/SuggestedPrice';
-import { SuggestFromPhoto } from '../../components/SuggestFromPhoto';
 import TimeInput from '../../components/TimeInput';
 import { computeVariants, VariationGroupBuilder } from '../../components/VariationGroupBuilder';
 import { DESIGNS_PAGE } from '../../constants/routes';
@@ -72,29 +64,6 @@ const AddDesign: React.FC = () => {
         ...getMaterialsQuery(() => accessToken, login, logout),
         enabled: !!accessToken,
     });
-
-    // Bumped to remount AddMaterialsTable, which only reads its value on first render.
-    const [materialsTableKey, setMaterialsTableKey] = useState(0);
-
-    const applySuggestion = (suggestion: DesignSuggestion) => {
-        form.setValue('name', suggestion.name, { shouldDirty: true });
-        if (suggestion.designType) form.setValue('designType', suggestion.designType, { shouldDirty: true });
-
-        const suggested: RequiredMaterial[] = [];
-        for (const { materialId, quantity } of suggestion.materials) {
-            const material = data?.find((m) => m.id === materialId);
-            if (!material) continue;
-            suggested.push(
-                (material.type === MaterialType.WIRE || material.type === MaterialType.CHAIN
-                    ? { ...material, requiredLength: quantity }
-                    : { ...material, requiredQuantity: Math.round(quantity) }) as RequiredMaterial
-            );
-        }
-        if (suggested.length > 0) {
-            form.setValue('materials', suggested, { shouldValidate: true, shouldDirty: true });
-            setMaterialsTableKey((k) => k + 1);
-        }
-    };
 
     const selectedMaterials = form.watch('materials');
     const currentTimeRequired = form.watch('timeRequired');
@@ -332,11 +301,6 @@ const AddDesign: React.FC = () => {
                                                 />
                                             </FormControl>
                                             <FormMessage />
-                                            <SuggestFromPhoto
-                                                images={field.value ?? []}
-                                                materials={data ?? []}
-                                                onSuggestion={applySuggestion}
-                                            />
                                         </FormItem>
                                     )}
                                 />
@@ -380,7 +344,6 @@ const AddDesign: React.FC = () => {
                                         <FormItem>
                                             <FormControl>
                                                 <AddMaterialsTable
-                                                    key={materialsTableKey}
                                                     availableMaterials={data}
                                                     setValue={form.setValue}
                                                     hasError={!!fieldState.error}
