@@ -8,8 +8,10 @@ import type { ImageService } from '../ImageService';
 import { buildListingPrompt, LISTING_SYSTEM_PROMPT, listingCopyReplySchema } from './prompt';
 import type { VisionLlm } from './types';
 
+// fallow-ignore-next-line unused-export
 export const MAX_LISTING_PHOTOS = 3;
 // Photos are base64-inlined into one JSON request; cap the total raw bytes to stay inside fal limits.
+// fallow-ignore-next-line unused-export
 export const MAX_LISTING_PHOTO_BYTES = 4 * 1024 * 1024;
 
 export class EtsyListingCopyService {
@@ -20,6 +22,7 @@ export class EtsyListingCopyService {
         private readonly logger?: Logger
     ) {}
 
+    // fallow-ignore-next-line unused-class-member
     async generate(designId: string, userId: string): Promise<EtsyListingCopy> {
         if (!this.vision.isConfigured()) {
             throw new APIError('AI generation is not configured', 503);

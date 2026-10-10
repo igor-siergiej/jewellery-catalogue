@@ -103,6 +103,7 @@ const truncateAtWord = (text: string, max: number): string => {
     return cut.replace(/[\s,|:&+-]+$/, '');
 };
 
+// fallow-ignore-next-line unused-export
 export const sanitiseListingCopy = (raw: { title: string; description: string; tags: string[] }): EtsyListingCopy => {
     const tags: string[] = [];
     for (const candidate of raw.tags) {
