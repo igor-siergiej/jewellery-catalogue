@@ -13,6 +13,7 @@ export class MongoSaleRepository implements SaleRepository {
         return this.db.getCollection(CollectionNames.Sales);
     }
 
+    // fallow-ignore-next-line unused-class-member
     async ensureIndexes(): Promise<void> {
         await this.collection().createIndex({ transactionId: 1 }, { unique: true });
         await this.collection().createIndex({ userId: 1, status: 1 });
