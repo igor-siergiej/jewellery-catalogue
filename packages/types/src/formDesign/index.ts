@@ -23,7 +23,7 @@ export const formDesignSchema = z
         lowStockThreshold: z.number().int().nonnegative().optional(),
         variationGroups: z.array(variationGroupSchema).optional().default([]),
         variants: z.array(designVariantSchema).optional().default([]),
-        designType: z.nativeEnum(DesignType).optional(),
+        designType: z.enum(DesignType).optional(),
         catalogueOnly: z.boolean().optional().default(false),
     })
     .superRefine((data, ctx) => {
