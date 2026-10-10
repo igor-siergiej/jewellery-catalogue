@@ -1,3 +1,10 @@
+# [1.61.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.60.0...v1.61.0) (2026-10-10)
+
+
+### Features
+
+* optional AI price range on the design page ([#92](https://github.com/igor-siergiej/jewellery-catalogue/issues/92)) ([a758542](https://github.com/igor-siergiej/jewellery-catalogue/commit/a7585425336e9320fd1b5aef0521317ce2abf1b7))
+
 # [1.60.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.59.0...v1.60.0) (2026-10-10)
 
 
