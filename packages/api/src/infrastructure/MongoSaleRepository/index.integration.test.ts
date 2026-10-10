@@ -140,6 +140,18 @@ describe.if(RUN)('MongoDesignRepository.applyEtsySale (integration)', () => {
         expect(design?.totalQuantity).toBe(4);
     });
 
+    it('leaves stock alone and reports design_not_found when the variant was deleted', async () => {
+        await designs.insert(
+            makeDesign({
+                totalQuantity: 2,
+                variants: [{ id: 'v-1', optionIds: [], name: 'A', totalQuantity: 2, totalMaterialCosts: 1, price: 1 }],
+            })
+        );
+
+        expect(await apply({ variantId: 'v-gone' })).toBe('design_not_found');
+        expect((await designs.getByIdAndUserId('design-1', 'user-1'))?.totalQuantity).toBe(2);
+    });
+
     it("reports design_not_found for another user's design", async () => {
         await designs.insert(makeDesign({ userId: 'someone-else' }));
 

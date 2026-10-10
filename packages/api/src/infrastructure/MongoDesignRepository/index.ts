@@ -80,13 +80,21 @@ export class MongoDesignRepository extends MongoRepository<Design> implements De
             : [{ $set: { ...recordSale, totalQuantity: decrement('$totalQuantity') } }];
 
         const result = await this.collection().updateOne(
-            { id: designId, userId, etsySaleIds: { $ne: transactionId } },
+            {
+                id: designId,
+                userId,
+                etsySaleIds: { $ne: transactionId },
+                ...(variantId ? { 'variants.id': variantId } : {}),
+            },
             pipeline
         );
         if (result.matchedCount === 1) return 'applied';
 
-        const exists = await this.collection().findOne({ id: designId, userId }, { projection: { _id: 1 } });
-        return exists ? 'already_applied' : 'design_not_found';
+        const alreadyApplied = await this.collection().findOne(
+            { id: designId, userId, etsySaleIds: transactionId },
+            { projection: { _id: 1 } }
+        );
+        return alreadyApplied ? 'already_applied' : 'design_not_found';
     }
 
     async imageBelongsToUser(imageId: string, userId: string): Promise<boolean> {

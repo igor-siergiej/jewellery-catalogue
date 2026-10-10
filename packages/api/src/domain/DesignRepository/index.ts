@@ -19,4 +19,5 @@ export interface ApplyEtsySaleArgs {
     quantity: number;
 }
 
+// design_not_found also covers a variant that no longer exists on the design.
 export type ApplyEtsySaleResult = 'applied' | 'already_applied' | 'design_not_found';
