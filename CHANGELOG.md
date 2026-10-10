@@ -1,3 +1,10 @@
+# [1.62.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.61.0...v1.62.0) (2026-10-10)
+
+
+### Features
+
+* bulk-refresh Etsy listing copy with AI, accepted per listing ([#93](https://github.com/igor-siergiej/jewellery-catalogue/issues/93)) ([a9f95a3](https://github.com/igor-siergiej/jewellery-catalogue/commit/a9f95a3941640d65c70f2e028094fc1484f662dc))
+
 # [1.61.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.60.0...v1.61.0) (2026-10-10)
 
 
