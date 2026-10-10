@@ -14,7 +14,7 @@ function findDesignCard(page: Page, designName: string) {
 
 test.describe
     .serial('Design card favouriting', () => {
-        test('toggling favourite persists across reload @smoke', async ({ authenticatedPage: page }) => {
+        test('toggling favourite persists across reload', async ({ authenticatedPage: page }) => {
             const design = await apiCreateDesign(TOKEN, { name: 'Favourite Me Design', price: 12.0 });
 
             try {
@@ -39,7 +39,7 @@ test.describe
             }
         });
 
-        test('favourited designs are sorted to the top of the list @smoke', async ({ authenticatedPage: page }) => {
+        test('favourited designs are sorted to the top of the list', async ({ authenticatedPage: page }) => {
             const names = ['Sort Alpha Design', 'Sort Beta Design', 'Sort Gamma Design'];
             const created = [];
 

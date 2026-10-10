@@ -43,9 +43,7 @@ async function openPushDialog(page: Page, name: string) {
 }
 
 test.describe('Etsy listing copy', () => {
-    test('generated copy is editable and the edits are what gets pushed @smoke', async ({
-        authenticatedPage: page,
-    }) => {
+    test('generated copy is editable and the edits are what gets pushed', async ({ authenticatedPage: page }) => {
         await mockEtsyReady(page);
         await page.route('**/api/designs/*/etsy-listing/generate', (route) => route.fulfill({ json: GENERATED }));
         let pushRequest: Request | undefined;

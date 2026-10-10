@@ -15,7 +15,7 @@ function findDesignCard(page: Page, designName: string) {
 
 test.describe
     .serial('Catalogue-only designs', () => {
-        test('marking a design catalogue-only persists, shows on the card, and blocks Etsy push @smoke', async ({
+        test('marking a design catalogue-only persists, shows on the card, and blocks Etsy push', async ({
             authenticatedPage: page,
         }) => {
             const bead = await apiCreateBead(TOKEN, { name: 'Catalogue Only Bead' });

@@ -60,9 +60,7 @@ async function mockConnectedListings(page: Page, extra: unknown[] = []) {
 }
 
 test.describe('Etsy Listings search', () => {
-    test('search filters listings by title, clearing restores full list @smoke', async ({
-        authenticatedPage: page,
-    }) => {
+    test('search filters listings by title, clearing restores full list', async ({ authenticatedPage: page }) => {
         await mockConnectedListings(page);
 
         await page.goto('/listings');

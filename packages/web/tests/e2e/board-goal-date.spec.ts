@@ -8,7 +8,7 @@ test.use({ authToken: TOKEN });
 
 test.describe
     .serial('Board goal target date', () => {
-        test('setting a target date persists across reload @smoke', async ({ authenticatedPage: page }) => {
+        test('setting a target date persists across reload', async ({ authenticatedPage: page }) => {
             const goal = await apiCreateGoal(TOKEN, { title: 'Ship winter collection', targetValue: 5 });
 
             try {

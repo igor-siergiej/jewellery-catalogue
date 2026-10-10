@@ -8,7 +8,7 @@ test.use({ authToken: TOKEN });
 
 test.describe
     .serial('Board task favouriting', () => {
-        test('toggling favourite persists across reload @smoke', async ({ authenticatedPage: page }) => {
+        test('toggling favourite persists across reload', async ({ authenticatedPage: page }) => {
             const task = await apiCreateTask(TOKEN, { title: 'Favourite Me Task' });
 
             try {

@@ -9,7 +9,7 @@ test.use({ authToken: TOKEN });
 
 test.describe
     .serial('Design stock quantity', () => {
-        test('directly setting stock updates the design without touching material stock @smoke', async ({
+        test('directly setting stock updates the design without touching material stock', async ({
             authenticatedPage: page,
         }) => {
             const design = await apiCreateDesign(TOKEN, { name: 'Direct Stock Design', price: 9.0 });
