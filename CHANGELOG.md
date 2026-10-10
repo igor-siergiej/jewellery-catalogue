@@ -1,3 +1,10 @@
+# [1.64.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.63.0...v1.64.0) (2026-10-10)
+
+
+### Features
+
+* export materials and designs as CSV, and everything as a JSON backup ([#95](https://github.com/igor-siergiej/jewellery-catalogue/issues/95)) ([f20a87a](https://github.com/igor-siergiej/jewellery-catalogue/commit/f20a87ac93aa2bc03713b31f656e32bca2e92dfe))
+
 # [1.63.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.62.0...v1.63.0) (2026-10-10)
 
 
