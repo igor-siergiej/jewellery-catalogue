@@ -17,6 +17,7 @@ describe('EtsyClient.getListingDetail', () => {
                         title: 'Silver Ring',
                         description: 'A lovely ring.',
                         price: { amount: 2500, divisor: 100 },
+                        tags: ['silver ring', 'gift'],
                         images: [
                             { url_fullxfull: 'https://i.etsy.com/1.jpg' },
                             { url_fullxfull: 'https://i.etsy.com/2.jpg' },
@@ -35,6 +36,7 @@ describe('EtsyClient.getListingDetail', () => {
             description: 'A lovely ring.',
             price: 25,
             imageUrls: ['https://i.etsy.com/1.jpg', 'https://i.etsy.com/2.jpg'],
+            tags: ['silver ring', 'gift'],
         });
         const calledUrl = fetchMock.mock.calls[0]![0] as string;
         expect(calledUrl).toBe('https://api.etsy.com/v3/application/listings/123?includes=Images');

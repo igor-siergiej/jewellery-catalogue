@@ -6,6 +6,7 @@ import { addDesign, deleteDesign, editDesignProperties, getDesign, getDesigns, u
 import { suggestDesignFromPhoto, suggestDesignPrice } from '../handlers/DesignSuggestion';
 import { createDraft, deleteDraft, getDraft, getDrafts, updateDraft, uploadDraftImage } from '../handlers/Draft';
 import {
+    applyEtsyListingCopy,
     createDesignFromEtsyListing,
     disconnectEtsyConnection,
     etsyOAuthCallback,
@@ -16,6 +17,7 @@ import {
     getEtsyTaxonomy,
     getUnmatchedEtsySales,
     linkEtsyListingToDesign,
+    proposeEtsyListingCopy,
     pushDesignToEtsy,
     refreshDesignEtsyStatus,
     startEtsyOAuth,
@@ -64,6 +66,8 @@ export const createRoutes = (): Hono<Env> => {
     app.get('/api/etsy/taxonomy', authenticate, getEtsyTaxonomy);
     app.get('/api/etsy/shipping-profiles', authenticate, getEtsyShippingProfiles);
     app.get('/api/etsy/listings', authenticate, getEtsyShopListings);
+    app.post('/api/etsy/listings/:listingId/copy/propose', authenticate, proposeEtsyListingCopy);
+    app.put('/api/etsy/listings/:listingId/copy', authenticate, applyEtsyListingCopy);
     app.get('/api/etsy/sales/unmatched', authenticate, getUnmatchedEtsySales);
     app.get('/api/sales/report', authenticate, getSalesReport);
     app.post('/api/etsy/reconcile/create', authenticate, createDesignFromEtsyListing);

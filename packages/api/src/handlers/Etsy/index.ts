@@ -115,6 +115,30 @@ export const getEtsyShopListings = async (c: AuthedCtx) => {
     return c.json(listings, 200);
 };
 
+const listingIdParam = (c: AuthedCtx): number => {
+    const listingId = Number(c.req.param('listingId'));
+    if (!Number.isInteger(listingId) || listingId <= 0) {
+        throw new APIError('Invalid listing id', 400);
+    }
+    return listingId;
+};
+
+const getRefreshService = () => dependencyContainer.resolve(DependencyToken.EtsyListingRefreshService);
+
+export const proposeEtsyListingCopy = async (c: AuthedCtx) =>
+    c.json(await getRefreshService().propose(listingIdParam(c), c.get('userId')), 200);
+
+export const applyEtsyListingCopy = async (c: AuthedCtx) => {
+    const listingId = listingIdParam(c);
+    // Same Etsy limits as #79's push: title <= 140, at most 13 tags of <= 20 chars.
+    const parsed = etsyListingSchema.safeParse(await c.req.json().catch(() => null));
+    if (!parsed.success) {
+        throw new APIError(`Invalid listing copy: ${parsed.error.issues.map((i) => i.message).join('; ')}`, 400);
+    }
+    await getRefreshService().apply(listingId, c.get('userId'), parsed.data);
+    return c.json({ updated: true }, 200);
+};
+
 export const getUnmatchedEtsySales = async (c: AuthedCtx) => {
     const sales = await dependencyContainer
         .resolve(DependencyToken.EtsyOrderSyncService)

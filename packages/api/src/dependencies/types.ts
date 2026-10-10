@@ -20,6 +20,7 @@ import type { EtsyConnectionRepository } from '../domain/EtsyConnectionRepositor
 import type { EtsyConnectionService } from '../domain/EtsyConnectionService';
 import type { EtsyListingCopyService } from '../domain/EtsyListingCopyService';
 import type { VisionLlm } from '../domain/EtsyListingCopyService/types';
+import type { EtsyListingRefreshService } from '../domain/EtsyListingRefreshService';
 import type { EtsyOAuthStateStore } from '../domain/EtsyOAuthStateStore';
 import type { EtsyOrderSyncService } from '../domain/EtsyOrderSyncService';
 import type { EtsyPushService } from '../domain/EtsyPushService';
@@ -84,6 +85,7 @@ export enum DependencyToken {
     ProductionPlanner = 'ProductionPlanner',
     DesignSuggestionService = 'DesignSuggestionService',
     PriceSuggestionService = 'PriceSuggestionService',
+    EtsyListingRefreshService = 'EtsyListingRefreshService',
     // Infrastructure
     IdGenerator = 'IdGenerator',
     ImageStore = 'ImageStore',
@@ -124,6 +126,7 @@ export type Dependencies = {
     [DependencyToken.ProductionPlanner]: ProductionPlanner;
     [DependencyToken.DesignSuggestionService]: DesignSuggestionService;
     [DependencyToken.PriceSuggestionService]: PriceSuggestionService;
+    [DependencyToken.EtsyListingRefreshService]: EtsyListingRefreshService;
     // Infrastructure
     [DependencyToken.IdGenerator]: IdGenerator;
     [DependencyToken.ImageStore]: ImageStore;
