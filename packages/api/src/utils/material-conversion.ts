@@ -7,7 +7,9 @@ import {
     type FormEarHook,
     type FormMaterial,
     type FormWire,
+    type Material,
     MaterialType,
+    type RequiredMaterial,
     type Wire,
 } from '@jewellery-catalogue/types';
 
@@ -28,6 +30,7 @@ export const convertFormDataToMaterial = (formMaterial: FormMaterial) => {
 
 type MissingMaterialFields = 'id' | 'dateAdded' | 'userId';
 
+// fallow-ignore-next-line unused-export -- exported for its unit tests
 export const convertFormWireToMaterial = (formWire: FormWire): Omit<Wire, MissingMaterialFields> => {
     const totalLength = formWire.packs * formWire.length;
     const totalPrice = formWire.packs * formWire.pricePerPack;
@@ -54,6 +57,7 @@ export const convertFormWireToMaterial = (formWire: FormWire): Omit<Wire, Missin
     return result;
 };
 
+// fallow-ignore-next-line unused-export -- exported for its unit tests
 export const convertFormBeadToMaterial = (formBead: FormBead): Omit<Bead, MissingMaterialFields> => {
     const totalQuantity = formBead.packs * formBead.quantity;
     const totalPrice = formBead.packs * formBead.pricePerPack;
@@ -79,6 +83,7 @@ export const convertFormBeadToMaterial = (formBead: FormBead): Omit<Bead, Missin
     return result;
 };
 
+// fallow-ignore-next-line unused-export -- exported for its unit tests
 export const convertFormChainToMaterial = (formChain: FormChain): Omit<Chain, MissingMaterialFields> => {
     const totalLength = formChain.packs * formChain.length;
     const totalPrice = formChain.packs * formChain.pricePerPack;
@@ -105,6 +110,7 @@ export const convertFormChainToMaterial = (formChain: FormChain): Omit<Chain, Mi
     return result;
 };
 
+// fallow-ignore-next-line unused-export -- exported for its unit tests
 export const convertFormEarHookToMaterial = (formEarHook: FormEarHook): Omit<EarHook, MissingMaterialFields> => {
     const totalQuantity = formEarHook.packs * formEarHook.quantity;
     const totalPrice = formEarHook.packs * formEarHook.pricePerPack;
@@ -129,3 +135,25 @@ export const convertFormEarHookToMaterial = (formEarHook: FormEarHook): Omit<Ear
 
     return result;
 };
+
+type StockUnit = 'm' | 'pcs';
+
+const isLengthMaterial = (type: MaterialType): boolean => type === MaterialType.WIRE || type === MaterialType.CHAIN;
+
+export const stockUnitOf = (type: MaterialType): StockUnit => (isLengthMaterial(type) ? 'm' : 'pcs');
+
+// Designs record wire and chain in centimetres, but material stock is held in metres.
+export const requiredStockAmount = (required: RequiredMaterial): number =>
+    required.type === MaterialType.WIRE || required.type === MaterialType.CHAIN
+        ? required.requiredLength / 100
+        : required.requiredQuantity;
+
+export const stockOnHand = (material: Material): number =>
+    material.type === MaterialType.WIRE || material.type === MaterialType.CHAIN
+        ? material.totalLength
+        : material.totalQuantity;
+
+export const packSizeOf = (material: Material): number =>
+    material.type === MaterialType.WIRE || material.type === MaterialType.CHAIN
+        ? material.lengthPerPack
+        : material.quantityPerPack;

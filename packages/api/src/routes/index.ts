@@ -30,6 +30,7 @@ import {
     recalculateMaterialPrices,
     updateMaterial,
 } from '../handlers/Material';
+import { getProducible, getShoppingList } from '../handlers/ProductionPlan';
 import { getSalesReport } from '../handlers/Sales';
 import { addTask, deleteTask, getTasks, updateTask } from '../handlers/Task';
 import { getUserSettings, recalculatePrices, updateUserSettings } from '../handlers/UserSettings';
@@ -71,6 +72,8 @@ export const createRoutes = (): Hono<Env> => {
     app.get('/api/designs', authenticate, getDesigns);
     app.post('/api/designs', authenticate, addDesign);
     app.post('/api/designs/recalculate-prices', authenticate, recalculatePrices);
+    app.get('/api/designs/producible', authenticate, getProducible);
+    app.post('/api/shopping-list', authenticate, getShoppingList);
     app.get('/api/designs/:id', authenticate, getDesign);
     app.put('/api/designs/:id', authenticate, updateDesign);
     app.patch('/api/designs/:id', authenticate, editDesignProperties);

@@ -13,6 +13,10 @@ import {
     convertFormChainToMaterial,
     convertFormDataToMaterial,
     convertFormWireToMaterial,
+    packSizeOf,
+    requiredStockAmount,
+    stockOnHand,
+    stockUnitOf,
 } from './material-conversion';
 
 describe('material-conversion', () => {
@@ -425,5 +429,24 @@ describe('material-conversion', () => {
 
             expect(result.pricePerMeter).toBe(Infinity);
         });
+    });
+});
+
+describe('stock unit helpers', () => {
+    const wire = { type: MaterialType.WIRE, totalLength: 2.5, lengthPerPack: 5, requiredLength: 30 } as never;
+    const bead = { type: MaterialType.BEAD, totalQuantity: 40, quantityPerPack: 100, requiredQuantity: 6 } as never;
+
+    it('converts required wire and chain length from centimetres to metres of stock', () => {
+        expect(requiredStockAmount(wire)).toBe(0.3);
+        expect(requiredStockAmount({ ...(wire as object), type: MaterialType.CHAIN } as never)).toBe(0.3);
+    });
+
+    it('uses required quantity as-is for beads and ear hooks', () => {
+        expect(requiredStockAmount(bead)).toBe(6);
+    });
+
+    it('reads stock and pack size in the matching unit', () => {
+        expect([stockOnHand(wire), packSizeOf(wire), stockUnitOf(MaterialType.WIRE)]).toEqual([2.5, 5, 'm']);
+        expect([stockOnHand(bead), packSizeOf(bead), stockUnitOf(MaterialType.EAR_HOOK)]).toEqual([40, 100, 'pcs']);
     });
 });

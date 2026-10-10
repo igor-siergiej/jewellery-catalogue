@@ -55,6 +55,7 @@ export const MOCK_TOKEN_VISUAL_SALES_MOBILE = makeMockToken('68c6f0f5b97c9461290
 export const MOCK_TOKEN_VISUAL_SALES_DESKTOP = makeMockToken('68c6f0f5b97c946129015145'); // sales-dashboard.visual.spec (desktop)
 export const MOCK_TOKEN_SIDEBAR_MOBILE = makeMockToken('68c6f0f5b97c946129015150'); // sidebar-mobile.spec
 export const MOCK_TOKEN_SALES_DASHBOARD = makeMockToken('68c6f0f5b97c946129015151'); // sales-dashboard.spec
+export const MOCK_TOKEN_PRODUCTION_PLAN = makeMockToken('68c6f0f5b97c946129015152'); // production-plan.spec
 
 export const MOCK_USER = { id: '68c6f0f5b97c946129015116', username: 'testuser' };
 

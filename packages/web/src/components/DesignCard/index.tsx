@@ -1,6 +1,6 @@
 import { useAuth } from '@imapps/web-utils';
 import type { Design } from '@jewellery-catalogue/types';
-import { Clock, Heart, PackageOpen, ShoppingBag, Trash2 } from 'lucide-react';
+import { Clock, Hammer, Heart, PackageOpen, ShoppingBag, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import makeDeleteDesignRequest from '../../api/endpoints/deleteDesign';
@@ -26,9 +26,10 @@ import { Item, ItemContent, ItemFooter, ItemHeader, ItemTitle } from '../ui/item
 export interface DesignCardProps {
     design: Design;
     onDesignUpdated?: () => void;
+    canMake?: string | null;
 }
 
-export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated }) => {
+export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated, canMake }) => {
     const { name, timeRequired, id, imageIds, totalQuantity, favourite, catalogueOnly } = design;
     const etsyImageUrl = design.etsy?.imageUrls?.[0];
     const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -163,6 +164,13 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated 
                                 ? `${design.variants.length} variants · ${totalQuantity} in stock`
                                 : `${totalQuantity} in stock`}
                         </Badge>
+
+                        {canMake && (
+                            <Badge variant="outline" className="gap-1 font-normal" data-testid="can-make">
+                                <Hammer className="h-3.5 w-3.5" />
+                                {canMake}
+                            </Badge>
+                        )}
 
                         {catalogueOnly && (
                             <Badge variant="outline" className="gap-1 font-normal">

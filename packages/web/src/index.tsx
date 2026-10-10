@@ -19,6 +19,7 @@ import {
     MATERIALS_PAGE,
     REGISTER_PAGE,
     SETTINGS_PAGE,
+    SHOPPING_LIST_PAGE,
     START_PAGE,
     VIEW_DESIGN_PAGE,
 } from './constants/routes';
@@ -34,6 +35,7 @@ import Listings from './pages/Listings';
 import Materials from './pages/Materials';
 import Register from './pages/Register';
 import Settings from './pages/Settings';
+import ShoppingList from './pages/ShoppingList';
 import Start from './pages/Start';
 import ViewDesign from './pages/ViewDesign';
 import { getAuthConfig } from './utils/authConfig';
@@ -84,6 +86,17 @@ function App() {
                     <ProtectedRoute fallbackPath={START_PAGE.route}>
                         <MainLayout>
                             <Listings />
+                        </MainLayout>
+                    </ProtectedRoute>
+                }
+            />
+
+            <Route
+                path={SHOPPING_LIST_PAGE.route}
+                element={
+                    <ProtectedRoute fallbackPath={START_PAGE.route}>
+                        <MainLayout>
+                            <ShoppingList />
                         </MainLayout>
                     </ProtectedRoute>
                 }

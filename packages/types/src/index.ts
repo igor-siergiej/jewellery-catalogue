@@ -9,6 +9,7 @@ export * from './formMaterial/index';
 export * from './goal/index';
 export * from './material/enum';
 export * from './material/index';
+export * from './productionPlan/index';
 export * from './requiredMaterial/index';
 export * from './sale/index';
 export * from './salesReport/index';
