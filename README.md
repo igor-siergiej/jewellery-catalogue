@@ -11,6 +11,10 @@ draft listing.
 
 <!-- TODO: add a screenshot or short GIF of the designs + materials view -->
 
+## Goal
+
+Make it easier to organise and keep track of jewellery designs and the materials that go into them for an Etsy shop, and keep a catalogue of everything listed there.
+
 ## What it does
 
 - **Designs & materials.** A design is built from required materials (beads,

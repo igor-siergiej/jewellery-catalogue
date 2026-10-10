@@ -1,5 +1,11 @@
 # Jewellery Catalogue: agent notes
 
+## Goal
+
+Make it easier to organise and keep track of jewellery designs and the materials that go into them for an Etsy shop, and keep a catalogue of everything listed there.
+
+Use this goal to judge and prioritise work: favour changes that serve it, and question tasks that don't.
+
 Product overview, architecture rationale and CI summary live in [README.md](README.md). This
 file covers what you need to change the code safely.
 
