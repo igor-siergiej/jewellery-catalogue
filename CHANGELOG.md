@@ -1,3 +1,10 @@
+# [1.56.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.55.0...v1.56.0) (2026-10-10)
+
+
+### Features
+
+* sync Etsy orders to auto-decrement stock and record sales ([#87](https://github.com/igor-siergiej/jewellery-catalogue/issues/87)) ([0395ad8](https://github.com/igor-siergiej/jewellery-catalogue/commit/0395ad85f973154ce74e05889ef47bb9737320b3))
+
 # [1.55.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.54.0...v1.55.0) (2026-10-10)
 
 
