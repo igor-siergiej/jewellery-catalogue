@@ -3,6 +3,7 @@ import { DependencyContainer, Logger, MongoDbConnection, ObjectStoreConnection }
 
 import { config } from '../config';
 import { DesignService } from '../domain/DesignService';
+import { DesignSuggestionService } from '../domain/DesignSuggestionService';
 import { DraftService } from '../domain/DraftService';
 import { EtsyClient } from '../domain/EtsyClient';
 import { EtsyConnectionService } from '../domain/EtsyConnectionService';
@@ -211,6 +212,23 @@ export const registerDepdendencies = () => {
                 return new ProductionPlanner(
                     dependencyContainer.resolve(DependencyToken.DesignRepository),
                     dependencyContainer.resolve(DependencyToken.MaterialRepository)
+                );
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.DesignSuggestionService,
+        class {
+            constructor() {
+                return new DesignSuggestionService(
+                    dependencyContainer.resolve(DependencyToken.VisionLlm),
+                    new SharpImageResizer(),
+                    dependencyContainer.resolve(DependencyToken.MaterialRepository),
+                    dependencyContainer.resolve(DependencyToken.ImageService),
+                    dependencyContainer.resolve(DependencyToken.DesignRepository),
+                    dependencyContainer.resolve(DependencyToken.DraftRepository),
+                    dependencyContainer.resolve(DependencyToken.Logger)
                 );
             }
         } as any
