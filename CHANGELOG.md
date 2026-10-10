@@ -1,3 +1,10 @@
+# [1.60.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.59.0...v1.60.0) (2026-10-10)
+
+
+### Features
+
+* suggest a new design's name, type and materials from a photo ([#91](https://github.com/igor-siergiej/jewellery-catalogue/issues/91)) ([8c2bb2e](https://github.com/igor-siergiej/jewellery-catalogue/commit/8c2bb2eff6aa1a863571a9a32b8c5a66b10ab3ba)), closes [#79](https://github.com/igor-siergiej/jewellery-catalogue/issues/79)
+
 # [1.59.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.58.0...v1.59.0) (2026-10-10)
 
 
