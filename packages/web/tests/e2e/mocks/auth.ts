@@ -59,6 +59,8 @@ export const MOCK_TOKEN_PRODUCTION_PLAN = makeMockToken('68c6f0f5b97c94612901515
 export const MOCK_TOKEN_SUGGEST_FROM_PHOTO = makeMockToken('68c6f0f5b97c946129015153'); // design-suggest-from-photo.spec
 export const MOCK_TOKEN_PRICE_ADVICE = makeMockToken('68c6f0f5b97c946129015154'); // price-advice.spec
 export const MOCK_TOKEN_LISTING_REFRESH = makeMockToken('68c6f0f5b97c946129015155'); // listing-copy-refresh.spec
+export const MOCK_TOKEN_DATA_EXPORT = makeMockToken('68c6f0f5b97c946129015156'); // data-export.spec
+export const MOCK_TOKEN_DATA_EXPORT_OTHER = makeMockToken('68c6f0f5b97c946129015157'); // data-export.spec (other user)
 
 export const MOCK_USER = { id: '68c6f0f5b97c946129015116', username: 'testuser' };
 

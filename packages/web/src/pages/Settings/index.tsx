@@ -9,6 +9,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
+import { DataExport } from '../../components/DataExport';
 import { useEtsyConnection } from '../../hooks/useEtsyConnection';
 import { useEtsyShippingProfiles } from '../../hooks/useEtsyShippingProfiles';
 import { useEtsyTaxonomy } from '../../hooks/useEtsyTaxonomy';
@@ -390,6 +391,8 @@ const Settings = () => {
                     </CardContent>
                 </Card>
             )}
+
+            <DataExport />
         </div>
     );
 };
