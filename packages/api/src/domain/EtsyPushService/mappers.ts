@@ -19,15 +19,18 @@ export const renderDescriptionTemplate = (
 };
 
 export const buildDraftListingInput = (args: {
-    design: Pick<Design, 'name' | 'price' | 'totalQuantity'>;
+    design: Pick<Design, 'totalQuantity'>;
+    title: string;
     description: string;
+    tags: string[];
     price: number;
     taxonomyId: number;
     shippingProfileId: number;
     readinessStateId: number;
 }): EtsyDraftListingInput => ({
-    title: args.design.name,
+    title: args.title,
     description: args.description,
+    tags: args.tags,
     price: args.price,
     quantity: Math.max(1, args.design.totalQuantity),
     whoMade: 'i_did',

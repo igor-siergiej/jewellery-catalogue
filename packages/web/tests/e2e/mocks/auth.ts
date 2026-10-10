@@ -28,6 +28,7 @@ export const MOCK_TOKEN_DESIGN_FAVOURITE = makeMockToken('68c6f0f5b97c9461290151
 export const MOCK_TOKEN_GOAL_FAVOURITE = makeMockToken('68c6f0f5b97c94612901512b'); // board-goal-favourite.spec
 export const MOCK_TOKEN_CATALOGUE_ONLY = makeMockToken('68c6f0f5b97c94612901512c'); // catalogue-only-design.spec
 export const MOCK_TOKEN_TASK_CHECKLIST = makeMockToken('68c6f0f5b97c94612901512d'); // board-task-checklist.spec
+export const MOCK_TOKEN_ETSY_LISTING_COPY = makeMockToken('68c6f0f5b97c94612901512e'); // etsy-listing-copy.spec
 
 // Visual specs run once per visual project, so each project gets its own user to keep parallel workers isolated
 export const MOCK_TOKEN_VISUAL_START_MOBILE = makeMockToken('68c6f0f5b97c946129015130'); // start.visual.spec (mobile)

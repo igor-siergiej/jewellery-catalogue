@@ -42,7 +42,9 @@ describe('renderDescriptionTemplate', () => {
 describe('buildDraftListingInput', () => {
     it('maps design + resolved fields into the fixed-field Etsy draft listing shape', () => {
         const result = buildDraftListingInput({
-            design: { name: 'Silver Ring', price: 25.5, totalQuantity: 3 },
+            design: { totalQuantity: 3 },
+            title: 'Silver Ring',
+            tags: [],
             description: 'A lovely ring.',
             price: 25.5,
             taxonomyId: 1234,
@@ -53,6 +55,7 @@ describe('buildDraftListingInput', () => {
         expect(result).toEqual({
             title: 'Silver Ring',
             description: 'A lovely ring.',
+            tags: [],
             price: 25.5,
             quantity: 3,
             whoMade: 'i_did',
@@ -66,7 +69,9 @@ describe('buildDraftListingInput', () => {
 
     it('floors quantity at 1 when totalQuantity is 0', () => {
         const result = buildDraftListingInput({
-            design: { name: 'Ring', price: 10, totalQuantity: 0 },
+            design: { totalQuantity: 0 },
+            title: 'Ring',
+            tags: [],
             description: 'd',
             price: 10,
             taxonomyId: 1,

@@ -1,6 +1,14 @@
-import { type Design, htmlToPlainText } from '@jewellery-catalogue/types';
+import {
+    type Design,
+    ETSY_TITLE_MAX,
+    type EtsyListingCopy,
+    etsyListingSchema,
+    htmlToPlainText,
+} from '@jewellery-catalogue/types';
+import { Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import TagInput from '@/components/TagInput';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -10,11 +18,13 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 import { useEtsyPush } from '../../hooks/useEtsyPush';
+import { useGenerateEtsyListing } from '../../hooks/useGenerateEtsyListing';
 import { useUserSettings } from '../../hooks/useUserSettings';
 
 interface EtsyPushDialogProps {
@@ -28,42 +38,127 @@ const renderTemplate = (template: string, description: string, materials: Array<
         .replace(/\{description\}/g, htmlToPlainText(description))
         .replace(/\{materials\}/g, materials.map((m) => m.name).join(', '));
 
+const generateErrorMessage = (error: Error): string =>
+    error.message.includes('503')
+        ? "AI generation isn't set up yet. Add FAL_KEY to the API to enable it."
+        : "Couldn't generate the listing. Your text is unchanged; try again.";
+
 const EtsyPushDialog: React.FC<EtsyPushDialogProps> = ({ design, open, onOpenChange }) => {
     const { etsyDescriptionTemplate, etsyTaxonomyMap } = useUserSettings();
     const { push, isPushing, pushError } = useEtsyPush(design.id);
+    const { generate, isGenerating, generateError, resetGenerate } = useGenerateEtsyListing(design.id);
 
-    const [description, setDescription] = useState(() =>
-        renderTemplate(etsyDescriptionTemplate, design.description, design.materials)
-    );
+    const seed = (): EtsyListingCopy =>
+        design.etsyListing ?? {
+            title: design.name.slice(0, ETSY_TITLE_MAX),
+            description: renderTemplate(etsyDescriptionTemplate, design.description, design.materials),
+            tags: [],
+        };
+
+    const [title, setTitle] = useState(() => seed().title);
+    const [description, setDescription] = useState(() => seed().description);
+    const [tags, setTags] = useState<string[]>(() => seed().tags);
     const [price, setPrice] = useState(design.price);
+
+    const applyCopy = (copy: EtsyListingCopy) => {
+        setTitle(copy.title);
+        setDescription(copy.description);
+        setTags(copy.tags);
+    };
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: only re-seed on open/design change, not on every template or materials change
     useEffect(() => {
         if (open) {
-            setDescription(renderTemplate(etsyDescriptionTemplate, design.description, design.materials));
+            applyCopy(seed());
             setPrice(design.price);
+            resetGenerate();
         }
     }, [open, design.id]);
 
     const taxonomyId = design.designType ? etsyTaxonomyMap[design.designType] : undefined;
+    // The server ignores title/description/tags when resuming an interrupted push.
+    const resuming = !!design.etsy?.pushIncomplete;
+    const titleValid = etsyListingSchema.shape.title.safeParse(title).success;
+    const canSend = !!taxonomyId && (resuming || (titleValid && description.trim().length > 0));
+
+    const handleGenerate = () => generate(undefined, { onSuccess: applyCopy });
 
     const handleSend = async () => {
-        await push({ description, price });
+        await push(resuming ? { price } : { title: title.trim(), description, tags, price });
         onOpenChange(false);
     };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
+            <DialogContent className="max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Send to Etsy</DialogTitle>
                     <DialogDescription>Review before creating the draft listing on Etsy.</DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-sm text-muted-foreground">
+                            Generate a title, description and tags from this design's materials and photos.
+                        </p>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleGenerate}
+                            disabled={isGenerating || isPushing || resuming}
+                        >
+                            <Sparkles className="h-4 w-4" />
+                            {isGenerating ? 'Generating…' : 'Generate with AI'}
+                        </Button>
+                    </div>
+                    {resuming && (
+                        <p className="text-sm text-muted-foreground">
+                            Resuming an interrupted upload — the listing text was already sent to Etsy.
+                        </p>
+                    )}
+                    {generateError && (
+                        <p role="alert" className="text-sm text-destructive">
+                            {generateErrorMessage(generateError)}
+                        </p>
+                    )}
+
                     <div className="space-y-1.5">
-                        <Label>Description</Label>
-                        <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={6} />
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="etsy-title">Title</Label>
+                            <span className="text-xs text-muted-foreground">
+                                {title.length}/{ETSY_TITLE_MAX}
+                            </span>
+                        </div>
+                        <Input
+                            id="etsy-title"
+                            value={title}
+                            maxLength={ETSY_TITLE_MAX}
+                            disabled={resuming}
+                            onChange={(e) => setTitle(e.target.value)}
+                        />
+                        {!resuming && title.trim().length > 0 && !titleValid && (
+                            <p className="text-xs text-destructive">
+                                {title.trim().length > ETSY_TITLE_MAX
+                                    ? `Etsy titles can be at most ${ETSY_TITLE_MAX} characters.`
+                                    : 'Etsy titles can use %, :, & and + once each, and no emoji or symbols like £ or ½.'}
+                            </p>
+                        )}
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <Label htmlFor="etsy-description">Description</Label>
+                        <Textarea
+                            id="etsy-description"
+                            value={description}
+                            disabled={resuming}
+                            onChange={(e) => setDescription(e.target.value)}
+                            rows={8}
+                        />
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <Label htmlFor="etsy-tags">Tags</Label>
+                        <TagInput id="etsy-tags" value={tags} onChange={setTags} disabled={resuming} />
                     </div>
 
                     <div className="space-y-1.5">
@@ -111,7 +206,7 @@ const EtsyPushDialog: React.FC<EtsyPushDialogProps> = ({ design, open, onOpenCha
                     <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPushing}>
                         Cancel
                     </Button>
-                    <Button type="button" onClick={handleSend} disabled={isPushing || !taxonomyId}>
+                    <Button type="button" onClick={handleSend} disabled={isPushing || isGenerating || !canSend}>
                         {isPushing ? 'Sending…' : 'Send to Etsy'}
                     </Button>
                 </DialogFooter>

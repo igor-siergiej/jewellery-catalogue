@@ -88,6 +88,7 @@ export async function apiCreateDesign(
         lowStockThreshold?: number;
         variationGroups?: object[];
         variants?: object[];
+        designType?: string;
     }
 ): Promise<Design> {
     const res = await fetch(`${getApiUrl()}/api/designs`, {

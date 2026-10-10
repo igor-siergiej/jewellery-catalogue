@@ -1,24 +1,21 @@
-import { type Design, MethodType } from '@jewellery-catalogue/types';
+import { type EtsyListingCopy, MethodType } from '@jewellery-catalogue/types';
 
 import { DESIGNS_ENDPOINT } from '../../endpoints';
 import { makeRequestWithAutoRefresh } from '../../makeRequest';
 
-export type EtsyPushOverrides = { title?: string; description?: string; tags?: string[]; price?: number };
-
-export const makePushDesignToEtsyRequest = (
+export const makeGenerateEtsyListingRequest = (
     designId: string,
-    overrides: EtsyPushOverrides,
     getAccessToken: () => string,
     onTokenRefresh: (newToken: string) => void,
     onTokenClear: () => void
 ) =>
-    makeRequestWithAutoRefresh<Design>(
+    makeRequestWithAutoRefresh<EtsyListingCopy>(
         {
-            pathname: `${DESIGNS_ENDPOINT}/${designId}/etsy-push`,
+            pathname: `${DESIGNS_ENDPOINT}/${designId}/etsy-listing/generate`,
             method: MethodType.POST,
             headers: { 'Content-Type': 'application/json' },
-            operationString: 'push design to etsy',
-            body: overrides,
+            operationString: 'generate etsy listing copy',
+            body: {},
             accessToken: '',
         },
         getAccessToken,

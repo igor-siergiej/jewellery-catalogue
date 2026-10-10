@@ -1,4 +1,7 @@
+import { APIError } from '@imapps/api-utils/hono';
+import { etsyListingSchema } from '@jewellery-catalogue/types';
 import type { Context } from 'hono';
+import { z } from 'zod';
 
 import { config } from '../../config';
 import { dependencyContainer } from '../../dependencies';
@@ -60,14 +63,21 @@ export const disconnectEtsyConnection = async (c: AuthedCtx) => {
 
 const getPushService = (): EtsyPushService => dependencyContainer.resolve(DependencyToken.EtsyPushService);
 
+const pushOverridesSchema = z.object({
+    title: etsyListingSchema.shape.title.optional(),
+    description: etsyListingSchema.shape.description.optional(),
+    tags: etsyListingSchema.shape.tags.optional(),
+    price: z.number().nonnegative().optional(),
+});
+
 export const pushDesignToEtsy = async (c: AuthedCtx) => {
-    const { description, price } = (await c.req.json().catch(() => ({}))) as {
-        description?: string;
-        price?: number;
-    };
+    const parsed = pushOverridesSchema.safeParse(await c.req.json().catch(() => ({})));
+    if (!parsed.success) {
+        throw new APIError(`Invalid Etsy listing: ${parsed.error.issues.map((i) => i.message).join('; ')}`, 400);
+    }
 
     try {
-        const design = await getPushService().push(c.req.param('id'), c.get('userId'), { description, price });
+        const design = await getPushService().push(c.req.param('id'), c.get('userId'), parsed.data);
         return c.json(design, 200);
     } catch (err) {
         dependencyContainer.resolve(DependencyToken.Logger).error('Etsy push failed', {
@@ -140,4 +150,10 @@ export const linkEtsyListingToDesign = async (c: AuthedCtx) => {
         });
         throw error;
     }
+};
+
+export const generateEtsyListingCopy = async (c: AuthedCtx) => {
+    const service = dependencyContainer.resolve(DependencyToken.EtsyListingCopyService);
+    const copy = await service.generate(c.req.param('id'), c.get('userId'));
+    return c.json(copy, 200);
 };

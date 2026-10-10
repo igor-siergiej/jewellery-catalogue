@@ -8,6 +8,8 @@ import type { DraftService } from '../domain/DraftService';
 import type { EtsyClient } from '../domain/EtsyClient';
 import type { EtsyConnectionRepository } from '../domain/EtsyConnectionRepository';
 import type { EtsyConnectionService } from '../domain/EtsyConnectionService';
+import type { EtsyListingCopyService } from '../domain/EtsyListingCopyService';
+import type { VisionLlm } from '../domain/EtsyListingCopyService/types';
 import type { EtsyOAuthStateStore } from '../domain/EtsyOAuthStateStore';
 import type { EtsyPushService } from '../domain/EtsyPushService';
 import type { EtsyReconcileService } from '../domain/EtsyReconcileService';
@@ -59,11 +61,13 @@ export enum DependencyToken {
     EtsyPushService = 'EtsyPushService',
     EtsyStatusService = 'EtsyStatusService',
     EtsyReconcileService = 'EtsyReconcileService',
+    EtsyListingCopyService = 'EtsyListingCopyService',
     // Infrastructure
     IdGenerator = 'IdGenerator',
     ImageStore = 'ImageStore',
     EtsyClient = 'EtsyClient',
     EtsyOAuthStateStore = 'EtsyOAuthStateStore',
+    VisionLlm = 'VisionLlm',
 }
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -91,11 +95,13 @@ export type Dependencies = {
     [DependencyToken.EtsyPushService]: EtsyPushService;
     [DependencyToken.EtsyStatusService]: EtsyStatusService;
     [DependencyToken.EtsyReconcileService]: EtsyReconcileService;
+    [DependencyToken.EtsyListingCopyService]: EtsyListingCopyService;
     // Infrastructure
     [DependencyToken.IdGenerator]: IdGenerator;
     [DependencyToken.ImageStore]: ImageStore;
     [DependencyToken.EtsyClient]: EtsyClient;
     [DependencyToken.EtsyOAuthStateStore]: EtsyOAuthStateStore;
+    [DependencyToken.VisionLlm]: VisionLlm;
 };
 
 export enum CollectionNames {

@@ -1,6 +1,7 @@
 export type { RequiredMaterial as RequiredMaterialLegacy } from '../requiredMaterial';
 
 import z from 'zod';
+import { etsyListingSchema } from '../etsyListing';
 import { requiredMaterialSchema } from '../requiredMaterial';
 import { designVariantSchema, variationGroupSchema } from '../variationGroup';
 import { DesignType } from './enum';
@@ -38,6 +39,7 @@ export const designSchema = z.object({
     variants: z.array(designVariantSchema).optional(),
     designType: z.nativeEnum(DesignType).optional(),
     etsy: designEtsySchema.optional(),
+    etsyListing: etsyListingSchema.optional(),
     favourite: z.boolean().optional(),
     catalogueOnly: z.boolean().optional(),
 });

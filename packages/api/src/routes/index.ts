@@ -8,6 +8,7 @@ import {
     createDesignFromEtsyListing,
     disconnectEtsyConnection,
     etsyOAuthCallback,
+    generateEtsyListingCopy,
     getEtsyConnectionStatus,
     getEtsyShippingProfiles,
     getEtsyShopListings,
@@ -54,6 +55,7 @@ export const createRoutes = (): Hono<Env> => {
     app.get('/api/etsy/connection', authenticate, getEtsyConnectionStatus);
     app.delete('/api/etsy/connection', authenticate, disconnectEtsyConnection);
     app.post('/api/designs/:id/etsy-push', authenticate, pushDesignToEtsy);
+    app.post('/api/designs/:id/etsy-listing/generate', authenticate, generateEtsyListingCopy);
     app.get('/api/etsy/taxonomy', authenticate, getEtsyTaxonomy);
     app.get('/api/etsy/shipping-profiles', authenticate, getEtsyShippingProfiles);
     app.get('/api/etsy/listings', authenticate, getEtsyShopListings);
