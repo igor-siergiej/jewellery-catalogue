@@ -1,3 +1,10 @@
+# [1.58.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.57.0...v1.58.0) (2026-10-10)
+
+
+### Features
+
+* 'what can I make?' and a material shopping list ([#89](https://github.com/igor-siergiej/jewellery-catalogue/issues/89)) ([b7b39fb](https://github.com/igor-siergiej/jewellery-catalogue/commit/b7b39fb512073f86d907b0059835a6a9849f0b22))
+
 # [1.57.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.56.0...v1.57.0) (2026-10-10)
 
 
