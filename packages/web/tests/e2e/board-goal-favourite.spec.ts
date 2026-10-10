@@ -8,7 +8,7 @@ test.use({ authToken: TOKEN });
 
 test.describe
     .serial('Board goal favouriting', () => {
-        test('toggling favourite persists across reload @smoke', async ({ authenticatedPage: page }) => {
+        test('toggling favourite persists across reload', async ({ authenticatedPage: page }) => {
             const goal = await apiCreateGoal(TOKEN, { title: 'Favourite Me Goal', targetValue: 5 });
 
             try {

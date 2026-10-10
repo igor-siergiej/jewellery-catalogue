@@ -8,9 +8,7 @@ test.use({ authToken: TOKEN });
 
 test.describe
     .serial('Board task checklist', () => {
-        test('checklist items added on a task can be ticked off and persist @smoke', async ({
-            authenticatedPage: page,
-        }) => {
+        test('checklist items added on a task can be ticked off and persist', async ({ authenticatedPage: page }) => {
             const task = await apiCreateTask(TOKEN, { title: 'Assemble bracelet order' });
 
             try {

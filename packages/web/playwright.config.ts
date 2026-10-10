@@ -24,6 +24,8 @@ const ROOT = path.resolve(__dirname, '../..');
 
 const E2E_MONGO_URI = process.env.E2E_MONGO_URI || 'mongodb://localhost:27018';
 
+// `@smoke` specs run post-deploy against production (kanban-cli `e2e live`), so only
+// tag read-only specs that need no seeded data and no mock auth.
 export default defineConfig({
     testDir: './tests/e2e',
     fullyParallel: true,

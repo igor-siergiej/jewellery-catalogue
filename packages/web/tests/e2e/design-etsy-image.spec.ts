@@ -25,9 +25,7 @@ function findDesignCard(page: Page, designName: string) {
 
 test.describe
     .serial('Design card Etsy image', () => {
-        test('shows the linked listing image on a design linked to Etsy @smoke', async ({
-            authenticatedPage: page,
-        }) => {
+        test('shows the linked listing image on a design linked to Etsy', async ({ authenticatedPage: page }) => {
             const design = await apiCreateDesign(TOKEN, { name: 'Etsy Linked Design', price: 15.0 });
             await apiLinkDesignToEtsyListing(design.id, 'https://i.etsy.com/123-fullxfull.jpg');
 

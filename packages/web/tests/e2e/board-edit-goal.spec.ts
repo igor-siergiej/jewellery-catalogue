@@ -8,7 +8,7 @@ test.use({ authToken: TOKEN });
 
 test.describe
     .serial('Board goal editing', () => {
-        test('editing a goal persists across reload @smoke', async ({ authenticatedPage: page }) => {
+        test('editing a goal persists across reload', async ({ authenticatedPage: page }) => {
             const goal = await apiCreateGoal(TOKEN, { title: 'Sell more rings', targetValue: 10 });
 
             try {

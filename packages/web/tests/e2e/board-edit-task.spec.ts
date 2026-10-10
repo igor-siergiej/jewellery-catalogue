@@ -8,7 +8,7 @@ test.use({ authToken: TOKEN });
 
 test.describe
     .serial('Board task editing', () => {
-        test('editing a task persists across reload @smoke', async ({ authenticatedPage: page }) => {
+        test('editing a task persists across reload', async ({ authenticatedPage: page }) => {
             const task = await apiCreateTask(TOKEN, { title: 'Restock beads' });
 
             try {
