@@ -7,6 +7,7 @@ import { getMaterialsQuery } from '@/api/endpoints/getMaterials';
 import LoadingScreen from '@/components/Loading';
 import LowStockDesignsTable from '@/components/LowStockDesignsTable';
 import LowStockMaterialsTable from '@/components/LowStockMaterialsTable';
+import { SalesDashboard } from '@/components/SalesDashboard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { getLowStockDesignRows, getLowStockMaterials } from '@/utils/lowStock';
@@ -52,19 +53,22 @@ const Home = () => {
 
     if (!hasAnyLowStock) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <Empty>
-                    <EmptyHeader>
-                        <EmptyMedia variant="icon">
-                            <CheckCircle2 className="text-green-500" />
-                        </EmptyMedia>
-                        <EmptyTitle>All Stock Levels Good!</EmptyTitle>
-                        <EmptyDescription>
-                            No items are below their low stock thresholds. Everything is well stocked.
-                        </EmptyDescription>
-                    </EmptyHeader>
-                </Empty>
-            </div>
+            <>
+                <SalesDashboard className="m-6" />
+                <div className="flex items-center justify-center min-h-screen">
+                    <Empty>
+                        <EmptyHeader>
+                            <EmptyMedia variant="icon">
+                                <CheckCircle2 className="text-green-500" />
+                            </EmptyMedia>
+                            <EmptyTitle>All Stock Levels Good!</EmptyTitle>
+                            <EmptyDescription>
+                                No items are below their low stock thresholds. Everything is well stocked.
+                            </EmptyDescription>
+                        </EmptyHeader>
+                    </Empty>
+                </div>
+            </>
         );
     }
 
@@ -78,6 +82,8 @@ const Home = () => {
                 </h1>
                 <p className="text-muted-foreground">Items that have fallen below their low stock thresholds</p>
             </div>
+
+            <SalesDashboard />
 
             {/* Low Stock Materials Section */}
             {lowStockMaterials.length > 0 && (

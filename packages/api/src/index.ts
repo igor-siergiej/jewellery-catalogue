@@ -5,6 +5,7 @@ import { createApp } from '@imapps/api-utils/hono';
 import { config } from './config';
 import { dependencyContainer, registerDepdendencies } from './dependencies';
 import { DependencyToken } from './dependencies/types';
+import { ensureSaleIndexes } from './infrastructure/MongoSaleRepository';
 import { createRoutes } from './routes';
 
 const port = config.get('port');
@@ -55,7 +56,7 @@ export const onStartup = async () => {
         const draftsCollection = database.getCollection('drafts' as any);
         await draftsCollection.createIndex({ userId: 1 });
         await draftsCollection.createIndex({ id: 1, userId: 1 });
-        await dependencyContainer.resolve(DependencyToken.SaleRepository).ensureIndexes();
+        await ensureSaleIndexes(database);
         appLogger.info('Database indexes created');
 
         const taskService = dependencyContainer.resolve(DependencyToken.TaskService);
