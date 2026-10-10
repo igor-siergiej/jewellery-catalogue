@@ -15,6 +15,7 @@ export const ETSY_UNMATCHED_SALES_ENDPOINT = '/api/etsy/sales/unmatched';
 export const SALES_REPORT_ENDPOINT = '/api/sales/report';
 export const PRODUCIBLE_ENDPOINT = '/api/designs/producible';
 export const SHOPPING_LIST_ENDPOINT = '/api/shopping-list';
+export const SUGGEST_DESIGN_FROM_PHOTO_ENDPOINT = '/api/designs/suggest-from-photo';
 export const ETSY_RECONCILE_CREATE_ENDPOINT = '/api/etsy/reconcile/create';
 export const ETSY_RECONCILE_LINK_ENDPOINT = '/api/etsy/reconcile/link';
 

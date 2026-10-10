@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import { dependencyContainer } from '../dependencies';
 import { DependencyToken } from '../dependencies/types';
 import { addDesign, deleteDesign, editDesignProperties, getDesign, getDesigns, updateDesign } from '../handlers/Design';
+import { suggestDesignFromPhoto } from '../handlers/DesignSuggestion';
 import { createDraft, deleteDraft, getDraft, getDrafts, updateDraft, uploadDraftImage } from '../handlers/Draft';
 import {
     createDesignFromEtsyListing,
@@ -72,6 +73,7 @@ export const createRoutes = (): Hono<Env> => {
     app.get('/api/designs', authenticate, getDesigns);
     app.post('/api/designs', authenticate, addDesign);
     app.post('/api/designs/recalculate-prices', authenticate, recalculatePrices);
+    app.post('/api/designs/suggest-from-photo', authenticate, suggestDesignFromPhoto);
     app.get('/api/designs/producible', authenticate, getProducible);
     app.post('/api/shopping-list', authenticate, getShoppingList);
     app.get('/api/designs/:id', authenticate, getDesign);
