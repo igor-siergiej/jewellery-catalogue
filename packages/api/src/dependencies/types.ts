@@ -32,6 +32,7 @@ import type { ImageService } from '../domain/ImageService';
 import type { ImageStore } from '../domain/ImageService/types';
 import type { MaterialRepository } from '../domain/MaterialRepository';
 import type { MaterialService } from '../domain/MaterialService';
+import type { PriceSuggestionService } from '../domain/PriceSuggestionService';
 import type { ProductionPlanner } from '../domain/ProductionPlanner';
 import type { SaleRepository } from '../domain/SaleRepository';
 import type { SalesReportService } from '../domain/SalesReportService';
@@ -82,6 +83,7 @@ export enum DependencyToken {
     SalesReportService = 'SalesReportService',
     ProductionPlanner = 'ProductionPlanner',
     DesignSuggestionService = 'DesignSuggestionService',
+    PriceSuggestionService = 'PriceSuggestionService',
     // Infrastructure
     IdGenerator = 'IdGenerator',
     ImageStore = 'ImageStore',
@@ -121,6 +123,7 @@ export type Dependencies = {
     [DependencyToken.SalesReportService]: SalesReportService;
     [DependencyToken.ProductionPlanner]: ProductionPlanner;
     [DependencyToken.DesignSuggestionService]: DesignSuggestionService;
+    [DependencyToken.PriceSuggestionService]: PriceSuggestionService;
     // Infrastructure
     [DependencyToken.IdGenerator]: IdGenerator;
     [DependencyToken.ImageStore]: ImageStore;

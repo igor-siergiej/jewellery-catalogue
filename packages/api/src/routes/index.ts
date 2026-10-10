@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import { dependencyContainer } from '../dependencies';
 import { DependencyToken } from '../dependencies/types';
 import { addDesign, deleteDesign, editDesignProperties, getDesign, getDesigns, updateDesign } from '../handlers/Design';
-import { suggestDesignFromPhoto } from '../handlers/DesignSuggestion';
+import { suggestDesignFromPhoto, suggestDesignPrice } from '../handlers/DesignSuggestion';
 import { createDraft, deleteDraft, getDraft, getDrafts, updateDraft, uploadDraftImage } from '../handlers/Draft';
 import {
     createDesignFromEtsyListing,
@@ -60,6 +60,7 @@ export const createRoutes = (): Hono<Env> => {
     app.delete('/api/etsy/connection', authenticate, disconnectEtsyConnection);
     app.post('/api/designs/:id/etsy-push', authenticate, pushDesignToEtsy);
     app.post('/api/designs/:id/etsy-listing/generate', authenticate, generateEtsyListingCopy);
+    app.post('/api/designs/:id/price-suggestion', authenticate, suggestDesignPrice);
     app.get('/api/etsy/taxonomy', authenticate, getEtsyTaxonomy);
     app.get('/api/etsy/shipping-profiles', authenticate, getEtsyShippingProfiles);
     app.get('/api/etsy/listings', authenticate, getEtsyShopListings);
