@@ -32,6 +32,7 @@ import type { ImageStore } from '../domain/ImageService/types';
 import type { MaterialRepository } from '../domain/MaterialRepository';
 import type { MaterialService } from '../domain/MaterialService';
 import type { SaleRepository } from '../domain/SaleRepository';
+import type { SalesReportService } from '../domain/SalesReportService';
 import type { TaskRepository } from '../domain/TaskRepository';
 import type { TaskService } from '../domain/TaskService';
 import type { UserSettingsRepository } from '../domain/UserSettingsRepository';
@@ -76,6 +77,7 @@ export enum DependencyToken {
     EtsyReconcileService = 'EtsyReconcileService',
     EtsyListingCopyService = 'EtsyListingCopyService',
     EtsyOrderSyncService = 'EtsyOrderSyncService',
+    SalesReportService = 'SalesReportService',
     // Infrastructure
     IdGenerator = 'IdGenerator',
     ImageStore = 'ImageStore',
@@ -112,6 +114,7 @@ export type Dependencies = {
     [DependencyToken.EtsyReconcileService]: EtsyReconcileService;
     [DependencyToken.EtsyListingCopyService]: EtsyListingCopyService;
     [DependencyToken.EtsyOrderSyncService]: EtsyOrderSyncService;
+    [DependencyToken.SalesReportService]: SalesReportService;
     // Infrastructure
     [DependencyToken.IdGenerator]: IdGenerator;
     [DependencyToken.ImageStore]: ImageStore;

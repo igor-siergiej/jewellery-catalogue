@@ -76,6 +76,48 @@ describe.if(RUN)('MongoSaleRepository (integration)', () => {
     });
 });
 
+describe.if(RUN)('MongoSaleRepository reporting queries (integration)', () => {
+    let ctx: TestContext;
+    let repo: MongoSaleRepository;
+
+    beforeAll(async () => {
+        ctx = await createTestContext();
+        repo = new MongoSaleRepository(ctx.mongoDb);
+    });
+
+    beforeEach(async () => {
+        await ctx.clearCollections();
+    });
+
+    afterAll(async () => {
+        await ctx.close();
+    });
+
+    it('filters by soldAt with an inclusive start and exclusive end, scoped to the user', async () => {
+        for (const [transactionId, soldAt] of [
+            [1, 100],
+            [2, 150],
+            [3, 200],
+        ]) {
+            await repo.insertIfNew(makeSale({ transactionId, soldAt }));
+        }
+        await repo.insertIfNew(makeSale({ transactionId: 4, soldAt: 150, userId: 'other' }));
+
+        const ids = async (from: number | null, to: number | null) =>
+            (await repo.getByUserIdSoldBetween('user-1', from, to)).map((s) => s.transactionId).sort();
+
+        expect(await ids(100, 200)).toEqual([1, 2]);
+        expect(await ids(150, null)).toEqual([2, 3]);
+        expect(await ids(null, null)).toEqual([1, 2, 3]);
+    });
+
+    it('hasAnyForUser reflects whether the user has any sale at all', async () => {
+        expect(await repo.hasAnyForUser('user-1')).toBe(false);
+        await repo.insertIfNew(makeSale({ status: 'unmatched' }));
+        expect(await repo.hasAnyForUser('user-1')).toBe(true);
+    });
+});
+
 describe.if(RUN)('MongoDesignRepository.applyEtsySale (integration)', () => {
     let ctx: TestContext;
     let designs: MongoDesignRepository;

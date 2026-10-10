@@ -12,6 +12,7 @@ export const ETSY_TAXONOMY_ENDPOINT = '/api/etsy/taxonomy';
 export const ETSY_SHIPPING_PROFILES_ENDPOINT = '/api/etsy/shipping-profiles';
 export const ETSY_LISTINGS_ENDPOINT = '/api/etsy/listings';
 export const ETSY_UNMATCHED_SALES_ENDPOINT = '/api/etsy/sales/unmatched';
+export const SALES_REPORT_ENDPOINT = '/api/sales/report';
 export const ETSY_RECONCILE_CREATE_ENDPOINT = '/api/etsy/reconcile/create';
 export const ETSY_RECONCILE_LINK_ENDPOINT = '/api/etsy/reconcile/link';
 

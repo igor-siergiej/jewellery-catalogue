@@ -11,6 +11,7 @@ export * from './material/enum';
 export * from './material/index';
 export * from './requiredMaterial/index';
 export * from './sale/index';
+export * from './salesReport/index';
 export * from './task/index';
 export * from './updateDesign/index';
 export * from './updateMaterial/index';

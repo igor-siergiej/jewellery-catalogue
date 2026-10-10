@@ -30,6 +30,7 @@ import {
     recalculateMaterialPrices,
     updateMaterial,
 } from '../handlers/Material';
+import { getSalesReport } from '../handlers/Sales';
 import { addTask, deleteTask, getTasks, updateTask } from '../handlers/Task';
 import { getUserSettings, recalculatePrices, updateUserSettings } from '../handlers/UserSettings';
 import { authenticate, authenticateImageRequest } from '../middleware/auth';
@@ -61,6 +62,7 @@ export const createRoutes = (): Hono<Env> => {
     app.get('/api/etsy/shipping-profiles', authenticate, getEtsyShippingProfiles);
     app.get('/api/etsy/listings', authenticate, getEtsyShopListings);
     app.get('/api/etsy/sales/unmatched', authenticate, getUnmatchedEtsySales);
+    app.get('/api/sales/report', authenticate, getSalesReport);
     app.post('/api/etsy/reconcile/create', authenticate, createDesignFromEtsyListing);
     app.post('/api/etsy/reconcile/link', authenticate, linkEtsyListingToDesign);
     app.get('/api/designs/:id/etsy-status', authenticate, refreshDesignEtsyStatus);

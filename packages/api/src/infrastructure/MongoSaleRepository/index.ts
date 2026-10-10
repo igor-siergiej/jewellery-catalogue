@@ -17,6 +17,7 @@ export class MongoSaleRepository implements SaleRepository {
     async ensureIndexes(): Promise<void> {
         await this.collection().createIndex({ transactionId: 1 }, { unique: true });
         await this.collection().createIndex({ userId: 1, status: 1 });
+        await this.collection().createIndex({ userId: 1, soldAt: 1 });
     }
 
     async insertIfNew(sale: Sale): Promise<boolean> {
@@ -40,6 +41,20 @@ export class MongoSaleRepository implements SaleRepository {
             .find({ userId, status: 'unmatched' }, { projection: { _id: 0 } })
             .sort({ soldAt: -1 })
             .toArray();
+    }
+
+    async getByUserIdSoldBetween(userId: string, from: number | null, to: number | null): Promise<Sale[]> {
+        const soldAt = {
+            ...(from !== null ? { $gte: from } : {}),
+            ...(to !== null ? { $lt: to } : {}),
+        };
+        return this.collection()
+            .find({ userId, ...(Object.keys(soldAt).length > 0 ? { soldAt } : {}) }, { projection: { _id: 0 } })
+            .toArray();
+    }
+
+    async hasAnyForUser(userId: string): Promise<boolean> {
+        return (await this.collection().countDocuments({ userId }, { limit: 1 })) > 0;
     }
 
     async setStatus(transactionId: number, status: SaleStatus): Promise<void> {
