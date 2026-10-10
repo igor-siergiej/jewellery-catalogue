@@ -14,7 +14,7 @@ export const editDesignSchema = z.object({
     lowStockThreshold: z.number().int().nonnegative().optional(),
     variationGroups: z.array(variationGroupSchema).optional(),
     variants: z.array(designVariantSchema).optional(),
-    designType: z.nativeEnum(DesignType).optional(),
+    designType: z.enum(DesignType).optional(),
     diagramImageIds: z.array(z.string()).optional(),
     makingNotes: z.string().optional(),
     catalogueOnly: z.boolean().optional(),

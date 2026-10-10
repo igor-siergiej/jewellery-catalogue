@@ -37,7 +37,7 @@ export const designSchema = z.object({
     lowStockThreshold: z.number().int().nonnegative().optional(),
     variationGroups: z.array(variationGroupSchema).optional(),
     variants: z.array(designVariantSchema).optional(),
-    designType: z.nativeEnum(DesignType).optional(),
+    designType: z.enum(DesignType).optional(),
     etsy: designEtsySchema.optional(),
     etsyListing: etsyListingSchema.optional(),
     favourite: z.boolean().optional(),
