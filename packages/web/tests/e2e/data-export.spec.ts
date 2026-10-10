@@ -9,17 +9,19 @@ test.use({ authToken: TOKEN });
 
 test.describe
     .serial('Data export from Settings', () => {
-        test.beforeAll(async () => {
-            await Promise.all([apiCleanup(TOKEN), apiCleanup(MOCK_TOKEN_DATA_EXPORT_OTHER)]);
+        // The authenticatedPage fixture clears this user's data on setup, so seed inside each test.
+        const seed = async () => {
+            await apiCleanup(MOCK_TOKEN_DATA_EXPORT_OTHER);
             await apiCreateBead(TOKEN, { name: 'Export Opal, 4mm' });
             await apiCreateBead(MOCK_TOKEN_DATA_EXPORT_OTHER, { name: 'Someone Else Bead' });
-        });
+        };
 
         test.afterAll(async () => {
             await Promise.all([apiCleanup(TOKEN), apiCleanup(MOCK_TOKEN_DATA_EXPORT_OTHER)]);
         });
 
         test('downloads a materials CSV with only this user’s materials', async ({ authenticatedPage: page }) => {
+            await seed();
             await page.goto('/settings');
 
             const downloadPromise = page.waitForEvent('download');
@@ -35,6 +37,7 @@ test.describe
         });
 
         test('downloads a JSON backup', async ({ authenticatedPage: page }) => {
+            await seed();
             await page.goto('/settings');
 
             const downloadPromise = page.waitForEvent('download');
