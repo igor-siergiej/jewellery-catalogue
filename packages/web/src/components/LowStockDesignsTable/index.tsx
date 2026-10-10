@@ -79,7 +79,7 @@ const LowStockDesignsTable: React.FC<ILowStockDesignsTableProps> = ({ rows, onDe
                                 badges={getSeverityBadge(quantity, threshold)}
                                 media={
                                     <div className="h-14 w-14 shrink-0 rounded-md overflow-hidden bg-muted flex items-center justify-center">
-                                        <Image imageId={design.imageIds?.[0] ?? ''} />
+                                        <Image imageId={design.imageIds?.[0] ?? ''} size="thumb" />
                                     </div>
                                 }
                                 facts={[
@@ -145,7 +145,7 @@ const LowStockDesignsTable: React.FC<ILowStockDesignsTableProps> = ({ rows, onDe
                                     <TableRow key={rowKey} className="hover:bg-muted/50">
                                         <TableCell className="hidden md:table-cell">
                                             <div className="h-12 w-12 rounded-md overflow-hidden bg-muted flex items-center justify-center">
-                                                <Image imageId={design.imageIds?.[0] ?? ''} />
+                                                <Image imageId={design.imageIds?.[0] ?? ''} size="thumb" />
                                             </div>
                                         </TableCell>
                                         <TableCell className="font-medium">{displayName}</TableCell>

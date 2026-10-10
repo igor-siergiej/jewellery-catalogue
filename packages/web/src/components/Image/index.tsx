@@ -2,13 +2,14 @@ import { useAuth } from '@imapps/web-utils';
 import { AlertTriangle } from 'lucide-react';
 import { useState } from 'react';
 
-import { getImageSrc } from '../../utils/imageSrc';
+import { getImageSrc, type ImageSize } from '../../utils/imageSrc';
 
 export interface ImageProps {
     imageId: string;
+    size?: ImageSize;
 }
 
-export const Image: React.FC<ImageProps> = ({ imageId }) => {
+export const Image: React.FC<ImageProps> = ({ imageId, size }) => {
     const [error, setError] = useState(false);
     const { accessToken } = useAuth();
 
@@ -22,7 +23,7 @@ export const Image: React.FC<ImageProps> = ({ imageId }) => {
 
     return (
         <img
-            src={getImageSrc(imageId, accessToken)}
+            src={getImageSrc(imageId, accessToken, size)}
             className="w-full h-full object-contain rounded-md"
             onError={() => setError(true)}
             alt={`${imageId}`}

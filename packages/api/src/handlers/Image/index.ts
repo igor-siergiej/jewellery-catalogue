@@ -8,6 +8,7 @@ import type { DesignRepository } from '../../domain/DesignRepository';
 import type { DraftRepository } from '../../domain/DraftRepository';
 import type { IdGenerator } from '../../domain/IdGenerator';
 import type { ImageService } from '../../domain/ImageService';
+import { IMAGE_SIZES, type ImageSize } from '../../domain/ImageService/types';
 
 type Ctx = Context<{ Variables: { userId: string } }>;
 
@@ -32,9 +33,16 @@ export const uploadImage = async (c: Ctx) => {
     return c.json({ imageId }, 201);
 };
 
+const isImageSize = (value: string | undefined): value is ImageSize =>
+    value !== undefined && (IMAGE_SIZES as readonly string[]).includes(value);
+
 export const getImage = async (c: Ctx) => {
     const name = c.req.param('name');
     const userId = c.get('userId');
+    const sizeParam = c.req.query('size');
+    if (sizeParam !== undefined && !isImageSize(sizeParam)) {
+        throw new APIError(`size must be one of: ${IMAGE_SIZES.join(', ')}`, 400);
+    }
 
     const [ownedByDesign, ownedByDraft] = await Promise.all([
         getDesignRepository().imageBelongsToUser(name, userId),
@@ -46,7 +54,8 @@ export const getImage = async (c: Ctx) => {
     }
 
     try {
-        const { stream, contentType, cacheControl } = await getImageService().getImage(name);
+        // The ownership check above is on the original name, so it covers every size derived from it.
+        const { stream, contentType, cacheControl } = await getImageService().getImage(name, sizeParam);
         c.header('Content-Type', contentType);
         c.header('Cache-Control', cacheControl);
         return c.body(Readable.toWeb(stream as Readable) as unknown as ReadableStream);
