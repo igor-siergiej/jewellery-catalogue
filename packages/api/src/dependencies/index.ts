@@ -14,6 +14,7 @@ import { EtsyOrderSyncService } from '../domain/EtsyOrderSyncService';
 import { EtsyPushService } from '../domain/EtsyPushService';
 import { EtsyReconcileService } from '../domain/EtsyReconcileService';
 import { EtsyStatusService } from '../domain/EtsyStatusService';
+import { ExportService } from '../domain/ExportService';
 import { GoalService } from '../domain/GoalService';
 import { ImageService } from '../domain/ImageService';
 import { MaterialService } from '../domain/MaterialService';
@@ -270,6 +271,23 @@ export const registerDepdendencies = () => {
         class {
             constructor() {
                 return new MongoAiUsageRepository(dependencyContainer.resolve(DependencyToken.Database));
+            }
+        } as any
+    );
+
+    dependencyContainer.registerSingleton(
+        DependencyToken.ExportService,
+        class {
+            constructor() {
+                return new ExportService(
+                    dependencyContainer.resolve(DependencyToken.DesignRepository),
+                    dependencyContainer.resolve(DependencyToken.MaterialRepository),
+                    dependencyContainer.resolve(DependencyToken.DraftRepository),
+                    dependencyContainer.resolve(DependencyToken.GoalRepository),
+                    dependencyContainer.resolve(DependencyToken.TaskRepository),
+                    dependencyContainer.resolve(DependencyToken.SaleRepository),
+                    dependencyContainer.resolve(DependencyToken.UserSettingsService)
+                );
             }
         } as any
     );

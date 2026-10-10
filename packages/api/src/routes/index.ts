@@ -23,6 +23,7 @@ import {
     startEtsyOAuth,
     syncDesignEtsyQuantity,
 } from '../handlers/Etsy';
+import { exportBackupJson, exportDesignsCsv, exportMaterialsCsv } from '../handlers/Export';
 import { addGoal, deleteGoal, getGoals, syncGoalEtsyValue, updateGoal } from '../handlers/Goal';
 import { getImage, uploadImage } from '../handlers/Image';
 import {
@@ -140,6 +141,10 @@ export const createRoutes = (): Hono<Env> => {
     app.post('/api/tasks', authenticate, addTask);
     app.put('/api/tasks/:id', authenticate, updateTask);
     app.delete('/api/tasks/:id', authenticate, deleteTask);
+
+    app.get('/api/export/materials.csv', authenticate, exportMaterialsCsv);
+    app.get('/api/export/designs.csv', authenticate, exportDesignsCsv);
+    app.get('/api/export/backup.json', authenticate, exportBackupJson);
 
     app.post('/api/images', authenticate, uploadImage);
     app.get('/api/image/:name', authenticateImageRequest, getImage);

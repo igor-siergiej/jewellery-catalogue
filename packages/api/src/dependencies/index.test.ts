@@ -84,11 +84,11 @@ describe('Dependencies', () => {
             expect(container.constructors?.[DependencyToken.DesignService]).toBeDefined();
         });
 
-        it('should register exactly 35 dependencies', () => {
+        it('should register exactly 36 dependencies', () => {
             registerDepdendencies();
             const container = dependencyContainer as any;
             const registeredCount = Object.keys(container.constructors || {}).length;
-            expect(registeredCount).toBe(35);
+            expect(registeredCount).toBe(36);
         });
 
         it('should register all expected tokens', () => {
@@ -117,6 +117,7 @@ describe('Dependencies', () => {
                 DependencyToken.PriceSuggestionService,
                 DependencyToken.EtsyListingRefreshService,
                 DependencyToken.AiUsageRepository,
+                DependencyToken.ExportService,
             ];
 
             expectedTokens.forEach((token) => {
