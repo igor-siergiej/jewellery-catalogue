@@ -1,3 +1,10 @@
+## [1.64.2](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.64.1...v1.64.2) (2026-10-13)
+
+
+### Bug Fixes
+
+* **web:** send signed-in users from the register page to Home ([#109](https://github.com/igor-siergiej/jewellery-catalogue/issues/109)) ([8f33d98](https://github.com/igor-siergiej/jewellery-catalogue/commit/8f33d9860e10d7169d611bd41a31f3223c3f08e9))
+
 ## [1.64.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.64.0...v1.64.1) (2026-10-13)
 
 
