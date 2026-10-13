@@ -27,6 +27,16 @@ async function mockLinkedListing(page: Page, designId: string, etsy: Etsy) {
     });
 }
 
+/**
+ * The Send to Etsy dialog seeds its description from the settings template when it opens, and doesn't re-seed if
+ * the settings arrive later, so wait for them before interacting.
+ */
+async function openDesign(page: Page, designId: string) {
+    const settingsLoaded = page.waitForResponse('**/api/user-settings');
+    await page.goto(`/designs/${designId}`);
+    await settingsLoaded;
+}
+
 async function seedDesign(name = 'Amethyst Studs', designType = 'EARRINGS') {
     await apiSetUserSettings(TOKEN, {
         etsyDescriptionTemplate: '{description}\n\nMade with: {materials}',
@@ -47,7 +57,7 @@ test.describe
         test('is not offered when Etsy is not connected', async ({ authenticatedPage: page }) => {
             const design = await seedDesign();
             await mockConnection(page, false);
-            await page.goto(`/designs/${design.id}`);
+            await openDesign(page, design.id);
 
             await expect(page.getByRole('heading', { level: 1, name: 'Amethyst Studs' })).toBeVisible();
             await expect(page.getByRole('button', { name: 'Send to Etsy' })).toHaveCount(0);
@@ -69,10 +79,7 @@ test.describe
                     json: { ...(await response.json()), etsy: { listingId: 555, state: 'draft', lastPushedAt: 1 } },
                 });
             });
-            // The dialog seeds the description from the template when it opens, so wait for the settings first
-            const settingsLoaded = page.waitForResponse('**/api/user-settings');
-            await page.goto(`/designs/${design.id}`);
-            await settingsLoaded;
+            await openDesign(page, design.id);
             await page.getByRole('button', { name: 'Send to Etsy' }).click();
 
             const dialog = page.getByRole('dialog', { name: 'Send to Etsy' });
@@ -104,7 +111,7 @@ test.describe
         test('cannot send without a category mapped for the design type', async ({ authenticatedPage: page }) => {
             const design = await seedDesign('Plain Ring', 'RING');
             await mockConnection(page, true);
-            await page.goto(`/designs/${design.id}`);
+            await openDesign(page, design.id);
             await page.getByRole('button', { name: 'Send to Etsy' }).click();
 
             const dialog = page.getByRole('dialog', { name: 'Send to Etsy' });
@@ -115,7 +122,7 @@ test.describe
         test('rejects titles Etsy would refuse', async ({ authenticatedPage: page }) => {
             const design = await seedDesign();
             await mockConnection(page, true);
-            await page.goto(`/designs/${design.id}`);
+            await openDesign(page, design.id);
             await page.getByRole('button', { name: 'Send to Etsy' }).click();
 
             const dialog = page.getByRole('dialog', { name: 'Send to Etsy' });
@@ -134,7 +141,7 @@ test.describe
             await page.route('**/api/designs/*/etsy-push', (route) =>
                 route.fulfill({ status: 502, json: { message: 'Etsy is down' } })
             );
-            await page.goto(`/designs/${design.id}`);
+            await openDesign(page, design.id);
             await page.getByRole('button', { name: 'Send to Etsy' }).click();
 
             const dialog = page.getByRole('dialog', { name: 'Send to Etsy' });
@@ -158,7 +165,7 @@ test.describe
                 pushBody = route.request().postDataJSON();
                 return route.fulfill({ status: 500, json: {} });
             });
-            await page.goto(`/designs/${design.id}`);
+            await openDesign(page, design.id);
             await page.getByRole('button', { name: 'Send to Etsy' }).click();
 
             const dialog = page.getByRole('dialog', { name: 'Send to Etsy' });
@@ -173,7 +180,7 @@ test.describe
             const design = await seedDesign();
             await mockConnection(page, true);
             await mockLinkedListing(page, design.id, { listingId: 888, state: 'active', lastPushedAt: 1 });
-            await page.goto(`/designs/${design.id}`);
+            await openDesign(page, design.id);
 
             await expect(page.getByRole('link', { name: 'Active on Etsy' })).toBeVisible();
             await expect(page.getByRole('button', { name: 'Send to Etsy' })).toHaveAttribute(
