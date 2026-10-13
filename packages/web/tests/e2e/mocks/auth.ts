@@ -66,6 +66,7 @@ export const MOCK_TOKEN_DRAFTS = makeMockToken('68c6f0f5b97c946129015161'); // d
 export const MOCK_TOKEN_MATERIALS = makeMockToken('68c6f0f5b97c946129015162'); // materials.spec
 export const MOCK_TOKEN_VIEW_DESIGN = makeMockToken('68c6f0f5b97c946129015163'); // view-design.spec
 export const MOCK_TOKEN_VIEW_DESIGN_OTHER = makeMockToken('68c6f0f5b97c946129015164'); // view-design.spec (other user)
+export const MOCK_TOKEN_DESIGNS_LIST = makeMockToken('68c6f0f5b97c946129015165'); // designs-list.spec
 
 export const MOCK_USER = { id: '68c6f0f5b97c946129015116', username: 'testuser' };
 
