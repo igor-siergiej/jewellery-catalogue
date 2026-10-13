@@ -15,7 +15,7 @@ export async function mockDraftImageUpload(page: Page) {
 }
 
 /** Rewrites multipart design creates (`POST /api/designs`) into JSON creates with placeholder image ids. */
-export async function stripDesignImageUploads(page: Page, onFiles?: (filenames: string[]) => void) {
+export async function stripDesignImageUploads(page: Page) {
     await page.route(/\/api\/designs$/, async (route) => {
         const request = route.request();
         const contentType = request.headers()['content-type'] ?? '';
@@ -34,7 +34,6 @@ export async function stripDesignImageUploads(page: Page, onFiles?: (filenames: 
                 body[key] = value;
             }
         }
-        onFiles?.(filenames);
 
         const existing: string[] = body.existingImageIds ? JSON.parse(body.existingImageIds) : [];
         body.existingImageIds = JSON.stringify([...existing, ...filenames.map(uploadedImageId)]);
