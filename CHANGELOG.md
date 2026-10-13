@@ -1,3 +1,10 @@
+## [1.64.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.64.0...v1.64.1) (2026-10-13)
+
+
+### Bug Fixes
+
+* **api:** keep the low stock threshold when adding a material ([#107](https://github.com/igor-siergiej/jewellery-catalogue/issues/107)) ([12c7c6d](https://github.com/igor-siergiej/jewellery-catalogue/commit/12c7c6d22be0115ab025865dc2f9cb532d35816a))
+
 # [1.64.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.63.0...v1.64.0) (2026-10-10)
 
 
