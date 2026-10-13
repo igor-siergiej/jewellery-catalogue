@@ -86,6 +86,7 @@ const DraftsTable: React.FC<{ drafts: Array<Draft>; onDeleted: () => void }> = (
                                             size="sm"
                                             onClick={() => setDraftToDelete(draft)}
                                             className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                            aria-label="Delete draft"
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>

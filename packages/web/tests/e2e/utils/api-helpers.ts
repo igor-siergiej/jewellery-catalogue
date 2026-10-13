@@ -201,6 +201,28 @@ export async function apiGetDrafts(token: string): Promise<Draft[]> {
     return res.json();
 }
 
+export async function apiCreateDraft(
+    token: string,
+    draft: { type: 'design' | 'material'; name: string; data: Record<string, unknown>; imageId?: string }
+): Promise<Draft> {
+    const res = await fetch(`${getApiUrl()}/api/drafts`, {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: JSON.stringify({ type: draft.type, name: draft.name, data: draft.data }),
+    });
+    if (!res.ok) throw new Error(`apiCreateDraft failed: ${await res.text()}`);
+    const created: Draft = await res.json();
+    if (!draft.imageId) return created;
+
+    const update = await fetch(`${getApiUrl()}/api/drafts/${created.id}`, {
+        method: 'PUT',
+        headers: authHeaders(token),
+        body: JSON.stringify({ name: draft.name, data: draft.data, imageId: draft.imageId }),
+    });
+    if (!update.ok) throw new Error(`apiCreateDraft (image) failed: ${await update.text()}`);
+    return update.json();
+}
+
 export async function apiDeleteDraft(token: string, id: string): Promise<void> {
     const res = await fetch(`${getApiUrl()}/api/drafts/${id}`, {
         method: 'DELETE',
