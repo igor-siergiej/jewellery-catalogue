@@ -5,12 +5,12 @@ import { Button } from '@/components/ui/button';
 
 import { AuthLayout } from '../../components/AuthLayout';
 import { RegisterForm } from '../../components/RegisterForm';
-import { HOME_PAGE } from '../../constants/routes';
+import { HOME_PAGE, REGISTER_PAGE } from '../../constants/routes';
 
 const Register = () => {
     const navigate = useNavigate();
 
-    useRedirectIfAuthenticated(HOME_PAGE.route);
+    useRedirectIfAuthenticated(HOME_PAGE.route, REGISTER_PAGE.route);
 
     return (
         <AuthLayout title="Jewellery Catalogue" subtitle="Join the goldsmith empire!">
