@@ -14,6 +14,16 @@ import {
 } from '@jewellery-catalogue/types';
 
 export const convertFormDataToMaterial = (formMaterial: FormMaterial) => {
+    const material = convertByType(formMaterial);
+
+    if (formMaterial.lowStockThreshold !== undefined) {
+        material.lowStockThreshold = formMaterial.lowStockThreshold;
+    }
+
+    return material;
+};
+
+const convertByType = (formMaterial: FormMaterial) => {
     switch (formMaterial.type) {
         case MaterialType.WIRE:
             return convertFormWireToMaterial(formMaterial as FormWire);
