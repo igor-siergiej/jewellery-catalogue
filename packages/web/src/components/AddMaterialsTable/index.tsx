@@ -146,6 +146,7 @@ const TableRow: React.FC<TableRowProps> = ({
                         variant="outline"
                         onClick={() => handleSaveClick(row.rowKey)}
                         className="h-8 w-8 p-0"
+                        aria-label="Save material"
                     >
                         <Save className="h-4 w-4" />
                     </Button>
@@ -155,6 +156,7 @@ const TableRow: React.FC<TableRowProps> = ({
                         variant="outline"
                         onClick={() => handleCancelClick(row.rowKey)}
                         className="h-8 w-8 p-0"
+                        aria-label="Cancel editing material"
                     >
                         <X className="h-4 w-4" />
                     </Button>
@@ -167,6 +169,7 @@ const TableRow: React.FC<TableRowProps> = ({
                         variant="outline"
                         onClick={() => handleEditClick(row.rowKey)}
                         className="h-8 w-8 p-0"
+                        aria-label="Edit material"
                     >
                         <Edit3 className="h-4 w-4" />
                     </Button>
@@ -176,6 +179,7 @@ const TableRow: React.FC<TableRowProps> = ({
                         variant="outline"
                         onClick={() => handleDeleteClick(row.rowKey)}
                         className="h-8 w-8 p-0"
+                        aria-label="Remove material"
                     >
                         <Trash2 className="h-4 w-4" />
                     </Button>

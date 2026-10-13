@@ -3,6 +3,7 @@ type Design = Record<string, unknown> & { id: string; name: string; variants?: D
 type DesignVariant = Record<string, unknown> & { id: string; totalMaterialCosts: number };
 type Task = Record<string, unknown> & { id: string; title: string };
 type Goal = Record<string, unknown> & { id: string; title: string };
+type Draft = Record<string, unknown> & { id: string; name: string; type: string };
 
 const getApiUrl = () => process.env.E2E_API_SERVICE_URL || 'http://localhost:3001';
 
@@ -192,10 +193,60 @@ export async function apiCleanupBoard(token: string): Promise<void> {
     ]);
 }
 
+export async function apiGetDrafts(token: string): Promise<Draft[]> {
+    const res = await fetch(`${getApiUrl()}/api/drafts`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error(`apiGetDrafts failed: ${await res.text()}`);
+    return res.json();
+}
+
+export async function apiDeleteDraft(token: string, id: string): Promise<void> {
+    const res = await fetch(`${getApiUrl()}/api/drafts/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok && res.status !== 404) throw new Error(`apiDeleteDraft failed: ${await res.text()}`);
+}
+
+export async function apiSetUserSettings(
+    token: string,
+    settings: Partial<{
+        hourlyWage: number;
+        profitMargin: number;
+        markupMultiplier: number;
+        hourlyRate: number;
+        etsyDescriptionTemplate: string;
+        etsyTaxonomyMap: Record<string, number>;
+        etsyShippingProfileId: number | null;
+    }>
+): Promise<void> {
+    const res = await fetch(`${getApiUrl()}/api/user-settings`, {
+        method: 'PUT',
+        headers: authHeaders(token),
+        body: JSON.stringify({
+            hourlyWage: 10,
+            profitMargin: 10,
+            markupMultiplier: 2,
+            hourlyRate: 0,
+            etsyDescriptionTemplate: '{description}',
+            etsyTaxonomyMap: {},
+            etsyShippingProfileId: null,
+            ...settings,
+        }),
+    });
+    if (!res.ok) throw new Error(`apiSetUserSettings failed: ${await res.text()}`);
+}
+
 export async function apiCleanup(token: string): Promise<void> {
-    const [materials, designs] = await Promise.all([apiGetMaterials(token), apiGetDesigns(token)]);
+    const [materials, designs, drafts] = await Promise.all([
+        apiGetMaterials(token),
+        apiGetDesigns(token),
+        apiGetDrafts(token),
+    ]);
     await Promise.all([
         ...materials.map((m) => apiDeleteMaterial(token, m.id)),
         ...designs.map((d) => apiDeleteDesign(token, d.id)),
+        ...drafts.map((d) => apiDeleteDraft(token, d.id)),
     ]);
 }
