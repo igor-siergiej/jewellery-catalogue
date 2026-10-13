@@ -69,7 +69,10 @@ test.describe
                     json: { ...(await response.json()), etsy: { listingId: 555, state: 'draft', lastPushedAt: 1 } },
                 });
             });
+            // The dialog seeds the description from the template when it opens, so wait for the settings first
+            const settingsLoaded = page.waitForResponse('**/api/user-settings');
             await page.goto(`/designs/${design.id}`);
+            await settingsLoaded;
             await page.getByRole('button', { name: 'Send to Etsy' }).click();
 
             const dialog = page.getByRole('dialog', { name: 'Send to Etsy' });
