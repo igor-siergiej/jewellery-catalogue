@@ -1,20 +1,14 @@
 import type { Page } from '@playwright/test';
 import { expect, test } from './fixtures';
 import { MOCK_TOKEN_ADD_DESIGN } from './mocks/auth';
+import { addSharedMaterial, TEST_PNG } from './utils/add-design-form';
 import { apiCreateBead, apiGetDesigns, apiSetUserSettings } from './utils/api-helpers';
 import { mockDraftImageUpload, stripDesignImageUploads, uploadedImageId } from './utils/upload-mocks';
 
 const TOKEN = MOCK_TOKEN_ADD_DESIGN;
 test.use({ authToken: TOKEN });
 
-const PNG = {
-    name: 'ring.png',
-    mimeType: 'image/png',
-    buffer: Buffer.from(
-        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==',
-        'base64'
-    ),
-};
+const PNG = TEST_PNG('ring.png');
 
 async function seed() {
     // £12/h for 30 min = £6 labour, 20% margin
@@ -37,14 +31,6 @@ async function fillBasics(page: Page, name: string) {
     await page.getByLabel('Time Spent Crafting').fill('00:30');
     await page.locator('form').getByRole('button', { name: 'Earrings' }).click();
     await page.locator('input[type="file"]').first().setInputFiles(PNG);
-}
-
-async function addSharedMaterial(page: Page, materialName: string, quantity: number) {
-    await page.locator('form').getByRole('button', { name: 'Add Material' }).click();
-    await page.getByRole('combobox').filter({ hasText: 'Select material' }).click();
-    await page.getByRole('option', { name: materialName }).click();
-    await page.getByPlaceholder('0', { exact: true }).fill(String(quantity));
-    await page.getByRole('button', { name: 'Save material' }).click();
 }
 
 test.describe

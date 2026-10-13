@@ -1,20 +1,13 @@
-import type { Page } from '@playwright/test';
 import { expect, test } from './fixtures';
 import { MOCK_TOKEN_DRAFTS } from './mocks/auth';
+import { addSharedMaterial, TEST_PNG } from './utils/add-design-form';
 import { apiCreateBead, apiCreateDraft, apiGetDesigns, apiGetDrafts, apiGetMaterials } from './utils/api-helpers';
 import { mockDraftImageUpload, stripDesignImageUploads, uploadedImageId } from './utils/upload-mocks';
 
 const TOKEN = MOCK_TOKEN_DRAFTS;
 test.use({ authToken: TOKEN });
 
-const PNG = {
-    name: 'draft.png',
-    mimeType: 'image/png',
-    buffer: Buffer.from(
-        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==',
-        'base64'
-    ),
-};
+const PNG = TEST_PNG('draft.png');
 
 const waitForDraft = (name: string, predicate: (data: Record<string, unknown>) => boolean = () => true) =>
     expect
@@ -26,14 +19,6 @@ const waitForDraft = (name: string, predicate: (data: Record<string, unknown>) =
             { timeout: 15000 }
         )
         .toBe(true);
-
-async function addSharedMaterial(page: Page, materialName: string, quantity: number) {
-    await page.locator('form').getByRole('button', { name: 'Add Material' }).click();
-    await page.getByRole('combobox').filter({ hasText: 'Select material' }).click();
-    await page.getByRole('option', { name: materialName }).click();
-    await page.getByPlaceholder('0', { exact: true }).fill(String(quantity));
-    await page.getByRole('button', { name: 'Save material' }).click();
-}
 
 test.describe
     .serial('Drafts', () => {
