@@ -73,6 +73,7 @@ export const MOCK_TOKEN_LISTINGS_RECONCILE = makeMockToken('68c6f0f5b97c94612901
 export const MOCK_TOKEN_BOARD_TASKS = makeMockToken('68c6f0f5b97c946129015169'); // board-tasks.spec
 export const MOCK_TOKEN_BOARD_GOALS = makeMockToken('68c6f0f5b97c94612901516a'); // board-goals.spec
 export const MOCK_TOKEN_HOME = makeMockToken('68c6f0f5b97c94612901516b'); // home.spec
+export const MOCK_TOKEN_SHOPPING_LIST = makeMockToken('68c6f0f5b97c94612901516c'); // shopping-list.spec
 
 export const MOCK_USER = { id: '68c6f0f5b97c946129015116', username: 'testuser' };
 
