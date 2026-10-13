@@ -63,6 +63,7 @@ export const MOCK_TOKEN_DATA_EXPORT_OTHER = makeMockToken('68c6f0f5b97c946129015
 
 export const MOCK_TOKEN_ADD_DESIGN = makeMockToken('68c6f0f5b97c946129015160'); // add-design.spec
 export const MOCK_TOKEN_DRAFTS = makeMockToken('68c6f0f5b97c946129015161'); // drafts.spec
+export const MOCK_TOKEN_MATERIALS = makeMockToken('68c6f0f5b97c946129015162'); // materials.spec
 
 export const MOCK_USER = { id: '68c6f0f5b97c946129015116', username: 'testuser' };
 
