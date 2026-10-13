@@ -71,6 +71,7 @@ export const MOCK_TOKEN_ETSY_PUSH = makeMockToken('68c6f0f5b97c946129015166'); /
 export const MOCK_TOKEN_SETTINGS = makeMockToken('68c6f0f5b97c946129015167'); // settings.spec
 export const MOCK_TOKEN_LISTINGS_RECONCILE = makeMockToken('68c6f0f5b97c946129015168'); // listings-reconcile.spec
 export const MOCK_TOKEN_BOARD_TASKS = makeMockToken('68c6f0f5b97c946129015169'); // board-tasks.spec
+export const MOCK_TOKEN_BOARD_GOALS = makeMockToken('68c6f0f5b97c94612901516a'); // board-goals.spec
 
 export const MOCK_USER = { id: '68c6f0f5b97c946129015116', username: 'testuser' };
 
