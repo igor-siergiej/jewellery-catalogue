@@ -61,6 +61,8 @@ export const MOCK_TOKEN_LISTING_REFRESH = makeMockToken('68c6f0f5b97c94612901515
 export const MOCK_TOKEN_DATA_EXPORT = makeMockToken('68c6f0f5b97c946129015156'); // data-export.spec
 export const MOCK_TOKEN_DATA_EXPORT_OTHER = makeMockToken('68c6f0f5b97c946129015157'); // data-export.spec (other user)
 
+export const MOCK_TOKEN_ADD_DESIGN = makeMockToken('68c6f0f5b97c946129015160'); // add-design.spec
+
 export const MOCK_USER = { id: '68c6f0f5b97c946129015116', username: 'testuser' };
 
 export async function mockAuthRoutes(page: Page, token = MOCK_TOKEN) {
