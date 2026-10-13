@@ -36,7 +36,9 @@ export const test = base.extend<Fixtures>({
             route.fulfill({ status: 200, contentType: 'image/gif', body: Buffer.from('GIF89a', 'ascii') })
         );
 
+        // Re-applied on every page load, unless a test has signed out and set `e2e-signed-out` to keep it that way
         await page.addInitScript((token) => {
+            if (sessionStorage.getItem('e2e-signed-out')) return;
             localStorage.setItem('accessToken', token);
         }, authToken);
 
