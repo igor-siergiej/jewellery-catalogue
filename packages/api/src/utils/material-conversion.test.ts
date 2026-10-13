@@ -112,6 +112,40 @@ describe('material-conversion', () => {
             });
         });
 
+        it('should keep the low stock threshold', () => {
+            const formBead: FormBead = {
+                type: MaterialType.BEAD,
+                name: 'Test Bead',
+                brand: 'Test Brand',
+                purchaseUrl: 'https://example.com',
+                diameter: 8,
+                colour: 'Blue',
+                quantity: 50,
+                pricePerPack: 15.0,
+                packs: 3,
+                lowStockThreshold: 2,
+            };
+
+            expect(convertFormDataToMaterial(formBead).lowStockThreshold).toBe(2);
+        });
+
+        it('should leave the low stock threshold unset when none is given', () => {
+            const formChain: FormChain = {
+                type: MaterialType.CHAIN,
+                name: 'Test Chain',
+                brand: 'Test Brand',
+                purchaseUrl: 'https://example.com',
+                metalType: METAL_TYPE.GOLD,
+                wireType: WIRE_TYPE.FILLED,
+                diameter: 2.0,
+                length: 5,
+                pricePerPack: 100.0,
+                packs: 1,
+            };
+
+            expect(convertFormDataToMaterial(formChain)).not.toHaveProperty('lowStockThreshold');
+        });
+
         it('should throw error for unsupported material type', () => {
             const invalidMaterial = {
                 type: 'INVALID_TYPE' as MaterialType,

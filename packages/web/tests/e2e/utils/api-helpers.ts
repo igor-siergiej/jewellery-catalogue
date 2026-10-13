@@ -39,6 +39,7 @@ export async function apiCreateBead(
         quantity?: number;
         packs?: number;
         pricePerPack?: number;
+        lowStockThreshold?: number;
     } = {}
 ): Promise<Material> {
     const res = await fetch(`${getApiUrl()}/api/materials`, {
@@ -107,6 +108,16 @@ export async function apiCreateDesign(
         }),
     });
     if (!res.ok) throw new Error(`apiCreateDesign failed: ${await res.text()}`);
+    return res.json();
+}
+
+export async function apiProduceDesign(token: string, designId: string, quantity: number): Promise<Design> {
+    const res = await fetch(`${getApiUrl()}/api/designs/${designId}`, {
+        method: 'PUT',
+        headers: authHeaders(token),
+        body: JSON.stringify({ addQuantity: quantity }),
+    });
+    if (!res.ok) throw new Error(`apiProduceDesign failed: ${await res.text()}`);
     return res.json();
 }
 
