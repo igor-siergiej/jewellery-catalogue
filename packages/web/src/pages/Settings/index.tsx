@@ -208,12 +208,13 @@ const Settings = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-1.5">
-                        <Label>Hourly Wage</Label>
+                        <Label htmlFor="hourly-wage">Hourly Wage</Label>
                         <InputGroup className="max-w-[160px]">
                             <InputGroupAddon align="inline-start">
                                 <InputGroupText>£</InputGroupText>
                             </InputGroupAddon>
                             <InputGroupInput
+                                id="hourly-wage"
                                 type="number"
                                 min="0"
                                 step="0.50"
@@ -227,9 +228,10 @@ const Settings = () => {
                         </InputGroup>
                     </div>
                     <div className="space-y-1.5">
-                        <Label>Profit Margin</Label>
+                        <Label htmlFor="profit-margin">Profit Margin</Label>
                         <InputGroup className="max-w-[140px]">
                             <InputGroupInput
+                                id="profit-margin"
                                 type="number"
                                 min="0"
                                 step="1"
@@ -245,9 +247,10 @@ const Settings = () => {
                         </InputGroup>
                     </div>
                     <div className="space-y-1.5">
-                        <Label>Etsy Price Suggestion — Markup Multiplier</Label>
+                        <Label htmlFor="markup-multiplier">Etsy Price Suggestion — Markup Multiplier</Label>
                         <InputGroup className="max-w-[140px]">
                             <InputGroupInput
+                                id="markup-multiplier"
                                 type="number"
                                 min="0"
                                 step="0.1"
@@ -263,12 +266,13 @@ const Settings = () => {
                         </InputGroup>
                     </div>
                     <div className="space-y-1.5">
-                        <Label>Etsy Price Suggestion — Hourly Rate</Label>
+                        <Label htmlFor="suggestion-hourly-rate">Etsy Price Suggestion — Hourly Rate</Label>
                         <InputGroup className="max-w-[160px]">
                             <InputGroupAddon align="inline-start">
                                 <InputGroupText>£</InputGroupText>
                             </InputGroupAddon>
                             <InputGroupInput
+                                id="suggestion-hourly-rate"
                                 type="number"
                                 min="0"
                                 step="0.50"
@@ -319,8 +323,9 @@ const Settings = () => {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-1.5">
-                            <Label>Description template</Label>
+                            <Label htmlFor="etsy-description-template">Description template</Label>
                             <Textarea
+                                id="etsy-description-template"
                                 value={localEtsyDescriptionTemplate}
                                 onChange={(e) => setLocalEtsyDescriptionTemplate(e.target.value)}
                                 placeholder={'{description}\n\nMaterials: {materials}'}
@@ -337,6 +342,7 @@ const Settings = () => {
                                 <div key={designType} className="flex items-center gap-3">
                                     <span className="w-28 text-sm">{designType}</span>
                                     <select
+                                        aria-label={`Etsy category for ${designType}`}
                                         className="flex-1 rounded-md border border-border bg-background px-2 py-1.5 text-sm"
                                         disabled={taxonomyLoading}
                                         value={localEtsyTaxonomyMap[designType] ?? ''}
@@ -361,8 +367,9 @@ const Settings = () => {
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label>Shipping profile</Label>
+                            <Label htmlFor="etsy-shipping-profile">Shipping profile</Label>
                             <select
+                                id="etsy-shipping-profile"
                                 className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
                                 disabled={shippingProfilesLoading}
                                 value={localEtsyShippingProfileId ?? ''}

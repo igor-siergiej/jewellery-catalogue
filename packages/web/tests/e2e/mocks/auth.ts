@@ -68,6 +68,7 @@ export const MOCK_TOKEN_VIEW_DESIGN = makeMockToken('68c6f0f5b97c946129015163');
 export const MOCK_TOKEN_VIEW_DESIGN_OTHER = makeMockToken('68c6f0f5b97c946129015164'); // view-design.spec (other user)
 export const MOCK_TOKEN_DESIGNS_LIST = makeMockToken('68c6f0f5b97c946129015165'); // designs-list.spec
 export const MOCK_TOKEN_ETSY_PUSH = makeMockToken('68c6f0f5b97c946129015166'); // etsy-push.spec
+export const MOCK_TOKEN_SETTINGS = makeMockToken('68c6f0f5b97c946129015167'); // settings.spec
 
 export const MOCK_USER = { id: '68c6f0f5b97c946129015116', username: 'testuser' };
 
