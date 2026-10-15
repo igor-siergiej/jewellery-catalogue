@@ -10,7 +10,7 @@
     "maxCognitive": 65535,
     "maxCrap": 1000000.0
   },
-  "entry": ["packages/web/src/sw.ts"],
+  "entry": ["packages/web/src/sw.ts", "packages/etsy-mock/src/index.ts"],
   "ignorePatterns": [
     "**/*.test.ts",
     "**/*.test.tsx",
