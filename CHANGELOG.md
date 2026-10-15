@@ -1,3 +1,10 @@
+# [1.66.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.65.0...v1.66.0) (2026-10-15)
+
+
+### Features
+
+* **etsy-mock:** add OAuth consent page, token endpoint and auth middleware ([#112](https://github.com/igor-siergiej/jewellery-catalogue/issues/112)) ([4888fee](https://github.com/igor-siergiej/jewellery-catalogue/commit/4888fee50889311e0e03f18ea14a212e0d4cc56d))
+
 # [1.65.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.64.2...v1.65.0) (2026-10-15)
 
 
