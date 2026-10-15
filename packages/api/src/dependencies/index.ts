@@ -4,7 +4,7 @@ import { DependencyContainer, Logger, MongoDbConnection, ObjectStoreConnection }
 import { config } from '../config';
 import { DesignService } from '../domain/DesignService';
 import { DraftService } from '../domain/DraftService';
-import { EtsyClient } from '../domain/EtsyClient';
+import { EtsyClient, etsyUrls } from '../domain/EtsyClient';
 import { EtsyConnectionService } from '../domain/EtsyConnectionService';
 import { EtsyListingCopyService } from '../domain/EtsyListingCopyService';
 import { EtsyListingRefreshService } from '../domain/EtsyListingRefreshService';
@@ -278,7 +278,11 @@ export const registerDepdendencies = () => {
         DependencyToken.EtsyClient,
         class {
             constructor() {
-                return new EtsyClient(config.get('etsyApiKey'), config.get('etsySharedSecret'));
+                return new EtsyClient(
+                    config.get('etsyApiKey'),
+                    config.get('etsySharedSecret'),
+                    etsyUrls(config.get('etsyMockUrl'))
+                );
             }
         } as any
     );

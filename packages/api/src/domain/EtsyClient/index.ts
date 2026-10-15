@@ -8,10 +8,29 @@ import type { EtsyListingState } from '@jewellery-catalogue/types';
 const etsyError = async (op: string, response: Response): Promise<APIError> =>
     new APIError(`Etsy ${op} failed: ${response.status} ${await response.text()}`, 502);
 
-const AUTHORIZE_URL = 'https://www.etsy.com/oauth/connect';
-const TOKEN_URL = 'https://api.etsy.com/v3/public/oauth/token';
-const API_BASE = 'https://api.etsy.com/v3/application';
 const SHOP_LISTINGS_PAGE_LIMIT = 100;
+
+export interface EtsyUrls {
+    authorize: string;
+    token: string;
+    apiBase: string;
+}
+
+export const etsyUrls = (mockUrl?: string): EtsyUrls => {
+    if (!mockUrl) {
+        return {
+            authorize: 'https://www.etsy.com/oauth/connect',
+            token: 'https://api.etsy.com/v3/public/oauth/token',
+            apiBase: 'https://api.etsy.com/v3/application',
+        };
+    }
+    const base = mockUrl.replace(/\/+$/, '');
+    return {
+        authorize: `${base}/oauth/connect`,
+        token: `${base}/v3/public/oauth/token`,
+        apiBase: `${base}/v3/application`,
+    };
+};
 
 export interface EtsyTokenResponse {
     accessToken: string;
@@ -155,7 +174,8 @@ const mapTokenResponse = (body: EtsyTokenApiResponse): EtsyTokenResponse => ({
 export class EtsyClient {
     constructor(
         private readonly apiKey: string,
-        private readonly sharedSecret: string
+        private readonly sharedSecret: string,
+        private readonly urls: EtsyUrls = etsyUrls()
     ) {}
 
     private apiKeyHeader(): string {
@@ -163,7 +183,7 @@ export class EtsyClient {
     }
 
     buildAuthorizationUrl(args: { redirectUri: string; state: string; codeChallenge: string; scope: string }): string {
-        const url = new URL(AUTHORIZE_URL);
+        const url = new URL(this.urls.authorize);
         url.searchParams.set('response_type', 'code');
         url.searchParams.set('client_id', this.apiKey);
         url.searchParams.set('redirect_uri', args.redirectUri);
@@ -175,7 +195,7 @@ export class EtsyClient {
     }
 
     private async postToken(params: Record<string, string>): Promise<EtsyTokenResponse> {
-        const response = await fetch(TOKEN_URL, {
+        const response = await fetch(this.urls.token, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams(params).toString(),
@@ -211,7 +231,7 @@ export class EtsyClient {
     }
 
     async getMe(accessToken: string): Promise<{ userId: number; shopId: number }> {
-        const response = await fetch(`${API_BASE}/users/me`, {
+        const response = await fetch(`${this.urls.apiBase}/users/me`, {
             headers: { 'x-api-key': this.apiKeyHeader(), Authorization: `Bearer ${accessToken}` },
         });
 
@@ -229,7 +249,7 @@ export class EtsyClient {
         listingActiveCount: number;
         transactionSoldCount: number;
     }> {
-        const response = await fetch(`${API_BASE}/shops/${shopId}`, {
+        const response = await fetch(`${this.urls.apiBase}/shops/${shopId}`, {
             headers: { 'x-api-key': this.apiKeyHeader() },
         });
 
@@ -253,7 +273,7 @@ export class EtsyClient {
     }
 
     async getListing(accessToken: string, listingId: number): Promise<EtsyListingStatus> {
-        const response = await fetch(`${API_BASE}/listings/${listingId}`, {
+        const response = await fetch(`${this.urls.apiBase}/listings/${listingId}`, {
             headers: { 'x-api-key': this.apiKeyHeader(), Authorization: `Bearer ${accessToken}` },
         });
 
@@ -266,7 +286,7 @@ export class EtsyClient {
     }
 
     async getListingDetail(listingId: number): Promise<EtsyListingDetail> {
-        const response = await fetch(`${API_BASE}/listings/${listingId}?includes=Images`, {
+        const response = await fetch(`${this.urls.apiBase}/listings/${listingId}?includes=Images`, {
             headers: { 'x-api-key': this.apiKeyHeader() },
         });
 
@@ -292,7 +312,7 @@ export class EtsyClient {
     }
 
     async getListingInventory(accessToken: string, listingId: number): Promise<EtsyListingInventory> {
-        const response = await fetch(`${API_BASE}/listings/${listingId}/inventory`, {
+        const response = await fetch(`${this.urls.apiBase}/listings/${listingId}/inventory`, {
             headers: { 'x-api-key': this.apiKeyHeader(), Authorization: `Bearer ${accessToken}` },
         });
 
@@ -329,7 +349,7 @@ export class EtsyClient {
 
         for (;;) {
             const response = await fetch(
-                `${API_BASE}/shops/${shopId}/listings?state=${state}&includes=Images&limit=${SHOP_LISTINGS_PAGE_LIMIT}&offset=${offset}`,
+                `${this.urls.apiBase}/shops/${shopId}/listings?state=${state}&includes=Images&limit=${SHOP_LISTINGS_PAGE_LIMIT}&offset=${offset}`,
                 { headers: { 'x-api-key': this.apiKeyHeader(), Authorization: `Bearer ${accessToken}` } }
             );
 
@@ -372,7 +392,7 @@ export class EtsyClient {
 
         for (;;) {
             const response = await fetch(
-                `${API_BASE}/shops/${shopId}/receipts?min_last_modified=${minLastModified}&sort_on=updated&sort_order=asc&limit=${SHOP_LISTINGS_PAGE_LIMIT}&offset=${offset}`,
+                `${this.urls.apiBase}/shops/${shopId}/receipts?min_last_modified=${minLastModified}&sort_on=updated&sort_order=asc&limit=${SHOP_LISTINGS_PAGE_LIMIT}&offset=${offset}`,
                 { headers: { 'x-api-key': this.apiKeyHeader(), Authorization: `Bearer ${accessToken}` } }
             );
 
@@ -435,7 +455,7 @@ export class EtsyClient {
         shopId: number,
         input: EtsyDraftListingInput
     ): Promise<EtsyListingResult> {
-        const response = await fetch(`${API_BASE}/shops/${shopId}/listings`, {
+        const response = await fetch(`${this.urls.apiBase}/shops/${shopId}/listings`, {
             method: 'POST',
             headers: {
                 'x-api-key': this.apiKeyHeader(),
@@ -467,7 +487,7 @@ export class EtsyClient {
     }
 
     async getShopShippingProfiles(accessToken: string, shopId: number): Promise<EtsyShippingProfile[]> {
-        const response = await fetch(`${API_BASE}/shops/${shopId}/shipping-profiles`, {
+        const response = await fetch(`${this.urls.apiBase}/shops/${shopId}/shipping-profiles`, {
             headers: { 'x-api-key': this.apiKeyHeader(), Authorization: `Bearer ${accessToken}` },
         });
 
@@ -485,7 +505,7 @@ export class EtsyClient {
         accessToken: string,
         shopId: number
     ): Promise<EtsyReadinessStateDefinition[]> {
-        const response = await fetch(`${API_BASE}/shops/${shopId}/readiness-state-definitions`, {
+        const response = await fetch(`${this.urls.apiBase}/shops/${shopId}/readiness-state-definitions`, {
             headers: { 'x-api-key': this.apiKeyHeader(), Authorization: `Bearer ${accessToken}` },
         });
 
@@ -510,7 +530,7 @@ export class EtsyClient {
         form.append('image', new Blob([image.buffer], { type: image.contentType }), image.filename);
         form.append('rank', String(rank));
 
-        const response = await fetch(`${API_BASE}/shops/${shopId}/listings/${listingId}/images`, {
+        const response = await fetch(`${this.urls.apiBase}/shops/${shopId}/listings/${listingId}/images`, {
             method: 'POST',
             headers: {
                 'x-api-key': this.apiKeyHeader(),
@@ -525,7 +545,7 @@ export class EtsyClient {
     }
 
     async getListingImages(accessToken: string, listingId: number): Promise<{ imageIds: number[] }> {
-        const response = await fetch(`${API_BASE}/listings/${listingId}/images`, {
+        const response = await fetch(`${this.urls.apiBase}/listings/${listingId}/images`, {
             headers: { 'x-api-key': this.apiKeyHeader(), Authorization: `Bearer ${accessToken}` },
         });
 
@@ -543,7 +563,7 @@ export class EtsyClient {
         listingId: number,
         copy: { title: string; description: string; tags: string[] }
     ): Promise<void> {
-        const response = await fetch(`${API_BASE}/shops/${shopId}/listings/${listingId}`, {
+        const response = await fetch(`${this.urls.apiBase}/shops/${shopId}/listings/${listingId}`, {
             method: 'PATCH',
             headers: {
                 'x-api-key': this.apiKeyHeader(),
@@ -563,7 +583,7 @@ export class EtsyClient {
         listingId: number,
         products: EtsyInventoryProduct[]
     ): Promise<void> {
-        const response = await fetch(`${API_BASE}/listings/${listingId}/inventory`, {
+        const response = await fetch(`${this.urls.apiBase}/listings/${listingId}/inventory`, {
             method: 'PUT',
             headers: {
                 'x-api-key': this.apiKeyHeader(),
@@ -595,7 +615,7 @@ export class EtsyClient {
 
     // fallow-ignore-next-line unused-class-member
     async getSellerTaxonomyNodes(): Promise<EtsyTaxonomyNode[]> {
-        const response = await fetch(`${API_BASE}/seller-taxonomy/nodes`, {
+        const response = await fetch(`${this.urls.apiBase}/seller-taxonomy/nodes`, {
             headers: { 'x-api-key': this.apiKeyHeader() },
         });
 

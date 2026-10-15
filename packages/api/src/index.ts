@@ -89,6 +89,9 @@ export const onStartup = async () => {
         const app = createApp({ logger: appLogger, allowedOrigins });
         app.route('/', createRoutes());
 
+        const etsyMockUrl = config.get('etsyMockUrl');
+        if (etsyMockUrl) appLogger.warn(`ETSY_MOCK_URL is set: all Etsy calls go to ${etsyMockUrl}`);
+
         Bun.serve({ port, fetch: app.fetch });
         appLogger.info(`Jewellery Catalogue Api server running on port ${port}`);
     } catch (error: unknown) {
