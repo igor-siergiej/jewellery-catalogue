@@ -1,3 +1,10 @@
+# [1.65.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.64.2...v1.65.0) (2026-10-15)
+
+
+### Features
+
+* **etsy-mock:** in-memory Etsy store with seed scenarios ([#111](https://github.com/igor-siergiej/jewellery-catalogue/issues/111)) ([731914a](https://github.com/igor-siergiej/jewellery-catalogue/commit/731914aa71412213ec613b9dc96156cf822cedbc))
+
 ## [1.64.2](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.64.1...v1.64.2) (2026-10-13)
 
 
