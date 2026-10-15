@@ -1,8 +1,9 @@
-import { Hono } from 'hono';
+import { createEtsyMockApp } from './app';
+import { MockStore } from './store';
 
-export * from './fixtures';
-export * from './store';
+const port = Number(process.env.PORT ?? 3010);
+const publicUrl = process.env.ETSY_MOCK_PUBLIC_URL ?? `http://localhost:${port}`;
+const store = new MockStore(Number(process.env.ETSY_MOCK_TOKEN_TTL ?? 3600));
 
-// Placeholder app factory; the full Bun.serve / route wiring lands in the
-// next task alongside `app.ts` and `routes/`.
-export const createMockAppPlaceholder = () => new Hono();
+Bun.serve({ port, fetch: createEtsyMockApp({ store, publicUrl }).fetch });
+console.log(`Etsy mock running on ${publicUrl}`);

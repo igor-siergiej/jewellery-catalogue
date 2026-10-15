@@ -1,3 +1,4 @@
+import { createHash, randomBytes } from 'node:crypto';
 import { type Scenario, seedShop } from './fixtures';
 
 export type { Scenario } from './fixtures';
@@ -48,6 +49,7 @@ export interface MockReceipt {
     updatedAt: number;
     transactions: MockTransaction[];
 }
+// fallow-ignore-next-line unused-type
 export interface MockShop {
     shopId: number;
     shopName: string;
@@ -120,7 +122,6 @@ export class MockStore {
         this.faults = [];
     }
 
-    // fallow-ignore-next-line unused-class-member
     createUser(input: { shopName?: string; scenario: Scenario }): MockUser {
         const userId = this.id();
         if (input.scenario === 'no-shop') {
@@ -238,5 +239,46 @@ export class MockStore {
         };
         this.receipts.set(receipt.receiptId, receipt);
         return receipt;
+    }
+
+    issueCode(pending: PendingCode): string {
+        const code = randomBytes(16).toString('hex');
+        this.codes.set(code, pending);
+        return code;
+    }
+
+    exchangeCode(args: { code: string; codeVerifier: string; redirectUri: string }): MockToken | string {
+        const pending = this.codes.get(args.code);
+        this.codes.delete(args.code);
+        if (!pending) return 'invalid_grant: unknown or used code';
+        if (pending.redirectUri !== args.redirectUri) return 'invalid_grant: redirect_uri mismatch';
+        const challenge = createHash('sha256')
+            .update(args.codeVerifier)
+            .digest('base64')
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=/g, '');
+        if (challenge !== pending.codeChallenge) return 'invalid_grant: code_verifier does not match';
+        return this.issueToken(pending.userId, pending.scopes);
+    }
+
+    refresh(refreshToken: string): MockToken | undefined {
+        const existing = [...this.tokens.values()].find((t) => t.refreshToken === refreshToken);
+        if (!existing) return undefined;
+        this.tokens.delete(existing.accessToken);
+        return this.issueToken(existing.userId, existing.scopes);
+    }
+
+    // Etsy access tokens are prefixed with the user id ("12345.xxxx"). Public so tests can skip the OAuth dance.
+    issueToken(userId: number, scopes: string[]): MockToken {
+        const token: MockToken = {
+            accessToken: `${userId}.${randomBytes(24).toString('hex')}`,
+            refreshToken: `${userId}.${randomBytes(24).toString('hex')}`,
+            userId,
+            scopes,
+            expiresAt: this.now() + this.tokenTtlSeconds,
+        };
+        this.tokens.set(token.accessToken, token);
+        return token;
     }
 }
