@@ -1,3 +1,10 @@
+# [1.70.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.69.0...v1.70.0) (2026-10-15)
+
+
+### Features
+
+* **etsy-mock:** HTML dashboard for manual seller actions ([#116](https://github.com/igor-siergiej/jewellery-catalogue/issues/116)) ([17ac2cb](https://github.com/igor-siergiej/jewellery-catalogue/commit/17ac2cb0b1d3cf8aded6d6248b4247c691ce0f96))
+
 # [1.69.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.68.0...v1.69.0) (2026-10-15)
 
 
