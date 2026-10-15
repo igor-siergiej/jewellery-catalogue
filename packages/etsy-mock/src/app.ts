@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { html } from 'hono/html';
 import { applicationRoutes } from './routes/application';
+import { controlRoutes, faultInjection } from './routes/control';
 import { oauthRoutes } from './routes/oauth';
 import type { MockStore } from './store';
 
@@ -12,8 +13,10 @@ export interface MockOptions {
 export const createEtsyMockApp = ({ store, publicUrl }: MockOptions) => {
     const app = new Hono();
     app.get('/health', (c) => c.json({ status: 'ok' }));
+    app.use('/v3/*', faultInjection(store));
     app.route('/', oauthRoutes(store));
     app.route('/v3/application', applicationRoutes(store, publicUrl));
+    app.route('/__mock', controlRoutes(store, publicUrl));
     app.get('/images/:imageId', (c) => {
         const id = Number(c.req.param('imageId'));
         const image = [...store.listings.values()].flatMap((l) => l.images).find((i) => i.imageId === id);
