@@ -76,6 +76,18 @@ RUN_INTEGRATION_TESTS=1 bun --filter @jewellery-catalogue/api test integration
 cd packages/web && bun pw:e2e                   # Playwright e2e
 ```
 
+### Testing the Etsy integration without a shop
+
+Etsy has no sandbox and a real shop costs money to open, so the repo ships
+with `packages/etsy-mock`, a stateful fake of the Etsy Open API v3 that
+runs on port 3010. With `ETSY_MOCK_URL=http://localhost:3010` in `.env`,
+run `bun start:with-etsy-mock` and connect Etsy in Settings — choose the
+`established` scenario to start with seed listings and receipts, or the
+`no-shop` scenario to reproduce the "account without a shop" failure
+(prod behaves the same way today). The dashboard at
+http://localhost:3010/ lets you publish, sell, expire tokens and inject a
+fault; the `/__mock/*` control API drives e2e.
+
 ## CI/CD
 
 - **`pull-request.yml`** on every PR: lint → API tests → integration tests

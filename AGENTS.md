@@ -11,9 +11,10 @@ file covers what you need to change the code safely.
 
 ## Stack
 
-- **Monorepo:** Bun workspaces. `packages/web`, `packages/api` and `packages/types` (shared
-  interfaces and Zod form schemas, imported as `@jewellery-catalogue/types`). `bun.lock` is
-  checked in. CI pins Bun to `1.4.2`.
+- **Monorepo:** Bun workspaces. `packages/web`, `packages/api`, `packages/types` (shared
+  interfaces and Zod form schemas, imported as `@jewellery-catalogue/types`) and
+  `packages/etsy-mock` (stateful fake of the Etsy v3 API for local dev and e2e). `bun.lock`
+  is checked in. CI pins Bun to `1.4.2`.
 - **api:** Hono 4 on the Bun runtime. `createApp` and `APIError` come from
   `@imapps/api-utils/hono`. The DI container, `MongoDbConnection`, `ObjectStoreConnection`,
   `ConfigService` and `Logger` come from `@imapps/api-utils`. MongoDB native driver 6 (the
@@ -50,12 +51,16 @@ file covers what you need to change the code safely.
 `BUCKET_SECRET_KEY`, `BUCKET_ENDPOINT`, `ETSY_API_KEY`, `ETSY_SHARED_SECRET`,
 `ETSY_REDIRECT_URI` and `WEB_APP_URL` are required. `FAL_KEY` and `FAL_MODEL` are optional:
 without `FAL_KEY` the "Generate with AI" action reports that it isn't configured.
+`ETSY_MOCK_URL` is optional and local-only: when set, `EtsyClient` talks to the mock
+(`bun start:etsy-mock`, port 3010) instead of Etsy. `ETSY_API_KEY`/`ETSY_SHARED_SECRET` can
+then be any non-empty values.
 
 ## Commands
 
 ```bash
 bun lint                                              # Biome
 bun --filter @jewellery-catalogue/api test            # API unit tests (bun:test)
+bun --filter @jewellery-catalogue/etsy-mock test      # Etsy mock unit tests
 RUN_INTEGRATION_TESTS=1 bun --filter @jewellery-catalogue/api test integration  # needs Mongo on :27018 (docker-compose.test.yml)
 bun --filter @jewellery-catalogue/web build
 cd packages/web && bun pw:e2e                         # Playwright: functional + visual
@@ -78,6 +83,19 @@ Gotchas:
   release bumps don't drift the baselines.
 - `@smoke` runs post-deploy against production (`E2E_BASE_URL`, no mock auth). Only tag
   read-only specs that need no seeded data.
+
+## Etsy mock (`packages/etsy-mock`)
+
+- Connecting through the app opens the mock's consent page. Pick an existing shop or create
+  one from a scenario: `established`, `empty`, `no-shop`, `two-shipping-profiles`.
+- http://localhost:3010/ is a dashboard for seller actions (publish, sell, expire tokens,
+  inject a failure).
+- `/__mock/*` is the JSON control API used by e2e (`tests/e2e/utils/etsy-mock.ts`).
+- State is in memory and is lost on restart.
+- The mock models only what `EtsyClient` calls. When `EtsyClient` gains a call, add it to the
+  mock in the same PR.
+- Order sync runs on `ETSY_ORDER_SYNC_INTERVAL_MS`, so a sale from the dashboard shows up in
+  the app on the next tick or after an API restart.
 
 ## Deploy
 
