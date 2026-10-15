@@ -1,3 +1,10 @@
+# [1.71.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.70.0...v1.71.0) (2026-10-15)
+
+
+### Features
+
+* **api:** route Etsy calls to ETSY_MOCK_URL when set ([#117](https://github.com/igor-siergiej/jewellery-catalogue/issues/117)) ([73fd519](https://github.com/igor-siergiej/jewellery-catalogue/commit/73fd519ec4613c8ba97ef63ce15f85eb3e9aacb6))
+
 # [1.70.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.69.0...v1.70.0) (2026-10-15)
 
 
