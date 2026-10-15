@@ -1,3 +1,10 @@
+# [1.69.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.68.0...v1.69.0) (2026-10-15)
+
+
+### Features
+
+* **etsy-mock:** add control API for seeding, seller actions, sales and faults ([#115](https://github.com/igor-siergiej/jewellery-catalogue/issues/115)) ([afe46db](https://github.com/igor-siergiej/jewellery-catalogue/commit/afe46db19fd55794cae1374ad54988bc217a8ad8))
+
 # [1.68.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.67.0...v1.68.0) (2026-10-15)
 
 
