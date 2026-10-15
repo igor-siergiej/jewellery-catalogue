@@ -1,10 +1,16 @@
 import { expect, test } from './fixtures';
 import { MOCK_TOKEN_ETSY_MOCK } from './mocks/auth';
 import { apiCreateBead, apiCreateDesign, apiSetUserSettings } from './utils/api-helpers';
-import { findMockShop, mockShopListings, setMockListingState } from './utils/etsy-mock';
+import { ETSY_MOCK_URL, findMockShop, mockShopListings, setMockListingState } from './utils/etsy-mock';
 
 const TOKEN = MOCK_TOKEN_ETSY_MOCK;
 test.use({ authToken: TOKEN });
+
+// Reset the in-memory mock once before this file's spec, so parallel specs don't
+// see each other's users/shops/tokens.
+test.beforeAll(async () => {
+    await fetch(`${ETSY_MOCK_URL}/__mock/reset`, { method: 'POST' });
+});
 
 test.describe
     .serial('Etsy integration against the mock', () => {
