@@ -1,3 +1,10 @@
+# [1.67.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.66.0...v1.67.0) (2026-10-15)
+
+
+### Features
+
+* **etsy-mock:** serve Etsy read endpoints the client uses ([#113](https://github.com/igor-siergiej/jewellery-catalogue/issues/113)) ([bd52745](https://github.com/igor-siergiej/jewellery-catalogue/commit/bd527455da704011cb43e8902b5e572d4dc114cc))
+
 # [1.66.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.65.0...v1.66.0) (2026-10-15)
 
 
