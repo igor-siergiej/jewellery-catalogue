@@ -17,7 +17,8 @@
     "**/*.integration.test.ts",
     "packages/web/src/components/ui/**",
     "**/dist/**",
-    "**/coverage/**"
+    "**/coverage/**",
+    "packages/etsy-mock/src/test-helpers.ts"
   ],
   "ignoreUnresolvedImports": ["bun:test"],
   "ignoreDependencies": [
