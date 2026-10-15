@@ -1,3 +1,10 @@
+# [1.68.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.67.0...v1.68.0) (2026-10-15)
+
+
+### Features
+
+* **etsy-mock:** accept draft listings, copy, inventory and image uploads ([#114](https://github.com/igor-siergiej/jewellery-catalogue/issues/114)) ([5240ce9](https://github.com/igor-siergiej/jewellery-catalogue/commit/5240ce9aa583436d1851dd64293a745be9aa1d27))
+
 # [1.67.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.66.0...v1.67.0) (2026-10-15)
 
 
