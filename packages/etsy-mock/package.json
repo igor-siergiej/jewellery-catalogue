@@ -1,0 +1,16 @@
+{
+  "name": "@jewellery-catalogue/etsy-mock",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "bun --watch src/index.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "hono": "^4.13.13"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2",
+    "typescript": "^7.0.2"
+  }
+}
