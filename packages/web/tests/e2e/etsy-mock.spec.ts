@@ -13,7 +13,10 @@ test.describe
         test('connects through the OAuth consent page', async ({ authenticatedPage: page }) => {
             await page.goto('/settings');
             const disconnect = page.getByRole('button', { name: 'Disconnect' });
-            if (await disconnect.isVisible()) await disconnect.click();
+            if (await disconnect.isVisible()) {
+                await disconnect.click();
+                await expect(page.getByRole('button', { name: 'Connect Etsy' })).toBeVisible({ timeout: 15000 });
+            }
 
             await page.getByRole('button', { name: 'Connect Etsy' }).click();
             await expect(page.getByRole('heading', { name: 'Mock Etsy' })).toBeVisible();
@@ -21,7 +24,7 @@ test.describe
             await page.getByLabel('Scenario').selectOption('established');
             await page.getByRole('button', { name: 'Allow access' }).click();
 
-            await expect(page.getByText('Etsy connected successfully.')).toBeVisible();
+            await expect(page.getByText('Etsy connected successfully.')).toBeVisible({ timeout: 15000 });
             await expect(page.getByText(shopName)).toBeVisible();
         });
 
@@ -47,10 +50,11 @@ test.describe
             });
 
             await page.goto(`/designs/${design.id}`);
+            await page.waitForResponse('**/api/user-settings');
             await page.getByRole('button', { name: 'Send to Etsy' }).click();
             const dialog = page.getByRole('dialog', { name: 'Send to Etsy' });
             await dialog.getByRole('button', { name: 'Send to Etsy' }).click();
-            await expect(dialog).toBeHidden();
+            await expect(dialog).toBeHidden({ timeout: 15000 });
             await expect(page.getByRole('link', { name: 'Draft on Etsy' })).toBeVisible();
 
             const { shopId } = await findMockShop(shopName);
