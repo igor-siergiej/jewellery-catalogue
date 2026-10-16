@@ -1,3 +1,10 @@
+# [1.73.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.72.0...v1.73.0) (2026-10-16)
+
+
+### Features
+
+* ship frontend logs to Loki via POST /api/logs ([#123](https://github.com/igor-siergiej/jewellery-catalogue/issues/123)) ([407a26b](https://github.com/igor-siergiej/jewellery-catalogue/commit/407a26bd8f0cac85d3940d104aa6b190b22086a8))
+
 # [1.72.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.71.1...v1.72.0) (2026-10-16)
 
 
