@@ -79,3 +79,68 @@ describe('control API', () => {
         expect(store.shops.size).toBe(0);
     });
 });
+
+describe('import-listings / import-receipts', () => {
+    const LISTINGS_CSV = [
+        'TITLE,PRICE,QUANTITY,TAGS,VARIATION 1 TYPE,VARIATION 1 VALUES',
+        '"Hoop Earrings",24.5,2,"silver|hoop",,',
+        '"Wide Ring",18,5,,"Ring Size","L|M|S"',
+        ',10,1,,,,', // empty title → skip
+    ].join('\n');
+
+    const RECEIPTS_CSV = [
+        '"Sale Date","Order ID","Number of Items","Order Value","Order Net","Status"',
+        '10/14/26,4203423026,1,9.55,9.55,paid',
+        '10/12/26,4203423025,2,18.00,17.50,shipped',
+    ].join('\n');
+
+    it('import-listings picks the only shop when shopId is omitted', async () => {
+        store.createUser({ shopName: 'Solo', scenario: 'empty' });
+        const res = await app.request('/__mock/import-listings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/csv' },
+            body: LISTINGS_CSV,
+        });
+        expect(res.status).toBe(200);
+        const body = (await res.json()) as { imported: number; skipped: number };
+        expect(body.imported).toBe(2);
+        expect(body.skipped).toBe(1);
+        expect([...store.listings.values()]).toHaveLength(2);
+    });
+
+    it('import-listings errors when multiple shops exist and shopId is omitted', async () => {
+        store.createUser({ shopName: 'A', scenario: 'empty' });
+        store.createUser({ shopName: 'B', scenario: 'empty' });
+        const res = await app.request('/__mock/import-listings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/csv' },
+            body: LISTINGS_CSV,
+        });
+        expect(res.status).toBe(400);
+    });
+
+    it('import-listings accepts JSON body with a csv field', async () => {
+        const user = store.createUser({ shopName: 'Json', scenario: 'empty' });
+        const res = await app.request(`/__mock/import-listings?shopId=${user.shopId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ csv: LISTINGS_CSV }),
+        });
+        expect(res.status).toBe(200);
+        expect(((await res.json()) as { imported: number }).imported).toBe(2);
+    });
+
+    it('import-receipts preserves the Order ID', async () => {
+        const user = store.createUser({ shopName: 'Receipts', scenario: 'empty' });
+        const res = await app.request(`/__mock/import-receipts?shopId=${user.shopId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/csv' },
+            body: RECEIPTS_CSV,
+        });
+        expect(res.status).toBe(200);
+        const body = (await res.json()) as { imported: number };
+        expect(body.imported).toBe(2);
+        const ids = [...store.receipts.keys()].sort();
+        expect(ids).toEqual([4203423025, 4203423026]);
+    });
+});
