@@ -20,9 +20,11 @@ test.describe
             await page.goto('/settings');
             const disconnect = page.getByRole('button', { name: 'Disconnect' });
             if (await disconnect.isVisible()) {
+                const disconnectResponse = page.waitForResponse(
+                    (res) => res.url().includes('/api/etsy/connection') && res.request().method() === 'DELETE'
+                );
                 await disconnect.click();
-                // A page reload re-establishes both buttons from a known state — the
-                // post-disconnect re-render races with cached api/etsy/connection data.
+                await disconnectResponse;
                 await page.reload();
                 await expect(page.getByRole('button', { name: 'Connect Etsy' })).toBeVisible({
                     timeout: 15000,
