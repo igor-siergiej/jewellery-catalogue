@@ -3,6 +3,8 @@ import { MOCK_TOKEN_ETSY_MOCK } from './mocks/auth';
 import { apiCreateBead, apiCreateDesign, apiSetUserSettings, apiUploadImage } from './utils/api-helpers';
 import { ETSY_MOCK_URL, findMockShop, mockShopListings, setMockListingState } from './utils/etsy-mock';
 
+const API_URL = process.env.E2E_API_SERVICE_URL || 'http://localhost:3001';
+
 const TOKEN = MOCK_TOKEN_ETSY_MOCK;
 test.use({ authToken: TOKEN });
 
@@ -17,19 +19,16 @@ test.describe
         const shopName = `E2E Shop ${Date.now()}`;
 
         test('connects through the OAuth consent page', async ({ authenticatedPage: page }) => {
+            // Wipe any connection from a prior run before the page even loads —
+            // the page's React Query cache keeps 'connected' state otherwise.
+            const res = await fetch(`${API_URL}/api/etsy/connection`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${TOKEN}` },
+            });
+            if (!res.ok && res.status !== 404) throw new Error(`Failed to clear connection: ${res.status}`);
+
             await page.goto('/settings');
-            const disconnect = page.getByRole('button', { name: 'Disconnect' });
-            if (await disconnect.isVisible()) {
-                const disconnectResponse = page.waitForResponse(
-                    (res) => res.url().includes('/api/etsy/connection') && res.request().method() === 'DELETE'
-                );
-                await disconnect.click();
-                await disconnectResponse;
-                await page.reload();
-                await expect(page.getByRole('button', { name: 'Connect Etsy' })).toBeVisible({
-                    timeout: 15000,
-                });
-            }
+            await expect(page.getByRole('button', { name: 'Connect Etsy' })).toBeVisible({ timeout: 15000 });
 
             await page.getByRole('button', { name: 'Connect Etsy' }).click();
             await expect(page.getByRole('heading', { name: 'Mock Etsy' })).toBeVisible();
