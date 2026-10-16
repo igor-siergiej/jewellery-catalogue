@@ -33,6 +33,7 @@ import { useUserSettings } from '../../hooks/useUserSettings';
 import { DESIGN_TYPE_LABELS } from '../../lib/materialLabels';
 import { getTotalMaterialCosts } from '../../utils/getPriceOfMaterials';
 import { getWageCosts } from '../../utils/getWageCost';
+import { errorContext, logger } from '../../utils/logger';
 
 const AddDesign: React.FC = () => {
     const form = useForm({
@@ -143,7 +144,7 @@ const AddDesign: React.FC = () => {
             });
             navigate(DESIGNS_PAGE.route);
         } catch (e) {
-            console.error('[AddDesign] Error adding design:', e);
+            logger.error('Adding design failed', errorContext(e));
             const message = e instanceof Error ? e.message : 'Unknown Error';
 
             dispatch({

@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { bodyLimit } from 'hono/body-limit';
 import { config } from '../config';
 import { dependencyContainer } from '../dependencies';
 import { DependencyToken } from '../dependencies/types';
@@ -26,6 +27,7 @@ import {
 import { exportBackupJson, exportDesignsCsv, exportMaterialsCsv } from '../handlers/Export';
 import { addGoal, deleteGoal, getGoals, syncGoalEtsyValue, updateGoal } from '../handlers/Goal';
 import { getImage, uploadImage } from '../handlers/Image';
+import { createReceiveLogs } from '../handlers/Log';
 import {
     addMaterial,
     deleteMaterial,
@@ -57,6 +59,8 @@ const aiUsage = createAiUsageMiddleware({
     model: () => config.get('falModel') || DEFAULT_FAL_MODEL,
 });
 
+const receiveLogs = createReceiveLogs({ logger: () => dependencyContainer.resolve(DependencyToken.Logger) });
+
 export const createRoutes = (): Hono<Env> => {
     const app = new Hono<Env>();
 
@@ -68,6 +72,8 @@ export const createRoutes = (): Hono<Env> => {
             return c.body(null, 500);
         }
     });
+
+    app.post('/api/logs', bodyLimit({ maxSize: 64 * 1024 }), authenticate, receiveLogs);
 
     app.get('/api/user-settings', authenticate, getUserSettings);
     app.put('/api/user-settings', authenticate, updateUserSettings);

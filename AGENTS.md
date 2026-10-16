@@ -44,6 +44,16 @@ file covers what you need to change the code safely.
   `EtsyPushService`, `EtsyReconcileService`, `EtsyStatusService` and `EtsyListingCopyService`
   (AI title/description/tags via `FalVisionClient`). Only `Etsy*` code talks to Etsy.
 - Done tasks are purged 30 days after completion by a daily interval in `index.ts`.
+- **Logging.** The API logs JSON lines to stdout with the `@imapps/api-utils` `Logger`; on
+  foundry promtail ships container stdout to Loki (Grafana at grafana.imapps.uk, 30-day
+  retention). The web app's `utils/logger` batches `info`/`warn`/`error` lines (20 per POST,
+  5 s delay, flushed with `keepalive` when the page is hidden) to the authenticated
+  `POST /api/logs` (`handlers/Log`), which writes them with `source: 'frontend'`, `userId` and
+  `userAgent`. Uncaught errors, unhandled rejections and failed `makeRequest` calls (except
+  401s) are logged automatically. Both sides cap a user at 120 lines a minute. Lines logged
+  before login are dropped. The `Logger` nests context in a `meta` array, which plain `| json`
+  skips, so extract it by path:
+  `{container=~".*jewellerycatalogueapi.*"} | json source="meta[0].source", userId="meta[0].userId" | source="frontend"`.
 
 ## Env (`packages/api/.env`, template `packages/api/.env.example`)
 

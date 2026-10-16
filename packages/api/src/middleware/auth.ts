@@ -1,6 +1,8 @@
 import type { Context, Next } from 'hono';
 
 import { config } from '../config';
+import { dependencyContainer } from '../dependencies';
+import { DependencyToken } from '../dependencies/types';
 
 interface KivoVerifyResponse {
     success: boolean;
@@ -54,7 +56,9 @@ const verifyKivoToken = async (
         c.set('userId', data.payload.id);
         return undefined;
     } catch (error) {
-        console.error('Authentication error:', error);
+        dependencyContainer.resolve(DependencyToken.Logger).error('Kivo token verification failed', {
+            error: error instanceof Error ? error.message : error,
+        });
         return c.json({ error: 'Authentication service unavailable' }, 503);
     }
 };

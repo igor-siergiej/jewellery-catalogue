@@ -2,6 +2,7 @@ import { getStorageItem, withTokenRefresh } from '@imapps/web-utils';
 import type { MakeRequestProps } from '@jewellery-catalogue/types';
 
 import { getAuthConfig } from '../../utils/authConfig';
+import { logger } from '../../utils/logger';
 
 export const makeRequest = async <T>({
     pathname,
@@ -30,7 +31,14 @@ export const makeRequest = async <T>({
     if (response.ok) {
         return (await response.json()) as T;
     } else {
-        console.error(`Failed to ${operationString}:`, response.status, response.statusText);
+        // 401s are expected: withTokenRefresh refreshes the token and retries.
+        if (response.status !== 401) {
+            logger[response.status >= 500 ? 'error' : 'warn'](`Failed to ${operationString}`, {
+                method,
+                pathname,
+                status: response.status,
+            });
+        }
         throw new Error(`Response was not ok ${response.status}: ${response.statusText}`);
     }
 };
