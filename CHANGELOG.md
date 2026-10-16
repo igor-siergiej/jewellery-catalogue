@@ -1,3 +1,10 @@
+## [1.71.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.71.0...v1.71.1) (2026-10-16)
+
+
+### Bug Fixes
+
+* **web:** add /verify to the mock auth server ([#121](https://github.com/igor-siergiej/jewellery-catalogue/issues/121)) ([ef4a296](https://github.com/igor-siergiej/jewellery-catalogue/commit/ef4a2960f7752af579f7a1ed018b1507e12c2329))
+
 # [1.71.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.70.0...v1.71.0) (2026-10-15)
 
 
