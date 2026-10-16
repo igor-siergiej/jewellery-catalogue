@@ -75,6 +75,20 @@ jobs:
           --health-timeout 5s
           --health-retries 15
           --health-start-period 5s
+      minio:
+        image: minio/minio:latest
+        ports:
+          - 9000:9000
+          - 9001:9001
+        env:
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minioadmin
+        options: >-
+          --health-cmd "mc ready local"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
+          --health-start-period 5s
     steps:
       - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2

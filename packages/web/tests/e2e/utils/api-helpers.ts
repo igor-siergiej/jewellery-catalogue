@@ -78,6 +78,23 @@ export async function apiDeleteDesign(token: string, id: string): Promise<void> 
     if (!res.ok && res.status !== 404) throw new Error(`apiDeleteDesign failed: ${await res.text()}`);
 }
 
+export async function apiUploadImage(
+    token: string,
+    contentType = 'image/png',
+    bytes = new Uint8Array([1, 2, 3])
+): Promise<string> {
+    const form = new FormData();
+    form.append('file', new Blob([bytes], { type: contentType }), 'test.png');
+    const res = await fetch(`${getApiUrl()}/api/images`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+    });
+    if (!res.ok) throw new Error(`apiUploadImage failed: ${await res.text()}`);
+    const { imageId } = (await res.json()) as { imageId: string };
+    return imageId;
+}
+
 export async function apiCreateDesign(
     token: string,
     design: {

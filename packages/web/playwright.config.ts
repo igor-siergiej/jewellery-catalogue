@@ -68,6 +68,13 @@ export default defineConfig({
     webServer: isCI
         ? [
               {
+                  command: `bash -c "cd ${ROOT}/packages/etsy-mock && bun src/index.ts"`,
+                  url: 'http://localhost:3010/health',
+                  reuseExistingServer: false,
+                  timeout: 30000,
+                  env: { PORT: '3010' },
+              },
+              {
                   // Drop --watch and the workspace filter for e2e: file-watching isn't needed
                   // and 'bun run --filter' adds ~3-5s of cold-start overhead.
                   command: `bash -c "cd ${ROOT}/packages/api && bun src/index.ts"`,
@@ -85,6 +92,7 @@ export default defineConfig({
                       AUTH_URL: 'http://localhost:3008',
                       ETSY_API_KEY: 'test',
                       ETSY_SHARED_SECRET: 'test',
+                      ETSY_MOCK_URL: 'http://localhost:3010',
                       ETSY_REDIRECT_URI: 'http://localhost:3001/api/etsy/oauth/callback',
                       WEB_APP_URL: 'http://localhost:3000',
                   },
