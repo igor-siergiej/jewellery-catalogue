@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
 import { MOCK_TOKEN_ETSY_MOCK } from './mocks/auth';
-import { apiCreateBead, apiCreateDesign, apiSetUserSettings } from './utils/api-helpers';
+import { apiCreateBead, apiCreateDesign, apiSetUserSettings, apiUploadImage } from './utils/api-helpers';
 import { ETSY_MOCK_URL, findMockShop, mockShopListings, setMockListingState } from './utils/etsy-mock';
 
 const TOKEN = MOCK_TOKEN_ETSY_MOCK;
@@ -47,12 +47,14 @@ test.describe
                 etsyTaxonomyMap: { EARRINGS: 1211 },
             });
             const bead = await apiCreateBead(TOKEN, { name: 'Amethyst Bead' });
+            const imageId = await apiUploadImage(TOKEN);
             const design = await apiCreateDesign(TOKEN, {
                 name: 'Mock Amethyst Studs',
                 designType: 'EARRINGS',
                 price: 24,
                 description: '<p>Purple studs.</p>',
                 materials: [{ ...bead, requiredQuantity: 2 }],
+                existingImageIds: JSON.stringify([imageId]),
             });
 
             await page.goto(`/designs/${design.id}`);
