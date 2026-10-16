@@ -43,6 +43,17 @@ const generateRefreshToken = (username) => {
     return `refresh-${username}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };
 
+// Decode the base64url-ish payload of a token we minted. Mirrors the
+// `btoa(JSON.stringify(...))` in `generateMockToken` (standard b64, padded).
+const decodeMockToken = (token) => {
+    if (typeof token !== 'string' || token.split('.').length !== 3) return null;
+    try {
+        return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('utf8'));
+    } catch {
+        return null;
+    }
+};
+
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
@@ -160,6 +171,22 @@ app.post('/refresh', (req, res) => {
         refreshToken: newRefreshToken,
         expiresIn: 3600, // 1 hour
     });
+});
+
+app.get('/verify', (req, res) => {
+    const auth = req.headers.authorization || '';
+    const token = auth.startsWith('Bearer ') ? auth.slice('Bearer '.length) : '';
+    const payload = token ? decodeMockToken(token) : null;
+
+    if (!payload || typeof payload.id !== 'string' || typeof payload.username !== 'string') {
+        return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+    }
+
+    if (typeof payload.exp === 'number' && payload.exp * 1000 < Date.now()) {
+        return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+    }
+
+    res.status(200).json({ success: true, payload: { id: payload.id, username: payload.username } });
 });
 
 app.listen(PORT, () => {
