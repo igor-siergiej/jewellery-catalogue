@@ -1,3 +1,10 @@
+# [1.72.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.71.1...v1.72.0) (2026-10-16)
+
+
+### Features
+
+* **etsy-mock:** CSV import for listings and receipts ([#122](https://github.com/igor-siergiej/jewellery-catalogue/issues/122)) ([353d438](https://github.com/igor-siergiej/jewellery-catalogue/commit/353d4383a7f756f6b7022344c2a7136d4bb7618d))
+
 ## [1.71.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.71.0...v1.71.1) (2026-10-16)
 
 
