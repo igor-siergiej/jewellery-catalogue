@@ -21,7 +21,12 @@ test.describe
             const disconnect = page.getByRole('button', { name: 'Disconnect' });
             if (await disconnect.isVisible()) {
                 await disconnect.click();
-                await expect(page.getByRole('button', { name: 'Connect Etsy' })).toBeVisible({ timeout: 15000 });
+                // A page reload re-establishes both buttons from a known state — the
+                // post-disconnect re-render races with cached api/etsy/connection data.
+                await page.reload();
+                await expect(page.getByRole('button', { name: 'Connect Etsy' })).toBeVisible({
+                    timeout: 15000,
+                });
             }
 
             await page.getByRole('button', { name: 'Connect Etsy' }).click();
