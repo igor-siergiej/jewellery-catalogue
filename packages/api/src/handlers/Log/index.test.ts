@@ -3,7 +3,11 @@ import type { Logger } from '@imapps/api-utils';
 import { createApp } from '@imapps/api-utils/hono';
 import type { Hono } from 'hono';
 
-import { createReceiveLogs, MAX_LOG_LINES_PER_MINUTE, MAX_LOGS_PER_BATCH } from '.';
+import { createReceiveLogs } from '.';
+
+// The web logger (packages/web/src/utils/logger) mirrors these limits.
+const MAX_LOGS_PER_BATCH = 20;
+const MAX_LOG_LINES_PER_MINUTE = 120;
 
 const logger = { info: mock(), warn: mock(), error: mock(), debug: mock() };
 let clock = 0;

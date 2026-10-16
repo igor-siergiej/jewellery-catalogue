@@ -4,14 +4,7 @@ import type { MakeRequestProps } from '@jewellery-catalogue/types';
 import { getAuthConfig } from '../../utils/authConfig';
 import { logger } from '../../utils/logger';
 
-export const makeRequest = async <T>({
-    pathname,
-    method,
-    operationString,
-    headers,
-    body,
-    accessToken,
-}: MakeRequestProps) => {
+const makeRequest = async <T>({ pathname, method, operationString, headers, body, accessToken }: MakeRequestProps) => {
     const parsedBody = body instanceof FormData ? body : JSON.stringify(body);
 
     const requestHeaders: Record<string, string> = {

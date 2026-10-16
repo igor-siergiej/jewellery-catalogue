@@ -5,8 +5,8 @@ import { z } from 'zod';
 
 type Ctx = Context<{ Variables: { userId: string } }>;
 
-export const MAX_LOGS_PER_BATCH = 20;
-export const MAX_LOG_LINES_PER_MINUTE = 120;
+const MAX_LOGS_PER_BATCH = 20;
+const MAX_LOG_LINES_PER_MINUTE = 120;
 const WINDOW_MS = 60_000;
 const MAX_CONTEXT_CHARS = 4000;
 
