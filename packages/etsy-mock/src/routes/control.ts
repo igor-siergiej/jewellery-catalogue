@@ -1,7 +1,7 @@
 import { Hono, type MiddlewareHandler } from 'hono';
 import type { Scenario } from '../fixtures';
 import { listingJson, receiptJson } from '../serialize';
-import type { AddListingInput, ListingState, MockStore } from '../store';
+import type { AddListingInput, ImportSummary, ListingState, MockStore } from '../store';
 
 export const faultInjection =
     (store: MockStore): MiddlewareHandler =>
@@ -119,6 +119,76 @@ export const controlRoutes = (store: MockStore, publicUrl: string) => {
         store.faults = [];
         return c.json({ ok: true });
     });
+
+    // Bulk-load real Etsy shop data. Body is the raw CSV (Content-Type: text/csv
+    // or application/json with a "csv" field). shopId comes from the query; if
+    // absent, the only existing shop is used. Returns an ImportSummary.
+    const resolveShopId = (raw: string | undefined): number | null => {
+        if (raw !== undefined) {
+            const n = Number(raw);
+            if (Number.isInteger(n) && n > 0) return n;
+            return null;
+        }
+        const ids = [...store.shops.keys()];
+        return ids.length === 1 ? (ids[0] ?? null) : null;
+    };
+
+    const readCsv = async (c: {
+        req: { header: (k: string) => string | undefined; text: () => Promise<string> };
+    }): Promise<string> => {
+        if ((c.req.header('content-type') ?? '').includes('application/json')) {
+            const body = (await c.req.json()) as { csv?: string };
+            if (typeof body.csv !== 'string') throw new Error('expected { csv: "..." } in JSON body');
+            return body.csv;
+        }
+        return c.req.text();
+    };
+
+    const runImport = async (
+        c: {
+            req: {
+                query: (k: string) => string | undefined;
+                header: (k: string) => string | undefined;
+                text: () => Promise<string>;
+            };
+        },
+        doImport: (csv: string) => ImportSummary
+    ) => {
+        const shopId = resolveShopId(c.req.query('shopId'));
+        if (shopId === null) return c.json({ error: 'shopId is required when more than one shop exists' }, 400);
+        try {
+            const csv = await readCsv(c);
+            return c.json(doImport(csv));
+        } catch (err) {
+            return c.json(
+                { error: err instanceof Error ? err.message : 'unknown error', imported: 0, skipped: 0 },
+                400
+            );
+        }
+    };
+
+    app.post('/import-listings', (c) =>
+        runImport(c, (csv) => {
+            const state = (c.req.query('state') as ListingState | undefined) ?? undefined;
+            const taxonomyRaw = c.req.query('taxonomyId');
+            const defaultTaxonomyId = taxonomyRaw ? Number(taxonomyRaw) : undefined;
+            const shopId = resolveShopId(c.req.query('shopId'));
+            if (shopId === null) throw new Error('shopId is required when more than one shop exists');
+            return store.importListingsFromCsv(csv, {
+                shopId,
+                ...(state ? { defaultState: state } : {}),
+                ...(defaultTaxonomyId && Number.isFinite(defaultTaxonomyId) ? { defaultTaxonomyId } : {}),
+            });
+        })
+    );
+
+    app.post('/import-receipts', (c) =>
+        runImport(c, (csv) => {
+            const shopId = resolveShopId(c.req.query('shopId'));
+            if (shopId === null) throw new Error('shopId is required when more than one shop exists');
+            return store.importReceiptsFromCsv(csv, { shopId });
+        })
+    );
 
     return app;
 };
