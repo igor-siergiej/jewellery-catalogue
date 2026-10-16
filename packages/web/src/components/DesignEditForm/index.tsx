@@ -29,6 +29,7 @@ import { useUserSettings } from '../../hooks/useUserSettings';
 import { DESIGN_TYPE_LABELS } from '../../lib/materialLabels';
 import { getTotalMaterialCosts } from '../../utils/getPriceOfMaterials';
 import { getWageCosts } from '../../utils/getWageCost';
+import { errorContext, logger } from '../../utils/logger';
 
 interface DesignEditFormProps {
     design: Design;
@@ -96,7 +97,7 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
             });
             onSuccess();
         } catch (e) {
-            console.error('[DesignEditForm] Error updating design:', e);
+            logger.error('Updating design failed', errorContext(e));
             const message = e instanceof Error ? e.message : 'Unknown Error';
 
             dispatch({

@@ -22,6 +22,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { makeUploadImageRequest } from '@/api/endpoints/uploadImage';
 import { Button } from '@/components/ui/button';
+import { errorContext, logger } from '@/utils/logger';
 import { ResizableImage } from './ResizableImage';
 
 export interface RichTextEditorProps {
@@ -92,7 +93,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
                 .setImage({ src: `/api/image/${imageId}` })
                 .run();
         } catch (err) {
-            console.error('[RichTextEditor] Image upload failed:', err);
+            logger.error('Rich text image upload failed', errorContext(err));
         } finally {
             setIsUploading(false);
         }

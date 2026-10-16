@@ -40,6 +40,9 @@ import Start from './pages/Start';
 import ViewDesign from './pages/ViewDesign';
 import { getAuthConfig } from './utils/authConfig';
 import { loadConfig } from './utils/loadConfig';
+import { installGlobalErrorLogging } from './utils/logger';
+
+installGlobalErrorLogging();
 
 const queryClient = new QueryClient({
     defaultOptions: {
