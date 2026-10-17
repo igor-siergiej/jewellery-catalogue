@@ -1,3 +1,4 @@
+import type { Logger } from '@imapps/api-utils';
 import {
     type FormGoal,
     formGoalSchema,
@@ -17,7 +18,8 @@ export class GoalService {
         private readonly goalRepo: GoalRepository,
         private readonly idGenerator: IdGenerator,
         private readonly etsyClient: EtsyClient,
-        private readonly etsyConnectionRepo: EtsyConnectionRepository
+        private readonly etsyConnectionRepo: EtsyConnectionRepository,
+        private readonly logger?: Logger
     ) {}
 
     // fallow-ignore-next-line unused-class-member
@@ -61,6 +63,8 @@ export class GoalService {
 
         await this.goalRepo.insert(goal);
 
+        this.logger?.info('goal.created', { entityId: goal.id, userId });
+
         return goal;
     }
 
@@ -84,6 +88,8 @@ export class GoalService {
         const updated: Goal = { ...existing, ...result.data, updatedAt: new Date() };
 
         await this.goalRepo.update(id, updated);
+
+        this.logger?.info('goal.updated', { entityId: id, userId });
 
         return updated;
     }
@@ -109,6 +115,8 @@ export class GoalService {
 
         await this.goalRepo.update(id, updated);
 
+        this.logger?.info('goal.synced_from_etsy', { entityId: id, userId, currentValue });
+
         return updated;
     }
 
@@ -125,6 +133,7 @@ export class GoalService {
         }
 
         await this.goalRepo.delete(id);
+        this.logger?.info('goal.deleted', { entityId: id, userId });
     }
 
     private async fetchEtsyValue(source: GoalSource, userId: string): Promise<number> {
