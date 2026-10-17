@@ -7,6 +7,12 @@ import { dependencyContainer, registerDepdendencies } from './dependencies';
 import { DependencyToken } from './dependencies/types';
 import { ensureAiUsageIndexes } from './infrastructure/MongoAiUsageRepository';
 import { ensureSaleIndexes } from './infrastructure/MongoSaleRepository';
+import {
+    httpRequestDurationSeconds,
+    httpRequestsTotal,
+    metricsRegister,
+    startDefaultMetrics,
+} from './infrastructure/metrics';
 import { createRoutes } from './routes';
 
 const port = config.get('port');
@@ -21,6 +27,8 @@ const allowedOrigins = [
 ];
 
 export const onStartup = async () => {
+    startDefaultMetrics();
+
     registerDepdendencies();
 
     const appLogger = dependencyContainer.resolve(DependencyToken.Logger);
@@ -87,6 +95,28 @@ export const onStartup = async () => {
         setInterval(syncEtsyOrders, ETSY_ORDER_SYNC_INTERVAL_MS).unref();
 
         const app = createApp({ logger: appLogger, allowedOrigins });
+
+        // Prometheus scrape endpoint — exposed before auth so the
+        // monitor (which has no Kivo token) can poll it. Same pattern
+        // as shoppingo. Not reachable from the public internet; the
+        // api container is on the dokploy internal network.
+        app.get('/api/metrics', async (c) => {
+            c.header('Content-Type', metricsRegister.contentType);
+            return c.body(await metricsRegister.metrics());
+        });
+
+        // Per-request timing + count. Labels use the matched route
+        // pattern so /api/designs/:id groups together instead of
+        // fanning out per-id.
+        app.use(async (c, next) => {
+            const endTimer = httpRequestDurationSeconds.startTimer();
+            await next();
+            const route = c.req.routePath ?? 'unmatched';
+            const labels = { method: c.req.method, route, status: String(c.res.status) };
+            endTimer(labels);
+            httpRequestsTotal.inc(labels);
+        });
+
         app.route('/', createRoutes());
 
         const etsyMockUrl = config.get('etsyMockUrl');

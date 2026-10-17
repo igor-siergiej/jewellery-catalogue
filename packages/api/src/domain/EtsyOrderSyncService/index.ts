@@ -1,6 +1,7 @@
 import type { Logger } from '@imapps/api-utils';
 import type { Design, EtsyConnection, Sale } from '@jewellery-catalogue/types';
 
+import { etsySalesImportedTotal, etsySyncsTotal } from '../../infrastructure/metrics';
 import type { DesignRepository } from '../DesignRepository';
 import { type EtsyClient, EtsyForbiddenError } from '../EtsyClient';
 import type { EtsyConnectionRepository } from '../EtsyConnectionRepository';
@@ -36,8 +37,11 @@ export class EtsyOrderSyncService {
             if (connection.broken) continue;
             try {
                 const result = await this.syncConnection(connection);
+                etsySyncsTotal.inc({ outcome: 'ok' });
+                if (result.imported > 0) etsySalesImportedTotal.inc(result.imported);
                 this.logger.info('Synced Etsy orders', { userId: connection.userId, ...result });
             } catch (error) {
+                etsySyncsTotal.inc({ outcome: 'failed' });
                 this.logger.error('Failed to sync Etsy orders', {
                     userId: connection.userId,
                     error: error instanceof Error ? error.message : error,

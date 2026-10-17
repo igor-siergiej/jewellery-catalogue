@@ -1,6 +1,7 @@
 import { Readable } from 'node:stream';
 import type { Logger } from '@imapps/api-utils';
 
+import { imageUploadsTotal } from '../../infrastructure/metrics';
 import { streamToBuffer } from '../../utils/streamToBuffer';
 import type { ImageGenerator, ImageResizer, ImageSize, ImageStore } from './types';
 import { IMAGE_SIZES } from './types';
@@ -58,8 +59,10 @@ export class ImageService {
 
         try {
             await this.store.putObject(name, buffer, { contentType });
+            imageUploadsTotal.inc({ outcome: 'ok' });
             this.logger?.info('Image uploaded successfully', { name, contentType });
         } catch (error) {
+            imageUploadsTotal.inc({ outcome: 'failed' });
             this.logger?.error('Failed to upload image', { name, error });
             throw Object.assign(new Error('Failed to upload image'), { status: 500 });
         }
