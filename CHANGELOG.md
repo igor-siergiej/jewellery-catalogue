@@ -1,3 +1,10 @@
+# [1.76.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.75.0...v1.76.0) (2026-10-17)
+
+
+### Features
+
+* **api:** stable event names for create/update/delete on entities ([#129](https://github.com/igor-siergiej/jewellery-catalogue/issues/129)) ([93c98b6](https://github.com/igor-siergiej/jewellery-catalogue/commit/93c98b6e7fdec17aff4b8ab625e6db66f1860f1a))
+
 # [1.75.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.74.0...v1.75.0) (2026-10-17)
 
 
