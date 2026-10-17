@@ -19,6 +19,8 @@ const logEntrySchema = z.object({
         .optional(),
     url: z.string().max(500).optional(),
     timestamp: z.string().max(40).optional(),
+    appVersion: z.string().max(60).optional(),
+    userAgent: z.string().max(500).optional(),
 });
 
 const logBatchSchema = z.object({
@@ -65,12 +67,14 @@ export const createReceiveLogs = ({ logger, now = Date.now }: ReceiveLogsDeps) =
         }
 
         const userAgent = c.req.header('user-agent') ?? 'unknown';
-        for (const { level, message, context, url, timestamp } of logs) {
+        for (const { level, message, context, url, timestamp, appVersion, userAgent: clientUserAgent } of logs) {
             // Server-observed fields go last so a client can't overwrite who sent the line.
             logger()[level](message, {
                 ...context,
                 url,
                 clientTimestamp: timestamp,
+                appVersion,
+                clientUserAgent,
                 source: 'frontend',
                 userId,
                 userAgent,

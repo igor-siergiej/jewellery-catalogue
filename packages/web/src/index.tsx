@@ -7,6 +7,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { GlobalAlert } from './components/Alert';
 import AppInitializer from './components/AppInitializer';
+import ErrorBoundary from './components/ErrorBoundary';
 import MainLayout from './components/MainLayout';
 import UpdatePrompt from './components/UpdatePrompt';
 import {
@@ -190,7 +191,9 @@ const initializeApp = async () => {
                                             <DraftStatusProvider>
                                                 <GlobalAlert />
                                                 <UpdatePrompt />
-                                                <App />
+                                                <ErrorBoundary>
+                                                    <App />
+                                                </ErrorBoundary>
                                             </DraftStatusProvider>
                                         </AlertProvider>
                                     </PWAProvider>
