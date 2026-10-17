@@ -1,8 +1,8 @@
 import type { Logger } from '@imapps/api-utils';
 import { APIError } from '@imapps/api-utils/hono';
 import type { Context, Next } from 'hono';
-
 import type { AiUsageRepository } from '../domain/AiUsageRepository';
+import { aiCallsTotal } from '../infrastructure/metrics';
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
@@ -58,6 +58,7 @@ export const createAiUsageMiddleware = (deps: {
             at: new Date(at),
         };
         deps.logger().info('AI call', { ...entry, at: entry.at.toISOString() });
+        aiCallsTotal.inc({ feature });
         await repo
             .record(entry)
             .catch((error: unknown) =>
