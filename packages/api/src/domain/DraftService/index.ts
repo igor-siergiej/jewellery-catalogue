@@ -1,3 +1,4 @@
+import type { Logger } from '@imapps/api-utils';
 import type { Draft, DraftType } from '@jewellery-catalogue/types';
 
 import type { DraftRepository } from '../DraftRepository';
@@ -8,7 +9,8 @@ export class DraftService {
     constructor(
         private readonly draftRepo: DraftRepository,
         private readonly imageService: ImageService,
-        private readonly idGenerator: IdGenerator
+        private readonly idGenerator: IdGenerator,
+        private readonly logger?: Logger
     ) {}
 
     async getDraftsByUserId(userId: string, type?: DraftType): Promise<Array<Draft>> {
@@ -49,6 +51,8 @@ export class DraftService {
 
         await this.draftRepo.insert(draft);
 
+        this.logger?.info('draft.created', { entityId: draft.id, userId, type });
+
         return draft;
     }
 
@@ -74,6 +78,8 @@ export class DraftService {
         };
 
         await this.draftRepo.update(id, updated);
+
+        this.logger?.info('draft.updated', { entityId: id, userId });
 
         return updated;
     }
@@ -107,5 +113,6 @@ export class DraftService {
         }
 
         await this.draftRepo.delete(id);
+        this.logger?.info('draft.deleted', { entityId: id, userId });
     }
 }

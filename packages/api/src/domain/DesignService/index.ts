@@ -1,3 +1,4 @@
+import type { Logger } from '@imapps/api-utils';
 import type {
     Design,
     DesignVariant,
@@ -9,7 +10,6 @@ import type {
     VariationGroup,
 } from '@jewellery-catalogue/types';
 import { MaterialType } from '@jewellery-catalogue/types';
-
 import { requiredStockAmount, stockOnHand } from '../../utils/material-conversion';
 import type { DesignRepository } from '../DesignRepository';
 import type { IdGenerator } from '../IdGenerator';
@@ -21,7 +21,8 @@ export class DesignService {
         private readonly designRepo: DesignRepository,
         private readonly imageService: ImageService,
         private readonly idGenerator: IdGenerator,
-        private readonly materialRepo: MaterialRepository
+        private readonly materialRepo: MaterialRepository,
+        private readonly logger?: Logger
     ) {}
 
     async getDesignsByUserId(userId: string): Promise<Array<Design>> {
@@ -135,6 +136,8 @@ export class DesignService {
 
         await this.designRepo.insert(design);
 
+        this.logger?.info('design.created', { entityId: design.id, userId });
+
         return design;
     }
 
@@ -161,6 +164,8 @@ export class DesignService {
         const updated = { ...existing, ...basicUpdates };
 
         await this.designRepo.update(id, updated);
+
+        this.logger?.info('design.updated', { entityId: id, userId });
 
         return updated;
     }
@@ -359,6 +364,8 @@ export class DesignService {
 
         await this.designRepo.update(designId, updatedDesign);
 
+        this.logger?.info('design.produced', { entityId: designId, userId, quantity });
+
         return updatedDesign;
     }
 
@@ -374,6 +381,7 @@ export class DesignService {
         }
 
         await this.designRepo.delete(id);
+        this.logger?.info('design.deleted', { entityId: id, userId });
     }
 }
 

@@ -84,7 +84,8 @@ export const registerDepdendencies = () => {
                 return new MaterialService(
                     dependencyContainer.resolve(DependencyToken.MaterialRepository),
                     dependencyContainer.resolve(DependencyToken.IdGenerator),
-                    dependencyContainer.resolve(DependencyToken.DesignRepository)
+                    dependencyContainer.resolve(DependencyToken.DesignRepository),
+                    dependencyContainer.resolve(DependencyToken.Logger)
                 );
             }
         } as any
@@ -112,7 +113,8 @@ export const registerDepdendencies = () => {
                     dependencyContainer.resolve(DependencyToken.DesignRepository),
                     dependencyContainer.resolve(DependencyToken.ImageService),
                     dependencyContainer.resolve(DependencyToken.IdGenerator),
-                    dependencyContainer.resolve(DependencyToken.MaterialRepository)
+                    dependencyContainer.resolve(DependencyToken.MaterialRepository),
+                    dependencyContainer.resolve(DependencyToken.Logger)
                 );
             }
         } as any
@@ -134,7 +136,8 @@ export const registerDepdendencies = () => {
                 return new DraftService(
                     dependencyContainer.resolve(DependencyToken.DraftRepository),
                     dependencyContainer.resolve(DependencyToken.ImageService),
-                    dependencyContainer.resolve(DependencyToken.IdGenerator)
+                    dependencyContainer.resolve(DependencyToken.IdGenerator),
+                    dependencyContainer.resolve(DependencyToken.Logger)
                 );
             }
         } as any
@@ -406,7 +409,8 @@ export const registerDepdendencies = () => {
                     dependencyContainer.resolve(DependencyToken.GoalRepository),
                     dependencyContainer.resolve(DependencyToken.IdGenerator),
                     dependencyContainer.resolve(DependencyToken.EtsyClient),
-                    dependencyContainer.resolve(DependencyToken.EtsyConnectionRepository)
+                    dependencyContainer.resolve(DependencyToken.EtsyConnectionRepository),
+                    dependencyContainer.resolve(DependencyToken.Logger)
                 );
             }
         } as any
@@ -418,7 +422,8 @@ export const registerDepdendencies = () => {
             constructor() {
                 return new TaskService(
                     dependencyContainer.resolve(DependencyToken.TaskRepository),
-                    dependencyContainer.resolve(DependencyToken.IdGenerator)
+                    dependencyContainer.resolve(DependencyToken.IdGenerator),
+                    dependencyContainer.resolve(DependencyToken.Logger)
                 );
             }
         } as any

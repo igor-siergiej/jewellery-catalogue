@@ -1,3 +1,4 @@
+import type { Logger } from '@imapps/api-utils';
 import {
     type DesignVariant,
     type FormMaterial,
@@ -18,7 +19,8 @@ export class MaterialService {
     constructor(
         private readonly materialRepo: MaterialRepository,
         private readonly idGenerator: IdGenerator,
-        private readonly designRepo: DesignRepository
+        private readonly designRepo: DesignRepository,
+        private readonly logger?: Logger
     ) {}
 
     // fallow-ignore-next-line unused-class-member
@@ -60,6 +62,8 @@ export class MaterialService {
 
         await this.materialRepo.insert(material);
 
+        this.logger?.info('material.created', { entityId: material.id, userId });
+
         return material;
     }
 
@@ -91,6 +95,8 @@ export class MaterialService {
         await this.materialRepo.update(id, processed);
 
         const affectedDesignsCount = await this.propagateMaterialUpdateToDesigns(id, processed, userId);
+
+        this.logger?.info('material.updated', { entityId: id, userId, priceChanged });
 
         return { material: processed, affectedDesignsCount, priceChanged };
     }
@@ -388,6 +394,7 @@ export class MaterialService {
         }
 
         await this.materialRepo.delete(id);
+        this.logger?.info('material.deleted', { entityId: id, userId });
     }
 
     private validateAndConvertMaterial(materialData: FormMaterial, userId: string): Material {

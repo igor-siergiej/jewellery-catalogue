@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
+import type { Logger } from '@imapps/api-utils';
 import type { Chain, Design, RequiredMaterial, UploadDesign, Wire } from '@jewellery-catalogue/types';
 import { MaterialType, METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
-
 import type { DesignRepository } from '../DesignRepository';
 import type { IdGenerator } from '../IdGenerator';
 import type { ImageService } from '../ImageService';
@@ -37,6 +37,13 @@ const mockMaterialRepo = {
     delete: mock(),
 };
 
+const mockLogger = {
+    info: mock(),
+    warn: mock(),
+    error: mock(),
+    debug: mock(),
+};
+
 describe('DesignService', () => {
     let service: DesignService;
 
@@ -46,7 +53,8 @@ describe('DesignService', () => {
             mockDesignRepo as unknown as DesignRepository,
             mockImageService as unknown as ImageService,
             mockIdGenerator as unknown as IdGenerator,
-            mockMaterialRepo as unknown as MaterialRepository
+            mockMaterialRepo as unknown as MaterialRepository,
+            mockLogger as unknown as Logger
         );
     });
 
@@ -734,6 +742,52 @@ describe('DesignService', () => {
             await expect(service.produceDesigns(designId, 1, userId)).rejects.toMatchObject({
                 message: expect.stringContaining('Insufficient stock'),
                 status: 400,
+            });
+        });
+    });
+
+    describe('domain event logging', () => {
+        it('logs design.created with entityId and userId when addDesign succeeds', async () => {
+            const designId = 'design-new';
+            const userId = 'user-event';
+            mockIdGenerator.generate.mockReturnValueOnce(designId);
+            mockDesignRepo.insert.mockResolvedValue(undefined);
+
+            await service.addDesign(
+                {
+                    name: 'Test',
+                    description: '',
+                    timeRequired: '30',
+                    totalMaterialCosts: 0,
+                    price: 0,
+                    materials: [] as unknown as UploadDesign['materials'],
+                    lowStockThreshold: 0,
+                    designType: 'necklace' as const,
+                } as unknown as UploadDesign,
+                [],
+                [],
+                [],
+                [],
+                userId
+            );
+
+            expect(mockLogger.info).toHaveBeenCalledWith('design.created', {
+                entityId: designId,
+                userId,
+            });
+        });
+
+        it('logs design.deleted when deleteDesign succeeds', async () => {
+            const designId = 'design-del';
+            const userId = 'user-event';
+            mockDesignRepo.getByIdAndUserId.mockResolvedValue({ id: designId, userId } as Design);
+            mockDesignRepo.delete.mockResolvedValue(undefined);
+
+            await service.deleteDesign(designId, userId);
+
+            expect(mockLogger.info).toHaveBeenCalledWith('design.deleted', {
+                entityId: designId,
+                userId,
             });
         });
     });
