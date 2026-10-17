@@ -88,4 +88,29 @@ describe('receiveLogs', () => {
         clock = 60_000;
         expect((await send(app, { logs: [line()] })).status).toBe(204);
     });
+
+    it('forwards appVersion and client userAgent so a stale-bundle client can be identified', async () => {
+        const res = await send(buildApp(), {
+            logs: [
+                {
+                    level: 'error',
+                    message: 'stale bundle',
+                    appVersion: '1.72.0-stale',
+                    userAgent: 'OldBrowser/1.0',
+                },
+            ],
+        });
+
+        expect(res.status).toBe(204);
+        expect(logger.error).toHaveBeenCalledWith(
+            'stale bundle',
+            expect.objectContaining({
+                appVersion: '1.72.0-stale',
+                clientUserAgent: 'OldBrowser/1.0',
+                source: 'frontend',
+                // Server still stamps its own userAgent last so a client cannot overwrite it.
+                userAgent: 'test-agent',
+            })
+        );
+    });
 });
