@@ -4,9 +4,18 @@ import type { Context } from 'hono';
 import '../test-setup';
 import { Logger } from '@imapps/api-utils';
 import { dependencyContainer } from '../dependencies';
-import { resetContainer } from '../dependencies/test-helpers';
 import { DependencyToken } from '../dependencies/types';
 import { authenticate, authenticateImageRequest } from './auth';
+
+// The DependencyContainer's `instances` and `constructors` are private
+// (public API is only register/resolve), so resetting the singleton state
+// for tests goes through a typed cast with a short reason.
+type ContainerInternal = { instances: Record<string, unknown>; constructors: Record<string, unknown> };
+const resetContainer = (): void => {
+    const internal = dependencyContainer as unknown as ContainerInternal;
+    internal.instances = {};
+    internal.constructors = {};
+};
 
 type AuthVars = { Variables: { userId: string; requestId: string } };
 
