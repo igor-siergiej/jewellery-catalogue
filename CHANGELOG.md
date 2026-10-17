@@ -1,3 +1,10 @@
+# [1.74.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.73.0...v1.74.0) (2026-10-17)
+
+
+### Features
+
+* **api:** structured auth-failure logging via DI Logger ([#126](https://github.com/igor-siergiej/jewellery-catalogue/issues/126)) ([a89a085](https://github.com/igor-siergiej/jewellery-catalogue/commit/a89a085cda7fc0150522f835275878662bb324d0))
+
 # [1.73.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.72.0...v1.73.0) (2026-10-16)
 
 
