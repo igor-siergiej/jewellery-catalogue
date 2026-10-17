@@ -1,3 +1,10 @@
+# [1.75.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.74.0...v1.75.0) (2026-10-17)
+
+
+### Features
+
+* **web:** JSON access logs + 404 for scanner probes ([#128](https://github.com/igor-siergiej/jewellery-catalogue/issues/128)) ([d4eaad1](https://github.com/igor-siergiej/jewellery-catalogue/commit/d4eaad1148fb02c392a50cb758dffdd551f35079))
+
 # [1.74.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.73.0...v1.74.0) (2026-10-17)
 
 
