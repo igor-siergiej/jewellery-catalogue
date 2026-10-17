@@ -1,3 +1,10 @@
+# [1.77.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.76.0...v1.77.0) (2026-10-17)
+
+
+### Features
+
+* **api:** Prometheus metrics endpoint + domain counters ([#130](https://github.com/igor-siergiej/jewellery-catalogue/issues/130)) ([28abe4d](https://github.com/igor-siergiej/jewellery-catalogue/commit/28abe4dd1e367d8a4f059a5483b0695ba2a49953))
+
 # [1.76.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.75.0...v1.76.0) (2026-10-17)
 
 
