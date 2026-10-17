@@ -16,31 +16,11 @@ RUN APP_VERSION="$APP_VERSION" bun run --filter @jewellery-catalogue/web build
 
 FROM nginx:alpine
 
+# Single source of truth for the web's nginx config — kept in
+# packages/web/nginx.conf so the same rules ship to the e2e harness,
+# the dev mirror, and prod. Avoids the heredoc drift we used to have.
 RUN rm /etc/nginx/conf.d/default.conf
-COPY <<EOF /etc/nginx/conf.d/default.conf
-include /etc/nginx/mime.types;
-
-server {
-    listen 3000;
-    root /usr/share/nginx/html;
-    index index.html;
-
-    location = /index.html {
-        add_header Cache-Control "no-cache, no-store, must-revalidate";
-        add_header Pragma "no-cache";
-        expires 0;
-    }
-
-    location / {
-        try_files \$uri \$uri/ /index.html;
-    }
-
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-}
-EOF
+COPY packages/web/nginx.conf /etc/nginx/conf.d/default.conf
 
 COPY --from=builder /app/packages/web/build /usr/share/nginx/html
 
