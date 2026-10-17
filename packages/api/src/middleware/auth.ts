@@ -1,3 +1,4 @@
+import type { Logger } from '@imapps/api-utils';
 import type { Context, Next } from 'hono';
 
 import { config } from '../config';
@@ -13,16 +14,37 @@ interface KivoVerifyResponse {
     message?: string;
 }
 
-type AuthVariables = { Variables: { userId: string } };
+type AuthVariables = { Variables: { userId: string; requestId: string } };
+
+type AuthFailureReason = 'missing_token' | 'invalid_token' | 'invalid_response';
 
 // Verifies a token with Kivo and stamps userId on the context. Returns an error response
 // if verification fails or the token is missing, otherwise undefined to signal success.
+// All 401s log at `warn` with a reason (never the token); the 503 from a Kivo outage
+// logs at `error` with the thrown error message.
 const verifyKivoToken = async (
     c: Context<AuthVariables>,
     token: string | undefined,
     missingTokenMessage: string
 ): Promise<Response | undefined> => {
+    const logger: Logger = dependencyContainer.resolve(DependencyToken.Logger);
+    const method = c.req.method;
+    const path = c.req.path;
+    const log = (
+        level: 'warn' | 'error',
+        reason: AuthFailureReason | 'kivo_unavailable',
+        extra: Record<string, unknown> = {}
+    ) =>
+        logger[level](`Authentication failure: ${reason}`, {
+            reason,
+            method,
+            path,
+            userId: c.get('userId'),
+            ...extra,
+        });
+
     if (!token) {
+        log('warn', 'missing_token');
         return c.json({ error: missingTokenMessage }, 401);
     }
 
@@ -44,21 +66,21 @@ const verifyKivoToken = async (
         });
 
         if (!response.ok) {
+            log('warn', 'invalid_token', { kivoStatus: response.status });
             return c.json({ error: 'Invalid or expired token' }, 401);
         }
 
         const data = (await response.json()) as KivoVerifyResponse;
 
         if (!data.success || !data.payload) {
+            log('warn', 'invalid_response');
             return c.json({ error: 'Invalid token response' }, 401);
         }
 
         c.set('userId', data.payload.id);
         return undefined;
     } catch (error) {
-        dependencyContainer.resolve(DependencyToken.Logger).error('Kivo token verification failed', {
-            error: error instanceof Error ? error.message : error,
-        });
+        log('error', 'kivo_unavailable', { errorMessage: (error as Error).message });
         return c.json({ error: 'Authentication service unavailable' }, 503);
     }
 };

@@ -2,9 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'bun:test';
 import type { Context } from 'hono';
 
 import '../test-setup';
+import { Logger } from '@imapps/api-utils';
+import { dependencyContainer } from '../dependencies';
+import { resetContainer } from '../dependencies/test-helpers';
+import { DependencyToken } from '../dependencies/types';
 import { authenticate, authenticateImageRequest } from './auth';
 
-type AuthVars = { Variables: { userId: string } };
+type AuthVars = { Variables: { userId: string; requestId: string } };
 
 const createMockContext = (
     headers: Record<string, string> = {},
@@ -39,6 +43,10 @@ const mockNext = vi.fn().mockResolvedValue(undefined);
 describe('authenticate middleware', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        // Reset the container and re-register just the Logger so the auth
+        // middleware can resolve it without spinning up the full dep graph.
+        resetContainer();
+        dependencyContainer.registerSingleton(DependencyToken.Logger, Logger);
     });
 
     describe('When Authorization header is missing', () => {
