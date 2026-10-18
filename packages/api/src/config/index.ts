@@ -9,6 +9,8 @@ const schema = {
     bucketAccessKey: { parser: parsers.string, from: 'BUCKET_ACCESS_KEY' },
     bucketSecretKey: { parser: parsers.string, from: 'BUCKET_SECRET_KEY' },
     bucketEndpoint: { parser: parsers.string, from: 'BUCKET_ENDPOINT' },
+    // Test-only: keep images in process memory instead of the S3 bucket (e2e runs without MinIO).
+    inMemoryImageStore: { parser: parsers.boolean, from: 'IN_MEMORY_IMAGE_STORE', optional: true },
     etsyApiKey: { parser: parsers.string, from: 'ETSY_API_KEY' },
     etsySharedSecret: { parser: parsers.string, from: 'ETSY_SHARED_SECRET' },
     etsyRedirectUri: { parser: parsers.string, from: 'ETSY_REDIRECT_URI' },

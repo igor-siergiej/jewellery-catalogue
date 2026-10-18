@@ -46,13 +46,17 @@ export const onStartup = async () => {
         });
         appLogger.info('Connected to database');
 
-        await bucket.connect?.({
-            endpoint: config.get('bucketEndpoint'),
-            accessKey: config.get('bucketAccessKey'),
-            secretKey: config.get('bucketSecretKey'),
-            bucketName: config.get('bucketName'),
-        });
-        appLogger.info('Connected to object store');
+        if (config.get('inMemoryImageStore')) {
+            appLogger.warn('IN_MEMORY_IMAGE_STORE is set: images are kept in memory, not the object store');
+        } else {
+            await bucket.connect?.({
+                endpoint: config.get('bucketEndpoint'),
+                accessKey: config.get('bucketAccessKey'),
+                secretKey: config.get('bucketSecretKey'),
+                bucketName: config.get('bucketName'),
+            });
+            appLogger.info('Connected to object store');
+        }
 
         appLogger.info('Creating database indexes');
         const designsCollection = database.getCollection('designs' as any);

@@ -24,6 +24,7 @@ import { TaskService } from '../domain/TaskService';
 import { UserSettingsService } from '../domain/UserSettingsService';
 import { BucketStore } from '../infrastructure/BucketStore';
 import { FalVisionClient } from '../infrastructure/FalVisionClient';
+import { InMemoryImageStore } from '../infrastructure/InMemoryImageStore';
 import { MongoAiUsageRepository } from '../infrastructure/MongoAiUsageRepository';
 import { MongoDesignRepository } from '../infrastructure/MongoDesignRepository';
 import { MongoDraftRepository } from '../infrastructure/MongoDraftRepository';
@@ -52,7 +53,9 @@ export const registerDepdendencies = () => {
         DependencyToken.ImageStore,
         class {
             constructor() {
-                return new BucketStore(dependencyContainer.resolve(DependencyToken.Bucket));
+                return config.get('inMemoryImageStore')
+                    ? new InMemoryImageStore()
+                    : new BucketStore(dependencyContainer.resolve(DependencyToken.Bucket));
             }
         } as any
     );
