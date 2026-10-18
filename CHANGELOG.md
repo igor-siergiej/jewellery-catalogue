@@ -1,3 +1,10 @@
+## [1.77.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.77.0...v1.77.1) (2026-10-18)
+
+
+### Bug Fixes
+
+* **e2e:** run nginx scanner-probe checks only against deployed targets ([#133](https://github.com/igor-siergiej/jewellery-catalogue/issues/133)) ([ad47ca8](https://github.com/igor-siergiej/jewellery-catalogue/commit/ad47ca8f81c3626fa18094bf494b773b7428edc9))
+
 # [1.77.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.76.0...v1.77.0) (2026-10-17)
 
 
