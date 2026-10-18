@@ -3,12 +3,12 @@ import { AlertCircle, CheckCircle2, ExternalLink, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
+import AppVersionCard from '@/components/AppVersionCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-
 import { DataExport } from '../../components/DataExport';
 import { useEtsyConnection } from '../../hooks/useEtsyConnection';
 import { useEtsyShippingProfiles } from '../../hooks/useEtsyShippingProfiles';
@@ -399,6 +399,7 @@ const Settings = () => {
                 </Card>
             )}
 
+            <AppVersionCard />
             <DataExport />
         </div>
     );

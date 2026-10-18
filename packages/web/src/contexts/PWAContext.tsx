@@ -4,11 +4,15 @@ import { createContext, useCallback, useContext, useRef, useState } from 'react'
 
 const UPDATE_CHECK_INTERVAL_MS = 5 * 60 * 1000;
 
+export type UpdateCheckResult = 'available' | 'latest' | 'error';
+
 interface PWAContextType {
     hasUpdate: boolean;
     isUpdating: boolean;
+    isChecking: boolean;
     updateApp: () => void;
     dismissUpdate: () => void;
+    checkForUpdate: () => Promise<UpdateCheckResult>;
 }
 
 const PWAContext = createContext<PWAContextType | undefined>(undefined);
@@ -23,9 +27,26 @@ export const usePWAContext = () => {
     return context;
 };
 
+const waitForInstall = (worker: ServiceWorker) =>
+    new Promise<boolean>((resolve) => {
+        const onChange = () => {
+            if (worker.state === 'installed') {
+                worker.removeEventListener('statechange', onChange);
+                resolve(true);
+            } else if (worker.state === 'redundant') {
+                worker.removeEventListener('statechange', onChange);
+                resolve(false);
+            }
+        };
+
+        worker.addEventListener('statechange', onChange);
+        onChange();
+    });
+
 export const PWAProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [hasUpdate, setHasUpdate] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [isChecking, setIsChecking] = useState(false);
     const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
 
     const { updateServiceWorker } = useRegisterSW({
@@ -34,16 +55,16 @@ export const PWAProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
             registrationRef.current = registration;
 
-            const checkForUpdate = () => {
+            const checkInBackground = () => {
                 if (!registration.installing && navigator.onLine) {
                     void registration.update();
                 }
             };
 
-            setInterval(checkForUpdate, UPDATE_CHECK_INTERVAL_MS);
+            setInterval(checkInBackground, UPDATE_CHECK_INTERVAL_MS);
             document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible') {
-                    checkForUpdate();
+                    checkInBackground();
                 }
             });
         },
@@ -51,6 +72,36 @@ export const PWAProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setHasUpdate(true);
         },
     });
+
+    const checkForUpdate = useCallback(async (): Promise<UpdateCheckResult> => {
+        const registration = registrationRef.current;
+
+        if (!registration || !navigator.onLine) return 'error';
+
+        setIsChecking(true);
+
+        try {
+            await registration.update();
+
+            if (registration.waiting) {
+                setHasUpdate(true);
+
+                return 'available';
+            }
+
+            if (registration.installing && (await waitForInstall(registration.installing))) {
+                setHasUpdate(true);
+
+                return 'available';
+            }
+
+            return 'latest';
+        } catch {
+            return 'error';
+        } finally {
+            setIsChecking(false);
+        }
+    }, []);
 
     const updateApp = useCallback(() => {
         setIsUpdating(true);
@@ -60,7 +111,7 @@ export const PWAProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const dismissUpdate = useCallback(() => setHasUpdate(false), []);
 
     return (
-        <PWAContext.Provider value={{ hasUpdate, isUpdating, updateApp, dismissUpdate }}>
+        <PWAContext.Provider value={{ hasUpdate, isUpdating, isChecking, updateApp, dismissUpdate, checkForUpdate }}>
             {children}
         </PWAContext.Provider>
     );
