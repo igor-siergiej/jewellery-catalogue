@@ -56,7 +56,7 @@ export class TaskService {
 
         await this.taskRepo.insert(task);
 
-        this.logger?.info('task.created', { entityId: task.id, userId });
+        this.logger?.info('task.created', { event: 'task.created', entityId: task.id, userId });
 
         return task;
     }
@@ -87,7 +87,12 @@ export class TaskService {
 
         await this.taskRepo.update(id, updated);
 
-        this.logger?.info('task.updated', { entityId: id, userId, status: updated.status });
+        this.logger?.info('task.updated', {
+            event: 'task.updated',
+            entityId: id,
+            userId,
+            status: updated.status,
+        });
 
         if (existing.status !== 'done' && updated.status === 'done' && updated.recurrence !== 'none') {
             await this.taskRepo.insert(this.buildNextOccurrence(updated));
@@ -132,7 +137,7 @@ export class TaskService {
         await this.getOwnedTask(id, userId);
 
         await this.taskRepo.delete(id);
-        this.logger?.info('task.deleted', { entityId: id, userId });
+        this.logger?.info('task.deleted', { event: 'task.deleted', entityId: id, userId });
     }
 
     // fallow-ignore-next-line unused-class-member

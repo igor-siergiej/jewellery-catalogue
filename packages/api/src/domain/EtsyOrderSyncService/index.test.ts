@@ -134,6 +134,48 @@ describe('EtsyOrderSyncService', () => {
             expect(result).toEqual({ imported: 2, applied: 1, unmatched: 0 });
         });
 
+        it('emits sale.recorded for each newly inserted sale with event name, entityId and userId', async () => {
+            await service.syncConnection(makeConnection());
+
+            const recordedCalls = mockLogger.info.mock.calls.filter(([msg]) => msg === 'sale.recorded');
+            expect(recordedCalls).toHaveLength(2);
+            for (const [, meta] of recordedCalls) {
+                expect(meta).toMatchObject({
+                    event: 'sale.recorded',
+                    userId: 'user-1',
+                });
+                expect(typeof meta.entityId).toBe('string');
+            }
+        });
+
+        it('emits sale.applied when a pending sale is matched to a design', async () => {
+            await service.syncConnection(makeConnection());
+
+            expect(mockLogger.info).toHaveBeenCalledWith(
+                'sale.applied',
+                expect.objectContaining({
+                    event: 'sale.applied',
+                    entityId: '21',
+                    userId: 'user-1',
+                })
+            );
+        });
+
+        it('emits sale.unmatched when a pending sale target design has been deleted', async () => {
+            mockDesignRepo.applyEtsySale.mockResolvedValue('design_not_found');
+
+            await service.syncConnection(makeConnection());
+
+            expect(mockLogger.info).toHaveBeenCalledWith(
+                'sale.unmatched',
+                expect.objectContaining({
+                    event: 'sale.unmatched',
+                    entityId: '21',
+                    userId: 'user-1',
+                })
+            );
+        });
+
         it('does not re-apply a sale already seen on an earlier poll', async () => {
             mockSaleRepo.insertIfNew.mockResolvedValue(false);
             mockSaleRepo.getPendingByUserId.mockResolvedValue([]);
