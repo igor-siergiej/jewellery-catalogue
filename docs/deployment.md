@@ -1,7 +1,7 @@
 # Deployment and operations
 
 How a merge reaches https://jewellery-catalogue.imapps.uk and how it runs there.
-Homelab-wide details (tunnel, DNS, Access, Mongo/MinIO, backups) are in
+Homelab-wide details (tunnel, DNS, Access, Mongo/RustFS, backups) are in
 `foundry/docs/homelab.md`; this page covers only what is specific to this app.
 
 Diagram: [diagrams/architecture.excalidraw](diagrams/architecture.excalidraw)
@@ -43,9 +43,12 @@ and tailnet → blocky → Traefik directly. jewellery-catalogue is a Cloudflare
 Access **Bypass** app, so Kivo login is the only gate on every path.
 
 Data: the shared `mongodb` (databases `jewellery_production` /
-`jewellery_staging` per `foundry/mongodb/README.md`) and the shared `minio`
-bucket for design/draft images, both reached over `dokploy-network`. Backups are
-the homelab's (see `foundry/backups/`).
+`jewellery_staging` per `foundry/mongodb/README.md`) and the shared RustFS
+object store (`BUCKET_ENDPOINT=rustfs:9000`) for design/draft images, both
+reached over `dokploy-network`. The API authenticates to RustFS as the
+dedicated IAM user `jewellery-catalogue` (policy `jewellery-catalogue-rw`), not
+the root credentials; `BUCKET_ACCESS_KEY`/`BUCKET_SECRET_KEY` are set in the
+Dokploy env. Backups are the homelab's (see `foundry/backups/`).
 
 The API runs as a single instance and keeps Etsy OAuth state in memory, so a
 deploy during someone's Etsy consent screen invalidates that attempt.

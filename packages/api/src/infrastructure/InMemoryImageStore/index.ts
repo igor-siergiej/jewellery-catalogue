@@ -8,7 +8,7 @@ interface StoredObject {
 }
 
 // Test-only stand-in for BucketStore, selected with IN_MEMORY_IMAGE_STORE=true so e2e runs
-// need no S3/MinIO server. Objects live in process memory and are lost on restart.
+// need no S3 object store. Objects live in process memory and are lost on restart.
 export class InMemoryImageStore implements ImageStore {
     private readonly objects = new Map<string, StoredObject>();
 
