@@ -33,7 +33,9 @@ Make it easier to organise and keep track of jewellery designs and the materials
 ## Architecture
 
 Bun-workspace monorepo — `packages/web`, `packages/api`, `packages/types`
-(shared interfaces and form models).
+(shared interfaces and form models), `packages/etsy-mock` (local fake of the
+Etsy API). Diagram: [docs/diagrams/architecture.excalidraw](docs/diagrams/architecture.excalidraw)
+(open in excalidraw.com or the VS Code Excalidraw extension).
 
 - **web** — React 19 + TypeScript + Vite 8. Tailwind 4, Radix/shadcn UI, React
   Query for server state, React Router 7, react-hook-form + Zod for the design
@@ -45,36 +47,45 @@ Bun-workspace monorepo — `packages/web`, `packages/api`, `packages/types`
   wires the DI container.
 - **Etsy integration** lives in its own cluster of services —
   `EtsyConnectionService` (OAuth + `EtsyOAuthStateStore`), `EtsyClient`,
-  `EtsyPushService`, `EtsyReconcileService`, `EtsyStatusService`.
+  `EtsyPushService`, `EtsyReconcileService`, `EtsyStatusService`,
+  `EtsyListingRefreshService`, and `EtsyOrderSyncService` (pulls sales every 15
+  minutes and draws down stock). What syncs in which direction:
+  [docs/etsy.md](docs/etsy.md).
 - **AI listing copy** — `EtsyListingCopyService` drafts the Etsy title,
   description and 13 tags from a design's materials and photos via fal.ai
   (`FAL_KEY`, optional `FAL_MODEL`, default `google/gemini-2.5-flash`). Without
   `FAL_KEY` the "Generate with AI" button reports it isn't configured; pushing
   still works.
-- **data** — MongoDB (native driver). Design and listing images are stored in
-  MinIO / S3-compatible object storage.
-- **auth** — a separate auth service issues JWTs; a local `mock-auth-server`
-  stands in for it in development.
+- **data** — MongoDB (native driver). Design and draft images are stored in
+  MinIO / S3-compatible object storage; listings imported from Etsy keep their
+  Etsy-hosted image URLs.
+- **auth** — the shared Kivo auth service issues JWTs; the API verifies each
+  bearer token against `${AUTH_URL}/verify` and scopes every query by user. A
+  local `mock-auth-server` stands in for it in development.
 
 ## Running it
 
-Requires **Bun 1.x**, a local **MongoDB**, and **MinIO**. Copy the env templates
-and fill them in:
+Requires **Bun 1.x**, a **MongoDB**, and **MinIO**. Copy the env template (the
+root scripts load the root `.env`) and fill it in — variable reference in
+[docs/development.md](docs/development.md#environment):
 
 ```bash
-cp packages/api/.env.example packages/api/.env
+cp .env.example .env
 bun install
-bun start                 # web on :3000, api from packages/api/.env
+bun start                 # web on :3000, api on $PORT (3001 for the Vite proxy)
 bun start:with-mock       # same, with the mock auth server
 ```
 
 ```bash
 bun lint                                        # Biome
-bun tsc --noEmit                                # type-check
+bunx tsc -p packages/api --noEmit               # type-check (root tsconfig has files: [])
 bun --filter @jewellery-catalogue/api test      # API tests (Bun runner)
 RUN_INTEGRATION_TESTS=1 bun --filter @jewellery-catalogue/api test integration
 cd packages/web && bun pw:e2e                   # Playwright e2e
 ```
+
+More on tests, scripts and the e2e setup: [docs/development.md](docs/development.md)
+and [docs/e2e-coverage.md](docs/e2e-coverage.md). All docs: [docs/](docs/README.md).
 
 ### Testing the Etsy integration without a shop
 
@@ -86,15 +97,16 @@ run `bun start:with-etsy-mock` and connect Etsy in Settings — choose the
 `no-shop` scenario to reproduce the "account without a shop" failure
 (prod behaves the same way today). The dashboard at
 http://localhost:3010/ lets you publish, sell, expire tokens and inject a
-fault; the `/__mock/*` control API drives e2e.
+fault; the `/__mock/*` control API does the same from scripts (Playwright e2e
+stubs the app's own `/api` instead).
 
 ## CI/CD
 
-- **`pull-request.yml`** on every PR: lint → API tests → integration tests
-  (dockerised MongoDB) → Playwright e2e → dead-code check. Semgrep security
-  scanning (security-audit, TypeScript, OWASP).
-- **`ci-cd.yml`** on merge to `main`: the same checks → semantic-release →
-  Docker image build/publish (ghcr.io) → deploy. Runs on Dokploy.
+- **`pull-request.yml`** on every PR: lint, then in parallel tsc + API tests,
+  integration tests (dockerised MongoDB), Playwright e2e and a `fallow` audit.
+- **`ci-cd.yml`** on merge to `main`: lint/tests → semantic-release → Docker
+  images pushed to Docker Hub (`igurusama/imapps:jewellery-catalogue-{api,web}-<version>`)
+  → Dokploy deploy webhooks. Details: [docs/deployment.md](docs/deployment.md).
 
 ## Decisions
 
