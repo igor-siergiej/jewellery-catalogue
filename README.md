@@ -56,8 +56,8 @@ Etsy API). Diagram: [docs/diagrams/architecture.excalidraw](docs/diagrams/archit
   (`FAL_KEY`, optional `FAL_MODEL`, default `google/gemini-2.5-flash`). Without
   `FAL_KEY` the "Generate with AI" button reports it isn't configured; pushing
   still works.
-- **data** — MongoDB (native driver). Design and draft images are stored in
-  MinIO / S3-compatible object storage; listings imported from Etsy keep their
+- **data** — MongoDB (native driver). Design and draft images are stored in an
+  S3-compatible object store (RustFS); listings imported from Etsy keep their
   Etsy-hosted image URLs.
 - **auth** — the shared Kivo auth service issues JWTs; the API verifies each
   bearer token against `${AUTH_URL}/verify` and scopes every query by user. A
@@ -65,7 +65,9 @@ Etsy API). Diagram: [docs/diagrams/architecture.excalidraw](docs/diagrams/archit
 
 ## Running it
 
-Requires **Bun 1.x**, a **MongoDB**, and **MinIO**. Copy the env template (the
+Requires **Bun 1.x**, a **MongoDB**, and an **S3-compatible object store**
+(RustFS; the shared dev stack in `utils/docker/docker-compose.yml` provides
+both, with the buckets already created). Copy the env template (the
 root scripts load the root `.env`) and fill it in — variable reference in
 [docs/development.md](docs/development.md#environment):
 

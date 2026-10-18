@@ -2,7 +2,7 @@
 
 | Doc | What |
 |---|---|
-| [diagrams/architecture.excalidraw](diagrams/architecture.excalidraw) | Packages, API services, Mongo/MinIO, Etsy/fal.ai/Kivo, Dokploy ingress, CI (open in excalidraw.com or the VS Code Excalidraw extension) |
+| [diagrams/architecture.excalidraw](diagrams/architecture.excalidraw) | Packages, API services, Mongo/RustFS, Etsy/fal.ai/Kivo, Dokploy ingress, CI (open in excalidraw.com or the VS Code Excalidraw extension) |
 | [development.md](development.md) | Local setup, env var names, scripts, tests |
 | [etsy.md](etsy.md) | Etsy integration operator guide: connecting a shop, what syncs in which direction, the mock |
 | [deployment.md](deployment.md) | Release pipeline, Dokploy runtime, observability |

@@ -18,7 +18,8 @@ file covers what you need to change the code safely.
 - **api:** Hono 4 on the Bun runtime. `createApp` and `APIError` come from
   `@imapps/api-utils/hono`. The DI container, `MongoDbConnection`, `ObjectStoreConnection`,
   `ConfigService` and `Logger` come from `@imapps/api-utils`. MongoDB native driver 6 (the
-  connection is api-utils', so driver upgrades go through that package first). MinIO for images.
+  connection is api-utils', so driver upgrades go through that package first). Images live in
+  an S3-compatible object store (RustFS), reached through api-utils' `ObjectStoreConnection`.
 - **web:** React 19, Vite 8, Tailwind 4, Radix/shadcn (`src/components/ui`), TanStack Query,
   React Router 7, react-hook-form + Zod, tiptap rich text, lucide-react 1.x. PWA via
   `vite-plugin-pwa` injectManifest (`src/sw.ts`). `useAuth` comes from `@imapps/web-utils`.

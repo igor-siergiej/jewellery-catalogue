@@ -8,7 +8,12 @@ Local setup, environment, scripts and tests. Code-change conventions are in
 - Bun 1.x (CI pins `1.4.2`).
 - MongoDB reachable from the API. For integration/e2e tests:
   `docker compose -f docker-compose.test.yml up -d` (mongo:7 on host port 27018).
-- MinIO or another S3-compatible store for images.
+- An S3-compatible object store for images. Locally that's RustFS from the
+  shared dev stack (`utils/docker/docker-compose.yml`): S3 API on
+  `127.0.0.1:9000`, console on `127.0.0.1:9001`, dev credentials
+  `rustfsadmin`/`rustfsadmin`, buckets `jewellery-catalogue` and
+  `jewellery-catalogue-staging` created on startup. These match `.env.example`.
+  E2E doesn't need it: Playwright sets `IN_MEMORY_IMAGE_STORE=true`.
 - An auth service exposing `GET /verify` (Kivo in production). Locally,
   `packages/web/mock-auth-server.js` serves one on :3008.
 
