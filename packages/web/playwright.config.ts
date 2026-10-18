@@ -89,6 +89,7 @@ export default defineConfig({
                       BUCKET_ENDPOINT: 'localhost:9000',
                       BUCKET_ACCESS_KEY: 'minioadmin',
                       BUCKET_SECRET_KEY: 'minioadmin',
+                      IN_MEMORY_IMAGE_STORE: 'true',
                       AUTH_URL: 'http://localhost:3008',
                       ETSY_API_KEY: 'test',
                       ETSY_SHARED_SECRET: 'test',
