@@ -51,7 +51,7 @@ export class DraftService {
 
         await this.draftRepo.insert(draft);
 
-        this.logger?.info('draft.created', { entityId: draft.id, userId, type });
+        this.logger?.info('draft.created', { event: 'draft.created', entityId: draft.id, userId, type });
 
         return draft;
     }
@@ -79,7 +79,7 @@ export class DraftService {
 
         await this.draftRepo.update(id, updated);
 
-        this.logger?.info('draft.updated', { entityId: id, userId });
+        this.logger?.info('draft.updated', { event: 'draft.updated', entityId: id, userId });
 
         return updated;
     }
@@ -113,6 +113,6 @@ export class DraftService {
         }
 
         await this.draftRepo.delete(id);
-        this.logger?.info('draft.deleted', { entityId: id, userId });
+        this.logger?.info('draft.deleted', { event: 'draft.deleted', entityId: id, userId });
     }
 }

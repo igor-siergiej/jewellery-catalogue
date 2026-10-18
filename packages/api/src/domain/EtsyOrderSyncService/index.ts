@@ -88,7 +88,15 @@ export class EtsyOrderSyncService {
         for (const receipt of receipts.filter(isCountableReceipt)) {
             for (const transaction of receipt.transactions) {
                 const sale = buildSale({ userId: connection.userId, receipt, transaction, designsByListingId });
-                if (await this.saleRepo.insertIfNew(sale)) imported++;
+                if (await this.saleRepo.insertIfNew(sale)) {
+                    imported++;
+                    this.logger.info('sale.recorded', {
+                        event: 'sale.recorded',
+                        entityId: String(sale.transactionId),
+                        userId: connection.userId,
+                        listingId: sale.listingId,
+                    });
+                }
             }
         }
 
@@ -116,9 +124,23 @@ export class EtsyOrderSyncService {
             if (result === 'design_not_found') {
                 await this.saleRepo.setStatus(sale.transactionId, 'unmatched');
                 unmatched++;
+                this.logger.info('sale.unmatched', {
+                    event: 'sale.unmatched',
+                    entityId: String(sale.transactionId),
+                    userId,
+                    listingId: sale.listingId,
+                    quantity: sale.quantity,
+                });
             } else {
                 await this.saleRepo.setStatus(sale.transactionId, 'applied');
                 applied++;
+                this.logger.info('sale.applied', {
+                    event: 'sale.applied',
+                    entityId: String(sale.transactionId),
+                    userId,
+                    listingId: sale.listingId,
+                    quantity: sale.quantity,
+                });
             }
         }
 

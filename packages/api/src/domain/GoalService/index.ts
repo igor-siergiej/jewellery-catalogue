@@ -63,7 +63,7 @@ export class GoalService {
 
         await this.goalRepo.insert(goal);
 
-        this.logger?.info('goal.created', { entityId: goal.id, userId });
+        this.logger?.info('goal.created', { event: 'goal.created', entityId: goal.id, userId });
 
         return goal;
     }
@@ -89,7 +89,7 @@ export class GoalService {
 
         await this.goalRepo.update(id, updated);
 
-        this.logger?.info('goal.updated', { entityId: id, userId });
+        this.logger?.info('goal.updated', { event: 'goal.updated', entityId: id, userId });
 
         return updated;
     }
@@ -115,7 +115,12 @@ export class GoalService {
 
         await this.goalRepo.update(id, updated);
 
-        this.logger?.info('goal.synced_from_etsy', { entityId: id, userId, currentValue });
+        this.logger?.info('goal.synced_from_etsy', {
+            event: 'goal.synced_from_etsy',
+            entityId: id,
+            userId,
+            currentValue,
+        });
 
         return updated;
     }
@@ -133,7 +138,7 @@ export class GoalService {
         }
 
         await this.goalRepo.delete(id);
-        this.logger?.info('goal.deleted', { entityId: id, userId });
+        this.logger?.info('goal.deleted', { event: 'goal.deleted', entityId: id, userId });
     }
 
     private async fetchEtsyValue(source: GoalSource, userId: string): Promise<number> {

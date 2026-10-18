@@ -772,6 +772,7 @@ describe('DesignService', () => {
             );
 
             expect(mockLogger.info).toHaveBeenCalledWith('design.created', {
+                event: 'design.created',
                 entityId: designId,
                 userId,
             });
@@ -786,6 +787,7 @@ describe('DesignService', () => {
             await service.deleteDesign(designId, userId);
 
             expect(mockLogger.info).toHaveBeenCalledWith('design.deleted', {
+                event: 'design.deleted',
                 entityId: designId,
                 userId,
             });
