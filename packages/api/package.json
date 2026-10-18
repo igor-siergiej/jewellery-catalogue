@@ -11,9 +11,9 @@
     "test:integration": "docker compose -f ../../docker-compose.test.yml up -d --wait && RUN_INTEGRATION_TESTS=1 bun test integration; docker compose -f ../../docker-compose.test.yml down"
   },
   "dependencies": {
-    "@imapps/api-utils": "2.6.0",
+    "@imapps/api-utils": "4.0.1",
     "hono": "^4.13.13",
-    "mongodb": "^6.21.0",
+    "mongodb": "^7.7.0",
     "prom-client": "^15.1.3",
     "sharp": "^0.35.5",
     "zod": "^4.6.5"
