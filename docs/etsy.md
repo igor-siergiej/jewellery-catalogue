@@ -1,9 +1,8 @@
 # Etsy integration — operator guide
 
 What the Etsy integration does today, how to connect a shop, and what moves in
-which direction. Design rationale lives in `docs/superpowers/specs/`; this page
-describes the code as built (`packages/api/src/domain/Etsy*`,
-`packages/api/src/handlers/Etsy`).
+which direction. This page describes the code as built
+(`packages/api/src/domain/Etsy*`, `packages/api/src/handlers/Etsy`).
 
 All Etsy traffic goes through `EtsyClient` (`https://api.etsy.com/v3/application`,
 or `ETSY_MOCK_URL` when set). Nothing else in the app calls Etsy.
