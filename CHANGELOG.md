@@ -1,3 +1,15 @@
+# [1.78.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.77.1...v1.78.0) (2026-10-18)
+
+
+### Bug Fixes
+
+* **api:** bump @imapps/api-utils to 4.0.1 and mongodb driver to v7 ([#132](https://github.com/igor-siergiej/jewellery-catalogue/issues/132)) ([e5ebba3](https://github.com/igor-siergiej/jewellery-catalogue/commit/e5ebba39533d3e3a07b874e0b380a384f314a3b6))
+
+
+### Features
+
+* **api:** include event field on domain log lines + add sale events ([#131](https://github.com/igor-siergiej/jewellery-catalogue/issues/131)) ([e1ab9da](https://github.com/igor-siergiej/jewellery-catalogue/commit/e1ab9da3d165d7e949bf877f13d3b300572b3946)), closes [#129](https://github.com/igor-siergiej/jewellery-catalogue/issues/129) [#19](https://github.com/igor-siergiej/jewellery-catalogue/issues/19) [#129](https://github.com/igor-siergiej/jewellery-catalogue/issues/129)
+
 ## [1.77.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.77.0...v1.77.1) (2026-10-18)
 
 
