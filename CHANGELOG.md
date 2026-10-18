@@ -1,3 +1,10 @@
+# [1.79.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.78.0...v1.79.0) (2026-10-18)
+
+
+### Features
+
+* **web:** PWA update dialog and manual update check ([#77](https://github.com/igor-siergiej/jewellery-catalogue/issues/77)) ([43ed3e6](https://github.com/igor-siergiej/jewellery-catalogue/commit/43ed3e6e189e5f459009e25cc3a80330968ba08c))
+
 # [1.78.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.77.1...v1.78.0) (2026-10-18)
 
 
