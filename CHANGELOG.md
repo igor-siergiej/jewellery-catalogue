@@ -1,3 +1,10 @@
+## [1.81.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.81.0...v1.81.1) (2026-10-24)
+
+
+### Bug Fixes
+
+* **docker:** pin Bun 1.4.4 for Brotli decoder CVE ([#136](https://github.com/igor-siergiej/jewellery-catalogue/issues/136)) ([bc7e103](https://github.com/igor-siergiej/jewellery-catalogue/commit/bc7e10368b72c9cf0ca446c4580471e50b0e7a4b))
+
 # [1.81.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.80.0...v1.81.0) (2026-10-24)
 
 
