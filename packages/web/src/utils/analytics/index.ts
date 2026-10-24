@@ -4,8 +4,9 @@
  * script `<host>/p.js` on first use (the Umami instance must set
  * `TRACKER_SCRIPT_NAME=p.js`). If `enabled` is false, the host is missing, or
  * `window.umami` hasn't loaded yet, every method is a no-op — callers can fire
- * events without sprinkling null checks. Events fired before the script loads,
- * or while offline, are dropped.
+ * events without sprinkling null checks. Events fired before the script has
+ * loaded are held (up to MAX_PENDING) and sent once it has; if it never loads
+ * (offline, blocked) they are dropped.
  *
  * Umami v3 script global API: `umami.track(event, data)`,
  * `umami.identify(id)`, `umami.startSessionReplay()`. The tracker only
@@ -40,6 +41,17 @@ declare global {
 
 let injected = false;
 let injectStarted = false;
+let pending: Array<[string, EventPayload]> = [];
+
+// Events fired before the tracker script has loaded are held here and sent
+// once it has, so an early click is not lost.
+const MAX_PENDING = 50;
+
+const flushPending = (): void => {
+    const queued = pending;
+    pending = [];
+    for (const [event, data] of queued) window.umami?.track(event, data);
+};
 
 const appendScript = (src: string, websiteId: string, onLoad?: () => void): void => {
     const script = document.createElement('script');
@@ -69,6 +81,7 @@ const injectScript = (host: string, websiteId: string): void => {
     // the global already exists, which would silently drop every event.
     appendScript(`${base}/p.js`, websiteId, () => {
         injected = true;
+        flushPending();
         if (!optedOut()) appendScript(`${base}/recorder.js`, websiteId);
     });
 };
@@ -108,12 +121,16 @@ export const loadTracker = (): void => {
 
 /**
  * Fire-and-forget event. Safe to call before config is loaded; the
- * wrapper is a no-op until then.
+ * wrapper is a no-op until then. Events fired before the tracker script has
+ * loaded are held and sent once it has.
  */
-// fallow-ignore-next-line unused-export
 export const track = (event: string, data?: EventPayload): void => {
     if (!ensureInjected()) return;
-    window.umami?.track(event, data);
+    if (window.umami) {
+        window.umami.track(event, data);
+        return;
+    }
+    if (pending.length < MAX_PENDING) pending.push([event, data]);
 };
 
 // fallow-ignore-next-line unused-export

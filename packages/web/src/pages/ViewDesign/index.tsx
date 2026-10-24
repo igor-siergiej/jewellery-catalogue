@@ -1,8 +1,11 @@
 import { useAuth, useUser } from '@imapps/web-utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Edit, ExternalLink, PackageOpen } from 'lucide-react';
-import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useParams } from 'react-router-dom';
+
+import { useSearch } from '@/context/SearchContext';
+import { track } from '@/utils/analytics';
 
 import { getDesignQuery } from '../../api/endpoints/getDesign';
 import DesignDescription from '../../components/DesignDescription';
@@ -31,6 +34,8 @@ import { canMakeLabel } from '../../utils/canMakeLabel';
 
 const ViewDesign = () => {
     const { id } = useParams<{ id: string }>();
+    const location = useLocation();
+    const { searchQuery } = useSearch();
     const { accessToken, login, logout } = useAuth();
     const { user } = useUser();
     const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -38,6 +43,7 @@ const ViewDesign = () => {
     const [imageIndex, setImageIndex] = useState(0);
     const { connected: etsyConnected } = useEtsyConnection();
     const [etsyDialogOpen, setEtsyDialogOpen] = useState(false);
+    const trackedDesignId = useRef<string | null>(null);
 
     const {
         data: design,
@@ -48,6 +54,13 @@ const ViewDesign = () => {
         ...getDesignQuery(id || '', () => accessToken, login, logout),
         enabled: !!id && !!accessToken && !!user?.id,
     });
+
+    useEffect(() => {
+        if (!design?.id || trackedDesignId.current === design.id) return;
+        trackedDesignId.current = design.id;
+        const from = (location.state as { from?: string } | null)?.from;
+        track('design_viewed', { designId: design.id, source: searchQuery ? 'search' : (from ?? 'direct') });
+    }, [design?.id, location.state, searchQuery]);
 
     const {
         timeRequired,

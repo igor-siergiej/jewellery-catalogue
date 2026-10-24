@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSearch } from '@/context/SearchContext';
+import { useSearchAnalytics } from '@/hooks/useSearchAnalytics';
 
 import AllMaterialsTable from './AllMaterialsTable';
 import BeadTable from './BeadTable';
@@ -148,6 +149,8 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
         if (!searchQuery) return materials;
         return fuse.search(searchQuery).map((r) => r.item);
     }, [searchQuery, fuse, materials]);
+
+    useSearchAnalytics('materials', filteredMaterials.length);
 
     const effectivePage = (total: number) => Math.min(currentPage, Math.max(0, Math.ceil(total / pageSize) - 1));
 

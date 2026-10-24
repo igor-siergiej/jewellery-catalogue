@@ -2,6 +2,7 @@ import { useAuth } from '@imapps/web-utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { makeCreateDesignFromListingRequest, makeLinkListingToDesignRequest } from '../api/endpoints/etsyReconcile';
+import { track } from '../utils/analytics';
 
 export const useEtsyReconcile = () => {
     const { accessToken, login, logout } = useAuth();
@@ -13,6 +14,7 @@ export const useEtsyReconcile = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['etsy-listings'] });
             queryClient.invalidateQueries({ queryKey: ['designs'] });
+            track('etsy_listing_imported', { action: 'created' });
         },
     });
 
@@ -22,6 +24,7 @@ export const useEtsyReconcile = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['etsy-listings'] });
             queryClient.invalidateQueries({ queryKey: ['designs'] });
+            track('etsy_listing_imported', { action: 'linked' });
         },
     });
 

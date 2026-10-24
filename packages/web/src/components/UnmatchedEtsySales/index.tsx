@@ -38,6 +38,7 @@ export const UnmatchedEtsySales = ({ sales }: UnmatchedEtsySalesProps) => {
                             {sale.designId ? (
                                 <Link
                                     to={VIEW_DESIGN_PAGE.getRoute(sale.designId)}
+                                    state={{ from: 'listing' }}
                                     className="text-primary hover:underline"
                                 >
                                     Variant not recognised: view design

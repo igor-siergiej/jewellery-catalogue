@@ -2,6 +2,7 @@ import type React from 'react';
 import { z } from 'zod';
 
 import { AuthFormBase } from '@/components/AuthFormBase';
+import { track } from '@/utils/analytics';
 import { usernameSchema } from '@/utils/authSchemas';
 
 const registerSchema = z.object({
@@ -22,5 +23,6 @@ export const RegisterForm: React.FC = () => (
         submitLabel="Register"
         loadingLabel="Creating account..."
         passwordAutoComplete="new-password"
+        onSuccess={() => track('register_completed')}
     />
 );

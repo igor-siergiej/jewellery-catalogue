@@ -12,7 +12,7 @@ type AuthFields = {
     password: string;
 };
 
-export function useAuthSubmit(endpoint: string, errorTitle: string) {
+export function useAuthSubmit(endpoint: string, errorTitle: string, onSuccess?: () => void) {
     const [isLoading, setIsLoading] = useState(false);
     const { dispatch } = useAlert();
     const navigate = useNavigate();
@@ -42,6 +42,7 @@ export function useAuthSubmit(endpoint: string, errorTitle: string) {
 
             if (!json.accessToken) throw new Error('No access token returned');
             flushSync(() => login(json.accessToken));
+            onSuccess?.();
             navigate(HOME_PAGE.route);
         } catch (e) {
             const message = e instanceof Error ? e.message : 'Unknown error';
