@@ -119,3 +119,4 @@ export async function mockAuthRoutes(page: Page, token = MOCK_TOKEN) {
         })
     );
 }
+export const MOCK_TOKEN_RICH_TEXT = makeMockToken('68c6f0f5b97c9461290151a0'); // rich-text-description.spec
