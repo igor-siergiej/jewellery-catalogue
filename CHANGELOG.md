@@ -1,3 +1,10 @@
+# [1.80.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.79.0...v1.80.0) (2026-10-24)
+
+
+### Features
+
+* **web:** add the Umami analytics module ([#135](https://github.com/igor-siergiej/jewellery-catalogue/issues/135)) ([3779e10](https://github.com/igor-siergiej/jewellery-catalogue/commit/3779e1042adf223de256b7fe19486e54b29d6803)), closes [#124](https://github.com/igor-siergiej/jewellery-catalogue/issues/124) [#125](https://github.com/igor-siergiej/jewellery-catalogue/issues/125) [#126](https://github.com/igor-siergiej/jewellery-catalogue/issues/126) [#127](https://github.com/igor-siergiej/jewellery-catalogue/issues/127)
+
 # [1.79.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.78.0...v1.79.0) (2026-10-18)
 
 
