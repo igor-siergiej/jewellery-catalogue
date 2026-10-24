@@ -1,3 +1,10 @@
+# [1.81.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.80.0...v1.81.0) (2026-10-24)
+
+
+### Features
+
+* **web:** wire the catalogue's events into the analytics tracker ([#137](https://github.com/igor-siergiej/jewellery-catalogue/issues/137)) ([16d0dd4](https://github.com/igor-siergiej/jewellery-catalogue/commit/16d0dd40b153fc154693682d9d80bdeb010f62be)), closes [#135](https://github.com/igor-siergiej/jewellery-catalogue/issues/135)
+
 # [1.80.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.79.0...v1.80.0) (2026-10-24)
 
 
