@@ -1,0 +1,133 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { identify, loadTracker, startReplay, stopReplay, track } from './index';
+
+// Mock the config module so analytics can resolve getConfig().
+const configState = vi.hoisted(() => ({
+    value: {} as { analytics?: { host?: string; websiteId?: string; enabled?: boolean } } | null,
+}));
+
+vi.mock('../loadConfig', () => ({
+    getConfig: () => {
+        if (!configState.value) throw new Error('Configuration not loaded.');
+        return configState.value;
+    },
+}));
+
+describe('analytics', () => {
+    beforeEach(() => {
+        configState.value = {};
+        delete window.umami;
+        document.head.innerHTML = '';
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    it('is a no-op when analytics config is missing', () => {
+        configState.value = {};
+        expect(() => track('design_viewed', { source: 'home' })).not.toThrow();
+        expect(document.querySelector('script[data-website-id]')).toBeNull();
+    });
+
+    it('is a no-op when analytics.enabled is false', () => {
+        configState.value = {
+            analytics: { host: 'https://jewellery-catalogue.imapps.uk/pulse', websiteId: 'abc', enabled: false },
+        };
+        track('design_viewed');
+        expect(document.querySelector('script[data-website-id]')).toBeNull();
+    });
+
+    it('rejects non-http(s) hosts without injecting the script', () => {
+        configState.value = {
+            analytics: { host: 'javascript:alert(1)', websiteId: 'abc' },
+        };
+        track('design_viewed');
+        expect(document.querySelector('script[data-website-id]')).toBeNull();
+    });
+
+    // Must run before any other test injects: the injected flag is module state.
+    it('loads the tracker without claiming window.umami, so the real tracker can install itself', () => {
+        configState.value = {
+            analytics: { host: 'https://jewellery-catalogue.imapps.uk/pulse/', websiteId: 'site-1' },
+        };
+
+        loadTracker();
+
+        const script = document.querySelector<HTMLScriptElement>('script[data-website-id="site-1"]');
+        expect(script?.src).toBe('https://jewellery-catalogue.imapps.uk/pulse/p.js');
+        expect(window.umami).toBeUndefined();
+
+        // Umami's tracker only defines its API when window.umami is unset.
+        const sent: Array<[string, unknown]> = [];
+        window.umami ??= { track: (e, d) => sent.push([e, d]), identify: vi.fn() };
+        script?.dispatchEvent(new Event('load'));
+
+        track('design_viewed', { source: 'home', count: 1 });
+        expect(sent).toEqual([['design_viewed', { source: 'home', count: 1 }]]);
+
+        // The heatmap recorder follows the tracker, never before it: it needs the tracker's session.
+        const recorder = document.querySelector<HTMLScriptElement>('script[src$="/recorder.js"]');
+        expect(recorder?.src).toBe('https://jewellery-catalogue.imapps.uk/pulse/recorder.js');
+        expect(recorder?.dataset.websiteId).toBe('site-1');
+    });
+
+    it('forwards events to the loaded tracker', () => {
+        configState.value = {
+            analytics: { host: 'https://jewellery-catalogue.imapps.uk/pulse', websiteId: 'site-1' },
+        };
+        const calls: Array<[string, unknown]> = [];
+        window.umami = { track: (e, d) => calls.push([e, d]), identify: vi.fn() };
+
+        track('design_viewed', { source: 'home', count: 1 });
+        track('register_completed');
+
+        expect(calls).toEqual([
+            ['design_viewed', { source: 'home', count: 1 }],
+            ['register_completed', undefined],
+        ]);
+    });
+
+    it('identify() forwards to window.umami.identify', () => {
+        configState.value = {
+            analytics: { host: 'https://jewellery-catalogue.imapps.uk/pulse', websiteId: 'site-1' },
+        };
+        const identifyMock = vi.fn();
+        window.umami = { track: vi.fn(), identify: identifyMock };
+
+        identify('user-123');
+        expect(identifyMock).toHaveBeenCalledWith('user-123');
+    });
+
+    it('startReplay/stopReplay are no-ops when the tracker lacks the methods', () => {
+        configState.value = {
+            analytics: { host: 'https://jewellery-catalogue.imapps.uk/pulse', websiteId: 'site-1' },
+        };
+        window.umami = { track: vi.fn(), identify: vi.fn() };
+        expect(() => startReplay()).not.toThrow();
+        expect(() => stopReplay()).not.toThrow();
+    });
+});
+
+describe('analytics opt-out', () => {
+    afterEach(() => {
+        localStorage.clear();
+        document.head.innerHTML = '';
+    });
+
+    it('skips the heatmap recorder when the visitor opted out via umami.disabled', async () => {
+        // Fresh module: the injected flags are module state and the suite above already injected.
+        // A static import cannot work here — vi.resetModules() needs a new module instance.
+        vi.resetModules();
+        const fresh = await import('./index');
+        configState.value = {
+            analytics: { host: 'https://jewellery-catalogue.imapps.uk/pulse', websiteId: 'site-1' },
+        };
+        localStorage.setItem('umami.disabled', '1');
+
+        fresh.loadTracker();
+        document.querySelector('script[src$="/p.js"]')?.dispatchEvent(new Event('load'));
+
+        expect(document.querySelector('script[src$="/recorder.js"]')).toBeNull();
+    });
+});

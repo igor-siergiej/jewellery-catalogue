@@ -1,0 +1,30 @@
+{
+  "repoName": "jewellery-catalogue",
+  "releaseNotes": true,
+  "dev": {
+    "startCommand": "bun run start",
+    "healthCheckUrl": "http://localhost:3001/api/health",
+    "healthCheckTimeoutMs": 60000,
+    "healthCheckIntervalMs": 2000
+  },
+  "e2e": {
+    "testCommand": "cd packages/web && bun run pw:e2e",
+    "smokeGrep": "@smoke",
+    "configPath": "packages/web/playwright.config.ts"
+  },
+  "ci": {
+    "workflowNames": ["PR Checks"],
+    "checkNamesRequired": ["lint", "test", "integration-test", "e2e", "fallow"]
+  },
+  "deploy": {
+    "workflowName": "CI/CD",
+    "timeoutMs": 900000,
+    "pollIntervalMs": 15000
+  },
+  "environments": {
+    "production": { "baseUrl": "https://jewellery-catalogue.imapps.uk" }
+  },
+  "targetEnvironment": "production",
+  "retryPolicy": { "implement": 3, "e2e_local": 3, "ci": 3, "deploy": 2, "e2e_live": 1 },
+  "github": { "defaultBranch": "main", "mergeMethod": "squash" }
+}
