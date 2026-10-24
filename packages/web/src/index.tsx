@@ -39,6 +39,7 @@ import Settings from './pages/Settings';
 import ShoppingList from './pages/ShoppingList';
 import Start from './pages/Start';
 import ViewDesign from './pages/ViewDesign';
+import { loadTracker } from './utils/analytics';
 import { getAuthConfig } from './utils/authConfig';
 import { loadConfig } from './utils/loadConfig';
 import { installGlobalErrorLogging } from './utils/logger';
@@ -178,6 +179,7 @@ function App() {
 const initializeApp = async () => {
     try {
         await loadConfig();
+        loadTracker();
 
         root.render(
             <QueryClientProvider client={queryClient}>

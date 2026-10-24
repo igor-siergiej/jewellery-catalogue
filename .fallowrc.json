@@ -18,7 +18,8 @@
     "packages/web/src/components/ui/**",
     "**/dist/**",
     "**/coverage/**",
-    "packages/etsy-mock/src/test-helpers.ts"
+    "packages/etsy-mock/src/test-helpers.ts",
+    "packages/web/tests/e2e/mocks/data/umami-tracker.js"
   ],
   "ignoreUnresolvedImports": ["bun:test"],
   "ignoreDependencies": [

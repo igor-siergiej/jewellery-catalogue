@@ -1,5 +1,16 @@
 export interface AppConfig {
     AUTH_URL: string;
+    /**
+     * Self-hosted Umami analytics (jott #124). `host` is the base URL the
+     * tracker script `p.js` is served under (production: same-origin
+     * `https://jewellery-catalogue.imapps.uk/pulse`). The web app is a no-op
+     * tracker when `enabled` is `false` or the fields are missing.
+     */
+    analytics?: {
+        host?: string;
+        websiteId?: string;
+        enabled?: boolean;
+    };
 }
 
 let config: AppConfig | null = null;
@@ -32,8 +43,4 @@ export const getConfig = (): AppConfig => {
     }
 
     return config;
-};
-
-export const getAuthUrl = (): string => {
-    return getConfig().AUTH_URL;
 };
