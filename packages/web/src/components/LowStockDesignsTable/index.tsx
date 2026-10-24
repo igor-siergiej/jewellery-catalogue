@@ -39,7 +39,7 @@ const LowStockDesignsTable: React.FC<ILowStockDesignsTableProps> = ({ rows, onDe
     };
 
     const handleView = (designId: string) => {
-        navigate(VIEW_DESIGN_PAGE.getRoute(designId));
+        navigate(VIEW_DESIGN_PAGE.getRoute(designId), { state: { from: 'home' } });
     };
 
     const handleSuccess = () => {

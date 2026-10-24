@@ -22,6 +22,7 @@ interface AuthFormBaseProps {
     submitLabel: string;
     loadingLabel: string;
     passwordAutoComplete: string;
+    onSuccess?: () => void;
 }
 
 // fallow-ignore-next-line complexity
@@ -32,6 +33,7 @@ export const AuthFormBase: React.FC<AuthFormBaseProps> = ({
     submitLabel,
     loadingLabel,
     passwordAutoComplete,
+    onSuccess,
 }) => {
     const {
         handleSubmit,
@@ -41,7 +43,7 @@ export const AuthFormBase: React.FC<AuthFormBaseProps> = ({
         resolver: zodResolver(schema),
     });
     const [showPassword, setShowPassword] = useState(false);
-    const { isLoading, onSubmit } = useAuthSubmit(endpoint, errorTitle);
+    const { isLoading, onSubmit } = useAuthSubmit(endpoint, errorTitle, onSuccess);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full">

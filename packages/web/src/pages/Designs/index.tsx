@@ -29,6 +29,7 @@ import LoadingScreen from '../../components/Loading';
 import { ADD_DESIGN_PAGE, SHOPPING_LIST_PAGE } from '../../constants/routes';
 import { useSearch } from '../../context/SearchContext';
 import { PRODUCIBLE_QUERY_KEY, useProducible } from '../../hooks/useProducible';
+import { useSearchAnalytics } from '../../hooks/useSearchAnalytics';
 import { DESIGN_TYPE_LABELS } from '../../lib/materialLabels';
 import { sortFavouritesFirst } from '../../lib/sortFavouritesFirst';
 import { canMakeLabel } from '../../utils/canMakeLabel';
@@ -149,6 +150,10 @@ const Designs = () => {
         queryClient.invalidateQueries({ queryKey: ['drafts', 'design'] });
     };
 
+    const searchedData = searchQuery && fuse ? fuse.search(searchQuery).map((result) => result.item) : (data ?? []);
+
+    useSearchAnalytics('designs', searchedData.length);
+
     if (isError) {
         return <span>Something went wrong! :(</span>;
     }
@@ -157,7 +162,6 @@ const Designs = () => {
         return <LoadingScreen />;
     }
 
-    const searchedData = searchQuery && fuse ? fuse.search(searchQuery).map((result) => result.item) : data;
     const filteredData = sortFavouritesFirst(
         typeFilter === 'all' ? searchedData : searchedData.filter((d) => d.designType === typeFilter)
     );

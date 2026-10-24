@@ -16,6 +16,7 @@ import { useSearch } from '../../context/SearchContext';
 import { useEtsyConnection } from '../../hooks/useEtsyConnection';
 import { useEtsyListings } from '../../hooks/useEtsyListings';
 import { useEtsyReconcile } from '../../hooks/useEtsyReconcile';
+import { useSearchAnalytics } from '../../hooks/useSearchAnalytics';
 import { useUnmatchedEtsySales } from '../../hooks/useUnmatchedEtsySales';
 
 const Listings = () => {
@@ -37,9 +38,11 @@ const Listings = () => {
 
     const filteredListings = searchQuery ? fuse.search(searchQuery).map((result) => result.item) : listings;
 
+    useSearchAnalytics('listings', filteredListings.length);
+
     const handleCreate = async (listingId: number) => {
         const { designId } = await createFromListing(listingId);
-        navigate(VIEW_DESIGN_PAGE.getRoute(designId));
+        navigate(VIEW_DESIGN_PAGE.getRoute(designId), { state: { from: 'listing' } });
     };
 
     if (isConnectionLoading) {
@@ -133,7 +136,10 @@ const Listings = () => {
                                     <>
                                         {listing.linkedDesignId ? (
                                             <Button asChild variant="outline" className="h-10 flex-1">
-                                                <Link to={VIEW_DESIGN_PAGE.getRoute(listing.linkedDesignId)}>
+                                                <Link
+                                                    to={VIEW_DESIGN_PAGE.getRoute(listing.linkedDesignId)}
+                                                    state={{ from: 'listing' }}
+                                                >
                                                     View design
                                                 </Link>
                                             </Button>
@@ -203,6 +209,7 @@ const Listings = () => {
                                             {listing.linkedDesignId ? (
                                                 <Link
                                                     to={VIEW_DESIGN_PAGE.getRoute(listing.linkedDesignId)}
+                                                    state={{ from: 'listing' }}
                                                     className="text-primary hover:underline"
                                                 >
                                                     View design

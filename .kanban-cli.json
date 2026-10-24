@@ -2,7 +2,7 @@
   "repoName": "jewellery-catalogue",
   "releaseNotes": true,
   "dev": {
-    "startCommand": "bun run start",
+    "startCommand": "bun run start:with-etsy-mock",
     "healthCheckUrl": "http://localhost:3001/api/health",
     "healthCheckTimeoutMs": 60000,
     "healthCheckIntervalMs": 2000

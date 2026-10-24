@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { track } from '@/utils/analytics';
 
 interface TargetRow {
     key: number;
@@ -105,6 +106,9 @@ const ShoppingList = () => {
                 login,
                 logout
             ),
+        onSuccess: (_result, targets) => {
+            track('shopping_list_built', { count: targets.length });
+        },
     });
 
     if (!designs) return <LoadingScreen />;

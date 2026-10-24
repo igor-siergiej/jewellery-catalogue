@@ -22,6 +22,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { makeUploadImageRequest } from '@/api/endpoints/uploadImage';
 import { Button } from '@/components/ui/button';
+import { track } from '@/utils/analytics';
 import { errorContext, logger } from '@/utils/logger';
 import { ResizableImage } from './ResizableImage';
 
@@ -85,6 +86,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
         if (!file || !editor) return;
         e.target.value = '';
         setIsUploading(true);
+        track('image_upload_started', { count: 1 });
         try {
             const { imageId } = await makeUploadImageRequest(file, () => accessToken, login, logout);
             editor
@@ -92,7 +94,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
                 .focus()
                 .setImage({ src: `/api/image/${imageId}` })
                 .run();
+            track('image_upload_completed', { count: 1 });
         } catch (err) {
+            track('image_upload_failed', { count: 1 });
             logger.error('Rich text image upload failed', errorContext(err));
         } finally {
             setIsUploading(false);

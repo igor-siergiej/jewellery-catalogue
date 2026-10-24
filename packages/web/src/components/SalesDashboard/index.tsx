@@ -105,7 +105,11 @@ export const SalesDashboard = ({ className }: { className?: string }) => {
                             {designs.map((row) => (
                                 <MobileCard
                                     key={row.designId}
-                                    title={<Link to={VIEW_DESIGN_PAGE.getRoute(row.designId)}>{row.name}</Link>}
+                                    title={
+                                        <Link to={VIEW_DESIGN_PAGE.getRoute(row.designId)} state={{ from: 'home' }}>
+                                            {row.name}
+                                        </Link>
+                                    }
                                     facts={designFacts(row)}
                                 />
                             ))}
@@ -129,6 +133,7 @@ export const SalesDashboard = ({ className }: { className?: string }) => {
                                             <TableCell className="font-medium">
                                                 <Link
                                                     to={VIEW_DESIGN_PAGE.getRoute(row.designId)}
+                                                    state={{ from: 'home' }}
                                                     className="hover:underline"
                                                 >
                                                     {row.name}

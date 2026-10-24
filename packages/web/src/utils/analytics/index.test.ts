@@ -109,6 +109,39 @@ describe('analytics', () => {
     });
 });
 
+describe('analytics pending events', () => {
+    beforeEach(() => {
+        configState.value = {};
+        delete window.umami;
+        document.head.innerHTML = '';
+    });
+
+    afterEach(() => {
+        document.head.innerHTML = '';
+    });
+
+    it('holds an event fired before the tracker loads and sends it once it has', async () => {
+        // Fresh module: the injected flags are module state and the suite above already injected.
+        // A static import cannot work here — vi.resetModules() needs a new module instance.
+        vi.resetModules();
+        const fresh = await import('./index');
+        configState.value = {
+            analytics: { host: 'https://jewellery-catalogue.imapps.uk/pulse', websiteId: 'site-1' },
+        };
+
+        const sent: Array<[string, unknown]> = [];
+
+        fresh.track('design_viewed', { designId: 'abc' });
+        expect(sent).toEqual([]);
+
+        const script = document.querySelector<HTMLScriptElement>('script[data-website-id="site-1"]');
+        window.umami = { track: (e, d) => sent.push([e, d]), identify: vi.fn() };
+        script?.dispatchEvent(new Event('load'));
+
+        expect(sent).toEqual([['design_viewed', { designId: 'abc' }]]);
+    });
+});
+
 describe('analytics opt-out', () => {
     afterEach(() => {
         localStorage.clear();

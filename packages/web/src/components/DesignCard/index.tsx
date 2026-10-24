@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import makeDeleteDesignRequest from '../../api/endpoints/deleteDesign';
 import makeUpdateDesignRequest from '../../api/endpoints/updateDesign';
 import { VIEW_DESIGN_PAGE } from '../../constants/routes';
+import { track } from '../../utils/analytics';
 import DesignUpdateForm from '../DesignUpdateForm';
 import { Image } from '../Image';
 import {
@@ -38,12 +39,14 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
     const { accessToken, login, logout } = useAuth();
 
     const handleCardClick = () => {
-        navigate(VIEW_DESIGN_PAGE.getRoute(id));
+        navigate(VIEW_DESIGN_PAGE.getRoute(id), { state: { from: 'designs' } });
     };
 
     const handleFavoriteClick = async (e: React.MouseEvent) => {
         e.stopPropagation();
-        await makeUpdateDesignRequest(id, { favourite: !favourite }, () => accessToken, login, logout);
+        const nextFavourite = !favourite;
+        await makeUpdateDesignRequest(id, { favourite: nextFavourite }, () => accessToken, login, logout);
+        track(nextFavourite ? 'favourite_added' : 'favourite_removed', { designId: id });
         onDesignUpdated?.();
     };
 
