@@ -123,6 +123,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
                     variant={editor.isActive('heading', { level: 2 }) ? 'secondary' : 'ghost'}
                     size="sm"
                     onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                    aria-label="Heading 2"
                 >
                     <Heading2 className="h-4 w-4" />
                 </Button>
@@ -131,6 +132,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
                     variant={editor.isActive('heading', { level: 3 }) ? 'secondary' : 'ghost'}
                     size="sm"
                     onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                    aria-label="Heading 3"
                 >
                     <Heading3 className="h-4 w-4" />
                 </Button>
@@ -140,6 +142,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
                     variant={editor.isActive('bold') ? 'secondary' : 'ghost'}
                     size="sm"
                     onClick={() => editor.chain().focus().toggleBold().run()}
+                    aria-label="Bold"
                 >
                     <Bold className="h-4 w-4" />
                 </Button>
@@ -148,6 +151,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
                     variant={editor.isActive('italic') ? 'secondary' : 'ghost'}
                     size="sm"
                     onClick={() => editor.chain().focus().toggleItalic().run()}
+                    aria-label="Italic"
                 >
                     <Italic className="h-4 w-4" />
                 </Button>
@@ -156,6 +160,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
                     variant={editor.isActive('strike') ? 'secondary' : 'ghost'}
                     size="sm"
                     onClick={() => editor.chain().focus().toggleStrike().run()}
+                    aria-label="Strikethrough"
                 >
                     <Strikethrough className="h-4 w-4" />
                 </Button>
@@ -165,6 +170,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
                     variant={editor.isActive('bulletList') ? 'secondary' : 'ghost'}
                     size="sm"
                     onClick={() => editor.chain().focus().toggleBulletList().run()}
+                    aria-label="Bullet list"
                 >
                     <List className="h-4 w-4" />
                 </Button>
@@ -173,6 +179,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
                     variant={editor.isActive('orderedList') ? 'secondary' : 'ghost'}
                     size="sm"
                     onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                    aria-label="Numbered list"
                 >
                     <ListOrdered className="h-4 w-4" />
                 </Button>
@@ -200,6 +207,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
                     variant="ghost"
                     size="sm"
                     onClick={() => editor.chain().focus().undo().run()}
+                    aria-label="Undo"
                     disabled={!editor.can().undo()}
                 >
                     <Undo className="h-4 w-4" />
@@ -209,6 +217,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
                     variant="ghost"
                     size="sm"
                     onClick={() => editor.chain().focus().redo().run()}
+                    aria-label="Redo"
                     disabled={!editor.can().redo()}
                 >
                     <Redo className="h-4 w-4" />
