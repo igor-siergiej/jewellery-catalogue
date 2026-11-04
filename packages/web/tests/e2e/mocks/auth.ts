@@ -80,6 +80,7 @@ export const MOCK_TOKEN_ETSY_MOCK = makeMockToken('68c6f0f5b97c94612901516f'); /
 export const MOCK_TOKEN_ANALYTICS_EVENTS = makeMockToken('68c6f0f5b97c946129015170'); // analytics-events.spec
 export const MOCK_TOKEN_ANALYTICS_DESIGN_VIEWED = makeMockToken('68c6f0f5b97c946129015171'); // analytics-events.spec
 export const MOCK_TOKEN_ANALYTICS_FAVOURITE = makeMockToken('68c6f0f5b97c946129015172'); // analytics-events.spec
+export const MOCK_TOKEN_RICH_TEXT = makeMockToken('68c6f0f5b97c9461290151a0'); // rich-text-description.spec
 
 export const MOCK_USER = { id: '68c6f0f5b97c946129015116', username: 'testuser' };
 
@@ -119,4 +120,3 @@ export async function mockAuthRoutes(page: Page, token = MOCK_TOKEN) {
         })
     );
 }
-export const MOCK_TOKEN_RICH_TEXT = makeMockToken('68c6f0f5b97c9461290151a0'); // rich-text-description.spec
