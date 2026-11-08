@@ -1,7 +1,18 @@
-import { describe, expect, it } from 'bun:test';
+import { beforeAll, describe, expect, it } from 'bun:test';
+import { Logger } from '@imapps/api-utils';
+import { dependencyContainer } from '../dependencies';
+import { DependencyToken } from '../dependencies/types';
 import { createRoutes } from './index';
 
 describe('routes', () => {
+    // The auth middleware resolves the Logger, so register it here rather than
+    // relying on another test file having left one in the shared container.
+    beforeAll(() => {
+        if (!dependencyContainer.isTokenRegistered(DependencyToken.Logger)) {
+            dependencyContainer.registerSingleton(DependencyToken.Logger, Logger);
+        }
+    });
+
     it('rejects unauthenticated material requests with 401', async () => {
         const app = createRoutes();
         const res = await app.request('/api/materials');

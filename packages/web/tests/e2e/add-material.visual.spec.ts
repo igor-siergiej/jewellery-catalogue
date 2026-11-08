@@ -17,4 +17,14 @@ test.describe('Add material page visual regression', () => {
         await expectNoHorizontalScroll(page);
         await expect(page).toHaveScreenshot('add-material-empty.png', { fullPage: true });
     });
+
+    test('validation errors', async ({ authenticatedPage: page }) => {
+        await page.goto('/addMaterial');
+        await page.waitForLoadState('networkidle');
+        await page.getByRole('button', { name: 'Add Material!' }).click();
+        await expect(page.getByText('Please enter the material name')).toBeVisible();
+        await settle(page);
+        await expectNoHorizontalScroll(page);
+        await expect(page).toHaveScreenshot('add-material-errors.png', { fullPage: true });
+    });
 });

@@ -185,7 +185,7 @@ const GroupCard: React.FC<GroupCardProps> = ({ group, availableMaterials, onUpda
 
     return (
         <div className="border rounded-lg overflow-hidden">
-            <div className="flex items-center gap-2 p-3 bg-muted/30">
+            <div className="flex flex-wrap items-center gap-2 p-3 bg-muted/30">
                 <Button
                     type="button"
                     variant="ghost"
@@ -196,7 +196,7 @@ const GroupCard: React.FC<GroupCardProps> = ({ group, availableMaterials, onUpda
                     {collapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
                 </Button>
                 <Input
-                    className="h-7 max-w-[160px] font-medium"
+                    className="h-7 min-w-28 flex-1 font-medium sm:max-w-[160px]"
                     placeholder="Group name (e.g. Gemstone)"
                     value={group.name}
                     onChange={(e) => onUpdate({ ...group, name: e.target.value })}

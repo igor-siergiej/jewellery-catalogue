@@ -169,4 +169,17 @@ test.describe
             await expect(page.getByLabel('Etsy category for RING')).toHaveValue('13');
             await expect(page.getByLabel('Shipping profile')).toHaveValue('502');
         });
+
+        test('checking for updates while offline says it cannot check', async ({ authenticatedPage: page }) => {
+            await page.goto('/settings');
+            const check = page.getByRole('button', { name: 'Check for updates' });
+            await expect(check).toBeEnabled();
+
+            await page.context().setOffline(true);
+            await check.click();
+
+            await expect(page.getByRole('status')).toHaveText('Could not check for updates. Try again when online.');
+            await expect(page.getByRole('button', { name: 'Update now' })).toHaveCount(0);
+            await page.context().setOffline(false);
+        });
     });
