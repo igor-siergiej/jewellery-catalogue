@@ -2,15 +2,16 @@ import Fuse from 'fuse.js';
 import { ExternalLink, ShoppingBag } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+
 import { LinkDesignDialog } from '../../components/LinkDesignDialog';
 import { ListingCopyRefresh } from '../../components/ListingCopyRefresh';
 import LoadingScreen from '../../components/Loading';
 import { DesktopOnly, MobileCard, MobileCardList } from '../../components/MobileCardList';
-import { UnmatchedEtsySales } from '../../components/UnmatchedEtsySales';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '../../components/ui/empty';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
+import { UnmatchedEtsySales } from '../../components/UnmatchedEtsySales';
 import { SETTINGS_PAGE, VIEW_DESIGN_PAGE } from '../../constants/routes';
 import { useSearch } from '../../context/SearchContext';
 import { useEtsyConnection } from '../../hooks/useEtsyConnection';

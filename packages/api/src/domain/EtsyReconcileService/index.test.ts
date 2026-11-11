@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
+
 import { type Design, type Material, MaterialType } from '@jewellery-catalogue/types';
 
 import type { DesignRepository } from '../DesignRepository';
@@ -73,6 +74,7 @@ describe('EtsyReconcileService.createDesignFromListing', () => {
         ]) {
             m.mockClear();
         }
+
         mockEtsyConnectionService.getShopId.mockResolvedValue(47408839);
         mockEtsyConnectionService.getValidAccessToken.mockResolvedValue('access-token');
         mockIdGenerator.generate.mockReturnValue('new-design-1');
@@ -198,6 +200,7 @@ describe('EtsyReconcileService.linkListingToDesign', () => {
         ]) {
             m.mockClear();
         }
+
         mockEtsyConnectionService.getShopId.mockResolvedValue(47408839);
         mockDesignRepo.getByUserId.mockResolvedValue([]);
         mockEtsyClient.getShopListingsByState.mockResolvedValue([

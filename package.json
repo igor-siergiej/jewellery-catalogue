@@ -12,12 +12,13 @@
     "start:with-etsy-mock": "concurrently \"bun run start:web\" \"bun run start:api\" \"bun run start:etsy-mock\"",
     "start:with-mock": "concurrently \"bun run start:web:with-mock\" \"bun run start:api\"",
     "link-etsy-listings": "dotenv -e .env -- bun scripts/link-etsy-listings/index.ts",
-    "lint": "biome check .",
-    "lint:fix": "biome check --fix --unsafe .",
-    "format": "biome format --write .",
+    "lint": "vp check",
+    "lint:fix": "vp check --fix",
+    "format": "vp fmt",
     "audit": "fallow-audit",
-    "prepare": "husky",
-    "release": "semantic-release"
+    "prepare": "vp config --no-agent",
+    "release": "semantic-release",
+    "check": "vp check"
   },
   "dependencies": {
     "fuse.js": "^7.5.0"
@@ -26,7 +27,6 @@
     "packages/*"
   ],
   "devDependencies": {
-    "@biomejs/biome": "2.5.15",
     "@imapps/dev-scripts": "0.1.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^13.0.1",
@@ -36,15 +36,20 @@
     "@semantic-release/release-notes-generator": "^14.1.1",
     "concurrently": "^9.2.5",
     "dotenv-cli": "^8.0.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.4.0",
     "semantic-release": "^24.2.9",
     "typescript": "^7.0.2",
-    "vite": "^8.3.4"
+    "vite": "catalog:",
+    "@imapps/oxc-config": "7.0.1",
+    "@types/bun": "^1.4.4",
+    "vite-plus": "catalog:"
   },
-  "packageManager": "bun@1",
+  "packageManager": "bun@1.4.4",
   "version": "1.81.1",
-  "lint-staged": {
-    "*.{ts,tsx,json}": "biome check --fix --unsafe"
+  "overrides": {
+    "vite": "catalog:"
+  },
+  "catalog": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.6.0",
+    "vite-plus": "1.6.0"
   }
 }

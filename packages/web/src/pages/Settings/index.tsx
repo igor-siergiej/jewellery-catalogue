@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+
 import { DataExport } from '../../components/DataExport';
 import { useEtsyConnection } from '../../hooks/useEtsyConnection';
 import { useEtsyShippingProfiles } from '../../hooks/useEtsyShippingProfiles';
@@ -32,6 +33,7 @@ const Settings = () => {
         disconnect,
         isDisconnecting,
     } = useEtsyConnection();
+
     const {
         hourlyWage,
         profitMargin,
@@ -44,6 +46,7 @@ const Settings = () => {
         recalculate,
         isLoading: pricingLoading,
     } = useUserSettings();
+
     const { options: taxonomyOptions, isLoading: taxonomyLoading } = useEtsyTaxonomy(connected);
     const { profiles: shippingProfiles, isLoading: shippingProfilesLoading } = useEtsyShippingProfiles(connected);
 
@@ -54,9 +57,11 @@ const Settings = () => {
     const [localEtsyDescriptionTemplate, setLocalEtsyDescriptionTemplate] = useState(etsyDescriptionTemplate);
     const [localEtsyTaxonomyMap, setLocalEtsyTaxonomyMap] = useState<Record<string, number>>(etsyTaxonomyMap);
     const [localEtsyShippingProfileId, setLocalEtsyShippingProfileId] = useState<number | null>(etsyShippingProfileId);
+
     const [pricingStatus, setPricingStatus] = useState<'idle' | 'saving' | 'recalculating' | 'success' | 'error'>(
         'idle'
     );
+
     const [pricingError, setPricingError] = useState('');
     const [pricingAction, setPricingAction] = useState<'save' | 'recalculate' | null>(null);
     const [recalculateResult, setRecalculateResult] = useState<{ updated: number; total: number } | null>(null);
@@ -90,6 +95,7 @@ const Settings = () => {
             for (const designType of Object.values(DesignType)) {
                 if (next[designType] === undefined) {
                     const defaultId = getDefaultTaxonomyId(designType, taxonomyOptions);
+
                     if (defaultId !== undefined) {
                         next[designType] = defaultId;
                         changed = true;
@@ -118,10 +124,12 @@ const Settings = () => {
     const handleSavePricing = async (thenRecalculate: boolean) => {
         const wage = Number(localWage);
         const margin = Number(localMargin);
+
         if (Number.isNaN(wage) || Number.isNaN(margin)) return;
 
         setPricingAction(thenRecalculate ? 'recalculate' : 'save');
         setPricingStatus('saving');
+
         try {
             await updateSettings({
                 hourlyWage: wage,
@@ -132,6 +140,7 @@ const Settings = () => {
                 etsyTaxonomyMap: localEtsyTaxonomyMap,
                 etsyShippingProfileId: localEtsyShippingProfileId,
             });
+
             if (thenRecalculate) {
                 setPricingStatus('recalculating');
                 const result = await recalculate();
@@ -139,6 +148,7 @@ const Settings = () => {
             } else {
                 setRecalculateResult(null);
             }
+
             setPricingStatus('success');
         } catch (err) {
             setPricingError(err instanceof Error ? err.message : 'Unknown error');

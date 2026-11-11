@@ -1,7 +1,7 @@
 /* biome-ignore-all lint/suspicious/noUnknownAtRules: tailwind */
 
-@import url("https://fonts.googleapis.com/css2?family=Delius&display=swap");
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Delius&display=swap');
+@import 'tailwindcss';
 
 @plugin "tailwindcss-animate";
 

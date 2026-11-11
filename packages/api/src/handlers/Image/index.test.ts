@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { Readable } from 'node:stream';
+
 import { APIError } from '@imapps/api-utils/hono';
 
 import '../../test-setup';
@@ -16,6 +17,7 @@ const containerInstances = dependencyContainer as unknown as { instances: Record
 
 const designImageBelongsToUser = mock(async (_imageId: string, _userId: string) => false);
 const draftImageBelongsToUser = mock(async (_imageId: string, _userId: string) => false);
+
 const imageServiceGet = mock<
     (name: string) => Promise<{
         stream: NodeJS.ReadableStream;
@@ -45,6 +47,7 @@ const installRepos = (designOwned: boolean, draftOwned: boolean) => {
 
 const makeCtx = (name: string, userId: string, query: Record<string, string> = {}) => {
     const captured: { headers: Record<string, string>; body?: unknown; status?: number } = { headers: {} };
+
     const ctx = {
         get: (k: string) => (k === 'userId' ? userId : undefined),
         req: { param: () => name, query: (key: string) => query[key] },
@@ -53,9 +56,11 @@ const makeCtx = (name: string, userId: string, query: Record<string, string> = {
         },
         body: (b: unknown) => {
             captured.body = b;
+
             return captured as never;
         },
     };
+
     return { ctx, captured };
 };
 

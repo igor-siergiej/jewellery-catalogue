@@ -1,8 +1,10 @@
 import path from 'node:path';
+
 import { defineConfig, devices } from '@playwright/test';
 
 const isCI = !!process.env.CI;
 const isStaging = process.env.NODE_ENV === 'staging' || !!process.env.STAGING_BASE_URL;
+
 // True whenever tests target an already-running, real backend (staging/prod),
 // as opposed to a locally-started app that has no auth backend of its own.
 const isRemoteTarget = isStaging || !!process.env.E2E_BASE_URL;
@@ -17,6 +19,7 @@ if (isCI || isStaging) {
 
 const getBaseURL = () => {
     if (process.env.STAGING_BASE_URL) return process.env.STAGING_BASE_URL;
+
     return process.env.E2E_BASE_URL || 'http://localhost:3000';
 };
 
@@ -99,7 +102,7 @@ export default defineConfig({
                   },
               },
               {
-                  command: 'bunx vite --port 3000',
+                  command: 'bunx vp dev --port 3000',
                   url: 'http://localhost:3000',
                   reuseExistingServer: false,
                   timeout: 30000,

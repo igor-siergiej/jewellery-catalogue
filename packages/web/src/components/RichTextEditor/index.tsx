@@ -1,5 +1,4 @@
 import './styles.css';
-
 import { useAuth } from '@imapps/web-utils';
 import Placeholder from '@tiptap/extension-placeholder';
 import { EditorContent, useEditor } from '@tiptap/react';
@@ -24,6 +23,7 @@ import { makeUploadImageRequest } from '@/api/endpoints/uploadImage';
 import { Button } from '@/components/ui/button';
 import { track } from '@/utils/analytics';
 import { errorContext, logger } from '@/utils/logger';
+
 import { ResizableImage } from './ResizableImage';
 
 export interface RichTextEditorProps {
@@ -83,10 +83,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
 
     const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
+
         if (!file || !editor) return;
         e.target.value = '';
         setIsUploading(true);
         track('image_upload_started', { count: 1 });
+
         try {
             const { imageId } = await makeUploadImageRequest(file, () => accessToken, login, logout);
             editor

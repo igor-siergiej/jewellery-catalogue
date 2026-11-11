@@ -45,7 +45,6 @@
     "@testing-library/react",
     "@testing-library/dom",
     "@testing-library/user-event",
-    "jsdom",
-    "vitest-fetch-mock"
+    "jsdom"
   ]
 }

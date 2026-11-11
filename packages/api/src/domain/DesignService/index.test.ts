@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
+
 import type { Logger } from '@imapps/api-utils';
 import type { Chain, Design, RequiredMaterial, UploadDesign, Wire } from '@jewellery-catalogue/types';
 import { MaterialType, METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
+
 import type { DesignRepository } from '../DesignRepository';
 import type { IdGenerator } from '../IdGenerator';
 import type { ImageService } from '../ImageService';
@@ -62,6 +64,7 @@ describe('DesignService', () => {
         it('should return design for valid ID', async () => {
             const designId = 'design-123';
             const userId = 'user-123';
+
             const mockDesign: Design = {
                 id: designId,
                 userId,
@@ -87,6 +90,7 @@ describe('DesignService', () => {
             const designId = 'design-123';
             const userId = 'user-123';
             const wrongUserId = 'wrong-user';
+
             const _mockDesign: Design = {
                 id: designId,
                 name: 'Test Design',
@@ -297,6 +301,7 @@ describe('DesignService', () => {
     describe('updateDesign', () => {
         const designId = 'design-123';
         const userId = 'user-123';
+
         const existingDesign: Design = {
             id: designId,
             userId,
@@ -383,6 +388,7 @@ describe('DesignService', () => {
     describe('setTotalQuantity', () => {
         const designId = 'design-123';
         const userId = 'user-123';
+
         const baseDesign: Design = {
             id: designId,
             userId,
@@ -431,6 +437,7 @@ describe('DesignService', () => {
                     },
                 ],
             };
+
             mockDesignRepo.getByIdAndUserId.mockResolvedValue(designWithVariants);
             mockDesignRepo.update.mockResolvedValue(undefined);
 
@@ -474,6 +481,7 @@ describe('DesignService', () => {
                 dateAdded: new Date(),
                 totalQuantity: 0,
             };
+
             mockDesignRepo.getByIdAndUserId.mockResolvedValue(existing);
             mockIdGenerator.generate.mockReturnValueOnce('new-diagram-1');
             mockImageService.uploadImage.mockResolvedValue(undefined);
@@ -509,6 +517,7 @@ describe('DesignService', () => {
                 dateAdded: new Date(),
                 totalQuantity: 0,
             };
+
             mockDesignRepo.getByIdAndUserId.mockResolvedValue(existing);
 
             const result = await service.editDesignProperties(
@@ -529,6 +538,7 @@ describe('DesignService', () => {
     describe('deleteDesign', () => {
         const designId = 'design-123';
         const userId = 'user-123';
+
         const existingDesign: Design = {
             id: designId,
             userId: 'user-123',

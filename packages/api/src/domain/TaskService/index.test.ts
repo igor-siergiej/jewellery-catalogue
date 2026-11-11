@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, type Mock, mock } from 'bun:test';
+
 import type { FormTask, Task } from '@jewellery-catalogue/types';
 
 import type { IdGenerator } from '../IdGenerator';
@@ -93,6 +94,7 @@ describe('TaskService', () => {
                 updatedAt: new Date('2026-08-01T00:00:00.000Z'),
             },
         ];
+
         (mockTaskRepo.getByUserId as ReturnType<typeof mock>).mockResolvedValue(tasks);
 
         const result = await service.getTasksByUserId('user-1');
@@ -127,6 +129,7 @@ describe('TaskService', () => {
             createdAt: new Date('2026-08-01T00:00:00.000Z'),
             updatedAt: new Date('2026-08-01T00:00:00.000Z'),
         };
+
         (mockTaskRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
 
         const result = await service.updateTask(
@@ -158,6 +161,7 @@ describe('TaskService', () => {
             createdAt: new Date('2026-08-01T00:00:00.000Z'),
             updatedAt: new Date('2026-08-01T00:00:00.000Z'),
         };
+
         (mockTaskRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
 
         const result = await service.updateTask('task-1', { status: 'in_progress' }, 'user-1');
@@ -180,6 +184,7 @@ describe('TaskService', () => {
             createdAt: new Date('2026-08-01T00:00:00.000Z'),
             updatedAt: new Date('2026-08-01T00:00:00.000Z'),
         };
+
         (mockTaskRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
 
         const result = await service.updateTask('task-1', { favourite: true }, 'user-1');
@@ -206,6 +211,7 @@ describe('TaskService', () => {
             createdAt: new Date('2026-08-01T00:00:00.000Z'),
             updatedAt: new Date('2026-08-01T00:00:00.000Z'),
         };
+
         (mockTaskRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
 
         await service.updateTask('task-1', { status: 'done' }, 'user-1');
@@ -226,6 +232,7 @@ describe('TaskService', () => {
             createdAt: new Date('2026-08-01T00:00:00.000Z'),
             updatedAt: new Date('2026-08-01T00:00:00.000Z'),
         };
+
         (mockTaskRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
         (mockIdGenerator.generate as ReturnType<typeof mock>).mockReturnValue('task-2');
 
@@ -254,6 +261,7 @@ describe('TaskService', () => {
             createdAt: new Date('2026-08-01T00:00:00.000Z'),
             updatedAt: new Date('2026-08-01T00:00:00.000Z'),
         };
+
         (mockTaskRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
         (mockIdGenerator.generate as ReturnType<typeof mock>).mockReturnValue('task-2');
 
@@ -281,6 +289,7 @@ describe('TaskService', () => {
             createdAt: new Date('2026-08-01T00:00:00.000Z'),
             updatedAt: new Date('2026-08-01T00:00:00.000Z'),
         };
+
         (mockTaskRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
         (mockIdGenerator.generate as ReturnType<typeof mock>).mockReturnValue('task-2');
 
@@ -309,6 +318,7 @@ describe('TaskService', () => {
             createdAt: new Date('2026-08-01T00:00:00.000Z'),
             updatedAt: new Date('2026-08-01T00:00:00.000Z'),
         };
+
         const getExisting = mockTaskRepo.getByIdAndUserId as Mock<(id: string, userId: string) => Promise<Task | null>>;
 
         it('stamps completedAt when a task moves to done', async () => {

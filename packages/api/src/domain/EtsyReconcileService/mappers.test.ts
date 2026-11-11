@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test';
+
 import { type Material, MaterialType } from '@jewellery-catalogue/types';
 
 import type { IdGenerator } from '../IdGenerator';
@@ -25,12 +26,14 @@ function makeMaterial(overrides: Partial<Material> = {}): Material {
 
 function makeIdGenerator(): IdGenerator {
     let counter = 0;
+
     return { generate: () => `id-${++counter}` };
 }
 
 describe('mapEtsyInventoryToVariations', () => {
     it('creates a variation group and variants for matched property values', () => {
         const materials = [makeMaterial({ id: 'red', name: 'Red' }), makeMaterial({ id: 'blue', name: 'Blue' })];
+
         const result = mapEtsyInventoryToVariations(
             {
                 products: [
@@ -58,6 +61,7 @@ describe('mapEtsyInventoryToVariations', () => {
 
     it('matches material names case-insensitively and trims whitespace', () => {
         const materials = [makeMaterial({ id: 'red', name: '  red  ' })];
+
         const result = mapEtsyInventoryToVariations(
             {
                 products: [
@@ -96,6 +100,7 @@ describe('mapEtsyInventoryToVariations', () => {
 
     it('drops a variant when only some of its property values matched', () => {
         const materials = [makeMaterial({ id: 'red', name: 'Red' })];
+
         const result = mapEtsyInventoryToVariations(
             {
                 products: [

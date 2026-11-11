@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'bun:test';
+
 import { MaterialType, METAL_TYPE, WIRE_TYPE, type Wire } from '@jewellery-catalogue/types';
 
 import { createTestContext, type TestContext } from '../../test-helpers/mongodb';

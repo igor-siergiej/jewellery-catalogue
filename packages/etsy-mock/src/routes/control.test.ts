@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
+
 import { createEtsyMockApp } from '../app';
 import { connectedUser, MockStore } from '../test-helpers';
 
@@ -36,13 +37,16 @@ describe('control API', () => {
 
     it('places an order that decrements stock and sells out the last item', async () => {
         const user = store.createUser({ scenario: 'established' });
+
         const earrings = [...store.listings.values()].find(
             (l) => l.shopId === user.shopId && l.title === 'Amethyst Drop Earrings'
         );
+
         const res = await control('POST', `/shops/${user.shopId}/orders`, {
             listingId: earrings?.listingId,
             quantity: 3,
         });
+
         expect(res.status).toBe(200);
         expect((await res.json()).transactions[0].quantity).toBe(3);
         expect(store.listings.get(earrings?.listingId as number)?.state).toBe('sold_out');
@@ -50,13 +54,16 @@ describe('control API', () => {
 
     it('rejects an order for more than the stock', async () => {
         const user = store.createUser({ scenario: 'established' });
+
         const earrings = [...store.listings.values()].find(
             (l) => l.shopId === user.shopId && l.title === 'Amethyst Drop Earrings'
         );
+
         const res = await control('POST', `/shops/${user.shopId}/orders`, {
             listingId: earrings?.listingId,
             quantity: 99,
         });
+
         expect(res.status).toBe(400);
     });
 
@@ -96,11 +103,13 @@ describe('import-listings / import-receipts', () => {
 
     it('import-listings picks the only shop when shopId is omitted', async () => {
         store.createUser({ shopName: 'Solo', scenario: 'empty' });
+
         const res = await app.request('/__mock/import-listings', {
             method: 'POST',
             headers: { 'Content-Type': 'text/csv' },
             body: LISTINGS_CSV,
         });
+
         expect(res.status).toBe(200);
         const body = (await res.json()) as { imported: number; skipped: number };
         expect(body.imported).toBe(2);
@@ -111,32 +120,38 @@ describe('import-listings / import-receipts', () => {
     it('import-listings errors when multiple shops exist and shopId is omitted', async () => {
         store.createUser({ shopName: 'A', scenario: 'empty' });
         store.createUser({ shopName: 'B', scenario: 'empty' });
+
         const res = await app.request('/__mock/import-listings', {
             method: 'POST',
             headers: { 'Content-Type': 'text/csv' },
             body: LISTINGS_CSV,
         });
+
         expect(res.status).toBe(400);
     });
 
     it('import-listings accepts JSON body with a csv field', async () => {
         const user = store.createUser({ shopName: 'Json', scenario: 'empty' });
+
         const res = await app.request(`/__mock/import-listings?shopId=${user.shopId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ csv: LISTINGS_CSV }),
         });
+
         expect(res.status).toBe(200);
         expect(((await res.json()) as { imported: number }).imported).toBe(2);
     });
 
     it('import-receipts preserves the Order ID', async () => {
         const user = store.createUser({ shopName: 'Receipts', scenario: 'empty' });
+
         const res = await app.request(`/__mock/import-receipts?shopId=${user.shopId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'text/csv' },
             body: RECEIPTS_CSV,
         });
+
         expect(res.status).toBe(200);
         const body = (await res.json()) as { imported: number };
         expect(body.imported).toBe(2);

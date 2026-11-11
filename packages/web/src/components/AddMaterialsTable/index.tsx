@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ADD_MATERIAL_PAGE } from '@/constants/routes';
 import { MATERIAL_TYPE_LABELS, METAL_TYPE_LABELS, WIRE_TYPE_LABELS } from '@/lib/materialLabels';
 import { cn } from '@/lib/utils';
+
 import type { AddMaterialsTableProps, TableMaterial } from './types';
 import { getRequiredMaterial } from './util';
 
@@ -112,7 +113,9 @@ const TableRow: React.FC<TableRowProps> = ({
                 if (row.id.startsWith('new-')) {
                     return <span className="text-sm text-muted-foreground">-</span>;
                 }
+
                 const material = getMaterialById(row.id);
+
                 return material ? <MaterialAttributeBadges material={material} /> : null;
             })()}
         </div>
@@ -228,6 +231,7 @@ export const AddMaterialsTable: React.FC<AddMaterialsTableProps> = ({
     useEffect(() => {
         // Only clear rows if there are no saved materials AND no rows are currently being edited
         const hasEditingRows = rows.some((row) => row.isEditing || row.isNew);
+
         if (value.length === 0 && rows.length > 0 && !hasEditingRows) {
             setRows([]);
             setSelectedMaterials([]);

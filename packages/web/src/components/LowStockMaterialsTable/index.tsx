@@ -1,6 +1,7 @@
 import type { Material } from '@jewellery-catalogue/types';
 import { AlertCircle, Edit, ShoppingBasket } from 'lucide-react';
 import { useState } from 'react';
+
 import { MaterialCards } from '@/components/MaterialsTable/MaterialCards';
 import MaterialUpdateForm from '@/components/MaterialUpdateForm';
 import { DesktopOnly } from '@/components/MobileCardList';
@@ -21,6 +22,7 @@ const LowStockMaterialsTable: React.FC<ILowStockMaterialsTableProps> = ({ materi
 
     const formatPrice = (value: number | null | undefined) => {
         if (value == null) return '';
+
         return `£${Number(value).toFixed(2)}`;
     };
 
@@ -35,6 +37,7 @@ const LowStockMaterialsTable: React.FC<ILowStockMaterialsTableProps> = ({ materi
         } else if (currentPacks < threshold) {
             return <Badge variant="secondary">Low</Badge>;
         }
+
         return <Badge variant="outline">Normal</Badge>;
     };
 
@@ -46,6 +49,7 @@ const LowStockMaterialsTable: React.FC<ILowStockMaterialsTableProps> = ({ materi
     const handleSuccess = () => {
         setEditDialogOpen(false);
         setSelectedMaterial(null);
+
         if (onMaterialUpdated) {
             onMaterialUpdated();
         }
@@ -78,6 +82,7 @@ const LowStockMaterialsTable: React.FC<ILowStockMaterialsTableProps> = ({ materi
                 )}
                 facts={(material) => {
                     const m = material as any;
+
                     const stock =
                         'totalLength' in material
                             ? `${(m.totalLength as number).toFixed(2)}m`
@@ -125,15 +130,19 @@ const LowStockMaterialsTable: React.FC<ILowStockMaterialsTableProps> = ({ materi
                                 const getTotalStock = () => {
                                     if ('totalLength' in material)
                                         return `${((material as any).totalLength as number).toFixed(2)}m`;
+
                                     if ('totalQuantity' in material) return Math.round((material as any).totalQuantity);
+
                                     return '-';
                                 };
 
                                 const getPerPack = () => {
                                     if ('lengthPerPack' in material)
                                         return `${((material as any).lengthPerPack as number).toFixed(2)}m`;
+
                                     if ('quantityPerPack' in material)
                                         return Math.round((material as any).quantityPerPack);
+
                                     return '-';
                                 };
 

@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'bun:test';
-import type { Context } from 'hono';
+
+import { Logger } from '@imapps/api-utils';
 
 import '../test-setup';
-import { Logger } from '@imapps/api-utils';
+import type { Context } from 'hono';
+
 import { dependencyContainer } from '../dependencies';
 import { DependencyToken } from '../dependencies/types';
 import { authenticate, authenticateImageRequest } from './auth';
@@ -11,6 +13,7 @@ import { authenticate, authenticateImageRequest } from './auth';
 // (public API is only register/resolve), so resetting the singleton state
 // for tests goes through a typed cast with a short reason.
 type ContainerInternal = { instances: Record<string, unknown>; constructors: Record<string, unknown> };
+
 const resetContainer = (): void => {
     const internal = dependencyContainer as unknown as ContainerInternal;
     internal.instances = {};
@@ -24,6 +27,7 @@ const createMockContext = (
     requestHeaders: Record<string, string> = {}
 ): Context<AuthVars> => {
     const allHeaders = { ...headers, ...requestHeaders };
+
     const req = new Request('http://localhost/', {
         headers: allHeaders,
     });
@@ -146,6 +150,7 @@ describe('authenticate middleware', () => {
 
         it('should call Kivo /verify with the Authorization header', async () => {
             const ctx = createMockContext({ authorization: 'Bearer my-token' });
+
             const mockFetch = vi.fn().mockResolvedValue({
                 ok: true,
                 json: vi.fn().mockResolvedValue({
@@ -153,6 +158,7 @@ describe('authenticate middleware', () => {
                     payload: { id: 'user-1', username: 'alice' },
                 }),
             });
+
             global.fetch = mockFetch as unknown as typeof fetch;
 
             await authenticate(ctx, mockNext);
@@ -186,6 +192,7 @@ describe('authenticate middleware', () => {
                 { authorization: 'Bearer token' },
                 { origin: 'https://jewellerycatalogue.imapps.co.uk' }
             );
+
             const mockFetch = vi.fn().mockResolvedValue({
                 ok: true,
                 json: vi.fn().mockResolvedValue({
@@ -193,6 +200,7 @@ describe('authenticate middleware', () => {
                     payload: { id: 'u1', username: 'bob' },
                 }),
             });
+
             global.fetch = mockFetch as unknown as typeof fetch;
 
             await authenticate(ctx, mockNext);
@@ -212,6 +220,7 @@ describe('authenticate middleware', () => {
                 { authorization: 'Bearer token' },
                 { referer: 'https://jewellerycatalogue.imapps.co.uk/some/page' }
             );
+
             const mockFetch = vi.fn().mockResolvedValue({
                 ok: true,
                 json: vi.fn().mockResolvedValue({
@@ -219,6 +228,7 @@ describe('authenticate middleware', () => {
                     payload: { id: 'u1', username: 'bob' },
                 }),
             });
+
             global.fetch = mockFetch as unknown as typeof fetch;
 
             await authenticate(ctx, mockNext);
@@ -241,11 +251,14 @@ describe('authenticateImageRequest middleware', () => {
     const createCtxWithQuery = (headers: Record<string, string>, query: Record<string, string | undefined>) => {
         const allHeaders = { ...headers };
         const search = new URLSearchParams();
+
         for (const [k, v] of Object.entries(query)) {
             if (v !== undefined) search.set(k, v);
         }
+
         const url = `http://localhost/${search.toString() ? `?${search.toString()}` : ''}`;
         const req = new Request(url, { headers: allHeaders });
+
         return {
             req: {
                 header: (name: string) => allHeaders[name.toLowerCase()] ?? allHeaders[name],
@@ -267,8 +280,10 @@ describe('authenticateImageRequest middleware', () => {
     const stubKivo = (response: { ok: boolean; body: unknown } | Error) => {
         if (response instanceof Error) {
             global.fetch = vi.fn().mockRejectedValue(response) as unknown as typeof fetch;
+
             return;
         }
+
         global.fetch = vi.fn().mockResolvedValue({
             ok: response.ok,
             json: vi.fn().mockResolvedValue(response.body),
@@ -300,10 +315,12 @@ describe('authenticateImageRequest middleware', () => {
 
         it('forwards the query token to Kivo as a Bearer token', async () => {
             const ctx = createCtxWithQuery({}, { token: 'query-token' });
+
             const mockFetch = vi.fn().mockResolvedValue({
                 ok: true,
                 json: vi.fn().mockResolvedValue({ success: true, payload: { id: 'u', username: 'u' } }),
             });
+
             global.fetch = mockFetch as unknown as typeof fetch;
 
             await authenticateImageRequest(ctx, mockNext);

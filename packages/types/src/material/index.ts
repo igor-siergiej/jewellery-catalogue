@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { baseMaterialSchema } from '../baseMaterial';
 import { MaterialType, METAL_TYPE, WIRE_TYPE } from './enum';
 
@@ -47,8 +48,11 @@ export const earHookSchema = baseMaterialSchema.extend({
 export const materialSchema = z.discriminatedUnion('type', [wireSchema, beadSchema, chainSchema, earHookSchema]);
 
 export type Wire = z.infer<typeof wireSchema>;
+
 export type Bead = z.infer<typeof beadSchema>;
+
 export type Chain = z.infer<typeof chainSchema>;
+
 export type EarHook = z.infer<typeof earHookSchema>;
 
 export type Material = z.infer<typeof materialSchema>;

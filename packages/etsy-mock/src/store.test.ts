@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test';
+
 import { MockStore } from './store';
 
 describe('MockStore', () => {
@@ -38,6 +39,7 @@ describe('MockStore', () => {
     it('derives listing quantity and price from enabled offerings', () => {
         const store = new MockStore();
         const user = store.createUser({ scenario: 'empty' });
+
         const listing = store.addListing(user.shopId as number, {
             title: 'Ruby Ring',
             state: 'active',
@@ -47,6 +49,7 @@ describe('MockStore', () => {
                 { propertyName: 'Size', value: 'L', quantity: 3 },
             ],
         });
+
         expect(store.listingQuantity(listing)).toBe(5);
         expect(store.listingPriceAmount(listing)).toBe(3000);
     });

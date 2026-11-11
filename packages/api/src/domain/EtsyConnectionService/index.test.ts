@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
+
 import type { EtsyConnection } from '@jewellery-catalogue/types';
 
 import type { EtsyClient } from '../EtsyClient';
@@ -69,10 +70,12 @@ describe('EtsyConnectionService', () => {
 
             expect(result).toEqual({ url: 'https://www.etsy.com/oauth/connect?...' });
             expect(mockStateStore.save).toHaveBeenCalledTimes(1);
+
             const [state, data] = mockStateStore.save.mock.calls[0] as [
                 string,
                 { userId: string; codeVerifier: string },
             ];
+
             expect(data.userId).toBe('user-1');
             expect(typeof state).toBe('string');
             expect(typeof data.codeVerifier).toBe('string');

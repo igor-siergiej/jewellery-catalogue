@@ -2,12 +2,12 @@
   "name": "@jewellery-catalogue/web",
   "version": "1.81.1",
   "scripts": {
-    "start:dev": "vite --port 3000",
+    "start:dev": "vp dev --port 3000",
     "start:mock-auth": "node mock-auth-server.js",
     "start": "bun run start:dev",
     "start:with-mock": "concurrently \"bun run start:mock-auth\" \"bun run start:dev\"",
-    "build": "vite build --emptyOutDir",
-    "test": "vitest run",
+    "build": "vp build --emptyOutDir",
+    "test": "vp test run",
     "pw:install": "PLAYWRIGHT_BROWSERS_PATH=~/.cache/ms-playwright playwright install --with-deps",
     "pw:run": "playwright test --config=playwright.config.ts",
     "pw:e2e": "playwright test --config=playwright.config.ts",
@@ -16,7 +16,7 @@
     "pw:e2e:headed": "playwright test --config=playwright.config.ts --headed",
     "pw:e2e:debug": "playwright test --config=playwright.config.ts --debug",
     "pw:open": "playwright test --config=playwright.config.ts --ui",
-    "preview": "vite preview"
+    "preview": "vp preview"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -72,7 +72,6 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
-    "@vitest/coverage-v8": "^5.0.3",
     "autoprefixer": "^10.6.1",
     "body-parser": "^2.3.0",
     "concurrently": "^8.2.2",
@@ -84,8 +83,7 @@
     "prettier": "^3.9.9",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^7.0.2",
-    "vite": "^8.3.4",
-    "vitest": "^5.0.3",
-    "vitest-fetch-mock": "^0.4.5"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

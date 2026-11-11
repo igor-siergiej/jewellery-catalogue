@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
+
 import type { MongoDbConnection } from '@imapps/api-utils';
 import type { Design } from '@jewellery-catalogue/types';
 
@@ -59,6 +60,7 @@ describe('MongoDesignRepository', () => {
 
         it('should get all designs', async () => {
             const designs = [mockDesign];
+
             const mockCursor = {
                 toArray: mock().mockResolvedValue(designs),
             };
@@ -118,6 +120,7 @@ describe('MongoDesignRepository', () => {
                 id: 'd1',
                 materials: [{ id: 'mat-1', type: 'wire' }],
             } as unknown as Design;
+
             const mockCursor = { toArray: mock().mockResolvedValue([design]) };
             mockDesignsCollection.find.mockReturnValue(mockCursor);
 
@@ -132,6 +135,7 @@ describe('MongoDesignRepository', () => {
                 materials: [],
                 variationGroups: [{ id: 'g1', options: [{ id: 'o1', material: { id: 'mat-1' } }] }],
             } as unknown as Design;
+
             const mockCursor = { toArray: mock().mockResolvedValue([design]) };
             mockDesignsCollection.find.mockReturnValue(mockCursor);
 

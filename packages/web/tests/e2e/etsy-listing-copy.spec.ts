@@ -1,10 +1,12 @@
 // packages/web/tests/e2e/etsy-listing-copy.spec.ts
 import type { Page, Request } from '@playwright/test';
+
 import { expect, test } from './fixtures';
 import { MOCK_TOKEN_ETSY_LISTING_COPY } from './mocks/auth';
 import { apiCreateDesign } from './utils/api-helpers';
 
 const TOKEN = MOCK_TOKEN_ETSY_LISTING_COPY;
+
 test.use({ authToken: TOKEN });
 
 const GENERATED = {
@@ -39,6 +41,7 @@ async function openPushDialog(page: Page, name: string) {
     const design = await apiCreateDesign(TOKEN, { name, price: 20, designType: 'EARRINGS' });
     await page.goto(`/designs/${design.id}`);
     await page.getByRole('button', { name: 'Send to Etsy' }).click();
+
     return page.getByRole('dialog');
 }
 

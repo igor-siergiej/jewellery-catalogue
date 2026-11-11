@@ -1,11 +1,15 @@
 import { z } from 'zod';
+
 import { MaterialType, METAL_TYPE, WIRE_TYPE } from '../material/enum';
 
 export type FormMaterial = z.infer<typeof formMaterialSchema>;
 
 export type FormWire = z.infer<typeof formWireSchema>;
+
 export type FormBead = z.infer<typeof formBeadSchema>;
+
 export type FormChain = z.infer<typeof formChainSchema>;
+
 export type FormEarHook = z.infer<typeof formEarHookSchema>;
 
 const baseFormMaterialSchema = z.object({

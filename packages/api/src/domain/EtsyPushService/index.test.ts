@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { Readable } from 'node:stream';
+
 import type { Design } from '@jewellery-catalogue/types';
 
 import type { DesignRepository } from '../DesignRepository';
@@ -11,6 +12,7 @@ import { EtsyPushService } from './index';
 
 const mockDesignRepo = { getByIdAndUserId: mock(), update: mock() };
 const mockImageService = { getImage: mock(), uploadImage: mock() };
+
 const mockEtsyClient = {
     createDraftListing: mock(),
     uploadListingImage: mock(),
@@ -20,6 +22,7 @@ const mockEtsyClient = {
     getShopShippingProfiles: mock(),
     getShopReadinessStateDefinitions: mock(),
 };
+
 const mockEtsyConnectionService = { getPushCredentials: mock() };
 const mockUserSettingsService = { get: mock() };
 

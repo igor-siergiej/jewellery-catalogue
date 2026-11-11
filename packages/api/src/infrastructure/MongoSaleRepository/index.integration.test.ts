@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'bun:test';
+
 import type { Design, Sale } from '@jewellery-catalogue/types';
 
 import { createTestContext, type TestContext } from '../../test-helpers/mongodb';
@@ -101,6 +102,7 @@ describe.if(RUN)('MongoSaleRepository reporting queries (integration)', () => {
         ]) {
             await repo.insertIfNew(makeSale({ transactionId, soldAt }));
         }
+
         await repo.insertIfNew(makeSale({ transactionId: 4, soldAt: 150, userId: 'other' }));
 
         const ids = async (from: number | null, to: number | null) =>

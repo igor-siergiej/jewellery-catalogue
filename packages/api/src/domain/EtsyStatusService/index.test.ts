@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
+
 import type { Design } from '@jewellery-catalogue/types';
 
 import type { DesignRepository } from '../DesignRepository';
@@ -69,6 +70,7 @@ describe('EtsyStatusService', () => {
             const design = makeDesign({
                 etsy: { listingId: 999, state: 'active', lastPushedAt: 123, pushIncomplete: false },
             });
+
             mockDesignRepo.getByIdAndUserId.mockResolvedValue(design);
             mockEtsyClient.getListing.mockResolvedValue({ listingId: 999, state: 'active' });
 

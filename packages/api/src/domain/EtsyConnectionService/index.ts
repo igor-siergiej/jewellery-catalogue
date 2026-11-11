@@ -1,5 +1,6 @@
 import { APIError } from '@imapps/api-utils/hono';
 import type { EtsyConnection, EtsyConnectionStatus } from '@jewellery-catalogue/types';
+
 import type { EtsyClient } from '../EtsyClient';
 import { generateCodeChallenge, generateCodeVerifier, generateState } from '../EtsyClient';
 import type { EtsyConnectionRepository } from '../EtsyConnectionRepository';
@@ -35,6 +36,7 @@ export class EtsyConnectionService {
 
     async handleCallback(code: string, state: string): Promise<{ userId: string }> {
         const pending = this.stateStore.consume(state);
+
         if (!pending) {
             throw new APIError('Invalid or expired Etsy OAuth state', 400);
         }
@@ -65,6 +67,7 @@ export class EtsyConnectionService {
 
     async getStatus(userId: string): Promise<EtsyConnectionStatus> {
         const connection = await this.connectionRepo.getByUserId(userId);
+
         if (!connection) return { connected: false };
 
         return { connected: true, shopName: connection.shopName, broken: connection.broken };
@@ -76,6 +79,7 @@ export class EtsyConnectionService {
 
     async getValidAccessToken(userId: string): Promise<string> {
         const connection = await this.connectionRepo.getByUserId(userId);
+
         if (!connection) {
             throw new APIError('Etsy is not connected', 400);
         }
@@ -86,6 +90,7 @@ export class EtsyConnectionService {
 
         try {
             const tokens = await this.etsyClient.refreshAccessToken(connection.refreshToken);
+
             const updated: EtsyConnection = {
                 ...connection,
                 accessToken: tokens.accessToken,
@@ -93,7 +98,9 @@ export class EtsyConnectionService {
                 accessTokenExpiresAt: Date.now() + tokens.expiresIn * 1000,
                 broken: false,
             };
+
             await this.connectionRepo.upsert(updated);
+
             return updated.accessToken;
         } catch (error) {
             await this.connectionRepo.upsert({ ...connection, broken: true });
@@ -104,17 +111,21 @@ export class EtsyConnectionService {
     async getPushCredentials(userId: string): Promise<{ accessToken: string; shopId: number }> {
         const accessToken = await this.getValidAccessToken(userId);
         const connection = await this.connectionRepo.getByUserId(userId);
+
         if (!connection) {
             throw new APIError('Etsy is not connected', 400);
         }
+
         return { accessToken, shopId: connection.shopId };
     }
 
     async getShopId(userId: string): Promise<number> {
         const connection = await this.connectionRepo.getByUserId(userId);
+
         if (!connection) {
             throw new APIError('Etsy is not connected', 400);
         }
+
         return connection.shopId;
     }
 }

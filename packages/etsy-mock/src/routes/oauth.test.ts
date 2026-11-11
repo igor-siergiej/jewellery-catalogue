@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
 import { createHash, randomBytes } from 'node:crypto';
+
 import { createEtsyMockApp } from '../app';
 import { MockStore } from '../store';
 
@@ -36,6 +37,7 @@ async function approveNewShop(shopName: string, scope?: string) {
     form.set('scenario', 'established');
     const res = await app.request('/oauth/connect', { method: 'POST', body: form });
     const location = new URL(res.headers.get('location') as string);
+
     return { res, location, verifier };
 }
 
@@ -119,6 +121,7 @@ describe('POST /v3/public/oauth/token', () => {
     it('rotates both tokens on refresh and invalidates the old access token', async () => {
         const { location, verifier } = await approveNewShop('Bead Shop');
         const first = await (await exchange(location.searchParams.get('code') as string, verifier)).json();
+
         const res = await app.request('/v3/public/oauth/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -128,6 +131,7 @@ describe('POST /v3/public/oauth/token', () => {
                 refresh_token: first.refresh_token,
             }).toString(),
         });
+
         const second = await res.json();
         expect(second.access_token).not.toBe(first.access_token);
         expect(second.refresh_token).not.toBe(first.refresh_token);
@@ -135,6 +139,7 @@ describe('POST /v3/public/oauth/token', () => {
         const old = await app.request('/v3/application/users/me', {
             headers: { ...API_KEY, Authorization: `Bearer ${first.access_token}` },
         });
+
         expect(old.status).toBe(401);
     });
 });

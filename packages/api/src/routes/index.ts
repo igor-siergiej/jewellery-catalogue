@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
+
 import { config } from '../config';
 import { dependencyContainer } from '../dependencies';
 import { DependencyToken } from '../dependencies/types';
@@ -67,6 +68,7 @@ export const createRoutes = (): Hono<Env> => {
     app.get('/api/health', async (c) => {
         try {
             const databaseConnectionExists = await dependencyContainer.resolve(DependencyToken.Database).ping();
+
             return c.body(null, databaseConnectionExists ? 200 : 500);
         } catch {
             return c.body(null, 500);

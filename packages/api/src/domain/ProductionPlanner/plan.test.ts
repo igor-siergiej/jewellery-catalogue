@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test';
+
 import { type Design, type Material, MaterialType } from '@jewellery-catalogue/types';
 
 import { buildShoppingList, summariseProducible } from './plan';
@@ -42,6 +43,7 @@ const bead = (overrides: Record<string, unknown> = {}) =>
 
 // 30cm of wire and 4 beads per piece.
 const requiredWire = (cm = 30) => ({ ...(wire() as object), requiredLength: cm }) as never;
+
 const requiredBead = (qty = 4, overrides: Record<string, unknown> = {}) =>
     ({ ...(bead(overrides) as object), requiredQuantity: qty }) as never;
 
@@ -121,6 +123,7 @@ describe('summariseProducible', () => {
                 },
             ],
         });
+
         const materials = byId(
             wire({ totalLength: 1 }),
             bead({ totalQuantity: 20 }),

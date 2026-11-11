@@ -12,6 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { AlertCircle, CheckCircle, Loader2, XCircle } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+
 import { getMaterialsQuery } from '@/api/endpoints/getMaterials';
 import makeUpdateDesignRequest from '@/api/endpoints/updateDesign';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -105,6 +106,7 @@ const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess,
                     unit = 'm';
                     break;
                 }
+
                 case MaterialType.BEAD:
                 case MaterialType.EAR_HOOK: {
                     required = (requiredMaterial as any).requiredQuantity;
@@ -112,6 +114,7 @@ const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess,
                     unit = 'pcs';
                     break;
                 }
+
                 default:
                     required = 0;
                     available = 0;
@@ -119,6 +122,7 @@ const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess,
             }
 
             const canMake = required > 0 ? Math.floor(available / required) : 0;
+
             const status: MaterialAvailability['status'] =
                 canMake === 0 ? 'insufficient' : canMake < 5 ? 'low' : 'sufficient';
 
@@ -131,6 +135,7 @@ const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess,
         if (!allMaterials || !selectedVariantId || !hasVariants) return [];
 
         const variant = design.variants!.find((v) => v.id === selectedVariantId);
+
         if (!variant) return [];
 
         const groups = design.variationGroups ?? [];
@@ -139,6 +144,7 @@ const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess,
         for (const optionId of variant.optionIds) {
             for (const group of groups) {
                 const option = group.options.find((o) => o.id === optionId);
+
                 if (option) {
                     optionMaterials.push(option.material);
                     break;
@@ -172,6 +178,7 @@ const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess,
                     unit = 'm';
                     break;
                 }
+
                 case MaterialType.BEAD:
                 case MaterialType.EAR_HOOK: {
                     required = (requiredMaterial as any).requiredQuantity;
@@ -179,6 +186,7 @@ const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess,
                     unit = 'pcs';
                     break;
                 }
+
                 default:
                     required = 0;
                     available = 0;
@@ -186,6 +194,7 @@ const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess,
             }
 
             const canMake = required > 0 ? Math.floor(available / required) : 0;
+
             const status: MaterialAvailability['status'] =
                 canMake === 0 ? 'insufficient' : canMake < 5 ? 'low' : 'sufficient';
 
@@ -200,11 +209,13 @@ const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess,
 
     const maxCanProduce = useMemo(() => {
         if (allMaterialAvailability.length === 0) return 0;
+
         return Math.min(...allMaterialAvailability.map((m) => m.canMake));
     }, [allMaterialAvailability]);
 
     const estimatedMaterialLevels = useMemo(() => {
         if (!addQuantity || addQuantity <= 0) return null;
+
         return allMaterialAvailability.map((ma) => ({
             ...ma,
             newAvailable: ma.available - ma.required * addQuantity,
@@ -222,6 +233,7 @@ const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess,
                     variant: 'standard',
                 },
             });
+
             return;
         }
 
@@ -235,10 +247,12 @@ const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess,
                     variant: 'standard',
                 },
             });
+
             return;
         }
 
         setIsUpdating(true);
+
         try {
             await makeUpdateDesignRequest(
                 design.id,
@@ -278,9 +292,11 @@ const DesignUpdateForm: React.FC<IDesignUpdateFormProps> = ({ design, onSuccess,
 
     const handleSetStock = async () => {
         if (stockValue === '' || stockValue < 0) return;
+
         if (hasVariants && !selectedVariantId) return;
 
         setIsSettingStock(true);
+
         try {
             await makeUpdateDesignRequest(
                 design.id,

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
+
 import type { MongoDbConnection } from '@imapps/api-utils';
 
 import { CollectionNames, type Collections } from '../../dependencies/types';
@@ -93,6 +94,7 @@ describe('MongoRepository', () => {
                 { id: 'test-1', name: 'Entity 1', value: 10 },
                 { id: 'test-2', name: 'Entity 2', value: 20 },
             ];
+
             const mockCursor = {
                 toArray: mock().mockResolvedValue(testEntities),
             };
@@ -120,6 +122,7 @@ describe('MongoRepository', () => {
 
         it('should propagate database errors', async () => {
             const mockError = new Error('Database query error');
+
             const mockCursor = {
                 toArray: mock().mockRejectedValue(mockError),
             };

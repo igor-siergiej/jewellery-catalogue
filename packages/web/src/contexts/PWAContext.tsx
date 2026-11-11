@@ -1,6 +1,6 @@
-import { useRegisterSW } from 'virtual:pwa-register/react';
 import type React from 'react';
 import { createContext, useCallback, useContext, useRef, useState } from 'react';
+import { useRegisterSW } from 'virtual:pwa-register/react';
 
 const UPDATE_CHECK_INTERVAL_MS = 5 * 60 * 1000;
 

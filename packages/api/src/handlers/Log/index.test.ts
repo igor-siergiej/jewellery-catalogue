@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
+
 import type { Logger } from '@imapps/api-utils';
 import { createApp } from '@imapps/api-utils/hono';
 import type { Hono } from 'hono';
@@ -20,6 +21,7 @@ const buildApp = () => {
         await next();
     });
     app.post('/api/logs', receiveLogs);
+
     return app;
 };
 
@@ -69,15 +71,18 @@ describe('receiveLogs', () => {
         ['a non-object body', 'nope'],
     ])('rejects %s with 400 and logs nothing', async (_name, body) => {
         const res = await send(buildApp(), body);
+
         for (const m of Object.values(logger)) {
             expect(m).not.toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ source: 'frontend' }));
         }
+
         expect(res.status).toBe(400);
     });
 
     it('caps lines per user per minute, then resets', async () => {
         const app = buildApp();
         const fullBatch = { logs: Array.from({ length: MAX_LOGS_PER_BATCH }, () => line()) };
+
         for (let sent = 0; sent < MAX_LOG_LINES_PER_MINUTE; sent += MAX_LOGS_PER_BATCH) {
             expect((await send(app, fullBatch)).status).toBe(204);
         }

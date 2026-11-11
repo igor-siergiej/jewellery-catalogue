@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { DesignType } from '../design/enum';
 import { requiredMaterialSchema } from '../requiredMaterial';
 import { designVariantSchema, variationGroupSchema } from '../variationGroup';
@@ -29,6 +30,7 @@ export const formDesignSchema = z
     .superRefine((data, ctx) => {
         const hasSharedMaterials = data.materials.length > 0;
         const hasVariationGroups = data.variationGroups && data.variationGroups.length > 0;
+
         if (!hasSharedMaterials && !hasVariationGroups) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,

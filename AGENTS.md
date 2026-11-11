@@ -14,18 +14,20 @@ file covers what you need to change the code safely.
 - **Monorepo:** Bun workspaces. `packages/web`, `packages/api`, `packages/types` (shared
   interfaces and Zod form schemas, imported as `@jewellery-catalogue/types`) and
   `packages/etsy-mock` (stateful fake of the Etsy v3 API for local dev and e2e). `bun.lock`
-  is checked in. CI pins Bun to `1.4.2`.
+  is checked in. `packageManager` pins Bun to `1.4.4` and CI reads it from there.
 - **api:** Hono 4 on the Bun runtime. `createApp` and `APIError` come from
   `@imapps/api-utils/hono`. The DI container, `MongoDbConnection`, `ObjectStoreConnection`,
   `ConfigService` and `Logger` come from `@imapps/api-utils`. MongoDB native driver 6 (the
   connection is api-utils', so driver upgrades go through that package first). Images live in
   an S3-compatible object store (RustFS), reached through api-utils' `ObjectStoreConnection`.
-- **web:** React 19, Vite 8, Tailwind 4, Radix/shadcn (`src/components/ui`), TanStack Query,
+- **web:** React 19, Vite+ 1.6 (Vite 8), Tailwind 4, Radix/shadcn (`src/components/ui`), TanStack Query,
   React Router 7, react-hook-form + Zod, tiptap rich text, lucide-react 1.x. PWA via
   `vite-plugin-pwa` injectManifest (`src/sw.ts`). `useAuth` comes from `@imapps/web-utils`.
-- **Tooling:** Biome 2.5 (lint and format, run by lint-staged on commit), TypeScript 7
-  (`strict: false`, `types: ["bun"]` in the root tsconfig), semantic-release, fallow-audit on
-  pre-push.
+- **Tooling:** Vite+ (`vp check`: Oxfmt + Oxlint with the shared `@imapps/oxc-config` presets,
+  configured in the root `vite.config.ts`). Preset rules report as warnings and `typeCheck` is off
+  until the existing warnings and type errors are fixed. Git hooks live in `.vite-hooks`
+  (pre-commit `vp staged`, pre-push fallow-audit). TypeScript 7 (`strict: false`,
+  `types: ["bun"]` in the root tsconfig), semantic-release.
 
 ## API layout (`packages/api/src`)
 
@@ -69,7 +71,7 @@ then be any non-empty values.
 ## Commands
 
 ```bash
-bun lint                                              # Biome
+bun lint                                              # vp check (format + lint)
 bun --filter @jewellery-catalogue/api test            # API unit tests (bun:test)
 bun --filter @jewellery-catalogue/etsy-mock test      # Etsy mock unit tests
 RUN_INTEGRATION_TESTS=1 bun --filter @jewellery-catalogue/api test integration  # needs Mongo on :27018 (docker-compose.test.yml)
@@ -81,6 +83,8 @@ Gotchas:
 - Root `bun tsc --noEmit` checks nothing because the root tsconfig has `files: []`. Use
   `bunx tsc -p packages/api --noEmit` (and the equivalent for `packages/types`). Web has
   pre-existing project-reference errors (TS6305) under `tsc -p`.
+- Clones made before the Vite+ move have `core.hooksPath=.husky/_`, so `vp config` skips hook
+  setup. Run `git config --unset core.hooksPath && bun install` once.
 - Web vitest: `flattenTaxonomyNodes` and `getSuggestedPrice` tests import `bun:test`, so they
   fail under vitest. CI does not run web unit tests.
 
@@ -111,8 +115,8 @@ Gotchas:
 ## Deploy
 
 Merging to `main` runs `ci-cd.yml`: checks, semantic-release, then the root `Dockerfile.api`
-and `Dockerfile.web` images are built by `.github/workflows-utils` (a submodule; don't init it
-locally, because its `biome.json` breaks the root lint). Dokploy webhooks then deploy to
+and `Dockerfile.web` images are built by `.github/workflows-utils` (a submodule; the root
+`vite.config.ts` ignores it). Dokploy webhooks then deploy to
 https://jewellery-catalogue.imapps.uk.
 
 ## Planned work

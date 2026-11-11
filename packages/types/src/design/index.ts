@@ -1,6 +1,7 @@
 export type { RequiredMaterial as RequiredMaterialLegacy } from '../requiredMaterial';
 
 import z from 'zod';
+
 import { etsyListingSchema } from '../etsyListing';
 import { requiredMaterialSchema } from '../requiredMaterial';
 import { designVariantSchema, variationGroupSchema } from '../variationGroup';
@@ -9,6 +10,7 @@ import { DesignType } from './enum';
 export { DesignType } from './enum';
 
 export const etsyListingStateSchema = z.enum(['draft', 'active', 'inactive']);
+
 export type EtsyListingState = z.infer<typeof etsyListingStateSchema>;
 
 export const designEtsySchema = z.object({
@@ -18,6 +20,7 @@ export const designEtsySchema = z.object({
     pushIncomplete: z.boolean().optional(),
     imageUrls: z.array(z.string()).optional(),
 });
+
 export type DesignEtsy = z.infer<typeof designEtsySchema>;
 
 export const designSchema = z.object({

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
+
 import { createEtsyMockApp } from '../app';
 import { connectedUser, MockStore } from '../test-helpers';
 
@@ -22,6 +23,7 @@ describe('auth', () => {
 
     it('rejects an expired token with 401', async () => {
         const { headers } = connectedUser(store);
+
         for (const t of store.tokens.values()) t.expiresAt = 0;
         expect((await get('/users/me', headers)).status).toBe(401);
     });
@@ -68,15 +70,19 @@ describe('listings', () => {
 
     it('paginates with count = total matches', async () => {
         const { user, headers } = connectedUser(store, 'empty');
+
         for (let i = 0; i < 150; i++) {
             store.addListing(user.shopId as number, { title: `L${i}`, state: 'active', price: 1 });
         }
+
         const page1 = await (
             await get(`/shops/${user.shopId}/listings?state=active&limit=100&offset=0`, headers)
         ).json();
+
         const page2 = await (
             await get(`/shops/${user.shopId}/listings?state=active&limit=100&offset=100`, headers)
         ).json();
+
         expect(page1.count).toBe(150);
         expect(page1.results).toHaveLength(100);
         expect(page2.results).toHaveLength(50);

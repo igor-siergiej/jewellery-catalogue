@@ -1,6 +1,7 @@
 // packages/api/src/domain/EtsyListingCopyService/index.test.ts
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { Readable } from 'node:stream';
+
 import type { Design } from '@jewellery-catalogue/types';
 
 import type { DesignRepository } from '../DesignRepository';

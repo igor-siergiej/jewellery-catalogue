@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test';
+
 import type { DesignVariant, RequiredMaterial, VariationGroup } from '@jewellery-catalogue/types';
 
 import { buildDraftListingInput, buildInventoryProducts, renderDescriptionTemplate } from './mappers';
@@ -26,6 +27,7 @@ describe('renderDescriptionTemplate', () => {
             description: 'A ring.',
             materials: [],
         });
+
         expect(result).toBe('A ring. ()');
     });
 
@@ -96,6 +98,7 @@ describe('buildInventoryProducts', () => {
                 ],
             },
         ];
+
         const variants: DesignVariant[] = [
             {
                 id: 'variant-1',
@@ -144,6 +147,7 @@ describe('buildInventoryProducts', () => {
                 options: [{ id: 'opt-small', material: material('Small') }],
             },
         ];
+
         const variants: DesignVariant[] = [
             {
                 id: 'variant-1',

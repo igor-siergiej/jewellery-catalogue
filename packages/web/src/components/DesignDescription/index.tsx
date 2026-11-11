@@ -1,6 +1,7 @@
 import { useAuth } from '@imapps/web-utils';
 
 import { addTokenToImageUrls } from '../../utils/imageSrc';
+
 import '../RichTextEditor/styles.css';
 
 interface Props {

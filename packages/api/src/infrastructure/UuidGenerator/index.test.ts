@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
+
 import { ObjectId } from 'mongodb';
 
 import { UuidGenerator } from './index';
@@ -18,6 +19,7 @@ describe('UuidGenerator', () => {
 
     it('should generate a UUID using MongoDB ObjectId', () => {
         const mockId = '507f1f77bcf86cd799439011';
+
         const mockObjectIdInstance = {
             toString: mock().mockReturnValue(mockId),
         };
@@ -38,6 +40,7 @@ describe('UuidGenerator', () => {
         const mockObjectIdInstance1 = {
             toString: mock().mockReturnValue(mockId1),
         };
+
         const mockObjectIdInstance2 = {
             toString: mock().mockReturnValue(mockId2),
         };
@@ -57,6 +60,7 @@ describe('UuidGenerator', () => {
 
     it('should return string type', () => {
         const mockId = '507f1f77bcf86cd799439013';
+
         const mockObjectIdInstance = {
             toString: mock().mockReturnValue(mockId),
         };

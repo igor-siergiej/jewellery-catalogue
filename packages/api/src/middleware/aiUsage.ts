@@ -1,6 +1,7 @@
 import type { Logger } from '@imapps/api-utils';
 import { APIError } from '@imapps/api-utils/hono';
 import type { Context, Next } from 'hono';
+
 import type { AiUsageRepository } from '../domain/AiUsageRepository';
 import { aiCallsTotal } from '../infrastructure/metrics';
 
@@ -34,6 +35,7 @@ export const createAiUsageMiddleware = (deps: {
             repo.countSince(userId, new Date(at - HOUR_MS)),
             repo.countSince(userId, new Date(at - DAY_MS)),
         ]);
+
         if (lastHour >= perHour || lastDay >= perDay) {
             deps.logger().warn('AI usage limit reached', { userId, feature, lastHour, lastDay });
             throw new APIError(
@@ -48,6 +50,7 @@ export const createAiUsageMiddleware = (deps: {
 
         // Hono has already turned a thrown error into c.res by now, so status reflects failures too.
         const status = c.res.status;
+
         const entry = {
             userId,
             feature,
@@ -57,6 +60,7 @@ export const createAiUsageMiddleware = (deps: {
             status,
             at: new Date(at),
         };
+
         deps.logger().info('AI call', { ...entry, at: entry.at.toISOString() });
         aiCallsTotal.inc({ feature });
         await repo

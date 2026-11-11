@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test';
+
 import { expect } from './fixtures';
 import { MOCK_TOKEN_VISUAL_VIEW_DESIGN_DESKTOP, MOCK_TOKEN_VISUAL_VIEW_DESIGN_MOBILE } from './mocks/auth';
 import { apiCreateBead, apiCreateDesign, apiSetUserSettings } from './utils/api-helpers';
@@ -14,6 +15,7 @@ const dateAdded = (page: Page) => page.getByText('Added', { exact: true }).locat
 
 async function seedSimpleDesign(token: string) {
     const bead = await apiCreateBead(token, { name: 'Visual Design Bead' });
+
     return apiCreateDesign(token, {
         name: 'Visual Detail Necklace',
         designType: 'NECKLACE',
@@ -48,6 +50,7 @@ test.describe('View design page visual regression', () => {
 
     test('populated state', async ({ authenticatedPage: page, authToken }) => {
         const bead = await apiCreateBead(authToken, { name: 'Visual Design Bead' });
+
         const design = await apiCreateDesign(authToken, {
             name: 'Visual Detail Necklace',
             price: 32,
@@ -55,6 +58,7 @@ test.describe('View design page visual regression', () => {
             materials: [{ ...bead, requiredQuantity: 10 }],
             totalMaterialCosts: 5,
         });
+
         await page.goto(`/designs/${design.id}`);
         await expect(page.getByText('Visual Detail Necklace').first()).toBeVisible({ timeout: 10000 });
         await settle(page);
@@ -65,6 +69,7 @@ test.describe('View design page visual regression', () => {
     test('variant design', async ({ authenticatedPage: page, authToken }) => {
         const amethyst = await apiCreateBead(authToken, { name: 'Visual Amethyst', quantity: 20, pricePerPack: 10 });
         const quartz = await apiCreateBead(authToken, { name: 'Visual Quartz', quantity: 4, pricePerPack: 4 });
+
         const design = await apiCreateDesign(authToken, {
             name: 'Visual Gem Drops',
             designType: 'EARRINGS',
@@ -98,6 +103,7 @@ test.describe('View design page visual regression', () => {
                 },
             ],
         });
+
         await page.goto(`/designs/${design.id}`);
         await expect(page.getByRole('row', { name: /Visual Quartz/ })).toBeVisible({ timeout: 10000 });
         await settle(page);

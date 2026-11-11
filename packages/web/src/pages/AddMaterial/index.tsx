@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
+
 import { DRAFTS_ENDPOINT } from '../../api/endpoints';
 import makeAddMaterialRequest from '../../api/endpoints/addMaterial';
 import MaterialFormResolver from '../../components/MaterialFormResolver';
@@ -78,6 +79,7 @@ const AddMaterial = () => {
 
     const onSubmit = async (data: FormMaterial) => {
         setIsMakingRequest(true);
+
         try {
             await makeAddMaterialRequest(data, () => accessToken, login, logout);
             await deleteAndClearDraft(() => accessToken, login, logout);

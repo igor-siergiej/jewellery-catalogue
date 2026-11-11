@@ -1,4 +1,5 @@
 import { Readable } from 'node:stream';
+
 import type { Logger } from '@imapps/api-utils';
 
 import { imageUploadsTotal } from '../../infrastructure/metrics';
@@ -37,6 +38,7 @@ export class ImageService {
 
         if (size && this.resizer) {
             const variant = await this.getVariant(name, size);
+
             if (variant) return variant;
         }
 
@@ -83,6 +85,7 @@ export class ImageService {
         if (!this.resizer) throw new Error('No image resizer configured');
         const resized = await this.resizer.toWebp(original, MAX_DIMENSION[size]);
         await this.store.putObject(variantKey(name, size), resized, { contentType: 'image/webp' });
+
         return resized;
     }
 
@@ -104,6 +107,7 @@ export class ImageService {
         try {
             const original = await streamToBuffer(await this.store.getObjectStream(name));
             const resized = await this.createVariant(name, size, original);
+
             return { stream: Readable.from(resized), contentType: 'image/webp', cacheControl: CACHE_CONTROL };
         } catch (error) {
             this.logger?.warn('Failed to create resized image on request', {
@@ -111,6 +115,7 @@ export class ImageService {
                 size,
                 error: error instanceof Error ? error.message : error,
             });
+
             return null;
         }
     }

@@ -1,4 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
+
 import { identify, loadTracker, startReplay, stopReplay, track } from './index';
 
 // Mock the config module so analytics can resolve getConfig().
@@ -9,6 +10,7 @@ const configState = vi.hoisted(() => ({
 vi.mock('../loadConfig', () => ({
     getConfig: () => {
         if (!configState.value) throw new Error('Configuration not loaded.');
+
         return configState.value;
     },
 }));

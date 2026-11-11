@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test';
+
 import { ETSY_TAG_MAX_LENGTH, etsyListingSchema, etsyTagSchema, normaliseEtsyTag } from '@jewellery-catalogue/types';
 
 describe('normaliseEtsyTag', () => {

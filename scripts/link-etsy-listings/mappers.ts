@@ -1,4 +1,5 @@
 import Fuse from 'fuse.js';
+
 import type { EtsyListingSummary } from '../../packages/api/src/domain/EtsyClient';
 import type { Design } from '../../packages/types/src';
 
@@ -50,11 +51,13 @@ export const applyOverrides = (
         if (!(s.design.id in overrides)) return s;
 
         const overrideListingId = overrides[s.design.id];
+
         if (overrideListingId === null) {
             return { ...s, listingId: null, listingTitle: null, score: null };
         }
 
         const listing = listings.find((l) => l.listingId === overrideListingId);
+
         return { ...s, listingId: overrideListingId, listingTitle: listing?.title ?? null, score: null };
     });
 
@@ -66,6 +69,7 @@ export const validateSuggestions = (suggestions: LinkSuggestion[]): string[] => 
         if (s.listingId === null) continue;
 
         const existingDesignName = seen.get(s.listingId);
+
         if (existingDesignName) {
             errors.push(
                 `Listing ${s.listingId} is assigned to both "${existingDesignName}" and "${s.design.name}" — each listing can only link to one design.`
@@ -84,6 +88,7 @@ export const formatSuggestionsTable = (suggestions: LinkSuggestion[]): string =>
     const rows = suggestions.map((s, i) => {
         const target = s.listingId === null ? 'SKIP (no confident match)' : `#${s.listingId} — ${s.listingTitle}`;
         const scoreText = s.score === null ? '' : ` (score ${s.score.toFixed(2)})`;
+
         return `  [${i}] "${s.design.name}" (${s.design.id}) -> ${target}${scoreText}`;
     });
 

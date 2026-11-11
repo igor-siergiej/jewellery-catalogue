@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'bun:test';
+
 import { APIError } from '@imapps/api-utils/hono';
+
 import { dependencyContainer } from '../../dependencies';
 import { DependencyToken } from '../../dependencies/types';
 import * as designHandlers from './index';
@@ -11,6 +13,7 @@ if (!(DependencyToken.DesignService in (dependencyContainer as any).instances)) 
     (dependencyContainer as any).instances[DependencyToken.DesignService] = {
         addDesign: async (...args: unknown[]) => {
             addDesignCalls.push(args);
+
             return fakeDesign;
         },
     };
@@ -18,6 +21,7 @@ if (!(DependencyToken.DesignService in (dependencyContainer as any).instances)) 
 
 const makeCtx = (opts: { contentType: string; json?: unknown; form?: Record<string, unknown> }) => {
     const captured: { body?: unknown; status?: number } = {};
+
     return {
         ctx: {
             get: (k: string) => (k === 'userId' ? 'user1' : undefined),
@@ -30,6 +34,7 @@ const makeCtx = (opts: { contentType: string; json?: unknown; form?: Record<stri
             json: (body: unknown, status?: number) => {
                 captured.body = body;
                 captured.status = status ?? 200;
+
                 return captured;
             },
         } as any,
@@ -43,6 +48,7 @@ describe('addDesign body parsing', () => {
             contentType: 'application/json',
             json: { name: 'Ring', existingImageIds: JSON.stringify(['img-1']) },
         });
+
         await designHandlers.addDesign(ctx);
         expect(captured.status).toBe(200);
         expect(captured.body).toBe(fakeDesign);
@@ -58,6 +64,7 @@ describe('addDesign body parsing', () => {
             contentType: 'multipart/form-data; boundary=x',
             form: { name: 'Ring', existingImageIds: JSON.stringify(['img-1']) },
         });
+
         await designHandlers.addDesign(ctx);
         expect(captured.status).toBe(200);
     });
