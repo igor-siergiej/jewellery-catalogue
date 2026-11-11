@@ -102,7 +102,7 @@ export default defineConfig({
                   },
               },
               {
-                  command: 'bunx vite --port 3000',
+                  command: 'bunx vp dev --port 3000',
                   url: 'http://localhost:3000',
                   reuseExistingServer: false,
                   timeout: 30000,
