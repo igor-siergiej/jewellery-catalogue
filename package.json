@@ -44,7 +44,7 @@
     "vite-plus": "catalog:"
   },
   "packageManager": "bun@1.4.4",
-  "version": "1.81.1",
+  "version": "1.81.2",
   "overrides": {
     "vite": "catalog:"
   },

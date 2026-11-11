@@ -1,3 +1,10 @@
+## [1.81.2](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.81.1...v1.81.2) (2026-11-11)
+
+
+### Bug Fixes
+
+* **docker:** install with --ignore-scripts ([#140](https://github.com/igor-siergiej/jewellery-catalogue/issues/140)) ([ca0d959](https://github.com/igor-siergiej/jewellery-catalogue/commit/ca0d959531e9c2390c404f81ee465e6637ad35d7))
+
 ## [1.81.1](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.81.0...v1.81.1) (2026-10-24)
 
 
