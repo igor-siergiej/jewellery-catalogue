@@ -25,6 +25,9 @@
     },
     {
       "path": "packages/web"
+    },
+    {
+      "path": "tsconfig.node.json"
     }
   ]
 }

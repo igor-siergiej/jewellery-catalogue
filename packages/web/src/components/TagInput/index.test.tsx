@@ -1,12 +1,13 @@
 import { ETSY_TAGS_MAX } from '@jewellery-catalogue/types';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vite-plus/test';
 
 import TagInput from '.';
 
 const Harness = ({ initial = [] as string[] }) => {
     const [tags, setTags] = useState(initial);
+
     return <TagInput id="tags" value={tags} onChange={setTags} />;
 };
 

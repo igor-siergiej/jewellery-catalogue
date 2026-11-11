@@ -1,8 +1,9 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 const storage = vi.hoisted(() => ({ token: 'token-1' as string | null }));
 
 vi.mock('@imapps/web-utils', () => ({ getStorageItem: () => storage.token }));
+
 vi.mock('../authConfig', () => ({
     getAuthConfig: () => ({ accessTokenKey: 'accessToken', storageType: 'localStorage' }),
 }));
@@ -12,12 +13,14 @@ const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
 // The logger keeps its queue and budget in module state, so each test gets a fresh copy.
 const loadLogger = async () => {
     vi.resetModules();
+
     return import('.');
 };
 
 const sentBatches = () =>
     fetchMock.mock.calls.map(([, init]) => {
         const { body, headers, keepalive } = init as RequestInit;
+
         return { logs: JSON.parse(body as string).logs, headers, keepalive };
     });
 

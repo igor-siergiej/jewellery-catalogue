@@ -1,5 +1,5 @@
 import { DesignType } from '@jewellery-catalogue/types';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 
 import { getDefaultTaxonomyId } from './index';
 

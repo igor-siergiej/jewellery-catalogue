@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { useForm } from 'react-hook-form';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import { makeCreateDraftRequest } from '../api/endpoints/drafts';
 import { useDraftAutosave } from './useDraftAutosave';

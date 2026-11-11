@@ -1,16 +1,19 @@
 import type { Design } from '@jewellery-catalogue/types';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import EtsyPushDialog from '.';
 
 vi.mock('../../hooks/useUserSettings', () => ({
     useUserSettings: () => ({ etsyDescriptionTemplate: '{description}', etsyTaxonomyMap: { RING: 1 } }),
 }));
+
 const push = vi.fn().mockResolvedValue({});
+
 vi.mock('../../hooks/useEtsyPush', () => ({
     useEtsyPush: () => ({ push, isPushing: false, pushError: null }),
 }));
+
 vi.mock('../../hooks/useGenerateEtsyListing', () => ({
     useGenerateEtsyListing: () => ({
         generate: vi.fn(),

@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
+
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { configDefaults, defineConfig } from 'vite-plus';
 
 export default defineConfig(({ mode }) => {
     const isDev = mode === 'development';
@@ -42,8 +43,8 @@ export default defineConfig(({ mode }) => {
         ],
         resolve: {
             alias: {
-                '@': path.resolve(__dirname, './src'),
-                '@jewellery-catalogue/types': path.resolve(__dirname, '../types/src'),
+                '@': path.resolve(import.meta.dirname, './src'),
+                '@jewellery-catalogue/types': path.resolve(import.meta.dirname, '../types/src'),
             },
         },
         define: {
@@ -86,6 +87,12 @@ export default defineConfig(({ mode }) => {
                     bypass: (req) => (req.method === 'GET' ? '/' : null),
                 },
             },
+        },
+        test: {
+            environment: 'jsdom',
+            globals: false,
+            setupFiles: ['@testing-library/jest-dom/vitest'],
+            exclude: [...configDefaults.exclude, '**/tests/e2e/**'],
         },
     };
 });
