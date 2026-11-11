@@ -9,7 +9,7 @@ Diagram: [diagrams/architecture.excalidraw](diagrams/architecture.excalidraw)
 
 ## Release pipeline (`.github/workflows/ci-cd.yml`, push to `main`)
 
-1. `lint` → `test` (`tsc --noEmit`, API unit tests) and `integration-test`
+1. `lint` → `test` (API unit tests) and `integration-test`
    (mongo:7 service on :27018).
 2. `release` — `semantic-release` (`.releaserc.json`): Angular commit analysis,
    bumps `package.json` + `packages/{api,web,types}/package.json`, writes
@@ -23,7 +23,7 @@ Diagram: [diagrams/architecture.excalidraw](diagrams/architecture.excalidraw)
    (`CF_ACCESS_CLIENT_ID`/`CF_ACCESS_CLIENT_SECRET`). Dokploy pulls the new
    image.
 
-PRs (`pull-request.yml`) run lint, tsc + API tests, integration tests,
+PRs (`pull-request.yml`) run lint, API tests, integration tests,
 Playwright e2e and a `fallow` audit; nothing is published.
 
 ## Runtime (Dokploy project `apps`)

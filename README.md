@@ -37,9 +37,9 @@ Bun-workspace monorepo — `packages/web`, `packages/api`, `packages/types`
 Etsy API). Diagram: [docs/diagrams/architecture.excalidraw](docs/diagrams/architecture.excalidraw)
 (open in excalidraw.com or the VS Code Excalidraw extension).
 
-- **web** — React 19 + TypeScript + Vite 8. Tailwind 4, Radix/shadcn UI, React
+- **web** — React 19 + TypeScript + Vite+ (Vite 8). Tailwind 4, Radix/shadcn UI, React
   Query for server state, React Router 7, react-hook-form + Zod for the design
-  and material forms. Unit tests in Vitest, e2e in Playwright.
+  and material forms. Unit tests in Vitest (`vp test`), e2e in Playwright.
 - **api** — Hono 4 + TypeScript on the Bun runtime. Domain services
   (`DesignService`, `MaterialService`, `DraftService`, `GoalService`,
   `TaskService`) sit over MongoDB repositories built on a shared
@@ -79,7 +79,7 @@ bun start:with-mock       # same, with the mock auth server
 ```
 
 ```bash
-bun lint                                        # Biome
+bun lint                                        # vp check (oxfmt + oxlint)
 bunx tsc -p packages/api --noEmit               # type-check (root tsconfig has files: [])
 bun --filter @jewellery-catalogue/api test      # API tests (Bun runner)
 RUN_INTEGRATION_TESTS=1 bun --filter @jewellery-catalogue/api test integration
@@ -104,7 +104,7 @@ stubs the app's own `/api` instead).
 
 ## CI/CD
 
-- **`pull-request.yml`** on every PR: lint, then in parallel tsc + API tests,
+- **`pull-request.yml`** on every PR: lint, then in parallel API tests,
   integration tests (dockerised MongoDB), Playwright e2e and a `fallow` audit.
 - **`ci-cd.yml`** on merge to `main`: lint/tests → semantic-release → Docker
   images pushed to Docker Hub (`igurusama/imapps:jewellery-catalogue-{api,web}-<version>`)

@@ -5,7 +5,7 @@ Local setup, environment, scripts and tests. Code-change conventions are in
 
 ## Prerequisites
 
-- Bun 1.x (CI pins `1.4.2`).
+- Bun 1.4.4 (`packageManager`; CI reads it from there). Node 24 for `vp`.
 - MongoDB reachable from the API. For integration/e2e tests:
   `docker compose -f docker-compose.test.yml up -d` (mongo:7 on host port 27018).
 - An S3-compatible object store for images. Locally that's RustFS from the
@@ -76,7 +76,7 @@ done tasks older than 30 days (then daily), and runs Etsy order sync (then every
 |---|---|
 | `start`, `start:with-mock`, `start:with-etsy-mock`, `start:web`, `start:web:with-mock`, `start:api`, `start:etsy-mock` | dev servers (above) |
 | `link-etsy-listings` | interactive bulk-link of designs to Etsy listings, `--dry-run` supported ([etsy.md](etsy.md#one-off-bulk-link-existing-designs)) |
-| `lint` / `lint:fix` / `format` | Biome |
+| `lint` / `lint:fix` / `format` | Vite+ (`vp check`, `vp fmt`: Oxlint + Oxfmt) |
 | `audit` | `fallow-audit` (dead code; also runs on pre-push and in PR CI) |
 | `release` | semantic-release (CI only) |
 
