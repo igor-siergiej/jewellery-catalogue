@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { MaterialType, METAL_TYPE, WIRE_TYPE } from '../material/enum';
 
 // Base update schema for common fields
@@ -90,8 +91,11 @@ export const updateMaterialSchema = z.discriminatedUnion('type', [
 ]);
 
 export type UpdateWire = z.infer<typeof updateWireSchema>;
+
 export type UpdateBead = z.infer<typeof updateBeadSchema>;
+
 export type UpdateChain = z.infer<typeof updateChainSchema>;
+
 export type UpdateEarHook = z.infer<typeof updateEarHookSchema>;
 
 export type UpdateMaterial = z.infer<typeof updateMaterialSchema>;

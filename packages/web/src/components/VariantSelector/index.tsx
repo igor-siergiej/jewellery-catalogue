@@ -1,6 +1,7 @@
 import type { Design, DesignVariant, Material, RequiredMaterial } from '@jewellery-catalogue/types';
 import { MaterialType } from '@jewellery-catalogue/types';
 import { AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
@@ -16,6 +17,7 @@ function getRequiredAndAvailable(
     allMaterials: Material[]
 ): { required: number; available: number; unit: string } | null {
     const material = allMaterials.find((m) => m.id === requiredMaterial.id);
+
     if (!material) return null;
 
     switch (material.type) {
@@ -56,9 +58,11 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
 
     const variantAvailabilities: VariantAvailability[] = variants.map((variant) => {
         const optionMaterials: RequiredMaterial[] = [];
+
         for (const optionId of variant.optionIds) {
             for (const group of groups) {
                 const option = group.options.find((o) => o.id === optionId);
+
                 if (option) {
                     optionMaterials.push(option.material);
                     break;
@@ -72,10 +76,12 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
 
         for (const rm of allRequired) {
             const info = getRequiredAndAvailable(rm, allMaterials);
+
             if (!info) {
                 canMake = 0;
                 continue;
             }
+
             const possible = info.required > 0 ? Math.floor(info.available / info.required) : 0;
             canMake = Math.min(canMake, possible);
             materialDetails.push({
@@ -109,6 +115,7 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
                 <TableBody>
                     {variantAvailabilities.map(({ variant, canMake, status }) => {
                         const isSelected = selectedVariantId === variant.id;
+
                         return (
                             <TableRow
                                 key={variant.id}

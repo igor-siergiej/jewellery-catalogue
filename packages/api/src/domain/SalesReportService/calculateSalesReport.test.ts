@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test';
+
 import type { Design, Sale } from '@jewellery-catalogue/types';
 
 import { calculateSalesReport } from './calculateSalesReport';
@@ -21,6 +22,7 @@ const makeDesign = (overrides: Partial<Design> = {}): Design => ({
 });
 
 let nextTransactionId = 1;
+
 const makeSale = (overrides: Partial<Sale> = {}): Sale => ({
     userId: 'user-1',
     designId: 'ring',

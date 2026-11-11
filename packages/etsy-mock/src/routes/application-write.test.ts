@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
+
 import { createEtsyMockApp } from '../app';
 import { connectedUser, MockStore } from '../test-helpers';
 
@@ -19,6 +20,7 @@ const send = (method: string, path: string, headers: Record<string, string>, bod
 
 function draftBody(store: MockStore, shopId: number, overrides: Record<string, unknown> = {}) {
     const shop = store.shops.get(shopId);
+
     return {
         quantity: 2,
         title: 'Amethyst Studs',
@@ -39,12 +41,14 @@ function draftBody(store: MockStore, shopId: number, overrides: Record<string, u
 describe('create draft listing', () => {
     it('creates a draft and returns its id', async () => {
         const { user, headers } = connectedUser(store, 'empty');
+
         const res = await send(
             'POST',
             `/shops/${user.shopId}/listings`,
             headers,
             draftBody(store, user.shopId as number)
         );
+
         expect(res.status).toBe(201);
         const { listing_id } = await res.json();
         const listing = store.listings.get(listing_id);
@@ -62,23 +66,27 @@ describe('create draft listing', () => {
         ['zero quantity', { quantity: 0 }],
     ])('rejects %s with 400', async (_, overrides) => {
         const { user, headers } = connectedUser(store, 'empty');
+
         const res = await send(
             'POST',
             `/shops/${user.shopId}/listings`,
             headers,
             draftBody(store, user.shopId as number, overrides)
         );
+
         expect(res.status).toBe(400);
     });
 
     it('needs the listings_w scope', async () => {
         const { user, headers } = connectedUser(store, 'empty', ['listings_r', 'shops_r']);
+
         const res = await send(
             'POST',
             `/shops/${user.shopId}/listings`,
             headers,
             draftBody(store, user.shopId as number)
         );
+
         expect(res.status).toBe(403);
     });
 });
@@ -86,14 +94,17 @@ describe('create draft listing', () => {
 describe('update listing copy', () => {
     it('updates title, description and tags', async () => {
         const { user, headers } = connectedUser(store);
+
         const listing = [...store.listings.values()].find((l) => l.shopId === user.shopId) as never as {
             listingId: number;
         };
+
         const res = await send('PATCH', `/shops/${user.shopId}/listings/${listing.listingId}`, headers, {
             title: 'New Title',
             description: 'New desc',
             tags: ['a', 'b'],
         });
+
         expect(res.status).toBe(200);
         expect(store.listings.get(listing.listingId)).toMatchObject({ title: 'New Title', tags: ['a', 'b'] });
     });
@@ -102,9 +113,11 @@ describe('update listing copy', () => {
 describe('inventory', () => {
     it('sets variations and turns an active listing sold_out at zero stock, then back', async () => {
         const { user, headers } = connectedUser(store);
+
         const listing = [...store.listings.values()].find(
             (l) => l.shopId === user.shopId && l.title === 'Amethyst Drop Earrings'
         ) as never as { listingId: number; state: string };
+
         const put = (quantity: number) =>
             send('PUT', `/listings/${listing.listingId}/inventory`, headers, {
                 products: [
@@ -124,13 +137,16 @@ describe('inventory', () => {
     it('rejects three distinct property names', async () => {
         const { user, headers } = connectedUser(store);
         const id = [...store.listings.values()].find((l) => l.shopId === user.shopId)?.listingId;
+
         const product = (name: string) => ({
             property_values: [{ property_id: null, property_name: name, values: ['x'] }],
             offerings: [{ price: 1, quantity: 1, is_enabled: true }],
         });
+
         const res = await send('PUT', `/listings/${id}/inventory`, headers, {
             products: [product('A'), product('B'), product('C')],
         });
+
         expect(res.status).toBe(400);
     });
 });
@@ -142,11 +158,13 @@ describe('images', () => {
         const form = new FormData();
         form.append('image', new Blob([new Uint8Array([1, 2, 3])], { type: 'image/png' }), 'a.png');
         form.append('rank', '1');
+
         const upload = await app.request(`/v3/application/shops/${user.shopId}/listings/${id}/images`, {
             method: 'POST',
             headers,
             body: form,
         });
+
         expect(upload.status).toBe(201);
 
         const list = await (await app.request(`/v3/application/listings/${id}/images`, { headers })).json();

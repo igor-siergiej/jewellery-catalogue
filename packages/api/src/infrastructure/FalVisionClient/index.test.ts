@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from 'bun:test';
+
 import { z } from 'zod';
 
 import { FalVisionClient } from './index';
@@ -8,6 +9,7 @@ const okResponse = (output: string) => new Response(JSON.stringify({ output }), 
 const schema = z.object({ title: z.string() });
 
 type Captured = { url: string; auth: string | null; body: Record<string, unknown> };
+
 const capture = (replies: Array<() => Response>): Captured[] => {
     const calls: Captured[] = [];
     globalThis.fetch = (async (u: string | URL | Request, init?: RequestInit) => {
@@ -17,9 +19,12 @@ const capture = (replies: Array<() => Response>): Captured[] => {
             body: JSON.parse(init?.body as string),
         });
         const next = replies.shift();
+
         if (!next) throw new Error('unexpected fetch');
+
         return next();
     }) as typeof fetch;
+
     return calls;
 };
 

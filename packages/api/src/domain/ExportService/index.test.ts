@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
+
 import { MaterialType } from '@jewellery-catalogue/types';
 
 import type { DesignRepository } from '../DesignRepository';
@@ -28,6 +29,7 @@ describe('ExportService', () => {
         for (const r of [designRepo, materialRepo, draftRepo, goalRepo, taskRepo]) {
             r.getByUserId.mockReset().mockResolvedValue([]);
         }
+
         saleRepo.getByUserIdSoldBetween.mockReset().mockResolvedValue([]);
         service = new ExportService(
             designRepo as unknown as DesignRepository,
@@ -115,6 +117,7 @@ describe('ExportService', () => {
         for (const r of [designRepo, materialRepo, draftRepo, goalRepo, taskRepo]) {
             expect(r.getByUserId).toHaveBeenCalledWith('user-1');
         }
+
         expect(saleRepo.getByUserIdSoldBetween).toHaveBeenCalledWith('user-1', null, null);
         expect(Object.keys(backup).sort()).toEqual(
             ['designs', 'drafts', 'exportedAt', 'goals', 'materials', 'sales', 'settings', 'tasks', 'version'].sort()

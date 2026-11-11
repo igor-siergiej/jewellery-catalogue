@@ -7,6 +7,7 @@ import type {
 } from '@jewellery-catalogue/types';
 import { ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +32,7 @@ export interface VariationGroupBuilderProps {
 
 function cartesian<T>(arrays: T[][]): T[][] {
     if (arrays.length === 0) return [[]];
+
     return arrays.reduce<T[][]>((acc, curr) => acc.flatMap((x) => curr.map((y) => [...x, y])), [[]]);
 }
 
@@ -77,6 +79,7 @@ function buildRequiredMaterial(material: Material, required: number): RequiredMa
     if (material.type === 'WIRE' || material.type === 'CHAIN') {
         return { ...material, requiredLength: required } as RequiredMaterial;
     }
+
     return { ...material, requiredQuantity: required } as RequiredMaterial;
 }
 
@@ -96,6 +99,7 @@ const OptionRow: React.FC<OptionRowProps> = ({
     onDelete,
 }) => {
     const currentMaterial = availableMaterials.find((m) => m.id === option.material.id);
+
     const selectableMaterials = availableMaterials.filter(
         (m) => !usedMaterialIds.includes(m.id) || m.id === option.material.id
     );
@@ -143,14 +147,17 @@ const GroupCard: React.FC<GroupCardProps> = ({ group, availableMaterials, onUpda
     const [collapsed, setCollapsed] = useState(false);
 
     const usedMaterialIds = group.options.map((o) => o.material.id);
+
     const firstOptionMaterial =
         group.options.length > 0 ? availableMaterials.find((m) => m.id === group.options[0].material.id) : undefined;
+
     const unitLabel = firstOptionMaterial ? getUnitLabel(firstOptionMaterial) : '';
     const inputStep = firstOptionMaterial ? getInputStep(firstOptionMaterial) : 1;
 
     const rebuildOptions = (opts: VariationOption[], required: number) =>
         opts.map((o) => {
             const mat = availableMaterials.find((m) => m.id === o.material.id);
+
             return mat ? { ...o, material: buildRequiredMaterial(mat, required) } : o;
         });
 
@@ -160,11 +167,14 @@ const GroupCard: React.FC<GroupCardProps> = ({ group, availableMaterials, onUpda
 
     const addOption = () => {
         const unusedMaterial = availableMaterials.find((m) => !usedMaterialIds.includes(m.id));
+
         if (!unusedMaterial) return;
+
         const newOption: VariationOption = {
             id: crypto.randomUUID(),
             material: buildRequiredMaterial(unusedMaterial, group.required),
         };
+
         onUpdate({ ...group, options: [...group.options, newOption] });
     };
 
@@ -174,11 +184,14 @@ const GroupCard: React.FC<GroupCardProps> = ({ group, availableMaterials, onUpda
 
     const handleMaterialChange = (index: number, materialId: string) => {
         const material = availableMaterials.find((m) => m.id === materialId);
+
         if (!material) return;
+
         const updated: VariationOption = {
             ...group.options[index],
             material: buildRequiredMaterial(material, group.required),
         };
+
         const newOptions = group.options.map((o, i) => (i === index ? updated : o));
         onUpdate({ ...group, options: newOptions });
     };
@@ -274,6 +287,7 @@ const VariantPreview: React.FC<{
 
     if (variants.length === 0) {
         const incomplete = groups.some((g) => g.options.length === 0);
+
         return (
             <p className="text-sm text-muted-foreground italic">
                 {incomplete ? 'Add at least one option to each group to see variants.' : 'Add groups to see variants.'}
@@ -333,6 +347,7 @@ export const VariationGroupBuilder: React.FC<VariationGroupBuilderProps> = ({
             required: 0,
             options: [],
         };
+
         onChange([...value, newGroup]);
     };
 

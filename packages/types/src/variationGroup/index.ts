@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { requiredMaterialSchema } from '../requiredMaterial';
 
 export const variationOptionSchema = z.object({
@@ -24,5 +25,7 @@ export const designVariantSchema = z.object({
 });
 
 export type VariationOption = z.infer<typeof variationOptionSchema>;
+
 export type VariationGroup = z.infer<typeof variationGroupSchema>;
+
 export type DesignVariant = z.infer<typeof designVariantSchema>;

@@ -1,18 +1,17 @@
 import 'dotenv/config';
-
 import { createApp } from '@imapps/api-utils/hono';
 
 import { config } from './config';
 import { dependencyContainer, registerDepdendencies } from './dependencies';
 import { DependencyToken } from './dependencies/types';
-import { ensureAiUsageIndexes } from './infrastructure/MongoAiUsageRepository';
-import { ensureSaleIndexes } from './infrastructure/MongoSaleRepository';
 import {
     httpRequestDurationSeconds,
     httpRequestsTotal,
     metricsRegister,
     startDefaultMetrics,
 } from './infrastructure/metrics';
+import { ensureAiUsageIndexes } from './infrastructure/MongoAiUsageRepository';
+import { ensureSaleIndexes } from './infrastructure/MongoSaleRepository';
 import { createRoutes } from './routes';
 
 const port = config.get('port');
@@ -36,6 +35,7 @@ export const onStartup = async () => {
     const bucket = dependencyContainer.resolve(DependencyToken.Bucket);
 
     if (!appLogger) throw new Error('Logger dependency not resolved');
+
     if (!database) throw new Error('Could not connect to DB');
 
     try {
@@ -74,6 +74,7 @@ export const onStartup = async () => {
         appLogger.info('Database indexes created');
 
         const taskService = dependencyContainer.resolve(DependencyToken.TaskService);
+
         const purgeCompletedTasks = async () => {
             try {
                 const deleted = await taskService.purgeCompletedTasks();
@@ -84,17 +85,20 @@ export const onStartup = async () => {
                 });
             }
         };
+
         await purgeCompletedTasks();
         setInterval(purgeCompletedTasks, PURGE_INTERVAL_MS).unref();
 
         // Not awaited: an Etsy outage must not delay startup. syncAll logs its own per-shop failures.
         const etsyOrderSync = dependencyContainer.resolve(DependencyToken.EtsyOrderSyncService);
+
         const syncEtsyOrders = () =>
             etsyOrderSync
                 .syncAll()
                 .catch((error: unknown) =>
                     appLogger.error('Etsy order sync failed', { error: error instanceof Error ? error.message : error })
                 );
+
         syncEtsyOrders();
         setInterval(syncEtsyOrders, ETSY_ORDER_SYNC_INTERVAL_MS).unref();
 
@@ -106,6 +110,7 @@ export const onStartup = async () => {
         // api container is on the dokploy internal network.
         app.get('/api/metrics', async (c) => {
             c.header('Content-Type', metricsRegister.contentType);
+
             return c.body(await metricsRegister.metrics());
         });
 
@@ -124,6 +129,7 @@ export const onStartup = async () => {
         app.route('/', createRoutes());
 
         const etsyMockUrl = config.get('etsyMockUrl');
+
         if (etsyMockUrl) appLogger.warn(`ETSY_MOCK_URL is set: all Etsy calls go to ${etsyMockUrl}`);
 
         Bun.serve({ port, fetch: app.fetch });

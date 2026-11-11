@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test';
+
 import {
     type Design,
     DesignType,
@@ -26,6 +27,7 @@ const bead = {
     pricePerBead: 0.2,
     requiredQuantity: 2,
 } as unknown as RequiredMaterial;
+
 const chain = {
     id: 'c1',
     userId: 'u',
@@ -85,6 +87,7 @@ describe('buildListingPrompt', () => {
             }),
             0
         );
+
         expect(prompt).toContain('Stone: Amethyst round bead');
     });
 
@@ -128,6 +131,7 @@ describe('sanitiseListingCopy', () => {
             description: 'd',
             tags: [],
         });
+
         expect(title).toBe('Ring + Band Gift 20 5 Silver');
         expect(etsyListingSchema.shape.title.safeParse(title).success).toBe(true);
     });
@@ -144,6 +148,7 @@ describe('sanitiseListingCopy', () => {
             'x'.repeat(21),
             ...Array.from({ length: 20 }, (_, i) => `tag ${i}`),
         ];
+
         const result = sanitiseListingCopy({ title: 't', description: 'd', tags });
         expect(result.tags[0]).toBe('silver necklace');
         expect(result.tags).toHaveLength(ETSY_TAGS_MAX);
@@ -157,6 +162,7 @@ describe('sanitiseListingCopy', () => {
             description: 'd',
             tags: ['a'.repeat(20), 'x'.repeat(21), 'Gift, For Her!'],
         });
+
         expect(result.tags).toContain('a'.repeat(20));
         expect(result.tags).not.toContain('x'.repeat(21));
         expect(result.tags).toContain('gift for her');

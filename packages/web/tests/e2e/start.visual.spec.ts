@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+
 import { expectNoHorizontalScroll, settle } from './utils/visual-helpers';
 
 test.describe('Start and register pages visual regression', () => {

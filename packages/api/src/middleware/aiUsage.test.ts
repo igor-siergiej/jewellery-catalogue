@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
+
 import type { Logger } from '@imapps/api-utils';
 import { APIError, createApp } from '@imapps/api-utils/hono';
 
@@ -18,12 +19,14 @@ const buildApp = () => {
         model: () => 'test-model',
         now: () => NOW,
     });
+
     const app = createApp({ logger: logger as unknown as Logger, allowedOrigins: [] });
     app.use('*', async (c, next) => {
         c.set('userId' as never, 'user-1' as never);
         await next();
     });
     app.post('/ai', aiUsage('test.feature'), async (c) => c.json(await handler()));
+
     return app;
 };
 

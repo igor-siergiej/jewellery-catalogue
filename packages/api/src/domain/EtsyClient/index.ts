@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto';
+
 import { APIError } from '@imapps/api-utils/hono';
 import type { EtsyListingState } from '@jewellery-catalogue/types';
 
@@ -24,7 +25,9 @@ export const etsyUrls = (mockUrl?: string): EtsyUrls => {
             apiBase: 'https://api.etsy.com/v3/application',
         };
     }
+
     const base = mockUrl.replace(/\/+$/, '');
+
     return {
         authorize: `${base}/oauth/connect`,
         token: `${base}/v3/public/oauth/token`,
@@ -191,6 +194,7 @@ export class EtsyClient {
         url.searchParams.set('state', args.state);
         url.searchParams.set('code_challenge', args.codeChallenge);
         url.searchParams.set('code_challenge_method', 'S256');
+
         return url.toString();
     }
 
@@ -240,6 +244,7 @@ export class EtsyClient {
         }
 
         const body = (await response.json()) as { user_id: number; shop_id: number };
+
         return { userId: body.user_id, shopId: body.shop_id };
     }
 
@@ -282,6 +287,7 @@ export class EtsyClient {
         }
 
         const body = (await response.json()) as { listing_id: number; state: string; quantity: number };
+
         return { listingId: body.listing_id, state: mapListingState(body.state), quantity: body.quantity };
     }
 
@@ -380,6 +386,7 @@ export class EtsyClient {
             );
 
             offset += SHOP_LISTINGS_PAGE_LIMIT;
+
             if (offset >= body.count || body.results.length < SHOP_LISTINGS_PAGE_LIMIT) break;
         }
 
@@ -399,6 +406,7 @@ export class EtsyClient {
             if (response.status === 403) {
                 throw new EtsyForbiddenError(`Etsy getShopReceipts forbidden: ${await response.text()}`);
             }
+
             if (!response.ok) {
                 throw await etsyError('getShopReceipts', response);
             }
@@ -444,6 +452,7 @@ export class EtsyClient {
             );
 
             offset += SHOP_LISTINGS_PAGE_LIMIT;
+
             if (offset >= body.count || body.results.length < SHOP_LISTINGS_PAGE_LIMIT) break;
         }
 
@@ -483,6 +492,7 @@ export class EtsyClient {
         }
 
         const body = (await response.json()) as { listing_id: number };
+
         return { listingId: body.listing_id };
     }
 
@@ -498,6 +508,7 @@ export class EtsyClient {
         const body = (await response.json()) as {
             results: Array<{ shipping_profile_id: number; title: string }>;
         };
+
         return body.results.map((r) => ({ shippingProfileId: r.shipping_profile_id, title: r.title }));
     }
 
@@ -516,6 +527,7 @@ export class EtsyClient {
         const body = (await response.json()) as {
             results: Array<{ readiness_state_id: number; readiness_state: 'ready_to_ship' | 'made_to_order' }>;
         };
+
         return body.results.map((r) => ({ readinessStateId: r.readiness_state_id, readinessState: r.readiness_state }));
     }
 
@@ -554,6 +566,7 @@ export class EtsyClient {
         }
 
         const body = (await response.json()) as { results: Array<{ listing_image_id: number }> };
+
         return { imageIds: body.results.map((r) => r.listing_image_id) };
     }
 

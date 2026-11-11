@@ -1,6 +1,7 @@
 import type { Bead } from '@jewellery-catalogue/types';
 import { ArrowDown, ArrowUp, ArrowUpDown, Edit, ShoppingBasket } from 'lucide-react';
 import { useState } from 'react';
+
 import MaterialUpdateForm from '@/components/MaterialUpdateForm';
 import { DesktopOnly } from '@/components/MobileCardList';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +31,7 @@ const BeadTable: React.FC<IBeadTableProps> = ({ materials, onMaterialUpdated, so
     const handleSuccess = () => {
         setEditDialogOpen(false);
         setSelectedMaterial(null);
+
         if (onMaterialUpdated) {
             onMaterialUpdated();
         }
@@ -48,7 +50,9 @@ const BeadTable: React.FC<IBeadTableProps> = ({ materials, onMaterialUpdated, so
 
     const sortIcon = (field: string) => {
         if (!onSort) return null;
+
         if (sortField !== field) return <ArrowUpDown className="ml-1 h-3 w-3 opacity-40 inline-block shrink-0" />;
+
         return sortDirection === 'asc' ? (
             <ArrowUp className="ml-1 h-3 w-3 inline-block shrink-0" />
         ) : (

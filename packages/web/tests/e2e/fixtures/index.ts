@@ -1,4 +1,5 @@
 import { test as base, type Page } from '@playwright/test';
+
 import { MOCK_TOKEN, mockAuthRoutes } from '../mocks/auth';
 import { apiCleanup } from '../utils/api-helpers';
 
@@ -13,12 +14,15 @@ async function waitForApi(apiUrl: string, maxRetries = 15, retryDelay = 1000) {
             const res = await fetch(`${apiUrl}/api/materials`, {
                 headers: { Authorization: `Bearer ${MOCK_TOKEN}` },
             });
+
             if (res.status !== 503 && res.status !== 0) return;
         } catch {
             // not up yet
         }
+
         await new Promise((r) => setTimeout(r, retryDelay));
     }
+
     throw new Error(`API not ready at ${apiUrl}`);
 }
 

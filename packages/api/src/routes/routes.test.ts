@@ -1,5 +1,7 @@
 import { beforeAll, describe, expect, it } from 'bun:test';
+
 import { Logger } from '@imapps/api-utils';
+
 import { dependencyContainer } from '../dependencies';
 import { DependencyToken } from '../dependencies/types';
 import { createRoutes } from './index';

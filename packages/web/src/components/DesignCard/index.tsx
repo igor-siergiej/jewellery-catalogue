@@ -3,6 +3,7 @@ import type { Design } from '@jewellery-catalogue/types';
 import { Clock, Hammer, Heart, PackageOpen, ShoppingBag, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import makeDeleteDesignRequest from '../../api/endpoints/deleteDesign';
 import makeUpdateDesignRequest from '../../api/endpoints/updateDesign';
 import { VIEW_DESIGN_PAGE } from '../../constants/routes';
@@ -62,6 +63,7 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
 
     const handleDeleteConfirm = async () => {
         await makeDeleteDesignRequest(id, () => accessToken, login, logout);
+
         if (onDesignUpdated) {
             onDesignUpdated();
         }
@@ -69,6 +71,7 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
 
     const handleSuccess = () => {
         setEditDialogOpen(false);
+
         if (onDesignUpdated) {
             onDesignUpdated();
         }

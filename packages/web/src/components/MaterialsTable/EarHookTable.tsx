@@ -1,6 +1,7 @@
 import type { EarHook } from '@jewellery-catalogue/types';
 import { ArrowDown, ArrowUp, ArrowUpDown, Edit, ShoppingBasket } from 'lucide-react';
 import { useState } from 'react';
+
 import MaterialUpdateForm from '@/components/MaterialUpdateForm';
 import { DesktopOnly } from '@/components/MobileCardList';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { METAL_TYPE_LABELS, WIRE_TYPE_LABELS } from '@/lib/materialLabels';
+
 import { MaterialCards } from './MaterialCards';
 
 interface IEarHookTableProps {
@@ -36,6 +38,7 @@ const EarHookTable: React.FC<IEarHookTableProps> = ({
     const handleSuccess = () => {
         setEditDialogOpen(false);
         setSelectedMaterial(null);
+
         if (onMaterialUpdated) {
             onMaterialUpdated();
         }
@@ -54,7 +57,9 @@ const EarHookTable: React.FC<IEarHookTableProps> = ({
 
     const sortIcon = (field: string) => {
         if (!onSort) return null;
+
         if (sortField !== field) return <ArrowUpDown className="ml-1 h-3 w-3 opacity-40 inline-block shrink-0" />;
+
         return sortDirection === 'asc' ? (
             <ArrowUp className="ml-1 h-3 w-3 inline-block shrink-0" />
         ) : (

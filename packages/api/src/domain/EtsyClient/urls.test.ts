@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, mock } from 'bun:test';
+
 import { EtsyClient, etsyUrls } from '.';
 
 afterEach(() => mock.restore());
@@ -28,6 +29,7 @@ describe('EtsyClient with mock URLs', () => {
         const url = new URL(
             client.buildAuthorizationUrl({ redirectUri: 'r', state: 's', codeChallenge: 'c', scope: 'x' })
         );
+
         expect(url.origin + url.pathname).toBe('http://localhost:3010/oauth/connect');
     });
 
@@ -36,16 +38,19 @@ describe('EtsyClient with mock URLs', () => {
         const realFetch = globalThis.fetch;
         globalThis.fetch = (async (url: string | URL | Request) => {
             seen.add(String(url));
+
             return new Response(
                 JSON.stringify({ user_id: 1, shop_id: 2, access_token: 'a', refresh_token: 'b', expires_in: 1 })
             );
         }) as typeof fetch;
+
         try {
             await client.getMe('token');
             await client.refreshAccessToken('refresh');
         } finally {
             globalThis.fetch = realFetch;
         }
+
         expect(seen.has('http://localhost:3010/v3/application/users/me')).toBe(true);
         expect(seen.has('http://localhost:3010/v3/public/oauth/token')).toBe(true);
     });

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test';
+
 import type { Design } from '@jewellery-catalogue/types';
 
 import type { EtsyReceipt, EtsyReceiptTransaction } from '../EtsyClient';

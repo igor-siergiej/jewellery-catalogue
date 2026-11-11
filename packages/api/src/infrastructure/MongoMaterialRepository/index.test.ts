@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
+
 import type { MongoDbConnection } from '@imapps/api-utils';
 import { type Material, MaterialType, METAL_TYPE, WIRE_TYPE } from '@jewellery-catalogue/types';
 
@@ -61,6 +62,7 @@ describe('MongoMaterialRepository', () => {
 
         it('should get all materials', async () => {
             const materials = [mockMaterial];
+
             const mockCursor = {
                 toArray: mock().mockResolvedValue(materials),
             };

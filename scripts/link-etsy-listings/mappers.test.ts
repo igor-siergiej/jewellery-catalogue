@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test';
+
 import type { EtsyListingSummary } from '../../packages/api/src/domain/EtsyClient';
 import type { Design } from '../../packages/types/src';
-
 import { applyOverrides, buildSuggestions, formatSuggestionsTable, validateSuggestions } from './mappers';
 
 function makeDesign(overrides: Partial<Design> = {}): Design {
@@ -33,6 +33,7 @@ describe('buildSuggestions', () => {
             makeDesign({ id: 'd1', name: 'Silver Moonstone Ring' }),
             makeDesign({ id: 'd2', name: 'Gold Hoop Earrings' }),
         ];
+
         const listings = [
             makeListing({ listingId: 100, title: 'Silver Moonstone Ring - Handmade' }),
             makeListing({ listingId: 200, title: 'Gold Hoop Earrings, Sterling' }),
@@ -64,6 +65,7 @@ describe('buildSuggestions', () => {
                 etsy: { listingId: 100, state: 'active', lastPushedAt: null },
             }),
         ];
+
         const listings = [makeListing({ listingId: 100, title: 'Silver Ring' })];
 
         expect(buildSuggestions(designs, listings)).toEqual([]);
@@ -78,6 +80,7 @@ describe('buildSuggestions', () => {
             }),
             makeDesign({ id: 'd2', name: 'Silver Ring' }),
         ];
+
         const listings = [makeListing({ listingId: 100, title: 'Silver Ring' })];
 
         const result = buildSuggestions(designs, listings);
@@ -90,6 +93,7 @@ describe('buildSuggestions', () => {
             makeDesign({ id: 'd1', name: 'Silver Ring' }),
             makeDesign({ id: 'd2', name: 'Silver Ring Large' }),
         ];
+
         const listings = [makeListing({ listingId: 100, title: 'Silver Ring' })];
 
         const result = buildSuggestions(designs, listings);
@@ -106,6 +110,7 @@ describe('buildSuggestions', () => {
 describe('applyOverrides', () => {
     const design = makeDesign({ id: 'd1', name: 'Silver Ring' });
     const baseSuggestion = { design, listingId: 100, listingTitle: 'Original Match', score: 0.1 };
+
     const listings = [
         makeListing({ listingId: 100, title: 'Original Match' }),
         makeListing({ listingId: 200, title: 'Better Match' }),
@@ -133,6 +138,7 @@ describe('validateSuggestions', () => {
             { design: makeDesign({ id: 'd1', name: 'A' }), listingId: 100, listingTitle: 'A', score: 0.1 },
             { design: makeDesign({ id: 'd2', name: 'B' }), listingId: 200, listingTitle: 'B', score: 0.1 },
         ];
+
         expect(validateSuggestions(suggestions)).toEqual([]);
     });
 
@@ -141,6 +147,7 @@ describe('validateSuggestions', () => {
             { design: makeDesign({ id: 'd1', name: 'A' }), listingId: 100, listingTitle: 'A', score: 0.1 },
             { design: makeDesign({ id: 'd2', name: 'B' }), listingId: 100, listingTitle: 'A', score: 0.1 },
         ];
+
         expect(validateSuggestions(suggestions)).toEqual([
             'Listing 100 is assigned to both "A" and "B" — each listing can only link to one design.',
         ]);
@@ -151,6 +158,7 @@ describe('validateSuggestions', () => {
             { design: makeDesign({ id: 'd1', name: 'A' }), listingId: null, listingTitle: null, score: null },
             { design: makeDesign({ id: 'd2', name: 'B' }), listingId: null, listingTitle: null, score: null },
         ];
+
         expect(validateSuggestions(suggestions)).toEqual([]);
     });
 });
@@ -165,6 +173,7 @@ describe('formatSuggestionsTable', () => {
                 score: 0.05,
             },
         ];
+
         const table = formatSuggestionsTable(suggestions);
         expect(table).toContain('Silver Ring');
         expect(table).toContain('#100');
@@ -175,6 +184,7 @@ describe('formatSuggestionsTable', () => {
         const suggestions = [
             { design: makeDesign({ id: 'd1', name: 'Silver Ring' }), listingId: null, listingTitle: null, score: null },
         ];
+
         expect(formatSuggestionsTable(suggestions)).toContain('SKIP');
     });
 

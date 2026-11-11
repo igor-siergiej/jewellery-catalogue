@@ -13,6 +13,7 @@ import { Card } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
+
 import { DRAFTS_ENDPOINT } from '../../api/endpoints';
 import makeAddDesignRequest from '../../api/endpoints/addDesign';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
@@ -100,6 +101,7 @@ const AddDesign: React.FC = () => {
                 if (draft?.data) {
                     form.reset(draft.data);
                 }
+
                 if (draft?.imageId) {
                     form.setValue('images', [draft.imageId]);
                 }
@@ -110,6 +112,7 @@ const AddDesign: React.FC = () => {
 
     const onSubmit: SubmitHandler<FormDesign> = async (formData) => {
         setIsMakingRequest(true);
+
         try {
             const variants = computeVariants(
                 variationGroups,
@@ -121,13 +124,16 @@ const AddDesign: React.FC = () => {
 
             // Replace first File with draft-uploaded imageId if available
             let images = formData.images ?? [];
+
             if (uploadedImageId) {
                 const firstFileIdx = images.findIndex((v) => v instanceof File);
+
                 if (firstFileIdx !== -1) {
                     images = [...images];
                     images[firstFileIdx] = uploadedImageId;
                 }
             }
+
             const submitData = { ...formData, variants, images };
 
             await makeAddDesignRequest(submitData, () => accessToken, login, logout);
@@ -180,6 +186,7 @@ const AddDesign: React.FC = () => {
                 profitMargin,
                 currentTimeRequired
             );
+
             const minPrice = variants.length > 0 ? Math.min(...variants.map((v) => v.price)) : 0;
             form.setValue('price', minPrice >= 0 ? minPrice : 0);
         } else {
@@ -418,10 +425,12 @@ const AddDesign: React.FC = () => {
                                                 profitMargin,
                                                 currentTimeRequired
                                             );
+
                                             return variants.length > 0
                                                 ? Math.min(...variants.map((v) => v.totalMaterialCosts))
                                                 : 0;
                                         }
+
                                         return form.watch('totalMaterialCosts') ?? 0;
                                     })()}
                                     timeRequired={currentTimeRequired}

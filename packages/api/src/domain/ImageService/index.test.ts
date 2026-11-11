@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, jest, mock } from 'bun:test';
 import { Readable } from 'node:stream';
+
 import type { Logger } from '@imapps/api-utils';
+
 import { streamToBuffer } from '../../utils/streamToBuffer';
 import { ImageService } from './index';
 import type { ImageGenerator, ImageResizer, ImageStore } from './types';
@@ -50,6 +52,7 @@ describe('ImageService', () => {
         it('should return image with correct content type and cache control', async () => {
             const imageName = 'test-image.jpg';
             const mockStream = {} as NodeJS.ReadableStream;
+
             const mockHead = {
                 metaData: {
                     'content-type': 'image/jpeg',
@@ -73,6 +76,7 @@ describe('ImageService', () => {
         it('should use default content type when not provided in metadata', async () => {
             const imageName = 'test-image-no-type.jpg';
             const mockStream = {} as NodeJS.ReadableStream;
+
             const mockHead = {
                 metaData: {},
             };
@@ -101,6 +105,7 @@ describe('ImageService', () => {
         it('should handle different content types', async () => {
             const imageName = 'test-image.png';
             const mockStream = {} as NodeJS.ReadableStream;
+
             const mockHead = {
                 metaData: {
                     'content-type': 'image/png',
@@ -148,6 +153,7 @@ describe('ImageService', () => {
 
         it('should handle stream errors', async () => {
             const imageName = 'stream-error.jpg';
+
             const mockHead = {
                 metaData: {
                     'content-type': 'image/jpeg',
@@ -357,7 +363,9 @@ describe('ImageService resizing', () => {
         );
         mockStore.getObjectStream.mockImplementation(async (name: string) => {
             const buffer = stored.get(name);
+
             if (!buffer) throw new Error('NotFound');
+
             return Readable.from(buffer);
         });
         resizer.toWebp.mockImplementation(async (_buffer: Buffer, max: number) => Buffer.from(`webp-${max}`));

@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test';
+
 import { expect, test } from './fixtures';
 import { MOCK_TOKEN_DESIGN_ETSY_IMAGE } from './mocks/auth';
 import { apiCreateDesign } from './utils/api-helpers';
@@ -15,57 +16,58 @@ async function apiLinkDesignToEtsyListing(designId: string, imageUrl: string) {
             etsy: { listingId: 123, state: 'active', lastPushedAt: null, imageUrls: [imageUrl] },
         }),
     });
+
     if (!res.ok) throw new Error(`apiLinkDesignToEtsyListing failed: ${await res.text()}`);
 }
 
 function findDesignCard(page: Page, designName: string) {
     const title = page.locator('[data-slot="item-title"]').filter({ hasText: designName });
+
     return page.locator('[data-slot="item"]').filter({ has: title });
 }
 
-test.describe
-    .serial('Design card Etsy image', () => {
-        test('shows the linked listing image on a design linked to Etsy', async ({ authenticatedPage: page }) => {
-            const design = await apiCreateDesign(TOKEN, { name: 'Etsy Linked Design', price: 15.0 });
-            await apiLinkDesignToEtsyListing(design.id, 'https://i.etsy.com/123-fullxfull.jpg');
+test.describe.serial('Design card Etsy image', () => {
+    test('shows the linked listing image on a design linked to Etsy', async ({ authenticatedPage: page }) => {
+        const design = await apiCreateDesign(TOKEN, { name: 'Etsy Linked Design', price: 15.0 });
+        await apiLinkDesignToEtsyListing(design.id, 'https://i.etsy.com/123-fullxfull.jpg');
 
-            await page.goto('/designs');
-            await page.waitForLoadState('networkidle');
+        await page.goto('/designs');
+        await page.waitForLoadState('networkidle');
 
-            const card = findDesignCard(page, 'Etsy Linked Design');
-            await expect(card).toBeVisible({ timeout: 10000 });
-            await expect(card.getByTitle('Linked Etsy listing image')).toBeVisible();
-            await expect(card.getByTitle('Linked Etsy listing image').locator('img')).toHaveAttribute(
-                'src',
-                'https://i.etsy.com/123-fullxfull.jpg'
-            );
-        });
-
-        test('design with no linked Etsy listing shows no Etsy image badge', async ({ authenticatedPage: page }) => {
-            await apiCreateDesign(TOKEN, { name: 'Unlinked Design', price: 8.0 });
-
-            await page.goto('/designs');
-            await page.waitForLoadState('networkidle');
-
-            const card = findDesignCard(page, 'Unlinked Design');
-            await expect(card).toBeVisible({ timeout: 10000 });
-            await expect(card.getByTitle('Linked Etsy listing image')).not.toBeVisible();
-        });
-
-        test('design imported from a listing (no uploaded images) shows the listing image as its main image', async ({
-            authenticatedPage: page,
-        }) => {
-            const design = await apiCreateDesign(TOKEN, { name: 'Imported Design', price: 20.0 });
-            await apiLinkDesignToEtsyListing(design.id, 'https://i.etsy.com/456-fullxfull.jpg');
-
-            await page.goto('/designs');
-            await page.waitForLoadState('networkidle');
-
-            const card = findDesignCard(page, 'Imported Design');
-            await expect(card).toBeVisible({ timeout: 10000 });
-            await expect(card.getByTestId('design-card-main-image').locator('img')).toHaveAttribute(
-                'src',
-                'https://i.etsy.com/456-fullxfull.jpg'
-            );
-        });
+        const card = findDesignCard(page, 'Etsy Linked Design');
+        await expect(card).toBeVisible({ timeout: 10000 });
+        await expect(card.getByTitle('Linked Etsy listing image')).toBeVisible();
+        await expect(card.getByTitle('Linked Etsy listing image').locator('img')).toHaveAttribute(
+            'src',
+            'https://i.etsy.com/123-fullxfull.jpg'
+        );
     });
+
+    test('design with no linked Etsy listing shows no Etsy image badge', async ({ authenticatedPage: page }) => {
+        await apiCreateDesign(TOKEN, { name: 'Unlinked Design', price: 8.0 });
+
+        await page.goto('/designs');
+        await page.waitForLoadState('networkidle');
+
+        const card = findDesignCard(page, 'Unlinked Design');
+        await expect(card).toBeVisible({ timeout: 10000 });
+        await expect(card.getByTitle('Linked Etsy listing image')).not.toBeVisible();
+    });
+
+    test('design imported from a listing (no uploaded images) shows the listing image as its main image', async ({
+        authenticatedPage: page,
+    }) => {
+        const design = await apiCreateDesign(TOKEN, { name: 'Imported Design', price: 20.0 });
+        await apiLinkDesignToEtsyListing(design.id, 'https://i.etsy.com/456-fullxfull.jpg');
+
+        await page.goto('/designs');
+        await page.waitForLoadState('networkidle');
+
+        const card = findDesignCard(page, 'Imported Design');
+        await expect(card).toBeVisible({ timeout: 10000 });
+        await expect(card.getByTestId('design-card-main-image').locator('img')).toHaveAttribute(
+            'src',
+            'https://i.etsy.com/456-fullxfull.jpg'
+        );
+    });
+});

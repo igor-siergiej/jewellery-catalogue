@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
+
 import type { Logger } from '@imapps/api-utils';
 import type { Design, EtsyConnection, Sale } from '@jewellery-catalogue/types';
 
@@ -16,12 +17,14 @@ const mockConnectionRepo = { getAll: mock(), setOrdersSyncedThrough: mock(), mar
 const mockConnectionService = { getValidAccessToken: mock() };
 const mockEtsyClient = { getShopReceipts: mock() };
 const mockDesignRepo = { getByUserId: mock(), applyEtsySale: mock() };
+
 const mockSaleRepo = {
     insertIfNew: mock(),
     getPendingByUserId: mock(),
     setStatus: mock(),
     getUnmatchedByUserId: mock(),
 };
+
 const mockLogger = { info: mock(), error: mock(), warn: mock() };
 
 const makeConnection = (overrides: Partial<EtsyConnection> = {}): EtsyConnection => ({
@@ -139,6 +142,7 @@ describe('EtsyOrderSyncService', () => {
 
             const recordedCalls = mockLogger.info.mock.calls.filter(([msg]) => msg === 'sale.recorded');
             expect(recordedCalls).toHaveLength(2);
+
             for (const [, meta] of recordedCalls) {
                 expect(meta).toMatchObject({
                     event: 'sale.recorded',
@@ -234,6 +238,7 @@ describe('EtsyOrderSyncService', () => {
             ]);
             mockConnectionService.getValidAccessToken.mockImplementation(async (userId: string) => {
                 if (userId === 'failing') throw new Error('boom');
+
                 return 'at-token';
             });
 

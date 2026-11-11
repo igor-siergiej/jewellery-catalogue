@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, mock } from 'bun:test';
+
 import { EtsyClient } from './index';
 
 const originalFetch = globalThis.fetch;
@@ -26,6 +27,7 @@ describe('EtsyClient.getListingDetail', () => {
                     { status: 200 }
                 )
         );
+
         globalThis.fetch = fetchMock as unknown as typeof fetch;
 
         const client = new EtsyClient('key', 'secret');

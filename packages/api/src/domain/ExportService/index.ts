@@ -1,4 +1,5 @@
 import type { Design, Material, MaterialType } from '@jewellery-catalogue/types';
+
 import { toCsv } from '../../utils/csv';
 import { packSizeOf, stockOnHand, stockUnitOf } from '../../utils/material-conversion';
 import type { DesignRepository } from '../DesignRepository';
@@ -13,6 +14,7 @@ const BACKUP_VERSION = 1;
 
 const unitCost = (m: Material): number | null => {
     const packSize = packSizeOf(m);
+
     return packSize > 0 ? Math.round((m.pricePerPack / packSize) * 10000) / 10000 : null;
 };
 
@@ -33,6 +35,7 @@ export class ExportService {
     // fallow-ignore-next-line unused-class-member
     async materialsCsv(userId: string): Promise<string> {
         const materials = await this.materialRepo.getByUserId(userId);
+
         return toCsv(
             [
                 'Name',
@@ -67,11 +70,14 @@ export class ExportService {
     // fallow-ignore-next-line unused-class-member
     async designsCsv(userId: string): Promise<string> {
         const designs = await this.designRepo.getByUserId(userId);
+
         const rows = designs.flatMap((d) => {
             const shared = [d.designType, d.etsy?.listingId, etsyUrl(d), d.etsy?.state, d.catalogueOnly ?? false];
+
             if (!d.variants || d.variants.length === 0) {
                 return [[d.name, '', d.price, d.totalMaterialCosts, d.totalQuantity, d.lowStockThreshold, ...shared]];
             }
+
             return d.variants.map((v) => [
                 d.name,
                 v.name,

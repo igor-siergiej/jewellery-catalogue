@@ -1,5 +1,4 @@
 import './index.css';
-
 import { AuthConfigProvider, AuthProvider, ProtectedRoute, UserProvider } from '@imapps/web-utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ReactDOM from 'react-dom/client';

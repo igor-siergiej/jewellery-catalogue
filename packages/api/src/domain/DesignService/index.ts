@@ -10,6 +10,7 @@ import type {
     VariationGroup,
 } from '@jewellery-catalogue/types';
 import { MaterialType } from '@jewellery-catalogue/types';
+
 import { requiredStockAmount, stockOnHand } from '../../utils/material-conversion';
 import type { DesignRepository } from '../DesignRepository';
 import type { IdGenerator } from '../IdGenerator';
@@ -65,6 +66,7 @@ export class DesignService {
             imageBuffers.map(async ({ buffer, contentType }) => {
                 const imageId = this.idGenerator.generate();
                 await this.imageService.uploadImage(imageId, buffer, contentType);
+
                 return imageId;
             })
         );
@@ -73,6 +75,7 @@ export class DesignService {
             diagramImageBuffers.map(async ({ buffer, contentType }) => {
                 const imageId = this.idGenerator.generate();
                 await this.imageService.uploadImage(imageId, buffer, contentType);
+
                 return imageId;
             })
         );
@@ -107,6 +110,7 @@ export class DesignService {
             try {
                 const parsed: DesignVariant[] =
                     typeof designData.variants === 'string' ? JSON.parse(designData.variants) : designData.variants;
+
                 variants = parsed.map((v) => ({ ...v, totalQuantity: 0 }));
             } catch {
                 throw Object.assign(new Error('Invalid variants format'), { status: 400 });
@@ -185,6 +189,7 @@ export class DesignService {
             if (!variants?.some((v) => v.id === variantId)) {
                 throw Object.assign(new Error('Variant not found'), { status: 404 });
             }
+
             variants = variants.map((v) => (v.id === variantId ? { ...v, totalQuantity: quantity } : v));
             totalQuantity = variants.reduce((sum, v) => sum + v.totalQuantity, 0);
         }
@@ -219,6 +224,7 @@ export class DesignService {
             imageBuffers.map(async ({ buffer, contentType }) => {
                 const imageId = this.idGenerator.generate();
                 await this.imageService.uploadImage(imageId, buffer, contentType);
+
                 return imageId;
             })
         );
@@ -227,6 +233,7 @@ export class DesignService {
             diagramImageBuffers.map(async ({ buffer, contentType }) => {
                 const imageId = this.idGenerator.generate();
                 await this.imageService.uploadImage(imageId, buffer, contentType);
+
                 return imageId;
             })
         );
@@ -235,6 +242,7 @@ export class DesignService {
         const diagramImageIds = [...keepDiagramImageIds, ...newDiagramImageIds];
 
         let materials = existing.materials;
+
         if (updates.materials) {
             materials = typeof updates.materials === 'string' ? JSON.parse(updates.materials) : updates.materials;
         }
@@ -278,9 +286,11 @@ export class DesignService {
 
         if (variantId) {
             const variant = design.variants?.find((v) => v.id === variantId);
+
             if (!variant) {
                 throw Object.assign(new Error('Variant not found'), { status: 404 });
             }
+
             const optionMaterials = resolveVariantMaterials(variant, design.variationGroups ?? []);
             materialsToDeduct.push(...optionMaterials);
         }
@@ -306,6 +316,7 @@ export class DesignService {
                     currentStock = stockOnHand(material);
                     break;
                 }
+
                 default:
                     throw Object.assign(new Error(`Unknown material type: ${material.type}`), { status: 400 });
             }
@@ -337,11 +348,13 @@ export class DesignService {
                     updatedMaterial = { ...material, totalLength: newLength } as Material;
                     break;
                 }
+
                 case MaterialType.BEAD:
                 case MaterialType.EAR_HOOK: {
                     updatedMaterial = { ...material, totalQuantity: newQuantity } as Material;
                     break;
                 }
+
                 default:
                     updatedMaterial = material;
             }
@@ -350,6 +363,7 @@ export class DesignService {
         }
 
         let updatedVariants = design.variants;
+
         if (variantId && updatedVariants) {
             updatedVariants = updatedVariants.map((v) =>
                 v.id === variantId ? { ...v, totalQuantity: v.totalQuantity + quantity } : v
@@ -387,15 +401,18 @@ export class DesignService {
 
 function resolveVariantMaterials(variant: DesignVariant, groups: VariationGroup[]): RequiredMaterial[] {
     const materials: RequiredMaterial[] = [];
+
     for (const optionId of variant.optionIds) {
         for (const group of groups) {
             const option = group.options.find((o) => o.id === optionId);
+
             if (option) {
                 materials.push(option.material);
                 break;
             }
         }
     }
+
     return materials;
 }
 
@@ -406,6 +423,7 @@ function mergeVariants(existing: DesignVariant[], incoming: DesignVariant[]): De
                 e.optionIds.length === newVariant.optionIds.length &&
                 e.optionIds.every((id, i) => id === newVariant.optionIds[i])
         );
+
         return match ? { ...newVariant, totalQuantity: match.totalQuantity } : { ...newVariant, totalQuantity: 0 };
     });
 }

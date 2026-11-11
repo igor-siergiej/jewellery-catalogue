@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test';
+
 import { createEtsyMockApp } from '../app';
 import { MockStore } from '../store';
 

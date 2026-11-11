@@ -1,4 +1,5 @@
 import { Readable } from 'node:stream';
+
 import { APIError } from '@imapps/api-utils/hono';
 import type { Context } from 'hono';
 
@@ -30,6 +31,7 @@ export const uploadImage = async (c: Ctx) => {
     const contentType = file.type || 'application/octet-stream';
 
     await getImageService().uploadImage(imageId, fileBuffer, contentType);
+
     return c.json({ imageId }, 201);
 };
 
@@ -40,6 +42,7 @@ export const getImage = async (c: Ctx) => {
     const name = c.req.param('name');
     const userId = c.get('userId');
     const sizeParam = c.req.query('size');
+
     if (sizeParam !== undefined && !isImageSize(sizeParam)) {
         throw new APIError(`size must be one of: ${IMAGE_SIZES.join(', ')}`, 400);
     }
@@ -58,12 +61,15 @@ export const getImage = async (c: Ctx) => {
         const { stream, contentType, cacheControl } = await getImageService().getImage(name, sizeParam);
         c.header('Content-Type', contentType);
         c.header('Cache-Control', cacheControl);
+
         return c.body(Readable.toWeb(stream as Readable) as unknown as ReadableStream);
     } catch (error: unknown) {
         const err = error as { status?: number; message?: string };
+
         if (err.status === 404) {
             throw new APIError('Image not found', 404);
         }
+
         throw new APIError(err.message ?? 'Internal Server Error', err.status ?? 500);
     }
 };

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
+
 import type { EtsyConnection, FormGoal, Goal } from '@jewellery-catalogue/types';
 
 import type { EtsyClient } from '../EtsyClient';
@@ -73,6 +74,7 @@ describe('GoalService', () => {
                 updatedAt: new Date('2026-08-01T00:00:00.000Z'),
             },
         ];
+
         (mockGoalRepo.getByUserId as ReturnType<typeof mock>).mockResolvedValue(goals);
 
         const result = await service.getGoalsByUserId('user-1');
@@ -171,6 +173,7 @@ describe('GoalService', () => {
             createdAt: new Date('2026-08-01T00:00:00.000Z'),
             updatedAt: new Date('2026-08-01T00:00:00.000Z'),
         };
+
         (mockGoalRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
 
         const result = await service.updateGoal(
@@ -201,6 +204,7 @@ describe('GoalService', () => {
             createdAt: new Date('2026-08-01T00:00:00.000Z'),
             updatedAt: new Date('2026-08-01T00:00:00.000Z'),
         };
+
         (mockGoalRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
 
         const result = await service.updateGoal('goal-1', { currentValue: 20 }, 'user-1');
@@ -221,6 +225,7 @@ describe('GoalService', () => {
             createdAt: new Date('2026-08-01T00:00:00.000Z'),
             updatedAt: new Date('2026-08-01T00:00:00.000Z'),
         };
+
         (mockGoalRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
 
         const result = await service.updateGoal('goal-1', { favourite: true }, 'user-1');
@@ -245,6 +250,7 @@ describe('GoalService', () => {
             createdAt: new Date('2026-08-01T00:00:00.000Z'),
             updatedAt: new Date('2026-08-01T00:00:00.000Z'),
         };
+
         (mockGoalRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
 
         await expect(service.syncFromEtsy('goal-1', 'user-1')).rejects.toMatchObject({ status: 400 });
@@ -261,6 +267,7 @@ describe('GoalService', () => {
             createdAt: new Date('2026-08-01T00:00:00.000Z'),
             updatedAt: new Date('2026-08-01T00:00:00.000Z'),
         };
+
         (mockGoalRepo.getByIdAndUserId as ReturnType<typeof mock>).mockResolvedValue(existing);
         (mockEtsyConnectionRepo.getByUserId as ReturnType<typeof mock>).mockResolvedValue(connection);
         (mockEtsyClient.getShop as ReturnType<typeof mock>).mockResolvedValue({
