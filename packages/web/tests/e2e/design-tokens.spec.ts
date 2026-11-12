@@ -63,50 +63,59 @@ test.describe('Design tokens and base styles', () => {
         expect(result.darkSelectors).toEqual([]);
     });
 
-    test('focus ring survives shadow-xs on a keyboard-focused control', async ({ authenticatedPage: page }) => {
+    test('keyboard-focused Button shows a primary focus ring', async ({ authenticatedPage: page }) => {
         await page.goto('/home');
         await page.waitForLoadState('networkidle');
 
-        const boxShadow = await page.evaluate(() => {
-            const el = document.createElement('button');
+        const button = page.locator('[data-slot="button"]:not(:disabled)').first();
 
-            el.className = 'shadow-xs focus-visible:ring-[3px] focus-visible:ring-ring';
-            el.textContent = 'probe';
-            document.body.append(el);
-            el.focus({ focusVisible: true } as FocusOptions);
+        await expect(button).toBeVisible();
+        await page.keyboard.press('Tab');
 
-            const value = getComputedStyle(el).boxShadow;
+        for (let i = 0; i < 30; i++) {
+            if (await button.evaluate((el) => el === document.activeElement)) break;
 
-            el.remove();
+            await page.keyboard.press('Tab');
+        }
 
-            return value;
-        });
+        await expect(button).toBeFocused();
 
-        expect(boxShadow).not.toBe('none');
-        expect(boxShadow).toContain('rgb(91, 62, 150)');
-        expect(boxShadow).toContain('3px');
+        await expect(button).toHaveCSS('box-shadow', /rgb\(91, 62, 150\) 0px 0px 0px 3px/);
     });
 
-    test('disabled buttons show not-allowed cursor', async ({ authenticatedPage: page }) => {
-        await page.goto('/home');
+    test('focused Input shows a primary focus ring', async ({ authenticatedPage: page }) => {
+        await page.goto('/addMaterial');
         await page.waitForLoadState('networkidle');
 
-        const cursor = await page.evaluate(() => {
-            const el = document.createElement('button');
+        const input = page.getByLabel('Name', { exact: true });
 
-            el.disabled = true;
-            el.className =
-                'inline-flex disabled:cursor-not-allowed disabled:opacity-50 not-disabled:hover:bg-primary/90';
-            el.textContent = 'probe';
-            document.body.append(el);
+        await input.focus();
 
-            const value = getComputedStyle(el).cursor;
+        await expect(input).toHaveCSS('box-shadow', /rgb\(91, 62, 150\) 0px 0px 0px 3px/);
+    });
 
-            el.remove();
+    test('a disabled Button shows a not-allowed cursor', async ({ authenticatedPage: page }) => {
+        await page.route('**/api/user-settings', async (route) => {
+            if (route.request().method() === 'GET') return route.fallback();
 
-            return value;
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+
+            return route.fallback();
         });
+        await page.goto('/settings');
+        await page.waitForLoadState('networkidle');
 
-        expect(cursor).toBe('not-allowed');
+        const saveOnly = page.getByRole('button', { name: 'Save Only' });
+
+        await saveOnly.click();
+
+        const saving = page.getByRole('button', { name: 'Saving…' });
+
+        await expect(saving).toBeDisabled();
+        await expect(saving).toHaveCSS('cursor', 'not-allowed');
+        await expect(page.getByRole('button', { name: 'Save & Recalculate All Designs' })).toHaveCSS(
+            'cursor',
+            'not-allowed'
+        );
     });
 });
