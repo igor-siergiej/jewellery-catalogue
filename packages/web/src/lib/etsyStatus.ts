@@ -26,20 +26,25 @@ export function isNotOnEtsyYet(design: Pick<Design, 'etsy' | 'catalogueOnly'>): 
     return !design.etsy && !design.catalogueOnly;
 }
 
-export type EtsyAction = 'send' | 'view' | 'catalogue-only' | 'none';
+export type EtsyAction = 'send' | 'view' | 'catalogue-only';
 
-/** The one action the View Design Etsy block offers. */
-export function getEtsyAction(design: Pick<Design, 'etsy' | 'catalogueOnly'>, connected: boolean): EtsyAction {
-    if (design.catalogueOnly) return 'catalogue-only';
+/**
+ * The actions the View Design Etsy block offers. An incomplete push (for example a design created from an Etsy
+ * listing) can always be sent again, whatever its state, and keeps its link to the listing.
+ */
+export function getEtsyAction(design: Pick<Design, 'etsy' | 'catalogueOnly'>, connected: boolean): EtsyAction[] {
+    if (design.catalogueOnly) return ['catalogue-only'];
 
     const { etsy } = design;
     const status = getEtsyStatus(design);
+    const needsPush = status === 'none' || !!etsy?.pushIncomplete || (status === 'draft' && !etsy?.listingId);
+    const actions: EtsyAction[] = [];
 
-    if (status === 'none' || (status === 'draft' && (etsy?.pushIncomplete || !etsy?.listingId))) {
-        return connected ? 'send' : 'none';
-    }
+    if (needsPush && connected) actions.push('send');
 
-    return etsy?.listingId ? 'view' : 'none';
+    if (etsy?.listingId) actions.push('view');
+
+    return actions;
 }
 
 export const etsyListingUrl = (listingId: number): string =>

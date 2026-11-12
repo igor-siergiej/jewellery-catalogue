@@ -207,6 +207,25 @@ test.describe.serial('View design', () => {
         await expect(page.getByRole('button', { name: 'Send to Etsy' })).toHaveCount(0);
     });
 
+    test('an Etsy-created design with an incomplete push can be sent and still links to Etsy', async ({
+        authenticatedPage: page,
+    }) => {
+        const design = await seedSimpleDesign();
+        await mockEtsyDesign(page, design.id, {
+            etsy: { listingId: 5151, state: 'active', lastPushedAt: null, pushIncomplete: true },
+        });
+        await page.goto(`/designs/${design.id}`);
+
+        const etsyBlock = page.getByRole('region', { name: 'Etsy' });
+        await expect(etsyBlock.getByText('Listed', { exact: true })).toBeVisible();
+        await expect(etsyBlock.getByRole('button', { name: 'Send to Etsy' })).toBeEnabled();
+        await expect(etsyBlock.getByRole('link', { name: 'View on Etsy' })).toHaveAttribute(
+            'href',
+            'https://www.etsy.com/your/shops/me/listing-editor/edit/5151'
+        );
+        await expect(etsyBlock.getByText("Some photos or stock haven't been sent to Etsy yet")).toBeVisible();
+    });
+
     test('an unlisted design shows its status with Send to Etsy as the one action', async ({
         authenticatedPage: page,
     }) => {

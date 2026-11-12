@@ -123,8 +123,9 @@ const ViewDesign = () => {
     }
 
     const etsyStatus = getEtsyStatus(design);
-    const etsyAction = getEtsyAction(design, etsyConnected);
-    const showEtsyBlock = etsyAction !== 'none' || etsyStatus !== 'none';
+    const etsyActions = getEtsyAction(design, etsyConnected);
+    const showEtsyBlock = etsyActions.length > 0 || etsyStatus !== 'none';
+    const canSendToEtsy = etsyActions.includes('send');
 
     return (
         <>
@@ -232,17 +233,17 @@ const ViewDesign = () => {
                                 aria-label="Etsy"
                                 className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-3"
                             >
-                                {etsyAction === 'catalogue-only' ? (
+                                {etsyActions.includes('catalogue-only') ? (
                                     <p className="text-sm">Catalogue only, not sent to Etsy</p>
                                 ) : (
                                     <>
                                         <EtsyStatusTag status={etsyStatus} />
-                                        {etsyAction === 'send' && (
+                                        {canSendToEtsy && (
                                             <Button type="button" onClick={() => setEtsyDialogOpen(true)}>
                                                 Send to Etsy
                                             </Button>
                                         )}
-                                        {etsyAction === 'view' && etsy?.listingId && (
+                                        {etsyActions.includes('view') && etsy?.listingId && (
                                             <Button asChild variant="outline">
                                                 <a
                                                     href={etsyListingUrl(etsy.listingId)}
@@ -253,6 +254,11 @@ const ViewDesign = () => {
                                                     <ExternalLink className="size-4" aria-hidden />
                                                 </a>
                                             </Button>
+                                        )}
+                                        {canSendToEtsy && etsy?.pushIncomplete && (
+                                            <p className="basis-full text-sm text-muted-foreground">
+                                                Some photos or stock haven't been sent to Etsy yet
+                                            </p>
                                         )}
                                     </>
                                 )}

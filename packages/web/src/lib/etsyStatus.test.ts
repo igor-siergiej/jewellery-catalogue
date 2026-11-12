@@ -33,31 +33,41 @@ const linked = (state: 'draft' | 'active' | 'inactive', extra: object = {}) =>
 
 describe('getEtsyAction', () => {
     it('explains catalogue-only designs whatever their status', () => {
-        expect(getEtsyAction({ catalogueOnly: true }, true)).toBe('catalogue-only');
-        expect(getEtsyAction({ ...linked('active'), catalogueOnly: true } as never, true)).toBe('catalogue-only');
+        expect(getEtsyAction({ catalogueOnly: true }, true)).toEqual(['catalogue-only']);
+        expect(getEtsyAction({ ...linked('active'), catalogueOnly: true } as never, true)).toEqual(['catalogue-only']);
     });
 
     it('offers Send to Etsy for an unlinked design only when connected', () => {
-        expect(getEtsyAction({}, true)).toBe('send');
-        expect(getEtsyAction({}, false)).toBe('none');
+        expect(getEtsyAction({}, true)).toEqual(['send']);
+        expect(getEtsyAction({}, false)).toEqual([]);
     });
 
     it('links to a draft that was fully pushed instead of offering a second push', () => {
-        expect(getEtsyAction(linked('draft'), true)).toBe('view');
+        expect(getEtsyAction(linked('draft'), true)).toEqual(['view']);
     });
 
-    it('offers Send to Etsy to resume an interrupted push', () => {
-        expect(getEtsyAction(linked('draft', { pushIncomplete: true }), true)).toBe('send');
-        expect(getEtsyAction(linked('draft', { pushIncomplete: true }), false)).toBe('none');
+    it.each(['draft', 'active', 'inactive'] as const)(
+        'offers Send to Etsy and the link for a %s listing with an incomplete push',
+        (state) => {
+            expect(getEtsyAction(linked(state, { pushIncomplete: true }), true)).toEqual(['send', 'view']);
+        }
+    );
+
+    it('cannot send an incomplete push when Etsy is not connected, but still links', () => {
+        expect(getEtsyAction(linked('active', { pushIncomplete: true }), false)).toEqual(['view']);
     });
 
     it('links to listed and inactive listings, connected or not', () => {
-        expect(getEtsyAction(linked('active'), true)).toBe('view');
-        expect(getEtsyAction(linked('active'), false)).toBe('view');
-        expect(getEtsyAction(linked('inactive'), false)).toBe('view');
+        expect(getEtsyAction(linked('active'), true)).toEqual(['view']);
+        expect(getEtsyAction(linked('active'), false)).toEqual(['view']);
+        expect(getEtsyAction(linked('inactive'), false)).toEqual(['view']);
     });
 
     it('has no action for an inactive design without a listing id', () => {
-        expect(getEtsyAction({ etsy: { state: 'inactive' } } as never, true)).toBe('none');
+        expect(getEtsyAction({ etsy: { state: 'inactive' } } as never, true)).toEqual([]);
+    });
+
+    it('offers Send to Etsy for a draft without a listing id', () => {
+        expect(getEtsyAction({ etsy: { state: 'draft' } } as never, true)).toEqual(['send']);
     });
 });
