@@ -5,10 +5,10 @@ import { type EtsyListingWithLinkStatus, makeGetEtsyListingsRequest } from '../a
 
 export const useEtsyListings = (
     enabled: boolean
-): { listings: EtsyListingWithLinkStatus[]; isLoading: boolean; isError: boolean } => {
+): { listings: EtsyListingWithLinkStatus[]; isLoading: boolean; isError: boolean; refetch: () => void } => {
     const { accessToken, login, logout } = useAuth();
 
-    const { data, isLoading, isError } = useQuery({
+    const { data, isLoading, isError, refetch } = useQuery({
         queryKey: ['etsy-listings'],
         queryFn: () => makeGetEtsyListingsRequest(() => accessToken, login, logout),
         enabled: enabled && !!accessToken,
@@ -18,5 +18,6 @@ export const useEtsyListings = (
         listings: data ?? [],
         isLoading,
         isError,
+        refetch,
     };
 };

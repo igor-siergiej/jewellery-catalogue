@@ -1,59 +1,46 @@
 import { useAuth } from '@imapps/web-utils';
-import { type GoalSource, goalSourceEnum } from '@jewellery-catalogue/types';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { makeCreateGoalRequest } from '../../api/endpoints/goals';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-
-const SOURCE_LABEL: Record<GoalSource, string> = {
-    manual: 'Manual entry',
-    etsy_active_listings: 'Etsy — Active listings',
-    etsy_sales_count: 'Etsy — Total sales',
-};
+import { ResponsiveDialog } from '../ResponsiveDialog';
+import GoalForm, { canSubmitGoal, EMPTY_GOAL_VALUES, type GoalFormValues } from './GoalForm';
 
 const AddGoalDialog: React.FC<{ open: boolean; onOpenChange: (open: boolean) => void; onCreated: () => void }> = ({
     open,
     onOpenChange,
     onCreated,
 }) => {
+    const formId = useId();
     const { accessToken, login, logout } = useAuth();
     const { dispatch } = useAlert();
-    const [title, setTitle] = useState('');
-    const [targetValue, setTargetValue] = useState('');
-    const [unit, setUnit] = useState('');
-    const [source, setSource] = useState<GoalSource>('manual');
-    const [targetDate, setTargetDate] = useState<Date | undefined>(undefined);
+    const [values, setValues] = useState<GoalFormValues>(EMPTY_GOAL_VALUES);
     const [submitting, setSubmitting] = useState(false);
 
-    const reset = () => {
-        setTitle('');
-        setTargetValue('');
-        setUnit('');
-        setSource('manual');
-        setTargetDate(undefined);
-    };
-
     const handleSubmit = async () => {
-        const target = Number(targetValue);
-        if (!title.trim() || !target || target <= 0) return;
+        const target = Number(values.targetValue);
+
+        if (!values.title.trim() || !target || target <= 0) return;
 
         setSubmitting(true);
+
         try {
             await makeCreateGoalRequest(
-                { title: title.trim(), targetValue: target, unit: unit.trim() || undefined, source, targetDate },
+                {
+                    title: values.title.trim(),
+                    targetValue: target,
+                    unit: values.unit.trim() || undefined,
+                    source: values.source,
+                    targetDate: values.targetDate,
+                },
                 () => accessToken,
                 login,
                 logout
             );
-            reset();
+            setValues(EMPTY_GOAL_VALUES);
             onOpenChange(false);
             onCreated();
         } catch (e) {
@@ -74,64 +61,34 @@ const AddGoalDialog: React.FC<{ open: boolean; onOpenChange: (open: boolean) => 
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Add Goal</DialogTitle>
-                </DialogHeader>
-
-                <div className="space-y-3">
-                    <Input placeholder="Goal title" value={title} onChange={(e) => setTitle(e.target.value)} />
-                    <Input
-                        type="number"
-                        placeholder="Target (e.g. 50)"
-                        value={targetValue}
-                        onChange={(e) => setTargetValue(e.target.value)}
-                    />
-                    <Input
-                        placeholder="Unit (optional, e.g. listings)"
-                        value={unit}
-                        onChange={(e) => setUnit(e.target.value)}
-                    />
-
-                    <Select value={source} onValueChange={(v) => setSource(v as GoalSource)}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Track from" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {goalSourceEnum.options.map((opt) => (
-                                <SelectItem key={opt} value={opt}>
-                                    {SOURCE_LABEL[opt]}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="outline" className="w-full justify-start font-normal">
-                                {targetDate ? targetDate.toLocaleDateString() : 'Target date (optional)'}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                            <Calendar mode="single" selected={targetDate} onSelect={setTargetDate} />
-                        </PopoverContent>
-                    </Popover>
-                </div>
-
-                <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <ResponsiveDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title="Add goal"
+            description="Set a target to work towards."
+            footer={
+                <>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        className="min-h-11 md:min-h-9"
+                        onClick={() => onOpenChange(false)}
+                    >
                         Cancel
                     </Button>
                     <Button
-                        onClick={handleSubmit}
-                        disabled={submitting || !title.trim() || !targetValue || !(Number(targetValue) > 0)}
+                        type="submit"
+                        form={formId}
+                        className="min-h-11 md:min-h-9"
+                        disabled={submitting || !canSubmitGoal(values)}
                     >
-                        Add Goal
+                        Add goal
                     </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                </>
+            }
+        >
+            <GoalForm formId={formId} mode="add" values={values} onChange={setValues} onSubmit={handleSubmit} />
+        </ResponsiveDialog>
     );
 };
 

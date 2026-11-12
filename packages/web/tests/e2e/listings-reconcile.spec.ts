@@ -71,16 +71,17 @@ test.describe.serial('Listings reconcile', () => {
 
         const row = page.getByRole('row', { name: /Moonstone Ring/ });
         await expect(row).toContainText('£20.00');
-        await row.getByRole('button', { name: 'Create design' }).click();
+        await row.getByRole('button', { name: 'More actions for Moonstone Ring' }).click();
+        await page.getByRole('menuitem', { name: 'Create design' }).click();
 
         await expect(page).toHaveURL(/\/designs\/[a-z0-9]+$/);
         await expect(page.getByRole('heading', { level: 1, name: 'Moonstone Ring' })).toBeVisible();
 
         await page.goto('/listings');
-        await expect(
-            page.getByRole('row', { name: /Moonstone Ring/ }).getByRole('link', { name: 'View design' })
-        ).toBeVisible();
-        await expect(page.getByRole('button', { name: 'Create design' })).toHaveCount(0);
+        const linkedRow = page.getByRole('row', { name: /Moonstone Ring/ });
+        await expect(linkedRow.getByRole('link', { name: 'Moonstone Ring' })).toBeVisible();
+        await expect(linkedRow.getByText('Not linked')).toHaveCount(0);
+        await expect(linkedRow.getByRole('button', { name: /More actions/ })).toHaveCount(0);
     });
 
     test('linking an existing design only offers unlinked designs', async ({ authenticatedPage: page }) => {
@@ -91,24 +92,22 @@ test.describe.serial('Listings reconcile', () => {
 
         await page
             .getByRole('row', { name: /Etsy Ring Listing/ })
-            .getByRole('button', { name: 'Link existing' })
+            .getByRole('button', { name: 'Link', exact: true })
             .click();
         const dialog = page.getByRole('dialog', { name: 'Link an existing design' });
         await expect(dialog.getByText('Handmade Ring')).toBeVisible();
         await expect(dialog.getByText('Handmade Bangle')).toBeVisible();
 
-        await dialog
-            .locator('div', { has: page.getByText('Handmade Ring', { exact: true }) })
-            .last()
-            .getByRole('button', { name: 'Link' })
-            .click();
+        await dialog.getByRole('searchbox', { name: 'Search designs' }).fill('ring');
+        await expect(dialog.getByText('Handmade Bangle')).toHaveCount(0);
+        await dialog.getByRole('button', { name: 'Link Handmade Ring' }).click();
 
         await expect(dialog).toBeHidden();
         expect(linkRequests).toEqual([{ listingId: 21, designId: ring.id }]);
 
         const linkedCell = page
             .getByRole('row', { name: /Etsy Ring Listing/ })
-            .getByRole('link', { name: 'View design' });
+            .getByRole('link', { name: 'Handmade Ring' });
 
         await expect(linkedCell).toBeVisible();
         await linkedCell.click();
@@ -127,14 +126,14 @@ test.describe.serial('Listings reconcile', () => {
         );
         await page.goto('/listings');
 
-        await page.getByRole('button', { name: 'Link existing' }).click();
+        await page.getByRole('button', { name: 'Link', exact: true }).click();
         await expect(page.getByText('No unlinked designs available.')).toBeVisible();
     });
 
     test('a shop with no listings shows the empty state', async ({ authenticatedPage: page }) => {
         await mockShop(page, []);
         await page.goto('/listings');
-        await expect(page.getByText('No Listings')).toBeVisible();
+        await expect(page.getByText('No listings', { exact: true })).toBeVisible();
         await expect(page.getByText('0 listings on Etsy')).toBeVisible();
     });
 
@@ -142,7 +141,7 @@ test.describe.serial('Listings reconcile', () => {
         await page.route('**/api/etsy/connection', (route) => route.fulfill({ json: { connected: false } }));
         await page.goto('/listings');
 
-        await expect(page.getByText('Etsy Not Connected')).toBeVisible();
+        await expect(page.getByText('Etsy is not connected')).toBeVisible();
         await page.getByRole('link', { name: 'Connect your Etsy shop' }).click();
         await expect(page).toHaveURL(/\/settings$/);
     });
@@ -150,8 +149,9 @@ test.describe.serial('Listings reconcile', () => {
     test('each listing links out to Etsy', async ({ authenticatedPage: page }) => {
         await mockShop(page, [listing(41, 'Outbound Listing')]);
         await page.goto('/listings');
-        await expect(
-            page.getByRole('row', { name: /Outbound Listing/ }).getByRole('link', { name: 'View', exact: true })
-        ).toHaveAttribute('href', 'https://etsy.com/listing/41');
+        const link = page.getByRole('row', { name: /Outbound Listing/ }).getByRole('link', { name: 'View on Etsy' });
+        await expect(link).toHaveAttribute('href', 'https://etsy.com/listing/41');
+        await expect(link).toHaveAttribute('target', '_blank');
+        await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
     });
 });

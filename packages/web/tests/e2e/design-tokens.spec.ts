@@ -105,18 +105,12 @@ test.describe('Design tokens and base styles', () => {
         await page.goto('/settings');
         await page.waitForLoadState('networkidle');
 
-        const saveOnly = page.getByRole('button', { name: 'Save Only' });
-
-        await saveOnly.click();
+        await page.getByRole('button', { name: 'Save', exact: true }).click();
 
         const saving = page.getByRole('button', { name: 'Saving…' });
 
         await expect(saving).toBeDisabled();
         await expect(saving).toHaveCSS('cursor', 'not-allowed');
         await expect(saving).toHaveCSS('pointer-events', 'auto');
-        await expect(page.getByRole('button', { name: 'Save & Recalculate All Designs' })).toHaveCSS(
-            'cursor',
-            'not-allowed'
-        );
     });
 });

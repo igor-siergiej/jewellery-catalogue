@@ -34,9 +34,9 @@ test.describe('Board page visual regression', () => {
     test('add task dialog', async ({ authenticatedPage: page }) => {
         await page.goto('/board');
         await page.waitForLoadState('networkidle');
-        await page.getByRole('button', { name: 'Add Task' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Add Task' });
-        await dialog.getByPlaceholder('Task title').fill('Visual photograph rings');
+        await page.getByRole('button', { name: 'Add task' }).click();
+        const dialog = page.getByRole('dialog', { name: 'Add task' });
+        await dialog.getByLabel('Title').fill('Visual photograph rings');
         await settle(page);
         await expect(page).toHaveScreenshot('board-add-task.png');
     });

@@ -1,71 +1,46 @@
 import { useAuth } from '@imapps/web-utils';
-import {
-    type TaskChecklistItem,
-    taskImportanceEnum,
-    taskRecurrenceEnum,
-    taskSubjectEnum,
-} from '@jewellery-catalogue/types';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 
 import { makeCreateTaskRequest } from '../../api/endpoints/tasks';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-import ChecklistEditor from './ChecklistEditor';
+import { ResponsiveDialog } from '../ResponsiveDialog';
+import TaskForm, { canSubmitTask, EMPTY_TASK_VALUES, type TaskFormValues } from './TaskForm';
 
 const AddTaskDialog: React.FC<{ open: boolean; onOpenChange: (open: boolean) => void; onCreated: () => void }> = ({
     open,
     onOpenChange,
     onCreated,
 }) => {
+    const formId = useId();
     const { accessToken, login, logout } = useAuth();
     const { dispatch } = useAlert();
-    const [title, setTitle] = useState('');
-    const [subject, setSubject] = useState<(typeof taskSubjectEnum.options)[number]>('product');
-    const [importance, setImportance] = useState<(typeof taskImportanceEnum.options)[number]>('medium');
-    const [recurrence, setRecurrence] = useState<(typeof taskRecurrenceEnum.options)[number]>('none');
-    const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
-    const [description, setDescription] = useState('');
-    const [checklist, setChecklist] = useState<Array<TaskChecklistItem>>([]);
+    const [values, setValues] = useState<TaskFormValues>(EMPTY_TASK_VALUES);
     const [submitting, setSubmitting] = useState(false);
 
-    const reset = () => {
-        setTitle('');
-        setSubject('product');
-        setImportance('medium');
-        setRecurrence('none');
-        setDueDate(undefined);
-        setDescription('');
-        setChecklist([]);
-    };
-
     const handleSubmit = async () => {
-        if (!title.trim()) return;
+        if (!canSubmitTask(values)) return;
 
         setSubmitting(true);
+
         try {
             await makeCreateTaskRequest(
                 {
-                    title: title.trim(),
-                    subject,
-                    importance,
-                    recurrence,
-                    dueDate,
-                    description: description.trim() || undefined,
-                    checklist,
+                    title: values.title.trim(),
+                    subject: values.subject,
+                    importance: values.importance,
+                    recurrence: values.recurrence,
+                    dueDate: values.dueDate,
+                    description: values.description.trim() || undefined,
+                    checklist: values.checklist,
                 },
                 () => accessToken,
                 login,
                 logout
             );
-            reset();
+            setValues(EMPTY_TASK_VALUES);
             onOpenChange(false);
             onCreated();
         } catch (e) {
@@ -86,84 +61,34 @@ const AddTaskDialog: React.FC<{ open: boolean; onOpenChange: (open: boolean) => 
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Add Task</DialogTitle>
-                </DialogHeader>
-
-                <div className="space-y-3">
-                    <Input placeholder="Task title" value={title} onChange={(e) => setTitle(e.target.value)} />
-
-                    <Select value={subject} onValueChange={(v) => setSubject(v as typeof subject)}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Subject" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {taskSubjectEnum.options.map((opt) => (
-                                <SelectItem key={opt} value={opt} className="capitalize">
-                                    {opt}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
-                    <Select value={importance} onValueChange={(v) => setImportance(v as typeof importance)}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Importance" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {taskImportanceEnum.options.map((opt) => (
-                                <SelectItem key={opt} value={opt} className="capitalize">
-                                    {opt}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
-                    <Select value={recurrence} onValueChange={(v) => setRecurrence(v as typeof recurrence)}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Recurring" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {taskRecurrenceEnum.options.map((opt) => (
-                                <SelectItem key={opt} value={opt} className="capitalize">
-                                    {opt}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="outline" className="w-full justify-start font-normal">
-                                {dueDate ? dueDate.toLocaleDateString() : 'Due date (optional)'}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                            <Calendar mode="single" selected={dueDate} onSelect={setDueDate} />
-                        </PopoverContent>
-                    </Popover>
-
-                    <Textarea
-                        placeholder="Description (optional)"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                    />
-
-                    <ChecklistEditor idPrefix="add-task" items={checklist} onChange={setChecklist} />
-                </div>
-
-                <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <ResponsiveDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title="Add task"
+            description="Add something to your board."
+            footer={
+                <>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        className="min-h-11 md:min-h-9"
+                        onClick={() => onOpenChange(false)}
+                    >
                         Cancel
                     </Button>
-                    <Button onClick={handleSubmit} disabled={submitting || !title.trim()}>
-                        Add Task
+                    <Button
+                        type="submit"
+                        form={formId}
+                        className="min-h-11 md:min-h-9"
+                        disabled={submitting || !canSubmitTask(values)}
+                    >
+                        Add task
                     </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                </>
+            }
+        >
+            <TaskForm formId={formId} values={values} onChange={setValues} onSubmit={handleSubmit} />
+        </ResponsiveDialog>
     );
 };
 

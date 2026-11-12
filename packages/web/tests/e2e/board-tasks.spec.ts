@@ -18,7 +18,7 @@ async function apiGetTasks(): Promise<ApiTask[]> {
     return res.json();
 }
 
-const column = (page: Page, label: string) => page.locator(`xpath=//span[normalize-space()='${label}']/../..`);
+const column = (page: Page, label: string) => page.getByRole('region', { name: label, exact: true });
 
 const card = (page: Page, title: string) =>
     page.locator('div[aria-roledescription="draggable"]').filter({ hasText: title });
@@ -39,37 +39,37 @@ async function dragTo(page: Page, source: Locator, target: Locator) {
 test.describe.serial('Board tasks', () => {
     test.beforeEach(() => apiCleanupBoard(TOKEN));
 
-    test('adding a task with every field puts it in To Do', async ({ authenticatedPage: page }) => {
+    test('adding a task with every field puts it in To do', async ({ authenticatedPage: page }) => {
         await page.goto('/board');
-        await page.getByRole('button', { name: 'Add Task' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Add Task' });
+        await page.getByRole('button', { name: 'Add task' }).click();
+        const dialog = page.getByRole('dialog', { name: 'Add task' });
 
-        await expect(dialog.getByRole('button', { name: 'Add Task' })).toBeDisabled();
-        await dialog.getByPlaceholder('Task title').fill('Photograph new rings');
-        await dialog.getByRole('combobox').nth(0).click();
-        await page.getByRole('option', { name: 'marketing' }).click();
-        await dialog.getByRole('combobox').nth(1).click();
-        await page.getByRole('option', { name: 'high' }).click();
-        await dialog.getByRole('combobox').nth(2).click();
-        await page.getByRole('option', { name: 'weekly' }).click();
+        await expect(dialog.getByRole('button', { name: 'Add task' })).toBeDisabled();
+        await dialog.getByLabel('Title').fill('Photograph new rings');
+        await dialog.getByLabel('Subject').click();
+        await page.getByRole('option', { name: 'Marketing' }).click();
+        await dialog.getByLabel('Importance').click();
+        await page.getByRole('option', { name: 'High' }).click();
+        await dialog.getByLabel('Repeats').click();
+        await page.getByRole('option', { name: 'Every week' }).click();
 
-        await dialog.getByRole('button', { name: 'Due date (optional)' }).click();
+        await dialog.getByLabel('Due date').click();
         const today = page.getByRole('button', { name: /^Today,/ });
         const dayLabel = await today.getAttribute('data-day');
         await today.click();
         await page.keyboard.press('Escape');
 
-        await dialog.getByPlaceholder('Description (optional)').fill('Natural light, white card.');
+        await dialog.getByLabel('Description').fill('Natural light, white card.');
         await dialog.getByPlaceholder('Add checklist item').fill('Charge camera');
         await dialog.getByPlaceholder('Add checklist item').press('Enter');
-        await dialog.getByRole('button', { name: 'Add Task' }).click();
+        await dialog.getByRole('button', { name: 'Add task' }).click();
         await expect(dialog).toBeHidden();
 
         const added = card(page, 'Photograph new rings');
-        await expect(column(page, 'To Do').locator(added)).toBeVisible();
+        await expect(column(page, 'To do').locator(added)).toBeVisible();
         await expect(added).toContainText('Natural light, white card.');
-        await expect(added).toContainText('marketing');
-        await expect(added).toContainText('high');
+        await expect(added).toContainText('Marketing');
+        await expect(added).toContainText('High priority');
         await expect(added).toContainText(dayLabel as string);
         await expect(added.getByRole('checkbox', { name: 'Check Charge camera' })).toBeVisible();
 
@@ -87,11 +87,23 @@ test.describe.serial('Board tasks', () => {
         });
     });
 
-    test('cancelling Add Task creates nothing', async ({ authenticatedPage: page }) => {
+    test('add task dialog fields are reachable by label', async ({ authenticatedPage: page }) => {
         await page.goto('/board');
-        await page.getByRole('button', { name: 'Add Task' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Add Task' });
-        await dialog.getByPlaceholder('Task title').fill('Never mind');
+        await page.getByRole('button', { name: 'Add task' }).click();
+        const dialog = page.getByRole('dialog', { name: 'Add task' });
+
+        await expect(dialog.getByLabel('Title')).toBeVisible();
+        await expect(dialog.getByLabel('Subject')).toBeVisible();
+        await expect(dialog.getByLabel('Importance')).toBeVisible();
+        await expect(dialog.getByLabel('Repeats')).toBeVisible();
+        await expect(dialog.getByLabel('Due date')).toBeVisible();
+    });
+
+    test('cancelling Add task creates nothing', async ({ authenticatedPage: page }) => {
+        await page.goto('/board');
+        await page.getByRole('button', { name: 'Add task' }).click();
+        const dialog = page.getByRole('dialog', { name: 'Add task' });
+        await dialog.getByLabel('Title').fill('Never mind');
         await dialog.getByRole('button', { name: 'Cancel' }).click();
 
         await expect(dialog).toBeHidden();
@@ -102,8 +114,8 @@ test.describe.serial('Board tasks', () => {
         await apiCreateTask(TOKEN, { title: 'Restock clasps' });
         await page.goto('/board');
 
-        await dragTo(page, card(page, 'Restock clasps'), column(page, 'In Progress'));
-        await expect(column(page, 'In Progress').locator(card(page, 'Restock clasps'))).toBeVisible();
+        await dragTo(page, card(page, 'Restock clasps'), column(page, 'In progress'));
+        await expect(column(page, 'In progress').locator(card(page, 'Restock clasps'))).toBeVisible();
         await expect.poll(async () => (await apiGetTasks())[0].status).toBe('in_progress');
 
         await dragTo(page, card(page, 'Restock clasps'), column(page, 'Done'));
@@ -121,32 +133,32 @@ test.describe.serial('Board tasks', () => {
         await dragTo(page, card(page, 'Weekly stock check'), column(page, 'Done'));
 
         await expect(column(page, 'Done').locator(card(page, 'Weekly stock check'))).toBeVisible();
-        await expect(column(page, 'To Do').locator(card(page, 'Weekly stock check'))).toBeVisible();
+        await expect(column(page, 'To do').locator(card(page, 'Weekly stock check'))).toBeVisible();
         const tasks = await apiGetTasks();
         const next = tasks.find((t) => t.status === 'todo');
         expect(next?.dueDate?.slice(0, 10)).toBe('2026-03-09');
     });
 
-    test('subject tabs and importance badges filter the board', async ({ authenticatedPage: page }) => {
+    test('subject tabs and priority buttons filter the board', async ({ authenticatedPage: page }) => {
         await apiCreateTask(TOKEN, { title: 'Post on Instagram', subject: 'marketing', importance: 'low' });
         await apiCreateTask(TOKEN, { title: 'Design a new ring', subject: 'product', importance: 'high' });
         await apiCreateTask(TOKEN, { title: 'File VAT return', subject: 'finance', importance: 'high' });
         await page.goto('/board');
 
         await expect(page.getByRole('tab', { name: 'All (3)' })).toBeVisible();
-        await page.getByRole('tab', { name: 'marketing (1)' }).click();
+        await page.getByRole('tab', { name: 'Marketing (1)' }).click();
         await expect(card(page, 'Post on Instagram')).toBeVisible();
         await expect(card(page, 'Design a new ring')).toHaveCount(0);
 
         await page.getByRole('tab', { name: 'All (3)' }).click();
-        // The filter bar renders before the columns, so its badge is the first "high"
-        const highBadge = page.getByText('high', { exact: true }).first();
-        await highBadge.click();
+        const highFilter = page.getByRole('group', { name: 'Priority' }).getByRole('button', { name: 'High' });
+        await highFilter.click();
+        await expect(highFilter).toHaveAttribute('aria-pressed', 'true');
         await expect(card(page, 'Design a new ring')).toBeVisible();
         await expect(card(page, 'File VAT return')).toBeVisible();
         await expect(card(page, 'Post on Instagram')).toHaveCount(0);
 
-        await highBadge.click();
+        await highFilter.click();
         await expect(card(page, 'Post on Instagram')).toBeVisible();
     });
 });

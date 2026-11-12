@@ -1,19 +1,15 @@
 import { useAuth } from '@imapps/web-utils';
 import type { Goal } from '@jewellery-catalogue/types';
-import { Heart, RefreshCw } from 'lucide-react';
+import { Heart, Pencil, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 
 import { Progress } from '@/components/ui/progress';
+import { GOAL_SOURCE_LABELS } from '@/lib/boardLabels';
+import { cn } from '@/lib/utils';
 
 import { makeSyncGoalEtsyValueRequest } from '../../api/endpoints/goals';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-
-const SOURCE_LABEL: Record<Goal['source'], string | null> = {
-    manual: null,
-    etsy_active_listings: 'Etsy · Active listings',
-    etsy_sales_count: 'Etsy · Total sales',
-};
 
 const GoalProgress: React.FC<{
     goal: Goal;
@@ -25,10 +21,11 @@ const GoalProgress: React.FC<{
     const { dispatch } = useAlert();
     const [syncing, setSyncing] = useState(false);
     const percent = goal.targetValue > 0 ? Math.min(100, (goal.currentValue / goal.targetValue) * 100) : 0;
-    const sourceLabel = SOURCE_LABEL[goal.source];
+    const sourceLabel = goal.source === 'manual' ? null : GOAL_SOURCE_LABELS[goal.source];
 
     const handleSync = async () => {
         setSyncing(true);
+
         try {
             await makeSyncGoalEtsyValueRequest(goal.id, () => accessToken, login, logout);
             onSynced();
@@ -50,23 +47,26 @@ const GoalProgress: React.FC<{
     };
 
     return (
-        <div
-            role="button"
-            tabIndex={0}
+        // The whole card opens the editor for mouse users; the Edit button is the keyboard and screen reader route.
+        <article
+            aria-label={goal.title}
             onClick={() => onEdit(goal)}
-            onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') onEdit(goal);
-            }}
-            aria-label={`Edit goal ${goal.title}`}
-            className="rounded-md border bg-card p-4 min-w-[220px] text-left cursor-pointer"
+            className="min-w-[240px] cursor-pointer rounded-lg border bg-card p-4 text-left"
         >
-            <div className="flex items-center justify-between gap-4 mb-3">
-                <span className="text-sm font-medium">{goal.title}</span>
-                <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">
-                        {goal.currentValue}/{goal.targetValue}
-                        {goal.unit ? ` ${goal.unit}` : ''}
-                    </span>
+            <div className="mb-3 flex items-start justify-between gap-3">
+                <h3 className="min-w-0 break-words text-sm font-medium">{goal.title}</h3>
+                <div className="-my-1 -mr-1 flex shrink-0 items-center">
+                    <button
+                        type="button"
+                        aria-label={`Edit goal ${goal.title}`}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(goal);
+                        }}
+                        className="inline-flex size-11 cursor-pointer items-center justify-center rounded-md text-muted-foreground hover:text-foreground md:size-8"
+                    >
+                        <Pencil className="h-3.5 w-3.5" />
+                    </button>
                     <button
                         type="button"
                         aria-label={goal.favourite ? 'Unfavourite goal' : 'Favourite goal'}
@@ -75,20 +75,28 @@ const GoalProgress: React.FC<{
                             e.stopPropagation();
                             onToggleFavourite(goal.id);
                         }}
-                        className="text-muted-foreground hover:text-foreground"
+                        className="inline-flex size-11 cursor-pointer items-center justify-center rounded-md text-muted-foreground hover:text-foreground md:size-8"
                     >
-                        <Heart className={`h-4 w-4 ${goal.favourite ? 'fill-red-500 text-red-500' : ''}`} />
+                        <Heart className={cn('h-4 w-4', goal.favourite && 'fill-foreground text-foreground')} />
                     </button>
                 </div>
             </div>
-            <Progress value={percent} />
+            <p className="mb-2 text-xs text-muted-foreground">
+                {goal.currentValue}/{goal.targetValue}
+                {goal.unit ? ` ${goal.unit}` : ''}
+            </p>
+            <Progress
+                value={percent}
+                aria-label={`${goal.title} progress`}
+                className="bg-secondary [&>div]:bg-foreground"
+            />
             {goal.targetDate && (
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="mt-2 text-xs text-muted-foreground">
                     Target: {new Date(goal.targetDate).toLocaleDateString()}
                 </p>
             )}
             {sourceLabel && (
-                <div className="flex items-center justify-between gap-4 mt-3">
+                <div className="mt-3 flex items-center justify-between gap-4">
                     <span className="text-xs text-muted-foreground">{sourceLabel}</span>
                     <button
                         type="button"
@@ -97,14 +105,14 @@ const GoalProgress: React.FC<{
                             handleSync();
                         }}
                         disabled={syncing}
-                        className="text-muted-foreground hover:text-foreground disabled:opacity-50"
+                        className="-my-1 -mr-1 inline-flex size-11 cursor-pointer items-center justify-center rounded-md text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50 md:size-8"
                         aria-label="Sync from Etsy"
                     >
                         <RefreshCw className={`h-3.5 w-3.5 ${syncing ? 'animate-spin' : ''}`} />
                     </button>
                 </div>
             )}
-        </div>
+        </article>
     );
 };
 

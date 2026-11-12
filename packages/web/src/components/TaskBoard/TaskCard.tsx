@@ -1,14 +1,28 @@
 import { useDraggable } from '@dnd-kit/core';
 import type { Task } from '@jewellery-catalogue/types';
-import { Pencil, Star } from 'lucide-react';
+import { ChevronDown, ChevronsUp, Minus, Pencil, Star } from 'lucide-react';
 
-import { Badge } from '@/components/ui/badge';
+import { StatusTag } from '@/components/StatusTag';
 import { Checkbox } from '@/components/ui/checkbox';
+import { TASK_IMPORTANCE_LABELS, TASK_SUBJECT_LABELS } from '@/lib/boardLabels';
+import { cn } from '@/lib/utils';
 
-const IMPORTANCE_VARIANT: Record<Task['importance'], 'default' | 'secondary' | 'destructive'> = {
-    low: 'secondary',
-    medium: 'default',
-    high: 'destructive',
+const PRIORITY_MARKER = { low: ChevronDown, medium: Minus, high: ChevronsUp } as const;
+
+const Priority = ({ importance }: { importance: Task['importance'] }) => {
+    const Marker = PRIORITY_MARKER[importance];
+
+    return (
+        <span
+            className={cn(
+                'inline-flex items-center gap-0.5 text-xs',
+                importance === 'high' ? 'font-medium text-destructive' : 'text-muted-foreground'
+            )}
+        >
+            <Marker className="size-3.5" aria-hidden="true" />
+            {TASK_IMPORTANCE_LABELS[importance]} priority
+        </span>
+    );
 };
 
 const TaskCard: React.FC<{
@@ -29,10 +43,13 @@ const TaskCard: React.FC<{
             style={style}
             {...listeners}
             {...attributes}
-            className="rounded-md border bg-card p-3 mb-2 cursor-grab active:cursor-grabbing"
+            role="group"
+            aria-pressed={undefined}
+            aria-label={task.title}
+            className="mb-2 cursor-grab rounded-md border bg-card p-3 active:cursor-grabbing"
         >
             <div className="flex items-start justify-between gap-2 mb-1">
-                <p className="text-sm font-medium">{task.title}</p>
+                <p className="min-w-0 break-words text-sm font-medium">{task.title}</p>
                 <div className="flex items-center gap-1 shrink-0">
                     <button
                         type="button"
@@ -42,7 +59,7 @@ const TaskCard: React.FC<{
                             e.stopPropagation();
                             onEdit(task);
                         }}
-                        className="-m-1 p-2.5 text-muted-foreground hover:text-foreground"
+                        className="-my-1 inline-flex size-11 cursor-pointer items-center justify-center rounded-md text-muted-foreground hover:text-foreground md:size-8"
                     >
                         <Pencil className="h-3.5 w-3.5" />
                     </button>
@@ -55,13 +72,13 @@ const TaskCard: React.FC<{
                             e.stopPropagation();
                             onToggleFavourite(task.id);
                         }}
-                        className="-m-1 p-2.5 text-muted-foreground hover:text-foreground"
+                        className="-my-1 -mr-1 inline-flex size-11 cursor-pointer items-center justify-center rounded-md text-muted-foreground hover:text-foreground md:size-8"
                     >
-                        <Star className={`h-4 w-4 ${task.favourite ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+                        <Star className={cn('h-4 w-4', task.favourite && 'fill-foreground text-foreground')} />
                     </button>
                 </div>
             </div>
-            {task.description && <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{task.description}</p>}
+            {task.description && <p className="mb-2 line-clamp-2 text-xs text-muted-foreground">{task.description}</p>}
             {task.checklist && task.checklist.length > 0 && (
                 <div className="mb-2 space-y-1">
                     <p className="text-xs text-muted-foreground">
@@ -85,15 +102,13 @@ const TaskCard: React.FC<{
                     ))}
                 </div>
             )}
-            <div className="flex items-center gap-2 flex-wrap">
-                <Badge variant="outline" className="text-xs capitalize">
-                    {task.subject}
-                </Badge>
-                <Badge variant={IMPORTANCE_VARIANT[task.importance]} className="text-xs capitalize">
-                    {task.importance}
-                </Badge>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <StatusTag>{TASK_SUBJECT_LABELS[task.subject]}</StatusTag>
+                <Priority importance={task.importance} />
                 {task.dueDate && (
-                    <span className="text-xs text-muted-foreground">{new Date(task.dueDate).toLocaleDateString()}</span>
+                    <span className="text-xs text-muted-foreground">
+                        Due {new Date(task.dueDate).toLocaleDateString()}
+                    </span>
                 )}
             </div>
         </div>

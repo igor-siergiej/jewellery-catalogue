@@ -46,23 +46,23 @@ async function mockConnected(
 }
 
 test.describe.serial('Settings', () => {
-    test('saving pricing persists across reload', async ({ authenticatedPage: page }) => {
+    test('saving pricing persists across reload, with no designs to reprice', async ({ authenticatedPage: page }) => {
         await apiSetUserSettings(TOKEN, { hourlyWage: 10, profitMargin: 10 });
         await page.goto('/settings');
 
-        await expect(page.getByLabel('Hourly Wage')).toHaveValue('10');
-        await page.getByLabel('Hourly Wage').fill('18.5');
-        await page.getByLabel('Profit Margin').fill('35');
-        await page.getByLabel('Etsy Price Suggestion — Markup Multiplier').fill('2.5');
-        await page.getByLabel('Etsy Price Suggestion — Hourly Rate').fill('15');
-        await page.getByRole('button', { name: 'Save Only' }).click();
+        await expect(page.getByLabel('Hourly wage')).toHaveValue('10');
+        await page.getByLabel('Hourly wage').fill('18.5');
+        await page.getByLabel('Profit margin').fill('35');
+        await page.getByLabel('Etsy price suggestion: markup multiplier').fill('2.5');
+        await page.getByLabel('Etsy price suggestion: hourly rate').fill('15');
+        await page.getByRole('button', { name: 'Save', exact: true }).click();
         await expect(page.getByText('Saved.')).toBeVisible();
 
         await page.reload();
-        await expect(page.getByLabel('Hourly Wage')).toHaveValue('18.5');
-        await expect(page.getByLabel('Profit Margin')).toHaveValue('35');
-        await expect(page.getByLabel('Etsy Price Suggestion — Markup Multiplier')).toHaveValue('2.5');
-        await expect(page.getByLabel('Etsy Price Suggestion — Hourly Rate')).toHaveValue('15');
+        await expect(page.getByLabel('Hourly wage')).toHaveValue('18.5');
+        await expect(page.getByLabel('Profit margin')).toHaveValue('35');
+        await expect(page.getByLabel('Etsy price suggestion: markup multiplier')).toHaveValue('2.5');
+        await expect(page.getByLabel('Etsy price suggestion: hourly rate')).toHaveValue('15');
         expect(await getSettings()).toMatchObject({
             hourlyWage: 18.5,
             profitMargin: 35,
@@ -71,7 +71,33 @@ test.describe.serial('Settings', () => {
         });
     });
 
-    test('save & recalculate reprices every design', async ({ authenticatedPage: page }) => {
+    test('changing hourly wage then Save asks before repricing, and Save without updating keeps prices', async ({
+        authenticatedPage: page,
+    }) => {
+        await apiSetUserSettings(TOKEN, { hourlyWage: 10, profitMargin: 10 });
+        const bead = await apiCreateBead(TOKEN, { name: 'Keep Bead', quantity: 100, pricePerPack: 5 });
+        await apiCreateDesign(TOKEN, {
+            name: 'Kept Ring',
+            timeRequired: '0:30',
+            materials: [{ ...bead, requiredQuantity: 10 }],
+            totalMaterialCosts: 0.5,
+            price: 1,
+        });
+        await page.goto('/settings');
+
+        await page.getByLabel('Hourly wage').fill('20');
+        await page.getByRole('button', { name: 'Save', exact: true }).click();
+        const confirm = page.getByRole('alertdialog', { name: 'Update prices for 1 design?' });
+        await expect(confirm).toBeVisible();
+        await confirm.getByRole('button', { name: 'Save without updating' }).click();
+        await expect(page.getByText('Saved.')).toBeVisible();
+
+        expect(await getSettings()).toMatchObject({ hourlyWage: 20 });
+        const [design] = await apiGetDesigns(TOKEN);
+        expect(design.price).toBe(1);
+    });
+
+    test('Update prices in the confirm reprices every design', async ({ authenticatedPage: page }) => {
         await apiSetUserSettings(TOKEN, { hourlyWage: 10, profitMargin: 10 });
         const bead = await apiCreateBead(TOKEN, { name: 'Price Bead', quantity: 100, pricePerPack: 5 });
         await apiCreateDesign(TOKEN, {
@@ -83,14 +109,31 @@ test.describe.serial('Settings', () => {
         });
         await page.goto('/settings');
 
-        await page.getByLabel('Hourly Wage').fill('20');
-        await page.getByLabel('Profit Margin').fill('50');
-        await page.getByRole('button', { name: 'Save & Recalculate All Designs' }).click();
-        await expect(page.getByText('Updated 1 of 1 designs')).toBeVisible();
+        await page.getByLabel('Hourly wage').fill('20');
+        await page.getByLabel('Profit margin').fill('50');
+        await page.getByRole('button', { name: 'Save', exact: true }).click();
+        await page
+            .getByRole('alertdialog', { name: 'Update prices for 1 design?' })
+            .getByRole('button', { name: 'Update prices' })
+            .click();
+        await expect(page.getByText('Updated 1 of 1 design')).toBeVisible();
 
         // (£0.50 materials + 30 min × £20) × 1.5
         const [design] = await apiGetDesigns(TOKEN);
         expect(design.price).toBe(15.75);
+    });
+
+    test('Save with no change to wage or margin saves without asking', async ({ authenticatedPage: page }) => {
+        await apiSetUserSettings(TOKEN, { hourlyWage: 10, profitMargin: 10 });
+        await apiCreateDesign(TOKEN, { name: 'Unasked Ring', price: 1 });
+        await page.goto('/settings');
+
+        await page.getByLabel('Etsy price suggestion: markup multiplier').fill('3');
+        await page.getByRole('button', { name: 'Save', exact: true }).click();
+
+        await expect(page.getByText('Saved.')).toBeVisible();
+        await expect(page.getByRole('alertdialog')).toHaveCount(0);
+        expect(await getSettings()).toMatchObject({ markupMultiplier: 3 });
     });
 
     test('connect Etsy goes to the authorisation URL', async ({ authenticatedPage: page }) => {
@@ -124,11 +167,11 @@ test.describe.serial('Settings', () => {
         await page.goto('/settings');
 
         await expect(page.getByText('Bead Shop')).toBeVisible();
-        await expect(page.getByText('Etsy Defaults')).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Etsy defaults' })).toBeVisible();
         await page.getByRole('button', { name: 'Disconnect' }).click();
 
         await expect(page.getByRole('button', { name: 'Connect Etsy' })).toBeVisible();
-        await expect(page.getByText('Etsy Defaults')).toHaveCount(0);
+        await expect(page.getByRole('heading', { name: 'Etsy defaults' })).toHaveCount(0);
         expect(disconnected).toBe(true);
     });
 
@@ -153,14 +196,16 @@ test.describe.serial('Settings', () => {
         await page.goto('/settings');
 
         // Unmapped types default to the category with the same name
-        await expect(page.getByLabel('Etsy category for RING')).toHaveValue('10');
-        await expect(page.getByLabel('Etsy category for EARCUFF')).toHaveValue('11');
+        await expect(page.getByLabel('Etsy category for Rings')).toHaveText('Jewelry > Rings');
+        await expect(page.getByLabel('Etsy category for Ear cuffs')).toHaveText('Jewelry > Earrings');
         await expect(page.getByText('Your shop has multiple shipping profiles')).toBeVisible();
 
         await page.getByLabel('Description template').fill('{description}\n\nMaterials: {materials}');
-        await page.getByLabel('Etsy category for RING').selectOption({ label: 'Jewelry > Bracelets' });
-        await page.getByLabel('Shipping profile').selectOption({ label: 'Tracked 24' });
-        await page.getByRole('button', { name: 'Save Only' }).click();
+        await page.getByLabel('Etsy category for Rings').click();
+        await page.getByRole('option', { name: 'Jewelry > Bracelets' }).click();
+        await page.getByLabel('Shipping profile').click();
+        await page.getByRole('option', { name: 'Tracked 24' }).click();
+        await page.getByRole('button', { name: 'Save', exact: true }).click();
         await expect(page.getByText('Saved.')).toBeVisible();
 
         expect(await getSettings()).toMatchObject({
@@ -170,8 +215,8 @@ test.describe.serial('Settings', () => {
         });
 
         await page.reload();
-        await expect(page.getByLabel('Etsy category for RING')).toHaveValue('13');
-        await expect(page.getByLabel('Shipping profile')).toHaveValue('502');
+        await expect(page.getByLabel('Etsy category for Rings')).toHaveText('Jewelry > Bracelets');
+        await expect(page.getByLabel('Shipping profile')).toHaveText('Tracked 24');
     });
 
     test('checking for updates while offline says it cannot check', async ({ authenticatedPage: page }) => {

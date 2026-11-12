@@ -2,7 +2,6 @@ import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { type UpdateCheckResult, usePWAContext } from '../../contexts/PWAContext';
 
@@ -23,32 +22,33 @@ const AppVersionCard = () => {
     const message = hasUpdate ? UPDATE_MESSAGES.available : result && UPDATE_MESSAGES[result];
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>App</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-                {typeof __APP_VERSION__ !== 'undefined' && __APP_VERSION__ && (
-                    <p className="text-sm text-muted-foreground">Version {__APP_VERSION__}</p>
-                )}
-                <div className="flex items-center gap-2">
-                    <Button variant="outline" onClick={handleCheck} disabled={isChecking || isUpdating}>
-                        {isChecking && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Check for updates
+        <div className="space-y-3">
+            {typeof __APP_VERSION__ !== 'undefined' && __APP_VERSION__ && (
+                <p className="text-sm text-muted-foreground">Version {__APP_VERSION__}</p>
+            )}
+            <div className="flex items-center gap-2">
+                <Button
+                    type="button"
+                    variant="outline"
+                    className="min-h-11 md:min-h-9"
+                    onClick={handleCheck}
+                    disabled={isChecking || isUpdating}
+                >
+                    {isChecking && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Check for updates
+                </Button>
+                {hasUpdate && (
+                    <Button type="button" className="min-h-11 md:min-h-9" onClick={updateApp} disabled={isUpdating}>
+                        {isUpdating ? 'Updating…' : 'Update now'}
                     </Button>
-                    {hasUpdate && (
-                        <Button onClick={updateApp} disabled={isUpdating}>
-                            {isUpdating ? 'Updating…' : 'Update now'}
-                        </Button>
-                    )}
-                </div>
-                {message && (
-                    <p role="status" className="text-sm">
-                        {message}
-                    </p>
                 )}
-            </CardContent>
-        </Card>
+            </div>
+            {message && (
+                <p role="status" className="text-sm">
+                    {message}
+                </p>
+            )}
+        </div>
     );
 };
 

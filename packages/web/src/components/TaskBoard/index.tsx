@@ -1,15 +1,14 @@
 import { DndContext, type DragEndEvent, useDroppable } from '@dnd-kit/core';
 import type { Task, TaskStatus } from '@jewellery-catalogue/types';
 
+import { TASK_STATUS_LABELS } from '@/lib/boardLabels';
 import { sortFavouritesFirst } from '@/lib/sortFavouritesFirst';
 
 import TaskCard from './TaskCard';
 
-const COLUMNS: Array<{ status: TaskStatus; label: string }> = [
-    { status: 'todo', label: 'To Do' },
-    { status: 'in_progress', label: 'In Progress' },
-    { status: 'done', label: 'Done' },
-];
+const COLUMNS: Array<{ status: TaskStatus; label: string }> = (['todo', 'in_progress', 'done'] as const).map(
+    (status) => ({ status, label: TASK_STATUS_LABELS[status] })
+);
 
 const Column: React.FC<{
     status: TaskStatus;
@@ -22,14 +21,16 @@ const Column: React.FC<{
     const { setNodeRef, isOver } = useDroppable({ id: status });
 
     return (
-        <div
+        <section
             ref={setNodeRef}
-            className={`flex-1 md:min-w-[240px] rounded-md border bg-muted/30 p-3 ${isOver ? 'ring-2 ring-primary' : ''}`}
+            aria-label={label}
+            className={`flex-1 rounded-lg border bg-muted/40 p-3 md:min-w-[240px] ${isOver ? 'ring-2 ring-primary' : ''}`}
         >
-            <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-semibold">{label}</span>
+            <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-sm font-semibold">{label}</h2>
                 <span className="text-xs text-muted-foreground">{tasks.length}</span>
             </div>
+            {tasks.length === 0 && <p className="px-1 py-2 text-sm text-muted-foreground">No tasks</p>}
             {sortFavouritesFirst(tasks).map((task) => (
                 <TaskCard
                     key={task.id}
@@ -39,7 +40,7 @@ const Column: React.FC<{
                     onEdit={onEdit}
                 />
             ))}
-        </div>
+        </section>
     );
 };
 
@@ -52,6 +53,7 @@ const TaskBoard: React.FC<{
 }> = ({ tasks, onStatusChange, onToggleFavourite, onToggleChecklistItem, onEdit }) => {
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
+
         if (!over) return;
 
         const newStatus = over.id as TaskStatus;

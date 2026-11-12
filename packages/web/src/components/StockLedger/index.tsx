@@ -1,7 +1,6 @@
-import type { Design } from '@jewellery-catalogue/types';
 import { Link } from 'react-router-dom';
 
-import { Image } from '@/components/Image';
+import { DesignThumb } from '@/components/DesignThumb';
 import { DesktopOnly, MobileCardList } from '@/components/MobileCardList';
 import { EtsyStatusTag } from '@/components/StatusTag';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -17,20 +16,6 @@ const SEVERITY_TEXT: Record<StockSeverity, string> = {
 
 const canMakeText = (canMake: number | null) => (canMake === null ? '–' : String(canMake));
 
-const Thumb = ({ design }: { design: Design }) => {
-    const etsyImageUrl = design.etsy?.imageUrls?.[0];
-
-    return (
-        <div className="size-10 shrink-0 overflow-hidden rounded-md bg-muted">
-            {design.imageIds?.[0] ? (
-                <Image imageId={design.imageIds[0]} size="thumb" />
-            ) : etsyImageUrl ? (
-                <img src={etsyImageUrl} alt="" className="h-full w-full object-contain" />
-            ) : null}
-        </div>
-    );
-};
-
 const ProblemVariants = ({ row }: { row: StockRow }) => {
     if (row.problemVariants.length === 0) return null;
 
@@ -43,7 +28,7 @@ const ProblemVariants = ({ row }: { row: StockRow }) => {
 
 const DesignName = ({ row }: { row: StockRow }) => (
     <div className="flex min-w-0 items-center gap-3">
-        <Thumb design={row.design} />
+        <DesignThumb design={row.design} />
         <div className="min-w-0">
             <Link
                 to={VIEW_DESIGN_PAGE.getRoute(row.design.id)}
@@ -69,7 +54,7 @@ export const StockLedger = ({ rows }: { rows: StockRow[] }) => (
                             state={{ from: 'home' }}
                             className="flex min-h-11 items-center gap-3 px-3 py-2 outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
-                            <Thumb design={row.design} />
+                            <DesignThumb design={row.design} />
                             <div className="min-w-0 flex-1">
                                 <p className="truncate font-medium" title={row.design.name}>
                                     {row.design.name}

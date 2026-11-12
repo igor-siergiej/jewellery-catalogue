@@ -17,13 +17,13 @@ test.describe.serial('Board goal editing', () => {
             await expect(page.getByText('Sell more rings')).toBeVisible({ timeout: 10000 });
 
             await page.getByRole('button', { name: 'Edit goal Sell more rings' }).click();
-            await expect(page.getByText('Edit Goal')).toBeVisible({ timeout: 10000 });
+            await expect(page.getByText('Edit goal', { exact: true })).toBeVisible({ timeout: 10000 });
 
             await page.getByLabel('Title').fill('Sell way more rings');
-            await page.getByLabel('Target').fill('25');
+            await page.getByLabel('Target', { exact: true }).fill('25');
 
-            await page.getByRole('button', { name: 'Save Changes' }).click();
-            await expect(page.getByText('Edit Goal')).not.toBeVisible({ timeout: 10000 });
+            await page.getByRole('button', { name: 'Save changes' }).click();
+            await expect(page.getByText('Edit goal', { exact: true })).not.toBeVisible({ timeout: 10000 });
 
             await expect(page.getByText('Sell way more rings')).toBeVisible({ timeout: 10000 });
             await expect(page.getByText('0/25')).toBeVisible({ timeout: 10000 });

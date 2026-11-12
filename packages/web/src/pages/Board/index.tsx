@@ -8,7 +8,7 @@ import { getTasksQuery, makeUpdateTaskRequest } from '../../api/endpoints/tasks'
 import GoalProgress from '../../components/GoalProgress';
 import AddGoalDialog from '../../components/GoalProgress/AddGoalDialog';
 import EditGoalDialog from '../../components/GoalProgress/EditGoalDialog';
-import LoadingScreen from '../../components/Loading';
+import { StateView } from '../../components/StateView';
 import TaskBoard from '../../components/TaskBoard';
 import AddTaskDialog from '../../components/TaskBoard/AddTaskDialog';
 import EditTaskDialog from '../../components/TaskBoard/EditTaskDialog';
@@ -16,6 +16,7 @@ import TaskFilters from '../../components/TaskBoard/TaskFilters';
 import { Button } from '../../components/ui/button';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
+import { pluralise } from '../../lib/boardLabels';
 
 const Board = () => {
     const { accessToken, login, logout } = useAuth();
@@ -32,16 +33,17 @@ const Board = () => {
         data: tasks,
         isLoading: tasksLoading,
         isError: tasksIsError,
-        error: tasksError,
+        refetch: refetchTasks,
     } = useQuery({
         ...getTasksQuery(() => accessToken, login, logout),
         enabled: !!accessToken,
     });
+
     const {
         data: goals,
         isLoading: goalsLoading,
         isError: goalsIsError,
-        error: goalsError,
+        refetch: refetchGoals,
     } = useQuery({
         ...getGoalsQuery(() => accessToken, login, logout),
         enabled: !!accessToken,
@@ -50,11 +52,13 @@ const Board = () => {
     const toggleImportanceFilter = (importance: TaskImportance) => {
         setImportanceFilter((prev) => {
             const next = new Set(prev);
+
             if (next.has(importance)) {
                 next.delete(importance);
             } else {
                 next.add(importance);
             }
+
             return next;
         });
     };
@@ -62,22 +66,34 @@ const Board = () => {
     const filteredTasks = useMemo(() => {
         return (tasks ?? []).filter((task) => {
             if (subjectFilter !== 'all' && task.subject !== subjectFilter) return false;
+
             if (importanceFilter.size > 0 && !importanceFilter.has(task.importance)) return false;
+
             return true;
         });
     }, [tasks, subjectFilter, importanceFilter]);
 
     if (tasksIsError || goalsIsError) {
         return (
-            <span>
-                Something went wrong! :(
-                {(tasksError ?? goalsError)?.message}
-            </span>
+            <div className="p-4 md:p-6">
+                <StateView
+                    kind="error"
+                    what="your board"
+                    onRetry={() => {
+                        refetchTasks();
+                        refetchGoals();
+                    }}
+                />
+            </div>
         );
     }
 
     if (tasksLoading || goalsLoading) {
-        return <LoadingScreen />;
+        return (
+            <div className="p-4 md:p-6">
+                <StateView kind="loading" what="your board" />
+            </div>
+        );
     }
 
     const handleStatusChange = async (taskId: string, status: TaskStatus) => {
@@ -101,6 +117,7 @@ const Board = () => {
 
     const handleToggleFavourite = async (taskId: string) => {
         const task = (tasks ?? []).find((t) => t.id === taskId);
+
         if (!task) return;
 
         try {
@@ -123,6 +140,7 @@ const Board = () => {
 
     const handleToggleChecklistItem = async (taskId: string, itemId: string) => {
         const task = (tasks ?? []).find((t) => t.id === taskId);
+
         if (!task?.checklist) return;
 
         const checklist = task.checklist.map((item) => (item.id === itemId ? { ...item, done: !item.done } : item));
@@ -147,6 +165,7 @@ const Board = () => {
 
     const handleToggleGoalFavourite = async (goalId: string) => {
         const goal = (goals ?? []).find((g) => g.id === goalId);
+
         if (!goal) return;
 
         try {
@@ -168,68 +187,89 @@ const Board = () => {
     };
 
     return (
-        <div className="p-0 sm:p-6">
-            <div className="flex items-center justify-between mb-4">
-                <h1 className="text-2xl font-semibold">Board</h1>
-                <Button onClick={() => setAddTaskOpen(true)}>Add Task</Button>
-            </div>
-            <TaskFilters
-                tasks={tasks ?? []}
-                subjectFilter={subjectFilter}
-                importanceFilter={importanceFilter}
-                onSubjectFilterChange={setSubjectFilter}
-                onImportanceFilterChange={toggleImportanceFilter}
-            />
-            <TaskBoard
-                tasks={filteredTasks}
-                onStatusChange={handleStatusChange}
-                onToggleFavourite={handleToggleFavourite}
-                onToggleChecklistItem={handleToggleChecklistItem}
-                onEdit={setEditingTask}
-            />
-
-            <div className="flex items-center justify-between mb-2 mt-6">
-                <p className="text-sm text-muted-foreground">{goals?.length ?? 0} goals</p>
-                <Button variant="outline" onClick={() => setAddGoalOpen(true)}>
-                    Add Goal
+        <div className="space-y-6 p-4 md:p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <h1 className="font-display text-3xl font-semibold">Board</h1>
+                <Button className="min-h-11 md:min-h-9" onClick={() => setAddTaskOpen(true)}>
+                    Add task
                 </Button>
             </div>
-            <div className="flex gap-3 overflow-x-auto pb-2">
-                {goals?.map((goal) => (
-                    <GoalProgress
-                        key={goal.id}
-                        goal={goal}
-                        onSynced={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
-                        onEdit={setEditingGoal}
-                        onToggleFavourite={handleToggleGoalFavourite}
-                    />
-                ))}
+
+            <section aria-labelledby="goals-heading" className="space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h2 id="goals-heading" className="text-sm text-muted-foreground">
+                        {pluralise(goals?.length ?? 0, 'goal')}
+                    </h2>
+                    <Button variant="outline" className="min-h-11 md:min-h-9" onClick={() => setAddGoalOpen(true)}>
+                        Add goal
+                    </Button>
+                </div>
+                {(goals?.length ?? 0) > 0 && (
+                    <div className="flex gap-3 overflow-x-auto pb-2">
+                        {goals?.map((goal) => (
+                            <GoalProgress
+                                key={goal.id}
+                                goal={goal}
+                                onSynced={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
+                                onEdit={setEditingGoal}
+                                onToggleFavourite={handleToggleGoalFavourite}
+                            />
+                        ))}
+                    </div>
+                )}
+            </section>
+
+            <div className="space-y-4">
+                <TaskFilters
+                    tasks={tasks ?? []}
+                    subjectFilter={subjectFilter}
+                    importanceFilter={importanceFilter}
+                    onSubjectFilterChange={setSubjectFilter}
+                    onImportanceFilterChange={toggleImportanceFilter}
+                />
+                <TaskBoard
+                    tasks={filteredTasks}
+                    onStatusChange={handleStatusChange}
+                    onToggleFavourite={handleToggleFavourite}
+                    onToggleChecklistItem={handleToggleChecklistItem}
+                    onEdit={setEditingTask}
+                />
             </div>
 
-            <AddTaskDialog
-                open={addTaskOpen}
-                onOpenChange={setAddTaskOpen}
-                onCreated={() => queryClient.invalidateQueries({ queryKey: ['tasks'] })}
-            />
-            <AddGoalDialog
-                open={addGoalOpen}
-                onOpenChange={setAddGoalOpen}
-                onCreated={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
-            />
-            <EditGoalDialog
-                goal={editingGoal}
-                onOpenChange={(open) => {
-                    if (!open) setEditingGoal(null);
-                }}
-                onUpdated={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
-            />
-            <EditTaskDialog
-                task={editingTask}
-                onOpenChange={(open) => {
-                    if (!open) setEditingTask(null);
-                }}
-                onUpdated={() => queryClient.invalidateQueries({ queryKey: ['tasks'] })}
-            />
+            {addTaskOpen && (
+                <AddTaskDialog
+                    open
+                    onOpenChange={setAddTaskOpen}
+                    onCreated={() => queryClient.invalidateQueries({ queryKey: ['tasks'] })}
+                />
+            )}
+            {addGoalOpen && (
+                <AddGoalDialog
+                    open
+                    onOpenChange={setAddGoalOpen}
+                    onCreated={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
+                />
+            )}
+            {editingGoal && (
+                <EditGoalDialog
+                    key={editingGoal.id}
+                    goal={editingGoal}
+                    onOpenChange={(open) => {
+                        if (!open) setEditingGoal(null);
+                    }}
+                    onUpdated={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
+                />
+            )}
+            {editingTask && (
+                <EditTaskDialog
+                    key={editingTask.id}
+                    task={editingTask}
+                    onOpenChange={(open) => {
+                        if (!open) setEditingTask(null);
+                    }}
+                    onUpdated={() => queryClient.invalidateQueries({ queryKey: ['tasks'] })}
+                />
+            )}
         </div>
     );
 };
