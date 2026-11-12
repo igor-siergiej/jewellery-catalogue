@@ -11,7 +11,7 @@ export const REGISTER_PAGE: NavRoute = {
 };
 
 export const HOME_PAGE: NavRoute = {
-    name: 'Home',
+    name: 'Stock',
     route: '/home',
 };
 
@@ -47,7 +47,7 @@ export const SETTINGS_PAGE: NavRoute = {
 };
 
 export const LISTINGS_PAGE: NavRoute = {
-    name: 'Listings',
+    name: 'Etsy',
     route: '/listings',
 };
 
@@ -61,12 +61,4 @@ export const BOARD_PAGE: NavRoute = {
     route: '/board',
 };
 
-export const ROUTES = [
-    HOME_PAGE,
-    DESIGNS_PAGE,
-    LISTINGS_PAGE,
-    ADD_DESIGN_PAGE,
-    MATERIALS_PAGE,
-    ADD_MATERIAL_PAGE,
-    BOARD_PAGE,
-];
+export const ROUTES = [HOME_PAGE, DESIGNS_PAGE, MATERIALS_PAGE, LISTINGS_PAGE, BOARD_PAGE];

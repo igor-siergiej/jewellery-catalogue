@@ -1,5 +1,5 @@
-import { Gem, Home, LayoutGrid, Palette, Plus, PlusCircle, ShoppingBag } from 'lucide-react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Gem, Home, LayoutGrid, Palette, ShoppingBag } from 'lucide-react';
+import { NavLink, useLocation } from 'react-router-dom';
 
 import {
     Sidebar,
@@ -22,14 +22,11 @@ const routeIcons = {
     '/home': Home,
     '/designs': Palette,
     '/listings': ShoppingBag,
-    '/addDesign': Plus,
     '/materials': Gem,
-    '/addMaterial': PlusCircle,
     '/board': LayoutGrid,
 };
 
 const AppSidebar = () => {
-    const navigate = useNavigate();
     const location = useLocation();
     const { state, isMobile, setOpenMobile } = useSidebar();
     const isCollapsed = state === 'collapsed';
@@ -47,23 +44,28 @@ const AppSidebar = () => {
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {ROUTES.map((route) => {
-                                const isActive = location.pathname === route.route;
+                                const isActive =
+                                    location.pathname === route.route ||
+                                    location.pathname.startsWith(`${route.route}/`);
+
                                 const IconComponent = routeIcons[route.route as keyof typeof routeIcons];
 
                                 return (
                                     <SidebarMenuItem key={route.route}>
-                                        <SidebarMenuButton asChild isActive={isActive}>
-                                            <button
-                                                type="button"
+                                        <SidebarMenuButton
+                                            asChild
+                                            isActive={isActive}
+                                            className="h-11 md:h-8 data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
+                                        >
+                                            <NavLink
+                                                to={route.route}
                                                 onClick={() => {
-                                                    navigate(route.route);
                                                     if (isMobile) setOpenMobile(false);
                                                 }}
-                                                className="w-full justify-start"
                                             >
                                                 {IconComponent && <IconComponent />}
                                                 <span>{route.name}</span>
-                                            </button>
+                                            </NavLink>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
                                 );
