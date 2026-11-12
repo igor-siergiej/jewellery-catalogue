@@ -48,6 +48,7 @@ const COLUMN_WIDTH: Partial<Record<MaterialColumnKey, string>> = {
     brand: 'w-36',
     type: 'w-28',
     stock: 'w-28',
+    perPack: 'w-28',
     pricePerPack: 'w-40',
     unitPrice: 'w-28',
     diameter: 'w-24',

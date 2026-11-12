@@ -56,6 +56,7 @@ test.describe.serial('Materials', () => {
         await expect(row).toContainText('Solid');
         await expect(row).toContainText('Silver');
         await expect(row).toContainText('0.50mm');
+        await expect(row).toContainText('10.00m');
 
         const [wire] = await apiGetMaterials(TOKEN);
         expect(wire).toMatchObject({

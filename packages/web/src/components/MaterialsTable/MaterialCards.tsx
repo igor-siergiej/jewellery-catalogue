@@ -6,6 +6,7 @@ import { cellText, type MaterialColumnKey } from '@/lib/materialColumns';
 
 const DETAIL_COLUMNS: ReadonlySet<MaterialColumnKey> = new Set([
     'code',
+    'perPack',
     'colour',
     'diameter',
     'wireType',
@@ -50,7 +51,10 @@ export const MaterialCards = ({
                         const subtitle = [
                             ...(showType ? [cellText(material, 'type')] : []),
                             cellText(material, 'brand'),
-                            ...details.map((key) => cellText(material, key)).filter((text) => text !== '–'),
+                            ...details
+                                .map((key) => [key, cellText(material, key)] as const)
+                                .filter(([, text]) => text !== '–')
+                                .map(([key, text]) => (key === 'perPack' ? `${text} per pack` : text)),
                         ].join(' · ');
 
                         return (

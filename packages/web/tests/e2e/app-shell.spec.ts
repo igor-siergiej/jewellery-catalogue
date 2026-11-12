@@ -111,7 +111,7 @@ test.describe.serial('App shell and session', () => {
     });
 
     test('an expired token is refreshed and the request retried', async ({ authenticatedPage: page }) => {
-        await apiCreateBead(TOKEN, { name: 'After Refresh Bead', exact: true });
+        await apiCreateBead(TOKEN, { name: 'After Refresh Bead' });
         let refreshes = 0;
         await page.route(`${AUTH_URL}/refresh`, (route) => {
             refreshes++;
@@ -144,9 +144,9 @@ test.describe.serial('App shell and session', () => {
 
     test("one user never sees another user's designs or materials", async ({ authenticatedPage: page }) => {
         await apiCleanup(MOCK_TOKEN_APP_SHELL_OTHER);
-        await apiCreateBead(MOCK_TOKEN_APP_SHELL_OTHER, { name: 'Their Bead', exact: true });
+        await apiCreateBead(MOCK_TOKEN_APP_SHELL_OTHER, { name: 'Their Bead' });
         await apiCreateDesign(MOCK_TOKEN_APP_SHELL_OTHER, { name: 'Their Design' });
-        await apiCreateBead(TOKEN, { name: 'My Bead', exact: true });
+        await apiCreateBead(TOKEN, { name: 'My Bead' });
         await apiCreateDesign(TOKEN, { name: 'My Design' });
 
         await page.goto('/designs');

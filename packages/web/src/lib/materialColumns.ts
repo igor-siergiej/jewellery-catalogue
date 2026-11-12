@@ -22,10 +22,10 @@ export type MaterialTab = MaterialType | 'all';
 const ALL: MaterialColumnKey[] = ['name', 'type', 'brand', 'stock', 'pricePerPack', 'unitPrice'];
 
 const COLUMNS_BY_TYPE: Record<MaterialType, MaterialColumnKey[]> = {
-    BEAD: ['name', 'code', 'brand', 'colour', 'diameter', 'stock', 'pricePerPack', 'unitPrice'],
-    WIRE: ['name', 'brand', 'wireType', 'metalType', 'diameter', 'stock', 'pricePerPack', 'unitPrice'],
+    BEAD: ['name', 'code', 'brand', 'colour', 'diameter', 'stock', 'perPack', 'pricePerPack', 'unitPrice'],
+    WIRE: ['name', 'brand', 'wireType', 'metalType', 'diameter', 'stock', 'perPack', 'pricePerPack', 'unitPrice'],
     CHAIN: ['name', 'brand', 'metalType', 'length', 'stock', 'pricePerPack', 'unitPrice'],
-    EAR_HOOK: ['name', 'brand', 'metalType', 'stock', 'pricePerPack', 'unitPrice'],
+    EAR_HOOK: ['name', 'brand', 'metalType', 'stock', 'perPack', 'pricePerPack', 'unitPrice'],
 };
 
 export function columnsFor(tab: MaterialTab): MaterialColumnKey[] {
@@ -93,7 +93,7 @@ const unitPriceText = (m: MaterialFields) => {
     return NONE;
 };
 
-/** Raw value used to order rows by a column. */
+/** Value used to order rows by a column: enum columns sort by the label the user sees. */
 export function sortValue(material: Material, key: MaterialColumnKey): string | number | undefined {
     const m = fields(material);
 
@@ -105,7 +105,7 @@ export function sortValue(material: Material, key: MaterialColumnKey): string | 
         case 'brand':
             return material.brand;
         case 'type':
-            return material.type;
+            return MATERIAL_TYPE_LABELS[material.type];
         case 'stock':
             return stockValue(m);
         case 'perPack':
@@ -119,9 +119,9 @@ export function sortValue(material: Material, key: MaterialColumnKey): string | 
         case 'colour':
             return m.colour;
         case 'wireType':
-            return m.wireType;
+            return m.wireType ? WIRE_TYPE_LABELS[m.wireType as WIRE_TYPE] : undefined;
         case 'metalType':
-            return m.metalType;
+            return m.metalType ? METAL_TYPE_LABELS[m.metalType as METAL_TYPE] : undefined;
         case 'length':
             return m.lengthPerPack;
     }
