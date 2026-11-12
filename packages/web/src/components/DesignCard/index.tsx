@@ -161,7 +161,7 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
                             variant="secondary"
                             className={
                                 totalQuantity === 0
-                                    ? 'gap-1 font-normal border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400'
+                                    ? 'gap-1 font-normal border-amber-500/40 bg-amber-500/10 text-amber-700'
                                     : 'gap-1 font-normal text-white leading-none [&_svg]:text-white [&_svg]:shrink-0'
                             }
                         >

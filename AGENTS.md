@@ -11,6 +11,8 @@ file covers what you need to change the code safely.
 
 ## Stack
 
+UI work: read [DESIGN.md](DESIGN.md) first.
+
 - **Monorepo:** Bun workspaces. `packages/web`, `packages/api`, `packages/types` (shared
   interfaces and Zod form schemas, imported as `@jewellery-catalogue/types`) and
   `packages/etsy-mock` (stateful fake of the Etsy v3 API for local dev and e2e). `bun.lock`

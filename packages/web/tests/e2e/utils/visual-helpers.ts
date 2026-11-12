@@ -12,7 +12,7 @@ export const visualTest = (tokens: { mobile: string; desktop: string }) =>
 export const settle = async (page: Page) => {
     await page.waitForLoadState('networkidle');
     await page.evaluate(() => document.fonts.ready);
-    await expect.poll(() => page.evaluate(() => document.fonts.check('16px Delius'))).toBe(true);
+    await expect.poll(() => page.evaluate(() => document.fonts.check('16px "IBM Plex Sans"'))).toBe(true);
     await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
 };
 
