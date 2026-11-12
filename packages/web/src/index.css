@@ -146,7 +146,7 @@
     [role='button']:not([aria-disabled='true']),
     [role='tab'],
     [role='menuitem'],
-    [role='option'],
+    [role='option']:not([aria-disabled='true']),
     summary,
     select:not(:disabled),
     label[for],
@@ -155,6 +155,7 @@
     }
     button:disabled,
     [role='button'][aria-disabled='true'],
+    [role='option'][aria-disabled='true'],
     select:disabled,
     input:disabled,
     textarea:disabled {

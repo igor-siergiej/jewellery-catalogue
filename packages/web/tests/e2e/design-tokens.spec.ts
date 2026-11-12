@@ -66,20 +66,47 @@ test.describe('Design tokens and base styles', () => {
     test('focus ring survives shadow-xs on a keyboard-focused control', async ({ authenticatedPage: page }) => {
         await page.goto('/home');
         await page.waitForLoadState('networkidle');
-        await page.keyboard.press('Tab');
 
         const boxShadow = await page.evaluate(() => {
             const el = document.createElement('button');
 
-            el.className = 'shadow-xs focus-visible:ring-[3px] focus-visible:ring-ring/50';
+            el.className = 'shadow-xs focus-visible:ring-[3px] focus-visible:ring-ring';
             el.textContent = 'probe';
             document.body.append(el);
-            el.focus();
+            el.focus({ focusVisible: true } as FocusOptions);
 
-            return getComputedStyle(el).boxShadow;
+            const value = getComputedStyle(el).boxShadow;
+
+            el.remove();
+
+            return value;
         });
 
         expect(boxShadow).not.toBe('none');
-        expect(boxShadow).toMatch(/rgb/);
+        expect(boxShadow).toContain('rgb(91, 62, 150)');
+        expect(boxShadow).toContain('3px');
+    });
+
+    test('disabled buttons show not-allowed cursor', async ({ authenticatedPage: page }) => {
+        await page.goto('/home');
+        await page.waitForLoadState('networkidle');
+
+        const cursor = await page.evaluate(() => {
+            const el = document.createElement('button');
+
+            el.disabled = true;
+            el.className =
+                'inline-flex disabled:cursor-not-allowed disabled:opacity-50 not-disabled:hover:bg-primary/90';
+            el.textContent = 'probe';
+            document.body.append(el);
+
+            const value = getComputedStyle(el).cursor;
+
+            el.remove();
+
+            return value;
+        });
+
+        expect(cursor).toBe('not-allowed');
     });
 });
