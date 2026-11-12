@@ -3,6 +3,7 @@ import { type ReactNode, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useRestoreFocus } from '@/hooks/useRestoreFocus';
 import { cn } from '@/lib/utils';
 
 const MOBILE_BREAKPOINT = 768;
@@ -37,6 +38,8 @@ export function ResponsiveDialog({
 
     if (!open && openedOnMobile !== null) setOpenedOnMobile(null);
 
+    const restoreFocus = useRestoreFocus(open);
+
     const mobile = open ? (openedOnMobile ?? window.innerWidth < MOBILE_BREAKPOINT) : isMobile;
 
     if (mobile) {
@@ -44,6 +47,7 @@ export function ResponsiveDialog({
             <Drawer open={open} onOpenChange={onOpenChange} shouldScaleBackground={false}>
                 <DrawerContent
                     className="overflow-hidden"
+                    onCloseAutoFocus={restoreFocus}
                     style={{ maxHeight: 'min(90dvh, calc(100vh - env(keyboard-inset-height, 0px) - 2rem))' }}
                 >
                     <DrawerHeader>
@@ -63,7 +67,10 @@ export function ResponsiveDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className={cn('flex max-h-[90vh] flex-col gap-0 p-0', className)}>
+            <DialogContent
+                className={cn('flex max-h-[90vh] flex-col gap-0 p-0', className)}
+                onCloseAutoFocus={restoreFocus}
+            >
                 <DialogHeader className="px-6 pb-4 pt-6">
                     <DialogTitle>{title}</DialogTitle>
                     {description ? (

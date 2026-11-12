@@ -72,7 +72,7 @@ const MainLayoutContent = ({ children }: MainLayoutProps) => {
                     )}
                 </header>
                 <div className="flex min-w-0 flex-1 flex-col gap-4 p-4">
-                    <main>{children ?? <Outlet />}</main>
+                    <div>{children ?? <Outlet />}</div>
                 </div>
             </SidebarInset>
         </SidebarProvider>

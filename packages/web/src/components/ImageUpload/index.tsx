@@ -42,6 +42,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ setImage, onChange, hasError 
         e.preventDefault();
         e.stopPropagation();
         setIsDragging(false);
+
         if (e.dataTransfer.files?.[0]) handleFile(e.dataTransfer.files[0]);
     };
 
@@ -57,6 +58,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ setImage, onChange, hasError 
         setPreview(null);
         setImage('image', undefined as any, { shouldDirty: true });
         onChange?.(undefined);
+
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
@@ -97,6 +99,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ setImage, onChange, hasError 
                         onClick={changeImage}
                         className="w-9 h-9 bg-card/80 backdrop-blur-sm"
                         title="Change image"
+                        aria-label="Change image"
                     >
                         <ImagePlus className="w-4 h-4" />
                     </Button>
@@ -107,6 +110,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ setImage, onChange, hasError 
                         onClick={clearImage}
                         className="w-9 h-9"
                         title="Remove image"
+                        aria-label="Remove image"
                     >
                         <X className="w-4 h-4" />
                     </Button>

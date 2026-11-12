@@ -11,7 +11,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Item, ItemContent, ItemFooter, ItemHeader, ItemTitle } from '@/components/ui/item';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsList, TabsTrigger, UNDERLINE_TAB_CLASS, UNDERLINE_TAB_LIST_CLASS } from '@/components/ui/tabs';
+import {
+    FILTER_TAB_PROPS,
+    Tabs,
+    TabsList,
+    TabsTrigger,
+    UNDERLINE_TAB_CLASS,
+    UNDERLINE_TAB_LIST_CLASS,
+} from '@/components/ui/tabs';
 
 import { getDraftsQuery, makeDeleteDraftRequest } from '../../api/endpoints/drafts';
 import { getDesignsQuery } from '../../api/endpoints/getDesigns';
@@ -210,11 +217,11 @@ const Designs = () => {
                     onValueChange={(v) => setFilters({ type: v as DesignType | 'all' })}
                 >
                     <TabsList className={UNDERLINE_TAB_LIST_CLASS}>
-                        <TabsTrigger value="all" className={UNDERLINE_TAB_CLASS}>
+                        <TabsTrigger value="all" className={UNDERLINE_TAB_CLASS} {...FILTER_TAB_PROPS}>
                             All <span className="ml-1 text-muted-foreground">{data.length}</span>
                         </TabsTrigger>
                         {(Object.keys(DesignType) as Array<DesignType>).map((type) => (
-                            <TabsTrigger key={type} value={type} className={UNDERLINE_TAB_CLASS}>
+                            <TabsTrigger key={type} value={type} className={UNDERLINE_TAB_CLASS} {...FILTER_TAB_PROPS}>
                                 {DESIGN_TYPE_LABELS[type]}{' '}
                                 <span className="ml-1 text-muted-foreground">
                                     {data.filter((d) => d.designType === type).length}

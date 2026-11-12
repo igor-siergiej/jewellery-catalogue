@@ -59,4 +59,7 @@ const UNDERLINE_TAB_LIST_CLASS = 'h-auto gap-1 rounded-none border-b bg-transpar
 const UNDERLINE_TAB_CLASS =
     'min-h-11 rounded-none border-b-2 border-transparent px-3 py-1 text-sm md:min-h-9 data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground';
 
-export { Tabs, TabsContent, TabsList, TabsTrigger, UNDERLINE_TAB_CLASS, UNDERLINE_TAB_LIST_CLASS };
+/** Spread on triggers that filter a list in place: there is no panel for the `aria-controls` Radix adds. */
+const FILTER_TAB_PROPS = { 'aria-controls': undefined };
+
+export { FILTER_TAB_PROPS, Tabs, TabsContent, TabsList, TabsTrigger, UNDERLINE_TAB_CLASS, UNDERLINE_TAB_LIST_CLASS };

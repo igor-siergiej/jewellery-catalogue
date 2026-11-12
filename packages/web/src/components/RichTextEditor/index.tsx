@@ -117,6 +117,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
                     variant={editor.isActive('heading', { level: 1 }) ? 'secondary' : 'ghost'}
                     size="sm"
                     onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                    aria-label="Heading 1"
                 >
                     <Heading1 className="h-4 w-4" />
                 </Button>
@@ -193,6 +194,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}
                     title="Insert image"
+                    aria-label="Insert image"
                 >
                     {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
                 </Button>

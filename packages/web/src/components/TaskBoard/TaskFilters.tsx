@@ -7,7 +7,14 @@ import {
 } from '@jewellery-catalogue/types';
 import { Check } from 'lucide-react';
 
-import { Tabs, TabsList, TabsTrigger, UNDERLINE_TAB_CLASS, UNDERLINE_TAB_LIST_CLASS } from '@/components/ui/tabs';
+import {
+    FILTER_TAB_PROPS,
+    Tabs,
+    TabsList,
+    TabsTrigger,
+    UNDERLINE_TAB_CLASS,
+    UNDERLINE_TAB_LIST_CLASS,
+} from '@/components/ui/tabs';
 import { TASK_IMPORTANCE_LABELS, TASK_SUBJECT_LABELS } from '@/lib/boardLabels';
 import { cn } from '@/lib/utils';
 
@@ -26,11 +33,16 @@ const TaskFilters: React.FC<{
                 onValueChange={(v) => onSubjectFilterChange(v as TaskSubject | 'all')}
             >
                 <TabsList aria-label="Subject" className={UNDERLINE_TAB_LIST_CLASS}>
-                    <TabsTrigger value="all" className={UNDERLINE_TAB_CLASS}>
+                    <TabsTrigger value="all" className={UNDERLINE_TAB_CLASS} {...FILTER_TAB_PROPS}>
                         All ({tasks.length})
                     </TabsTrigger>
                     {taskSubjectEnum.options.map((subject) => (
-                        <TabsTrigger key={subject} value={subject} className={UNDERLINE_TAB_CLASS}>
+                        <TabsTrigger
+                            key={subject}
+                            value={subject}
+                            className={UNDERLINE_TAB_CLASS}
+                            {...FILTER_TAB_PROPS}
+                        >
                             {TASK_SUBJECT_LABELS[subject]} ({tasks.filter((t) => t.subject === subject).length})
                         </TabsTrigger>
                     ))}

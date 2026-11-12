@@ -2,7 +2,7 @@ import { useAuth } from '@imapps/web-utils';
 import type { Design } from '@jewellery-catalogue/types';
 import { Heart, MoreHorizontal, PackageOpen, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import makeDeleteDesignRequest from '../../api/endpoints/deleteDesign';
 import makeUpdateDesignRequest from '../../api/endpoints/updateDesign';
@@ -28,15 +28,9 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
     const etsyImageUrl = design.etsy?.imageUrls?.[0];
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const navigate = useNavigate();
     const { accessToken, login, logout } = useAuth();
 
-    const handleCardClick = () => {
-        navigate(VIEW_DESIGN_PAGE.getRoute(id), { state: { from: 'designs' } });
-    };
-
-    const handleFavoriteClick = async (e: React.MouseEvent) => {
-        e.stopPropagation();
+    const handleFavoriteClick = async () => {
         const nextFavourite = !favourite;
         await makeUpdateDesignRequest(id, { favourite: nextFavourite }, () => accessToken, login, logout);
         track(nextFavourite ? 'favourite_added' : 'favourite_removed', { designId: id });
@@ -68,7 +62,6 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
             <article
                 aria-labelledby={nameId}
                 className="relative flex w-full cursor-pointer flex-col overflow-hidden rounded-lg border bg-card text-card-foreground transition-colors hover:border-primary md:w-64"
-                onClick={handleCardClick}
             >
                 <div className="absolute right-2 top-2 z-10 flex gap-1">
                     <Button
@@ -88,12 +81,11 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
                                 size="icon"
                                 className="size-11 bg-card"
                                 aria-label={`More actions for ${name}`}
-                                onClick={(e) => e.stopPropagation()}
                             >
                                 <MoreHorizontal />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenuContent align="end">
                             <DropdownMenuItem onSelect={() => setEditDialogOpen(true)}>
                                 <PackageOpen /> Manage inventory
                             </DropdownMenuItem>
@@ -124,9 +116,15 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
                     )}
                 </div>
                 <div className="flex min-w-0 flex-col gap-1 p-3">
-                    <h3 id={nameId} className="truncate text-base font-semibold" title={name}>
-                        {name}
-                    </h3>
+                    <h2 id={nameId} className="truncate text-base font-semibold" title={name}>
+                        <Link
+                            to={VIEW_DESIGN_PAGE.getRoute(id)}
+                            state={{ from: 'designs' }}
+                            className="after:absolute after:inset-0 after:rounded-lg focus-visible:outline-none focus-visible:after:ring-[3px] focus-visible:after:ring-inset focus-visible:after:ring-primary"
+                        >
+                            {name}
+                        </Link>
+                    </h2>
                     <p className="text-sm text-muted-foreground">
                         <span className={outOfStock ? 'font-medium text-destructive' : undefined}>
                             {design.variants && design.variants.length > 0

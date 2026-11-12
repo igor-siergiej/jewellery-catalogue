@@ -1,4 +1,5 @@
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import { ResponsiveDialog } from '.';
@@ -75,5 +76,35 @@ describe('ResponsiveDialog', () => {
         expect(drawer).not.toBeNull();
         expect(drawer.className).toContain('overflow-hidden');
         expect(drawer.className).not.toContain('overflow-y-auto');
+    });
+
+    it('returns focus to the element that opened it', async () => {
+        setWidth(1024);
+
+        const Harness = () => {
+            const [open, setOpen] = useState(false);
+
+            return (
+                <>
+                    <button type="button" onClick={() => setOpen(true)}>
+                        Open
+                    </button>
+                    <ResponsiveDialog open={open} onOpenChange={setOpen} title="Edit design">
+                        <Body />
+                    </ResponsiveDialog>
+                </>
+            );
+        };
+
+        render(<Harness />);
+        const trigger = screen.getByRole('button', { name: 'Open' });
+        trigger.focus();
+        fireEvent.click(trigger);
+        await screen.findByRole('dialog');
+
+        fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+
+        await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+        await waitFor(() => expect(document.activeElement).toBe(trigger));
     });
 });
