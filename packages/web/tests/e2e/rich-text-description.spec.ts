@@ -27,15 +27,22 @@ test.describe.serial('Design description editor', () => {
         const dialog = page.getByRole('dialog', { name: 'Edit design' });
 
         const editor = dialog.locator('.ProseMirror');
+
+        // tiptap returns focus to the editor on a later frame; keys typed before then hit the button.
+        const format = async (name: string) => {
+            await dialog.getByRole('button', { name, exact: true }).click();
+            await expect(editor).toBeFocused();
+        };
+
         await editor.click();
-        await dialog.getByRole('button', { name: 'Heading 2' }).click();
+        await format('Heading 2');
         await page.keyboard.type('Care');
         await page.keyboard.press('Enter');
-        await dialog.getByRole('button', { name: 'Bold' }).click();
+        await format('Bold');
         await page.keyboard.type('Keep dry');
-        await dialog.getByRole('button', { name: 'Bold' }).click();
+        await format('Bold');
         await page.keyboard.press('Enter');
-        await dialog.getByRole('button', { name: 'Bullet list' }).click();
+        await format('Bullet list');
         await page.keyboard.type('Freshwater pearls');
         await page.keyboard.press('Enter');
         await page.keyboard.type('Sterling hooks');
