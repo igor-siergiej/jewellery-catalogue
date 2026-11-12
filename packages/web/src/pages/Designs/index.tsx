@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Fuse from 'fuse.js';
 import { FileEdit, Plus, ShoppingCart, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog';
 import { Badge } from '@/components/ui/badge';
@@ -36,15 +36,9 @@ import { canMakeLabel } from '../../utils/canMakeLabel';
 
 const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, onDeleted }) => {
     const { accessToken, login, logout } = useAuth();
-    const navigate = useNavigate();
     const [confirmOpen, setConfirmOpen] = useState(false);
 
-    const handleCardClick = () => {
-        navigate(`${ADD_DESIGN_PAGE.route}?draftId=${draft.id}`);
-    };
-
-    const handleDeleteClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
+    const handleDeleteClick = () => {
         setConfirmOpen(true);
     };
 
@@ -59,7 +53,6 @@ const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, o
             <Item
                 variant="outline"
                 className="w-full flex-col items-start bg-card relative cursor-pointer hover:border-primary"
-                onClick={handleCardClick}
             >
                 <div className="absolute top-2 right-2 z-10 flex gap-1">
                     <Button
@@ -85,7 +78,12 @@ const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, o
                         </Badge>
                     </div>
                     <ItemTitle className="text-lg font-semibold w-full whitespace-normal break-words">
-                        {draft.name}
+                        <Link
+                            to={`${ADD_DESIGN_PAGE.route}?draftId=${draft.id}`}
+                            className="after:absolute after:inset-0 after:rounded-lg focus-visible:outline-none focus-visible:after:ring-[3px] focus-visible:after:ring-inset focus-visible:after:ring-primary"
+                        >
+                            {draft.name}
+                        </Link>
                     </ItemTitle>
                     <ItemFooter className="flex items-center gap-1 w-full">
                         <span className="text-xs text-muted-foreground">

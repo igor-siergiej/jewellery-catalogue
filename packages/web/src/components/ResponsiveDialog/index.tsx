@@ -46,7 +46,9 @@ export function ResponsiveDialog({
         return (
             <Drawer open={open} onOpenChange={onOpenChange} shouldScaleBackground={false}>
                 <DrawerContent
-                    className="overflow-hidden"
+                    className="overflow-hidden focus:outline-none"
+                    // vaul skips Radix's autofocus (it would raise the phone keyboard), leaving focus behind the sheet; focus the sheet itself
+                    onOpenAutoFocus={(event) => (event.currentTarget as HTMLElement | null)?.focus()}
                     onCloseAutoFocus={restoreFocus}
                     style={{ maxHeight: 'min(90dvh, calc(100vh - env(keyboard-inset-height, 0px) - 2rem))' }}
                 >

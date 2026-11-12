@@ -2,7 +2,7 @@ import type { Locator, Page } from '@playwright/test';
 
 import { expect, test } from './fixtures';
 import { MOCK_TOKEN_KEYBOARD } from './mocks/auth';
-import { apiCreateBead, apiCreateDesign } from './utils/api-helpers';
+import { apiCreateBead, apiCreateDesign, apiCreateDraft } from './utils/api-helpers';
 
 const TOKEN = MOCK_TOKEN_KEYBOARD;
 
@@ -157,10 +157,112 @@ test.describe('Keyboard', () => {
         const drawer = page.locator('[data-vaul-drawer]');
         await expect(drawer).toBeVisible();
         await expect(drawer.getByRole('heading', { name: 'Stock for Amethyst Drops' })).toBeVisible();
+        await expect(drawer).toBeFocused();
 
         await page.keyboard.press('Escape');
 
         await expect(drawer).toBeHidden();
         await expect(trigger).toBeFocused();
+    });
+
+    test('Tab reaches a draft card link on the Designs page and Enter opens the draft', async ({
+        authenticatedPage: page,
+    }) => {
+        const draft = await apiCreateDraft(TOKEN, { name: 'Unfinished Hoops', type: 'design', data: {} });
+        await page.goto('/designs');
+        await expect(page.getByRole('link', { name: 'Unfinished Hoops' })).toBeVisible();
+
+        await tabTo(page, 'main a[href*="draftId"]');
+
+        await expect(page.locator(':focus')).toHaveText('Unfinished Hoops');
+        await page.keyboard.press('Enter');
+        await expect(page).toHaveURL(new RegExp(`/addDesign\\?draftId=${draft.id}`));
+    });
+
+    test.describe('dialogs opened from a menu', () => {
+        const openMenuItem = async (page: Page, trigger: Locator, item: string) => {
+            await trigger.focus();
+            await page.keyboard.press('Enter');
+            const items = page.getByRole('menuitem');
+            await expect(items.first()).toBeFocused();
+            const names = (await items.allInnerTexts()).map((name) => name.trim());
+
+            for (let i = 1; i <= names.indexOf(item); i++) {
+                await page.keyboard.press('ArrowDown');
+                await expect(items.nth(i)).toBeFocused();
+            }
+
+            await page.keyboard.press('Enter');
+        };
+
+        test('Manage inventory from a design card returns focus to More actions', async ({
+            authenticatedPage: page,
+        }) => {
+            await seed();
+            await page.goto('/designs');
+            const trigger = page.getByRole('button', { name: 'More actions for Amethyst Drops' });
+
+            await openMenuItem(page, trigger, 'Manage inventory');
+            await expect(page.getByRole('dialog', { name: 'Stock for Amethyst Drops' })).toBeVisible();
+            await page.keyboard.press('Escape');
+
+            await expect(page.getByRole('dialog')).toBeHidden();
+            await expect(trigger).toBeFocused();
+        });
+
+        test('Manage inventory from a design card on a phone returns focus to More actions', async ({
+            authenticatedPage: page,
+        }) => {
+            await seed();
+            await page.setViewportSize({ width: 412, height: 915 });
+            await page.goto('/designs');
+            const trigger = page.getByRole('button', { name: 'More actions for Amethyst Drops' });
+
+            await openMenuItem(page, trigger, 'Manage inventory');
+            await expect(page.locator('[data-vaul-drawer]')).toBeVisible();
+            await page.keyboard.press('Escape');
+
+            await expect(page.locator('[data-vaul-drawer]')).toBeHidden();
+            await expect(trigger).toBeFocused();
+        });
+
+        test('Delete from a design card returns focus to More actions', async ({ authenticatedPage: page }) => {
+            await seed();
+            await page.goto('/designs');
+            const trigger = page.getByRole('button', { name: 'More actions for Amethyst Drops' });
+
+            await openMenuItem(page, trigger, 'Delete');
+            await expect(page.getByRole('alertdialog')).toBeVisible();
+            await page.keyboard.press('Escape');
+
+            await expect(page.getByRole('alertdialog')).toBeHidden();
+            await expect(trigger).toBeFocused();
+        });
+
+        test('Edit from a material row returns focus to More actions', async ({ authenticatedPage: page }) => {
+            await seed();
+            await page.goto('/materials');
+            const trigger = page.getByRole('button', { name: 'More actions for Amethyst Bead' });
+
+            await openMenuItem(page, trigger, 'Edit');
+            await expect(page.getByRole('dialog')).toBeVisible();
+            await page.keyboard.press('Escape');
+
+            await expect(page.getByRole('dialog')).toBeHidden();
+            await expect(trigger).toBeFocused();
+        });
+
+        test('Delete from a material row returns focus to More actions', async ({ authenticatedPage: page }) => {
+            await seed();
+            await page.goto('/materials');
+            const trigger = page.getByRole('button', { name: 'More actions for Amethyst Bead' });
+
+            await openMenuItem(page, trigger, 'Delete');
+            await expect(page.getByRole('alertdialog')).toBeVisible();
+            await page.keyboard.press('Escape');
+
+            await expect(page.getByRole('alertdialog')).toBeHidden();
+            await expect(trigger).toBeFocused();
+        });
     });
 });
