@@ -383,7 +383,7 @@ const Settings = () => {
                         maxWidth="max-w-[140px]"
                         suffix="×"
                         step="0.1"
-                        disabled={pricingBusy}
+                        disabled={pricingLoading || pricingBusy}
                         value={localMarkupMultiplier}
                         onChange={setLocalMarkupMultiplier}
                     />
@@ -394,7 +394,7 @@ const Settings = () => {
                         prefix="£"
                         suffix="/hr"
                         step="0.50"
-                        disabled={pricingBusy}
+                        disabled={pricingLoading || pricingBusy}
                         value={localHourlyRate}
                         onChange={setLocalHourlyRate}
                     />
