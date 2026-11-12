@@ -123,3 +123,6 @@ export async function mockAuthRoutes(page: Page, token = MOCK_TOKEN) {
 }
 
 export const MOCK_TOKEN_DESIGN_TOKENS = makeMockToken('68c6f0f5b97c946129015180'); // design-tokens.spec
+
+export const MOCK_TOKEN_A11Y = makeMockToken('68c6f0f5b97c946129015190'); // a11y.spec
+export const MOCK_TOKEN_KEYBOARD = makeMockToken('68c6f0f5b97c946129015191'); // keyboard.spec
