@@ -1,6 +1,6 @@
 import { useAuth } from '@imapps/web-utils';
 import { DesignType } from '@jewellery-catalogue/types';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertCircle, CheckCircle2, ExternalLink, Loader2 } from 'lucide-react';
 import { type FormEvent, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -66,6 +66,11 @@ const Settings = () => {
         isLoading: pricingLoading,
     } = useUserSettings();
 
+    const { data: cachedDesigns } = useQuery({
+        ...getDesignsQuery(() => accessToken, login, logout),
+        enabled: !!accessToken,
+    });
+
     const { options: taxonomyOptions, isLoading: taxonomyLoading } = useEtsyTaxonomy(connected);
     const { profiles: shippingProfiles, isLoading: shippingProfilesLoading } = useEtsyShippingProfiles(connected);
 
@@ -84,6 +89,7 @@ const Settings = () => {
     const [pricingError, setPricingError] = useState('');
     const [pricingAction, setPricingAction] = useState<'save' | 'recalculate' | null>(null);
     const [recalculateResult, setRecalculateResult] = useState<{ updated: number; total: number } | null>(null);
+    const [countWarning, setCountWarning] = useState(false);
     const [pendingPriceUpdate, setPendingPriceUpdate] = useState<{ count: number } | null>(null);
     const pricingBusy = pricingStatus === 'saving' || pricingStatus === 'recalculating';
 
@@ -176,6 +182,11 @@ const Settings = () => {
         }
     };
 
+    const fetchDesignCount = () =>
+        queryClient
+            .fetchQuery({ ...getDesignsQuery(() => accessToken, login, logout), staleTime: 0 })
+            .then((designs) => designs.length);
+
     const handleSave = async (event: FormEvent) => {
         event.preventDefault();
 
@@ -184,21 +195,45 @@ const Settings = () => {
 
         if (Number.isNaN(wage) || Number.isNaN(margin)) return;
 
+        setCountWarning(false);
+
         if (wage === hourlyWage && margin === profitMargin) {
             await handleSavePricing(false);
 
             return;
         }
 
-        const designs = await queryClient.ensureQueryData(getDesignsQuery(() => accessToken, login, logout));
+        let count: number;
 
-        if (designs.length === 0) {
+        try {
+            count = await fetchDesignCount();
+        } catch {
+            await handleSavePricing(false);
+            setCountWarning(true);
+
+            return;
+        }
+
+        if (count === 0) {
             await handleSavePricing(false);
 
             return;
         }
 
-        setPendingPriceUpdate({ count: designs.length });
+        setPendingPriceUpdate({ count });
+    };
+
+    const handleUpdateAllPrices = async () => {
+        setCountWarning(false);
+
+        try {
+            const count = await fetchDesignCount();
+
+            if (count > 0) setPendingPriceUpdate({ count });
+        } catch {
+            setPricingError("Couldn't count your designs. Try again.");
+            setPricingStatus('error');
+        }
     };
 
     const shippingProfileLabel =
@@ -370,6 +405,15 @@ const Settings = () => {
                             </InputGroupAddon>
                         </InputGroup>
                     </div>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        className="min-h-11 md:min-h-9"
+                        disabled={pricingBusy || cachedDesigns?.length === 0}
+                        onClick={handleUpdateAllPrices}
+                    >
+                        Update all design prices
+                    </Button>
                 </FormSection>
 
                 {connected && (
@@ -507,6 +551,11 @@ const Settings = () => {
                     {pricingStatus === 'success' && pricingAction === 'save' && (
                         <p role="status" className="text-sm text-success">
                             Saved.
+                        </p>
+                    )}
+                    {countWarning && (
+                        <p role="alert" className="text-sm text-destructive">
+                            Couldn't count your designs, settings saved without updating prices.
                         </p>
                     )}
                     {pricingStatus === 'error' && (

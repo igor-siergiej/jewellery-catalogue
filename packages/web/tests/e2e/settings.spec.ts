@@ -136,6 +136,53 @@ test.describe.serial('Settings', () => {
         expect(await getSettings()).toMatchObject({ markupMultiplier: 3 });
     });
 
+    test('Update all design prices reprices without changing the form', async ({ authenticatedPage: page }) => {
+        await apiSetUserSettings(TOKEN, { hourlyWage: 20, profitMargin: 50 });
+        const bead = await apiCreateBead(TOKEN, { name: 'Standalone Bead', quantity: 100, pricePerPack: 5 });
+        await apiCreateDesign(TOKEN, {
+            name: 'Standalone Ring',
+            timeRequired: '0:30',
+            materials: [{ ...bead, requiredQuantity: 10 }],
+            totalMaterialCosts: 0.5,
+            price: 1,
+        });
+        await page.goto('/settings');
+
+        await page.getByRole('button', { name: 'Update all design prices' }).click();
+        await page
+            .getByRole('alertdialog', { name: 'Update prices for 1 design?' })
+            .getByRole('button', { name: 'Update prices' })
+            .click();
+        await expect(page.getByText('Updated 1 of 1 design')).toBeVisible();
+
+        // (£0.50 materials + 30 min × £20) × 1.5
+        const [design] = await apiGetDesigns(TOKEN);
+        expect(design.price).toBe(15.75);
+    });
+
+    test('Update all design prices is disabled with no designs', async ({ authenticatedPage: page }) => {
+        await page.goto('/settings');
+
+        await expect(page.getByRole('button', { name: 'Update all design prices' })).toBeDisabled();
+    });
+
+    test('Save still saves when the designs count cannot be fetched', async ({ authenticatedPage: page }) => {
+        await apiSetUserSettings(TOKEN, { hourlyWage: 10, profitMargin: 10 });
+        await page.route(/\/api\/designs$/, (route) =>
+            route.request().method() === 'GET' ? route.fulfill({ status: 500, json: {} }) : route.fallback()
+        );
+        await page.goto('/settings');
+
+        await page.getByLabel('Hourly wage').fill('25');
+        await page.getByRole('button', { name: 'Save', exact: true }).click();
+
+        await expect(
+            page.getByText("Couldn't count your designs, settings saved without updating prices.")
+        ).toBeVisible();
+        await expect(page.getByRole('alertdialog')).toHaveCount(0);
+        expect(await getSettings()).toMatchObject({ hourlyWage: 25 });
+    });
+
     test('connect Etsy goes to the authorisation URL', async ({ authenticatedPage: page }) => {
         await page.route('**/api/etsy/connection', (route) => route.fulfill({ json: { connected: false } }));
         await page.route('**/api/etsy/oauth/start', (route) =>
