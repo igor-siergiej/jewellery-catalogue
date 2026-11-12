@@ -62,4 +62,24 @@ test.describe('Design tokens and base styles', () => {
         expect(result.hasDarkClass).toBe(false);
         expect(result.darkSelectors).toEqual([]);
     });
+
+    test('focus ring survives shadow-xs on a keyboard-focused control', async ({ authenticatedPage: page }) => {
+        await page.goto('/home');
+        await page.waitForLoadState('networkidle');
+        await page.keyboard.press('Tab');
+
+        const boxShadow = await page.evaluate(() => {
+            const el = document.createElement('button');
+
+            el.className = 'shadow-xs focus-visible:ring-[3px] focus-visible:ring-ring/50';
+            el.textContent = 'probe';
+            document.body.append(el);
+            el.focus();
+
+            return getComputedStyle(el).boxShadow;
+        });
+
+        expect(boxShadow).not.toBe('none');
+        expect(boxShadow).toMatch(/rgb/);
+    });
 });

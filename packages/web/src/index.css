@@ -117,10 +117,10 @@
     --letter-spacing: 0rem;
     --spacing: 0.25rem;
     --shadow-elevation: 0px 8px 24px -4px rgb(14 25 71 / 0.16), 0px 2px 6px -2px rgb(14 25 71 / 0.1);
-    --shadow-2xs: none;
-    --shadow-xs: none;
-    --shadow-sm: none;
-    --shadow: none;
+    --shadow-2xs: 0 0 #0000;
+    --shadow-xs: 0 0 #0000;
+    --shadow-sm: 0 0 #0000;
+    --shadow: 0 0 #0000;
     --shadow-md: var(--shadow-elevation);
     --shadow-lg: var(--shadow-elevation);
     --shadow-xl: var(--shadow-elevation);
