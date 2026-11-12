@@ -2,20 +2,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@imapps/web-utils';
 import { type FormMaterial, formMaterialSchema, MaterialType } from '@jewellery-catalogue/types';
 import { Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useSearchParams } from 'react-router-dom';
 
 import { MaterialForm } from '@/components/MaterialForm';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
-import { DRAFTS_ENDPOINT } from '../../api/endpoints';
 import makeAddMaterialRequest from '../../api/endpoints/addMaterial';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-import { useDraftStatus } from '../../context/DraftStatus';
-import { useDraftAutosave } from '../../hooks/useDraftAutosave';
+import { useDraftPage } from '../../hooks/useDraftPage';
 
 const AddMaterial = () => {
     const form = useForm({
@@ -31,44 +28,18 @@ const AddMaterial = () => {
     });
 
     const [isMakingRequest, setIsMakingRequest] = useState(false);
-    const [isLoadingDraft, setIsLoadingDraft] = useState(false);
     const { accessToken, login, logout } = useAuth();
     const { dispatch } = useAlert();
-    const { setDraftStatus, clearDraftStatus } = useDraftStatus();
-    const [searchParams] = useSearchParams();
-    const draftIdParam = searchParams.get('draftId');
 
-    const { deleteAndClearDraft } = useDraftAutosave({
+    const { isLoadingDraft, deleteAndClearDraft } = useDraftPage({
         form,
         type: 'material',
-        initialDraftId: draftIdParam,
-        getAccessToken: () => accessToken,
-        onTokenRefresh: login,
-        onTokenClear: logout,
-        onStatusChange: setDraftStatus,
+        onLoaded: (draft) => {
+            if (draft.data) {
+                form.reset(draft.data as FormMaterial);
+            }
+        },
     });
-
-    // Clear header status when leaving this page
-    useEffect(() => () => clearDraftStatus(), [clearDraftStatus]);
-
-    // Load draft on mount if draftId param present
-    useEffect(() => {
-        if (!draftIdParam || !accessToken) return;
-
-        setIsLoadingDraft(true);
-
-        fetch(`${DRAFTS_ENDPOINT}/${draftIdParam}`, {
-            headers: { Authorization: `Bearer ${accessToken}` },
-        })
-            .then((res) => res.json())
-            .then((draft) => {
-                if (draft?.data) {
-                    form.reset(draft.data);
-                }
-            })
-            .catch(() => {})
-            .finally(() => setIsLoadingDraft(false));
-    }, [draftIdParam, accessToken, form.reset]);
 
     const onSubmit = async (data: FormMaterial) => {
         setIsMakingRequest(true);

@@ -1,9 +1,9 @@
 import { useAuth } from '@imapps/web-utils';
 import type { Draft } from '@jewellery-catalogue/types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { FileEdit, Plus, ShoppingCart, Trash2 } from 'lucide-react';
+import { FileEdit, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog';
 import { Badge } from '@/components/ui/badge';
@@ -12,9 +12,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 
 import { getDraftsQuery, makeDeleteDraftRequest } from '../../api/endpoints/drafts';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
+import { ListPageHeader } from '../../components/ListPageHeader';
 import MaterialsTable from '../../components/MaterialsTable';
 import { StateView } from '../../components/StateView';
-import { ADD_MATERIAL_PAGE, SHOPPING_LIST_PAGE } from '../../constants/routes';
+import { ADD_MATERIAL_PAGE } from '../../constants/routes';
 
 const DraftsTable: React.FC<{ drafts: Array<Draft>; onDeleted: () => void }> = ({ drafts, onDeleted }) => {
     const { accessToken, login, logout } = useAuth();
@@ -130,21 +131,7 @@ const Materials = () => {
 
     return (
         <div className="space-y-4 p-4 md:p-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <h1 className="font-display text-3xl font-semibold">Materials</h1>
-                <div className="flex flex-wrap items-center gap-2">
-                    <Button asChild variant="outline">
-                        <Link to={SHOPPING_LIST_PAGE.route}>
-                            <ShoppingCart /> Shopping list
-                        </Link>
-                    </Button>
-                    <Button asChild>
-                        <Link to={ADD_MATERIAL_PAGE.route}>
-                            <Plus /> Add material
-                        </Link>
-                    </Button>
-                </div>
-            </div>
+            <ListPageHeader title="Materials" addLabel="Add material" addRoute={ADD_MATERIAL_PAGE.route} />
             {drafts && drafts.length > 0 && <DraftsTable drafts={drafts} onDeleted={handleDraftDeleted} />}
             <MaterialsTable materials={data} onMaterialUpdated={() => refetch()} />
         </div>

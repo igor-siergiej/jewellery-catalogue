@@ -1,13 +1,10 @@
 import { type Goal, type GoalSource, goalSourceEnum } from '@jewellery-catalogue/types';
-import type { FormEvent } from 'react';
 
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { GOAL_SOURCE_LABELS } from '@/lib/boardLabels';
+
+import { BoardFormShell, DateField, Field, TitleField, useFormSet } from '../BoardForm';
 
 export interface GoalFormValues {
     title: string;
@@ -39,12 +36,13 @@ export const goalToFormValues = (goal: Goal): GoalFormValues => ({
 export const canSubmitGoal = (values: GoalFormValues) =>
     !!values.title.trim() && !!values.targetValue && Number(values.targetValue) > 0;
 
-const Field = ({ id, label, children }: { id: string; label: string; children: React.ReactNode }) => (
-    <div className="space-y-1.5">
-        <Label htmlFor={id}>{label}</Label>
-        {children}
-    </div>
-);
+export const goalToPayload = (values: GoalFormValues, target: number) => ({
+    title: values.title.trim(),
+    targetValue: target,
+    unit: values.unit.trim() || undefined,
+    source: values.source,
+    targetDate: values.targetDate,
+});
 
 /** The goal fields shared by the Add goal and Edit goal dialogs. The dialog owns the values and the submit. */
 const GoalForm: React.FC<{
@@ -54,25 +52,16 @@ const GoalForm: React.FC<{
     onChange: (values: GoalFormValues) => void;
     onSubmit: () => void;
 }> = ({ formId, mode, values, onChange, onSubmit }) => {
-    const set = <K extends keyof GoalFormValues>(key: K, value: GoalFormValues[K]) =>
-        onChange({ ...values, [key]: value });
-
-    const handleSubmit = (event: FormEvent) => {
-        event.preventDefault();
-        onSubmit();
-    };
+    const set = useFormSet(values, onChange);
 
     return (
-        <form id={formId} onSubmit={handleSubmit} noValidate className="space-y-4">
-            <Field id={`${formId}-title`} label="Title">
-                <Input
-                    id={`${formId}-title`}
-                    required
-                    placeholder="What you want to reach"
-                    value={values.title}
-                    onChange={(e) => set('title', e.target.value)}
-                />
-            </Field>
+        <BoardFormShell formId={formId} onSubmit={onSubmit}>
+            <TitleField
+                formId={formId}
+                placeholder="What you want to reach"
+                value={values.title}
+                onChange={(v) => set('title', v)}
+            />
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field id={`${formId}-target`} label="Target">
@@ -122,24 +111,13 @@ const GoalForm: React.FC<{
                 </Select>
             </Field>
 
-            <Field id={`${formId}-date`} label="Target date">
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button
-                            id={`${formId}-date`}
-                            type="button"
-                            variant="outline"
-                            className="min-h-11 w-full justify-start font-normal md:min-h-9"
-                        >
-                            {values.targetDate ? values.targetDate.toLocaleDateString() : 'Optional'}
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                        <Calendar mode="single" selected={values.targetDate} onSelect={(d) => set('targetDate', d)} />
-                    </PopoverContent>
-                </Popover>
-            </Field>
-        </form>
+            <DateField
+                id={`${formId}-date`}
+                label="Target date"
+                value={values.targetDate}
+                onChange={(d) => set('targetDate', d)}
+            />
+        </BoardFormShell>
     );
 };
 

@@ -98,11 +98,8 @@ export const waitForAuthServices = async (page: Page) => {
     console.log('✅ All services are ready');
 };
 
-/**
- * Performs a complete user registration flow
- */
-export const registerUser = async (page: Page, username: string, password: string) => {
-    await page.goto('/register');
+const submitCredentials = async (page: Page, path: string, username: string, password: string) => {
+    await page.goto(path);
     await page.waitForLoadState('networkidle');
 
     // Wait for form to render
@@ -115,24 +112,18 @@ export const registerUser = async (page: Page, username: string, password: strin
     // Wait for navigation to home page (using regex pattern)
     await page.waitForURL(/\/home$/, { timeout: 15000 });
 };
+
+/**
+ * Performs a complete user registration flow
+ */
+export const registerUser = (page: Page, username: string, password: string) =>
+    submitCredentials(page, '/register', username, password);
 
 /**
  * Performs a complete user login flow
  */
-export const loginUser = async (page: Page, username: string, password: string) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-
-    // Wait for form to render
-    await page.waitForSelector('input[name="username"]', { timeout: 10000 });
-
-    await page.fill('input[name="username"]', username);
-    await page.fill('input[name="password"]', password);
-    await page.click('button[type="submit"]');
-
-    // Wait for navigation to home page (using regex pattern)
-    await page.waitForURL(/\/home$/, { timeout: 15000 });
-};
+export const loginUser = (page: Page, username: string, password: string) =>
+    submitCredentials(page, '/', username, password);
 
 /**
  * Test credentials that meet validation requirements

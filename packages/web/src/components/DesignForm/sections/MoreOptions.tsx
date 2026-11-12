@@ -6,12 +6,12 @@ import type { UseFormReturn } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 
 import { useUserSettings } from '../../../hooks/useUserSettings';
 import { cn } from '../../../lib/utils';
 import { FormSection } from '../../FormSection';
 import MakerDocsSection from '../../MakerDocsSection';
+import { OptionalNumberInput } from '../../OptionalNumberInput';
 import RichTextEditor from '../../RichTextEditor';
 import { VariationGroupBuilder } from '../../VariationGroupBuilder';
 import { hasMoreOptionsData } from '../moreOptions';
@@ -115,18 +115,10 @@ export function MoreOptions({ form, materials }: MoreOptionsProps) {
                             <FormItem>
                                 <FormLabel>Low stock threshold</FormLabel>
                                 <FormControl>
-                                    <Input
+                                    <OptionalNumberInput
                                         placeholder="e.g., 5"
                                         className="max-w-[160px]"
-                                        type="number"
-                                        step="1"
-                                        min="0"
-                                        {...field}
-                                        value={field.value ?? ''}
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-                                            field.onChange(value === '' ? undefined : Number(value));
-                                        }}
+                                        field={field}
                                     />
                                 </FormControl>
                                 <FormDescription>Alert when finished items drop below this quantity</FormDescription>

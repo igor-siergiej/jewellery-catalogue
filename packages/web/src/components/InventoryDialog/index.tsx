@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 
 import { getMaterialsQuery } from '@/api/endpoints/getMaterials';
 import makeUpdateDesignRequest from '@/api/endpoints/updateDesign';
+import { OptionalNumberInput } from '@/components/OptionalNumberInput';
 import { ResponsiveDialog } from '@/components/ResponsiveDialog';
 import { StateView } from '@/components/StateView';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -393,19 +394,11 @@ const InventoryDialogContent: React.FC<InventoryDialogProps> = ({ design, open, 
                                         <FormItem>
                                             <FormLabel>Quantity to produce</FormLabel>
                                             <FormControl>
-                                                <Input
+                                                <OptionalNumberInput
                                                     className="w-40"
-                                                    type="number"
-                                                    step="1"
-                                                    min="0"
                                                     max={maxCanProduce}
                                                     placeholder="0"
-                                                    {...field}
-                                                    value={field.value ?? ''}
-                                                    onChange={(e) => {
-                                                        const value = e.target.value;
-                                                        field.onChange(value === '' ? undefined : Number(value));
-                                                    }}
+                                                    field={field}
                                                 />
                                             </FormControl>
                                             <FormDescription>

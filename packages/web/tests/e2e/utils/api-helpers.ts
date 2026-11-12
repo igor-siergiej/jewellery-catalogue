@@ -20,24 +20,28 @@ const authHeaders = (token: string) => ({
     Authorization: `Bearer ${token}`,
 });
 
-export async function apiGetMaterials(token: string): Promise<Material[]> {
-    const res = await fetch(`${getApiUrl()}/api/materials`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
+async function getJson<T>(token: string, path: string, label: string): Promise<T> {
+    const res = await fetch(`${getApiUrl()}${path}`, { headers: { Authorization: `Bearer ${token}` } });
 
-    if (!res.ok) throw new Error(`apiGetMaterials failed: ${await res.text()}`);
+    if (!res.ok) throw new Error(`${label} failed: ${await res.text()}`);
 
     return res.json();
 }
 
-export async function apiDeleteMaterial(token: string, id: string): Promise<void> {
-    const res = await fetch(`${getApiUrl()}/api/materials/${id}`, {
+async function deleteResource(token: string, path: string, label: string): Promise<void> {
+    const res = await fetch(`${getApiUrl()}${path}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
     });
 
-    if (!res.ok && res.status !== 404) throw new Error(`apiDeleteMaterial failed: ${await res.text()}`);
+    if (!res.ok && res.status !== 404) throw new Error(`${label} failed: ${await res.text()}`);
 }
+
+export const apiGetMaterials = (token: string): Promise<Material[]> =>
+    getJson<Material[]>(token, '/api/materials', 'apiGetMaterials');
+
+export const apiDeleteMaterial = (token: string, id: string): Promise<void> =>
+    deleteResource(token, `/api/materials/${id}`, 'apiDeleteMaterial');
 
 export async function apiCreateBead(
     token: string,
@@ -75,24 +79,11 @@ export async function apiCreateBead(
     return res.json();
 }
 
-export async function apiGetDesigns(token: string): Promise<Design[]> {
-    const res = await fetch(`${getApiUrl()}/api/designs`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
+export const apiGetDesigns = (token: string): Promise<Design[]> =>
+    getJson<Design[]>(token, '/api/designs', 'apiGetDesigns');
 
-    if (!res.ok) throw new Error(`apiGetDesigns failed: ${await res.text()}`);
-
-    return res.json();
-}
-
-export async function apiDeleteDesign(token: string, id: string): Promise<void> {
-    const res = await fetch(`${getApiUrl()}/api/designs/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!res.ok && res.status !== 404) throw new Error(`apiDeleteDesign failed: ${await res.text()}`);
-}
+export const apiDeleteDesign = (token: string, id: string): Promise<void> =>
+    deleteResource(token, `/api/designs/${id}`, 'apiDeleteDesign');
 
 export async function apiUploadImage(
     token: string,
@@ -224,14 +215,8 @@ export async function apiCreateTask(
     return res.json();
 }
 
-export async function apiDeleteTask(token: string, id: string): Promise<void> {
-    const res = await fetch(`${getApiUrl()}/api/tasks/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!res.ok && res.status !== 404) throw new Error(`apiDeleteTask failed: ${await res.text()}`);
-}
+export const apiDeleteTask = (token: string, id: string): Promise<void> =>
+    deleteResource(token, `/api/tasks/${id}`, 'apiDeleteTask');
 
 export async function apiCreateGoal(
     token: string,
@@ -254,40 +239,22 @@ export async function apiCreateGoal(
     return res.json();
 }
 
-export async function apiDeleteGoal(token: string, id: string): Promise<void> {
-    const res = await fetch(`${getApiUrl()}/api/goals/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!res.ok && res.status !== 404) throw new Error(`apiDeleteGoal failed: ${await res.text()}`);
-}
+export const apiDeleteGoal = (token: string, id: string): Promise<void> =>
+    deleteResource(token, `/api/goals/${id}`, 'apiDeleteGoal');
 
 export async function apiCleanupBoard(token: string): Promise<void> {
-    const getJson = async (path: string): Promise<{ id: string }[]> => {
-        const res = await fetch(`${getApiUrl()}${path}`, { headers: { Authorization: `Bearer ${token}` } });
+    const [tasks, goals] = await Promise.all([
+        getJson<{ id: string }[]>(token, '/api/tasks', 'GET /api/tasks'),
+        getJson<{ id: string }[]>(token, '/api/goals', 'GET /api/goals'),
+    ]);
 
-        if (!res.ok) throw new Error(`GET ${path} failed: ${await res.text()}`);
-
-        return res.json();
-    };
-
-    const [tasks, goals] = await Promise.all([getJson('/api/tasks'), getJson('/api/goals')]);
     await Promise.all([
         ...tasks.map((t) => apiDeleteTask(token, t.id)),
         ...goals.map((g) => apiDeleteGoal(token, g.id)),
     ]);
 }
 
-export async function apiGetDrafts(token: string): Promise<Draft[]> {
-    const res = await fetch(`${getApiUrl()}/api/drafts`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!res.ok) throw new Error(`apiGetDrafts failed: ${await res.text()}`);
-
-    return res.json();
-}
+export const apiGetDrafts = (token: string): Promise<Draft[]> => getJson<Draft[]>(token, '/api/drafts', 'apiGetDrafts');
 
 export async function apiCreateDraft(
     token: string,
@@ -315,14 +282,8 @@ export async function apiCreateDraft(
     return update.json();
 }
 
-export async function apiDeleteDraft(token: string, id: string): Promise<void> {
-    const res = await fetch(`${getApiUrl()}/api/drafts/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!res.ok && res.status !== 404) throw new Error(`apiDeleteDraft failed: ${await res.text()}`);
-}
+export const apiDeleteDraft = (token: string, id: string): Promise<void> =>
+    deleteResource(token, `/api/drafts/${id}`, 'apiDeleteDraft');
 
 export async function apiSetUserSettings(
     token: string,

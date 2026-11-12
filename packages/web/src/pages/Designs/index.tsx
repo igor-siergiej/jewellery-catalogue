@@ -2,7 +2,7 @@ import { useAuth } from '@imapps/web-utils';
 import { DesignType, type Draft } from '@jewellery-catalogue/types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Fuse from 'fuse.js';
-import { FileEdit, Plus, ShoppingCart, Trash2 } from 'lucide-react';
+import { FileEdit, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 
@@ -23,8 +23,9 @@ import {
 import { getDraftsQuery, makeDeleteDraftRequest } from '../../api/endpoints/drafts';
 import { getDesignsQuery } from '../../api/endpoints/getDesigns';
 import { DesignCard } from '../../components/DesignCard';
+import { ListPageHeader } from '../../components/ListPageHeader';
 import { StateView } from '../../components/StateView';
-import { ADD_DESIGN_PAGE, SHOPPING_LIST_PAGE } from '../../constants/routes';
+import { ADD_DESIGN_PAGE } from '../../constants/routes';
 import { useSearch } from '../../context/SearchContext';
 import { PRODUCIBLE_QUERY_KEY, useProducible } from '../../hooks/useProducible';
 import { useSearchAnalytics } from '../../hooks/useSearchAnalytics';
@@ -192,21 +193,7 @@ const Designs = () => {
 
     return (
         <div className="space-y-4 p-4 md:p-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <h1 className="font-display text-3xl font-semibold">Designs</h1>
-                <div className="flex flex-wrap items-center gap-2">
-                    <Button asChild variant="outline">
-                        <Link to={SHOPPING_LIST_PAGE.route}>
-                            <ShoppingCart /> Shopping list
-                        </Link>
-                    </Button>
-                    <Button asChild>
-                        <Link to={ADD_DESIGN_PAGE.route}>
-                            <Plus /> Add design
-                        </Link>
-                    </Button>
-                </div>
-            </div>
+            <ListPageHeader title="Designs" addLabel="Add design" addRoute={ADD_DESIGN_PAGE.route} />
 
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <Tabs

@@ -34,6 +34,43 @@ import { getDefaultTaxonomyId } from '../../utils/getDefaultTaxonomyId';
 
 const AUTO_SHIPPING = 'auto';
 
+interface NumberFieldProps {
+    id: string;
+    label: string;
+    maxWidth: string;
+    prefix?: string;
+    suffix: string;
+    step: string;
+    disabled: boolean;
+    value: number | '';
+    onChange: (value: number | '') => void;
+}
+
+const NumberField = ({ id, label, maxWidth, prefix, suffix, step, disabled, value, onChange }: NumberFieldProps) => (
+    <div className="space-y-1.5">
+        <Label htmlFor={id}>{label}</Label>
+        <InputGroup className={maxWidth}>
+            {prefix && (
+                <InputGroupAddon align="inline-start">
+                    <InputGroupText>{prefix}</InputGroupText>
+                </InputGroupAddon>
+            )}
+            <InputGroupInput
+                id={id}
+                type="number"
+                min="0"
+                step={step}
+                disabled={disabled}
+                value={value}
+                onChange={(e) => onChange(e.target.value === '' ? '' : parseFloat(e.target.value))}
+            />
+            <InputGroupAddon align="inline-end">
+                <InputGroupText>{suffix}</InputGroupText>
+            </InputGroupAddon>
+        </InputGroup>
+    </div>
+);
+
 const Settings = () => {
     const { accessToken, login, logout } = useAuth();
     const queryClient = useQueryClient();
@@ -319,86 +356,48 @@ const Settings = () => {
                     title="Pricing"
                     description="Used to work out design prices. Private, never shown on Etsy."
                 >
-                    <div className="space-y-1.5">
-                        <Label htmlFor="hourly-wage">Hourly wage</Label>
-                        <InputGroup className="max-w-[160px]">
-                            <InputGroupAddon align="inline-start">
-                                <InputGroupText>£</InputGroupText>
-                            </InputGroupAddon>
-                            <InputGroupInput
-                                id="hourly-wage"
-                                type="number"
-                                min="0"
-                                step="0.50"
-                                disabled={pricingLoading}
-                                value={localWage}
-                                onChange={(e) => setLocalWage(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                            />
-                            <InputGroupAddon align="inline-end">
-                                <InputGroupText>/hr</InputGroupText>
-                            </InputGroupAddon>
-                        </InputGroup>
-                    </div>
-                    <div className="space-y-1.5">
-                        <Label htmlFor="profit-margin">Profit margin</Label>
-                        <InputGroup className="max-w-[140px]">
-                            <InputGroupInput
-                                id="profit-margin"
-                                type="number"
-                                min="0"
-                                step="1"
-                                disabled={pricingLoading}
-                                value={localMargin}
-                                onChange={(e) =>
-                                    setLocalMargin(e.target.value === '' ? '' : parseFloat(e.target.value))
-                                }
-                            />
-                            <InputGroupAddon align="inline-end">
-                                <InputGroupText>%</InputGroupText>
-                            </InputGroupAddon>
-                        </InputGroup>
-                    </div>
-                    <div className="space-y-1.5">
-                        <Label htmlFor="markup-multiplier">Etsy price suggestion: markup multiplier</Label>
-                        <InputGroup className="max-w-[140px]">
-                            <InputGroupInput
-                                id="markup-multiplier"
-                                type="number"
-                                min="0"
-                                step="0.1"
-                                disabled={pricingBusy}
-                                value={localMarkupMultiplier}
-                                onChange={(e) =>
-                                    setLocalMarkupMultiplier(e.target.value === '' ? '' : parseFloat(e.target.value))
-                                }
-                            />
-                            <InputGroupAddon align="inline-end">
-                                <InputGroupText>×</InputGroupText>
-                            </InputGroupAddon>
-                        </InputGroup>
-                    </div>
-                    <div className="space-y-1.5">
-                        <Label htmlFor="suggestion-hourly-rate">Etsy price suggestion: hourly rate</Label>
-                        <InputGroup className="max-w-[160px]">
-                            <InputGroupAddon align="inline-start">
-                                <InputGroupText>£</InputGroupText>
-                            </InputGroupAddon>
-                            <InputGroupInput
-                                id="suggestion-hourly-rate"
-                                type="number"
-                                min="0"
-                                step="0.50"
-                                disabled={pricingBusy}
-                                value={localHourlyRate}
-                                onChange={(e) =>
-                                    setLocalHourlyRate(e.target.value === '' ? '' : parseFloat(e.target.value))
-                                }
-                            />
-                            <InputGroupAddon align="inline-end">
-                                <InputGroupText>/hr</InputGroupText>
-                            </InputGroupAddon>
-                        </InputGroup>
-                    </div>
+                    <NumberField
+                        id="hourly-wage"
+                        label="Hourly wage"
+                        maxWidth="max-w-[160px]"
+                        prefix="£"
+                        suffix="/hr"
+                        step="0.50"
+                        disabled={pricingLoading}
+                        value={localWage}
+                        onChange={setLocalWage}
+                    />
+                    <NumberField
+                        id="profit-margin"
+                        label="Profit margin"
+                        maxWidth="max-w-[140px]"
+                        suffix="%"
+                        step="1"
+                        disabled={pricingLoading}
+                        value={localMargin}
+                        onChange={setLocalMargin}
+                    />
+                    <NumberField
+                        id="markup-multiplier"
+                        label="Etsy price suggestion: markup multiplier"
+                        maxWidth="max-w-[140px]"
+                        suffix="×"
+                        step="0.1"
+                        disabled={pricingBusy}
+                        value={localMarkupMultiplier}
+                        onChange={setLocalMarkupMultiplier}
+                    />
+                    <NumberField
+                        id="suggestion-hourly-rate"
+                        label="Etsy price suggestion: hourly rate"
+                        maxWidth="max-w-[160px]"
+                        prefix="£"
+                        suffix="/hr"
+                        step="0.50"
+                        disabled={pricingBusy}
+                        value={localHourlyRate}
+                        onChange={setLocalHourlyRate}
+                    />
                     <Button
                         type="button"
                         variant="outline"

@@ -96,17 +96,17 @@ const Board = () => {
         );
     }
 
-    const handleStatusChange = async (taskId: string, status: TaskStatus) => {
+    const saveAndRefresh = async (kind: 'task' | 'goal', save: () => Promise<unknown>) => {
         try {
-            await makeUpdateTaskRequest(taskId, { status }, () => accessToken, login, logout);
-            queryClient.invalidateQueries({ queryKey: ['tasks'] });
+            await save();
+            queryClient.invalidateQueries({ queryKey: [`${kind}s`] });
         } catch (e) {
             const message = e instanceof Error ? e.message : 'Unknown error';
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {
-                    title: "Couldn't save the task. Try again.",
+                    title: `Couldn't save the ${kind}. Try again.`,
                     message: `Details: ${message}`,
                     severity: 'error',
                     variant: 'standard',
@@ -115,27 +115,18 @@ const Board = () => {
         }
     };
 
+    const handleStatusChange = async (taskId: string, status: TaskStatus) => {
+        await saveAndRefresh('task', () => makeUpdateTaskRequest(taskId, { status }, () => accessToken, login, logout));
+    };
+
     const handleToggleFavourite = async (taskId: string) => {
         const task = (tasks ?? []).find((t) => t.id === taskId);
 
         if (!task) return;
 
-        try {
-            await makeUpdateTaskRequest(taskId, { favourite: !task.favourite }, () => accessToken, login, logout);
-            queryClient.invalidateQueries({ queryKey: ['tasks'] });
-        } catch (e) {
-            const message = e instanceof Error ? e.message : 'Unknown error';
-
-            dispatch({
-                type: AlertStoreActions.SHOW_ALERT,
-                payload: {
-                    title: "Couldn't save the task. Try again.",
-                    message: `Details: ${message}`,
-                    severity: 'error',
-                    variant: 'standard',
-                },
-            });
-        }
+        await saveAndRefresh('task', () =>
+            makeUpdateTaskRequest(taskId, { favourite: !task.favourite }, () => accessToken, login, logout)
+        );
     };
 
     const handleToggleChecklistItem = async (taskId: string, itemId: string) => {
@@ -145,22 +136,9 @@ const Board = () => {
 
         const checklist = task.checklist.map((item) => (item.id === itemId ? { ...item, done: !item.done } : item));
 
-        try {
-            await makeUpdateTaskRequest(taskId, { checklist }, () => accessToken, login, logout);
-            queryClient.invalidateQueries({ queryKey: ['tasks'] });
-        } catch (e) {
-            const message = e instanceof Error ? e.message : 'Unknown error';
-
-            dispatch({
-                type: AlertStoreActions.SHOW_ALERT,
-                payload: {
-                    title: "Couldn't save the task. Try again.",
-                    message: `Details: ${message}`,
-                    severity: 'error',
-                    variant: 'standard',
-                },
-            });
-        }
+        await saveAndRefresh('task', () =>
+            makeUpdateTaskRequest(taskId, { checklist }, () => accessToken, login, logout)
+        );
     };
 
     const handleToggleGoalFavourite = async (goalId: string) => {
@@ -168,22 +146,9 @@ const Board = () => {
 
         if (!goal) return;
 
-        try {
-            await makeUpdateGoalRequest(goalId, { favourite: !goal.favourite }, () => accessToken, login, logout);
-            queryClient.invalidateQueries({ queryKey: ['goals'] });
-        } catch (e) {
-            const message = e instanceof Error ? e.message : 'Unknown error';
-
-            dispatch({
-                type: AlertStoreActions.SHOW_ALERT,
-                payload: {
-                    title: "Couldn't save the goal. Try again.",
-                    message: `Details: ${message}`,
-                    severity: 'error',
-                    variant: 'standard',
-                },
-            });
-        }
+        await saveAndRefresh('goal', () =>
+            makeUpdateGoalRequest(goalId, { favourite: !goal.favourite }, () => accessToken, login, logout)
+        );
     };
 
     return (

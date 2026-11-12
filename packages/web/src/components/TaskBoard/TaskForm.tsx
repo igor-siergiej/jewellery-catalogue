@@ -8,17 +8,12 @@ import {
     taskRecurrenceEnum,
     taskSubjectEnum,
 } from '@jewellery-catalogue/types';
-import type { FormEvent } from 'react';
 
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { TASK_IMPORTANCE_LABELS, TASK_RECURRENCE_LABELS, TASK_SUBJECT_LABELS } from '@/lib/boardLabels';
 
+import { BoardFormShell, DateField, Field, TitleField, useFormSet } from '../BoardForm';
 import ChecklistEditor from './ChecklistEditor';
 
 export interface TaskFormValues {
@@ -53,12 +48,15 @@ export const taskToFormValues = (task: Task): TaskFormValues => ({
 
 export const canSubmitTask = (values: TaskFormValues) => !!values.title.trim();
 
-const Field = ({ id, label, children }: { id: string; label: string; children: React.ReactNode }) => (
-    <div className="space-y-1.5">
-        <Label htmlFor={id}>{label}</Label>
-        {children}
-    </div>
-);
+export const taskToPayload = (values: TaskFormValues) => ({
+    title: values.title.trim(),
+    subject: values.subject,
+    importance: values.importance,
+    recurrence: values.recurrence,
+    dueDate: values.dueDate,
+    description: values.description.trim() || undefined,
+    checklist: values.checklist,
+});
 
 /** The task fields shared by the Add task and Edit task dialogs. The dialog owns the values and the submit. */
 const TaskForm: React.FC<{
@@ -67,25 +65,16 @@ const TaskForm: React.FC<{
     onChange: (values: TaskFormValues) => void;
     onSubmit: () => void;
 }> = ({ formId, values, onChange, onSubmit }) => {
-    const set = <K extends keyof TaskFormValues>(key: K, value: TaskFormValues[K]) =>
-        onChange({ ...values, [key]: value });
-
-    const handleSubmit = (event: FormEvent) => {
-        event.preventDefault();
-        onSubmit();
-    };
+    const set = useFormSet(values, onChange);
 
     return (
-        <form id={formId} onSubmit={handleSubmit} noValidate className="space-y-4">
-            <Field id={`${formId}-title`} label="Title">
-                <Input
-                    id={`${formId}-title`}
-                    required
-                    placeholder="What needs doing"
-                    value={values.title}
-                    onChange={(e) => set('title', e.target.value)}
-                />
-            </Field>
+        <BoardFormShell formId={formId} onSubmit={onSubmit}>
+            <TitleField
+                formId={formId}
+                placeholder="What needs doing"
+                value={values.title}
+                onChange={(v) => set('title', v)}
+            />
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <Field id={`${formId}-subject`} label="Subject">
@@ -134,23 +123,12 @@ const TaskForm: React.FC<{
                 </Field>
             </div>
 
-            <Field id={`${formId}-due`} label="Due date">
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button
-                            id={`${formId}-due`}
-                            type="button"
-                            variant="outline"
-                            className="min-h-11 w-full justify-start font-normal md:min-h-9"
-                        >
-                            {values.dueDate ? values.dueDate.toLocaleDateString() : 'Optional'}
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                        <Calendar mode="single" selected={values.dueDate} onSelect={(d) => set('dueDate', d)} />
-                    </PopoverContent>
-                </Popover>
-            </Field>
+            <DateField
+                id={`${formId}-due`}
+                label="Due date"
+                value={values.dueDate}
+                onChange={(d) => set('dueDate', d)}
+            />
 
             <Field id={`${formId}-description`} label="Description">
                 <Textarea
@@ -162,7 +140,7 @@ const TaskForm: React.FC<{
             </Field>
 
             <ChecklistEditor idPrefix={formId} items={values.checklist} onChange={(items) => set('checklist', items)} />
-        </form>
+        </BoardFormShell>
     );
 };
 

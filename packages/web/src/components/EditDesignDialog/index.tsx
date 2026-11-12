@@ -1,7 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAuth } from '@imapps/web-utils';
 import { type Design, type FormDesign, formDesignSchema } from '@jewellery-catalogue/types';
-import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { useId, useState } from 'react';
 import { type SubmitHandler, useForm } from 'react-hook-form';
@@ -9,15 +7,11 @@ import { type SubmitHandler, useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 
 import makeEditDesignRequest from '../../api/endpoints/editDesign';
-import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
-import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-import { useUserSettings } from '../../hooks/useUserSettings';
-import { errorContext, logger } from '../../utils/logger';
+import { useDesignFormSupport } from '../../hooks/useDesignFormSupport';
 import { DesignForm } from '../DesignForm';
 import { ResponsiveDialog } from '../ResponsiveDialog';
 import { StateView } from '../StateView';
-import { computeVariants } from '../VariationGroupBuilder';
 
 interface EditDesignDialogProps {
     design: Design;
@@ -52,32 +46,18 @@ const EditDesignDialog: React.FC<EditDesignDialogProps> = ({ design, open, onOpe
         defaultValues: toFormValues(design),
     });
 
-    const { accessToken, login, logout } = useAuth();
     const [isMakingRequest, setIsMakingRequest] = useState(false);
-    const { hourlyWage, profitMargin } = useUserSettings();
 
-    const { data, isError, refetch } = useQuery({
-        ...getMaterialsQuery(() => accessToken, login, logout),
-        enabled: !!accessToken,
-    });
+    const { accessToken, login, logout, dispatch, materialsQuery, computeFormVariants, reportSaveError } =
+        useDesignFormSupport(form);
 
-    const selectedMaterials = form.watch('materials');
-    const currentTimeRequired = form.watch('timeRequired');
-    const variationGroups = form.watch('variationGroups') ?? [];
-
-    const { dispatch } = useAlert();
+    const { data, isError, refetch } = materialsQuery;
 
     const onSubmit: SubmitHandler<FormDesign> = async (formData) => {
         setIsMakingRequest(true);
 
         try {
-            const variants = computeVariants(
-                variationGroups,
-                selectedMaterials,
-                hourlyWage,
-                profitMargin,
-                currentTimeRequired
-            );
+            const variants = computeFormVariants();
 
             await makeEditDesignRequest(design.id, { ...formData, variants }, () => accessToken, login, logout);
 
@@ -92,18 +72,7 @@ const EditDesignDialog: React.FC<EditDesignDialogProps> = ({ design, open, onOpe
             });
             onSuccess();
         } catch (e) {
-            logger.error('Updating design failed', errorContext(e));
-            const message = e instanceof Error ? e.message : 'Unknown error';
-
-            dispatch({
-                type: AlertStoreActions.SHOW_ALERT,
-                payload: {
-                    title: "Couldn't save the design. Try again.",
-                    message: `Details: ${message}`,
-                    severity: 'error',
-                    variant: 'standard',
-                },
-            });
+            reportSaveError('Updating design failed', e);
         } finally {
             setIsMakingRequest(false);
         }

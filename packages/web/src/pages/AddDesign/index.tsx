@@ -1,27 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAuth } from '@imapps/web-utils';
 import { type FormDesign, formDesignSchema } from '@jewellery-catalogue/types';
-import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { type SubmitHandler, useForm } from 'react-hook-form';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
-import { DRAFTS_ENDPOINT } from '../../api/endpoints';
 import makeAddDesignRequest from '../../api/endpoints/addDesign';
-import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
 import { DesignForm } from '../../components/DesignForm';
-import { computeVariants } from '../../components/VariationGroupBuilder';
 import { DESIGNS_PAGE } from '../../constants/routes';
-import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-import { useDraftStatus } from '../../context/DraftStatus';
-import { useDraftAutosave } from '../../hooks/useDraftAutosave';
-import { useUserSettings } from '../../hooks/useUserSettings';
-import { errorContext, logger } from '../../utils/logger';
+import { useDesignFormSupport } from '../../hooks/useDesignFormSupport';
+import { useDraftPage } from '../../hooks/useDraftPage';
 
 const AddDesign: React.FC = () => {
     const form = useForm<FormDesign>({
@@ -42,72 +34,33 @@ const AddDesign: React.FC = () => {
         },
     });
 
-    const { accessToken, login, logout } = useAuth();
     const [isMakingRequest, setIsMakingRequest] = useState(false);
-    const [isLoadingDraft, setIsLoadingDraft] = useState(false);
-    const { hourlyWage, profitMargin } = useUserSettings();
-    const [searchParams] = useSearchParams();
-    const draftIdParam = searchParams.get('draftId');
-
-    const { data } = useQuery({
-        ...getMaterialsQuery(() => accessToken, login, logout),
-        enabled: !!accessToken,
-    });
-
-    const selectedMaterials = form.watch('materials');
-    const currentTimeRequired = form.watch('timeRequired');
-    const variationGroups = form.watch('variationGroups') ?? [];
-
-    const { dispatch } = useAlert();
     const navigate = useNavigate();
-    const { setDraftStatus, clearDraftStatus } = useDraftStatus();
 
-    const { uploadedImageId, deleteAndClearDraft } = useDraftAutosave({
+    const { accessToken, login, logout, dispatch, materialsQuery, computeFormVariants, reportSaveError } =
+        useDesignFormSupport(form);
+
+    const { data } = materialsQuery;
+
+    const { isLoadingDraft, uploadedImageId, deleteAndClearDraft } = useDraftPage({
         form,
         type: 'design',
-        initialDraftId: draftIdParam,
-        getAccessToken: () => accessToken,
-        onTokenRefresh: login,
-        onTokenClear: logout,
-        onStatusChange: setDraftStatus,
+        onLoaded: (draft) => {
+            if (draft.data) {
+                form.reset(draft.data as FormDesign);
+            }
+
+            if (draft.imageId) {
+                form.setValue('images', [draft.imageId]);
+            }
+        },
     });
-
-    useEffect(() => () => clearDraftStatus(), [clearDraftStatus]);
-
-    // Load draft on mount if draftId param present
-    useEffect(() => {
-        if (!draftIdParam || !accessToken) return;
-
-        setIsLoadingDraft(true);
-
-        fetch(`${DRAFTS_ENDPOINT}/${draftIdParam}`, {
-            headers: { Authorization: `Bearer ${accessToken}` },
-        })
-            .then((res) => res.json())
-            .then((draft) => {
-                if (draft?.data) {
-                    form.reset(draft.data);
-                }
-
-                if (draft?.imageId) {
-                    form.setValue('images', [draft.imageId]);
-                }
-            })
-            .catch(() => {})
-            .finally(() => setIsLoadingDraft(false));
-    }, [draftIdParam, accessToken, form.reset, form.setValue]);
 
     const onSubmit: SubmitHandler<FormDesign> = async (formData) => {
         setIsMakingRequest(true);
 
         try {
-            const variants = computeVariants(
-                variationGroups,
-                selectedMaterials,
-                hourlyWage,
-                profitMargin,
-                currentTimeRequired
-            );
+            const variants = computeFormVariants();
 
             // Replace first File with draft-uploaded imageId if available
             let images = formData.images ?? [];
@@ -137,18 +90,7 @@ const AddDesign: React.FC = () => {
             });
             navigate(DESIGNS_PAGE.route);
         } catch (e) {
-            logger.error('Adding design failed', errorContext(e));
-            const message = e instanceof Error ? e.message : 'Unknown error';
-
-            dispatch({
-                type: AlertStoreActions.SHOW_ALERT,
-                payload: {
-                    title: "Couldn't save the design. Try again.",
-                    message: `Details: ${message}`,
-                    severity: 'error',
-                    variant: 'standard',
-                },
-            });
+            reportSaveError('Adding design failed', e);
         } finally {
             setIsMakingRequest(false);
         }
