@@ -21,5 +21,5 @@ export const getRequiredMaterial = (material: Material, matchedRow: TableMateria
         return requiredMaterialConverter[material.type];
     }
 
-    throw new Error('Unrecognised Material type!');
+    throw new Error('Unrecognised material type');
 };

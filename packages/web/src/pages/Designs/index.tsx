@@ -6,16 +6,7 @@ import { FileEdit, Plus, ShoppingCart, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Item, ItemContent, ItemFooter, ItemHeader, ItemTitle } from '@/components/ui/item';
@@ -68,9 +59,9 @@ const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, o
                         type="button"
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                        className="size-11 text-destructive hover:bg-destructive hover:text-destructive-foreground md:size-8"
                         onClick={handleDeleteClick}
-                        title="Delete Draft"
+                        aria-label={`Delete draft ${draft.name}`}
                     >
                         <Trash2 className="h-4 w-4" />
                     </Button>
@@ -97,25 +88,12 @@ const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, o
                 </ItemContent>
             </Item>
 
-            <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Draft</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Delete draft "{draft.name}"? This cannot be undone.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={confirmDelete}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
-                            Delete
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <DeleteConfirmDialog
+                name={confirmOpen ? draft.name : null}
+                description="The draft is permanently removed. This can't be undone."
+                onConfirm={confirmDelete}
+                onCancel={() => setConfirmOpen(false)}
+            />
         </>
     );
 };

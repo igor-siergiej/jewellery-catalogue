@@ -5,16 +5,7 @@ import { FileEdit, Plus, ShoppingCart, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -46,7 +37,7 @@ const DraftsTable: React.FC<{ drafts: Array<Draft>; onDeleted: () => void }> = (
             <div className="rounded-md border bg-card mb-4">
                 <div className="px-4 py-3 border-b flex items-center gap-2">
                     <FileEdit className="h-4 w-4 text-muted-foreground" />
-                    <h2 className="text-sm font-medium">Material Drafts</h2>
+                    <h2 className="text-sm font-medium">Material drafts</h2>
                     <Badge variant="secondary">{drafts.length}</Badge>
                 </div>
                 <Table className="table-fixed">
@@ -81,7 +72,7 @@ const DraftsTable: React.FC<{ drafts: Array<Draft>; onDeleted: () => void }> = (
                                             size="sm"
                                             onClick={() => setDraftToDelete(draft)}
                                             className="size-11 p-0 text-destructive hover:text-destructive md:size-8"
-                                            aria-label="Delete draft"
+                                            aria-label={`Delete draft ${draft.name}`}
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
@@ -93,25 +84,12 @@ const DraftsTable: React.FC<{ drafts: Array<Draft>; onDeleted: () => void }> = (
                 </Table>
             </div>
 
-            <AlertDialog open={!!draftToDelete} onOpenChange={(open) => !open && setDraftToDelete(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Delete draft</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Delete draft "{draftToDelete?.name}"? This cannot be undone.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={confirmDelete}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
-                            Delete
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <DeleteConfirmDialog
+                name={draftToDelete?.name ?? null}
+                description="The draft is permanently removed. This can't be undone."
+                onConfirm={confirmDelete}
+                onCancel={() => setDraftToDelete(null)}
+            />
         </>
     );
 };

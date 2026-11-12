@@ -101,12 +101,12 @@ const Board = () => {
             await makeUpdateTaskRequest(taskId, { status }, () => accessToken, login, logout);
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
         } catch (e) {
-            const message = e instanceof Error ? e.message : 'Unknown Error';
+            const message = e instanceof Error ? e.message : 'Unknown error';
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {
-                    title: 'Error occured during updating task! :(',
+                    title: "Couldn't save the task. Try again.",
                     message: `Details: ${message}`,
                     severity: 'error',
                     variant: 'standard',
@@ -124,12 +124,12 @@ const Board = () => {
             await makeUpdateTaskRequest(taskId, { favourite: !task.favourite }, () => accessToken, login, logout);
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
         } catch (e) {
-            const message = e instanceof Error ? e.message : 'Unknown Error';
+            const message = e instanceof Error ? e.message : 'Unknown error';
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {
-                    title: 'Error occured during updating task! :(',
+                    title: "Couldn't save the task. Try again.",
                     message: `Details: ${message}`,
                     severity: 'error',
                     variant: 'standard',
@@ -149,12 +149,12 @@ const Board = () => {
             await makeUpdateTaskRequest(taskId, { checklist }, () => accessToken, login, logout);
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
         } catch (e) {
-            const message = e instanceof Error ? e.message : 'Unknown Error';
+            const message = e instanceof Error ? e.message : 'Unknown error';
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {
-                    title: 'Error occured during updating task! :(',
+                    title: "Couldn't save the task. Try again.",
                     message: `Details: ${message}`,
                     severity: 'error',
                     variant: 'standard',
@@ -172,12 +172,12 @@ const Board = () => {
             await makeUpdateGoalRequest(goalId, { favourite: !goal.favourite }, () => accessToken, login, logout);
             queryClient.invalidateQueries({ queryKey: ['goals'] });
         } catch (e) {
-            const message = e instanceof Error ? e.message : 'Unknown Error';
+            const message = e instanceof Error ? e.message : 'Unknown error';
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {
-                    title: 'Error occured during updating goal! :(',
+                    title: "Couldn't save the goal. Try again.",
                     message: `Details: ${message}`,
                     severity: 'error',
                     variant: 'standard',

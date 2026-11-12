@@ -42,11 +42,12 @@ export const AuthFormBase: React.FC<AuthFormBaseProps> = ({
     } = useForm<AuthFormFields>({
         resolver: zodResolver(schema),
     });
+
     const [showPassword, setShowPassword] = useState(false);
     const { isLoading, onSubmit } = useAuthSubmit(endpoint, errorTitle, onSuccess);
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full text-left">
             <div className="space-y-2">
                 <Label htmlFor="username">Username</Label>
                 <Input
@@ -54,7 +55,7 @@ export const AuthFormBase: React.FC<AuthFormBaseProps> = ({
                     type="text"
                     autoComplete="username"
                     {...register('username')}
-                    className={errors.username ? 'border-destructive' : ''}
+                    className={`min-h-11 md:min-h-9 ${errors.username ? 'border-destructive' : ''}`}
                     aria-invalid={errors.username ? 'true' : 'false'}
                 />
                 <p className="text-sm text-destructive min-h-[20px]">{errors.username?.message || ''}</p>
@@ -68,13 +69,13 @@ export const AuthFormBase: React.FC<AuthFormBaseProps> = ({
                         type={showPassword ? 'text' : 'password'}
                         autoComplete={passwordAutoComplete}
                         {...register('password')}
-                        className={`pr-10 ${errors.password ? 'border-destructive' : ''}`}
+                        className={`min-h-11 pr-12 md:min-h-9 ${errors.password ? 'border-destructive' : ''}`}
                         aria-invalid={errors.password ? 'true' : 'false'}
                     />
                     <button
                         type="button"
                         onClick={() => setShowPassword((show) => !show)}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        className="absolute inset-y-0 right-0 flex w-11 cursor-pointer items-center justify-center rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
                         aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                         {showPassword ? (
@@ -87,7 +88,7 @@ export const AuthFormBase: React.FC<AuthFormBaseProps> = ({
                 <p className="text-sm text-destructive min-h-[20px]">{errors.password?.message || ''}</p>
             </div>
 
-            <Button type="submit" disabled={isLoading} className="w-full">
+            <Button type="submit" disabled={isLoading} className="w-full min-h-11 md:min-h-9">
                 {isLoading ? loadingLabel : submitLabel}
             </Button>
         </form>

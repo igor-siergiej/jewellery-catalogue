@@ -54,7 +54,7 @@ test.describe.serial('Design inventory management', () => {
         await page.getByRole('button', { name: /^More actions for / }).click();
         await page.getByRole('menuitem', { name: 'Delete' }).click();
 
-        await expect(page.getByText('Delete Deletable Design?')).toBeVisible({ timeout: 5000 });
+        await expect(page.getByText('Delete "Deletable Design"?')).toBeVisible({ timeout: 5000 });
         await page.getByRole('alertdialog').getByRole('button', { name: 'Delete' }).click();
 
         await expect(page.getByRole('article', { name: 'Deletable Design' })).not.toBeVisible({

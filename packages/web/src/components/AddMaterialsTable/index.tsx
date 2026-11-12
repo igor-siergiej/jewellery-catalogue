@@ -501,7 +501,7 @@ const EmptyState: React.FC<{
             {hasMaterials && (
                 <Button type="button" onClick={handleAddMaterial} size="sm" className="gap-2 mt-2">
                     <Plus className="h-4 w-4" />
-                    Add Material
+                    Add material
                 </Button>
             )}
         </div>
@@ -548,7 +548,7 @@ const TableFooter: React.FC<{
             ) : (
                 <Button type="button" variant="outline" onClick={handleAddMaterial} className="gap-2">
                     <Plus className="h-4 w-4" />
-                    Add Material
+                    Add material
                 </Button>
             )}
         </div>

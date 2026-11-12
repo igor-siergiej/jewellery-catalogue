@@ -96,8 +96,8 @@ const EditDesignDialog: React.FC<EditDesignDialogProps> = ({ design, open, onOpe
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {
-                    title: 'Success!',
-                    message: 'Design updated successfully!',
+                    title: 'Design saved',
+                    message: 'Your changes are saved.',
                     severity: 'success',
                     variant: 'standard',
                 },
@@ -105,12 +105,12 @@ const EditDesignDialog: React.FC<EditDesignDialogProps> = ({ design, open, onOpe
             onSuccess();
         } catch (e) {
             logger.error('Updating design failed', errorContext(e));
-            const message = e instanceof Error ? e.message : 'Unknown Error';
+            const message = e instanceof Error ? e.message : 'Unknown error';
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {
-                    title: 'Error occurred during the updating of the design!',
+                    title: "Couldn't save the design. Try again.",
                     message: `Details: ${message}`,
                     severity: 'error',
                     variant: 'standard',

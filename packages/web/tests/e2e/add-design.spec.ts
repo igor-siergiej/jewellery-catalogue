@@ -57,7 +57,7 @@ test.describe.serial('Add Design', () => {
 
         await page.getByRole('button', { name: 'Create design' }).click();
 
-        await expect(page.getByText('Added design successfully!')).toBeVisible();
+        await expect(page.getByText('Design created')).toBeVisible();
         await expect(page).toHaveURL(/\/designs$/);
         await expect(page.getByText('Spacer Studs')).toBeVisible();
 

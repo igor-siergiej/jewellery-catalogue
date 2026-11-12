@@ -72,7 +72,7 @@ export const MaterialPriceResolver = (requiredMaterial: RequiredMaterial, materi
         return MaterialPriceCalculatorMap[material.type];
     }
 
-    throw new Error(`Unsupported material type!`);
+    throw new Error('Unsupported material type');
 };
 
 export const getTotalMaterialCosts = (
@@ -81,7 +81,9 @@ export const getTotalMaterialCosts = (
 ): number => {
     const total = selectedMaterials.reduce((acc, requiredMaterial) => {
         const cost = MaterialPriceResolver(requiredMaterial, requiredMaterial);
+
         return acc + cost;
     }, 0);
+
     return total;
 };

@@ -51,7 +51,7 @@ const showError = (dispatch: ReturnType<typeof useAlert>['dispatch'], title: str
         type: AlertStoreActions.SHOW_ALERT,
         payload: {
             title,
-            message: `Details: ${e instanceof Error ? e.message : 'Unknown Error'}`,
+            message: `Details: ${e instanceof Error ? e.message : 'Unknown error'}`,
             severity: 'error',
             variant: 'standard',
         },

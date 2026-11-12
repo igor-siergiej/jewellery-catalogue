@@ -4,21 +4,12 @@ import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { useState } from 'react';
 
 import makeDeleteMaterialRequest from '@/api/endpoints/deleteMaterial';
+import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog';
 import { MaterialCards } from '@/components/MaterialsTable/MaterialCards';
 import MaterialUpdateForm from '@/components/MaterialUpdateForm';
 import { DesktopOnly } from '@/components/MobileCardList';
 import { StateView } from '@/components/StateView';
 import { StatusTag } from '@/components/StatusTag';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
     cellText,
@@ -217,26 +208,13 @@ export function MaterialsLedger({
                 />
             )}
 
-            <AlertDialog open={!!materialToDelete} onOpenChange={(open) => !open && setMaterialToDelete(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Delete material</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Delete "{materialToDelete?.name}"? This cannot be undone.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={handleDeleteConfirm}
-                            disabled={isDeleting}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
-                            Delete
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <DeleteConfirmDialog
+                name={materialToDelete?.name ?? null}
+                description="The material is permanently removed from your catalogue. This can't be undone."
+                onConfirm={handleDeleteConfirm}
+                onCancel={() => setMaterialToDelete(null)}
+                isDeleting={isDeleting}
+            />
         </>
     );
 }

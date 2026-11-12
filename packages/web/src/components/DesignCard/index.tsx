@@ -10,19 +10,10 @@ import { VIEW_DESIGN_PAGE } from '../../constants/routes';
 import { describeDuration } from '../../lib/duration';
 import { getEtsyStatus } from '../../lib/etsyStatus';
 import { track } from '../../utils/analytics';
+import { DeleteConfirmDialog } from '../DeleteConfirmDialog';
 import { Image } from '../Image';
 import InventoryDialog from '../InventoryDialog';
 import { EtsyStatusTag, StatusTag } from '../StatusTag';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '../ui/alert-dialog';
 import { Button } from '../ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
@@ -163,25 +154,12 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
                 onSuccess={handleSuccess}
             />
 
-            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Delete {name}?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This action cannot be undone. The design will be permanently removed from your catalogue.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            onClick={handleDeleteConfirm}
-                        >
-                            Delete
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <DeleteConfirmDialog
+                name={deleteDialogOpen ? name : null}
+                description="The design is permanently removed from your catalogue. This can't be undone."
+                onConfirm={handleDeleteConfirm}
+                onCancel={() => setDeleteDialogOpen(false)}
+            />
         </>
     );
 };

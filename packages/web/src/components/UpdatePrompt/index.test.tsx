@@ -28,6 +28,14 @@ describe('UpdatePrompt', () => {
         expect(screen.queryByRole('alertdialog')).toBeNull();
     });
 
+    it('names the update and warns about unsaved changes', () => {
+        mockContext.hasUpdate = true;
+        render(<UpdatePrompt />);
+
+        expect(screen.getByRole('alertdialog', { name: 'Update available' })).toBeTruthy();
+        expect(screen.getByText(/finish and save any changes first/)).toBeTruthy();
+    });
+
     it('calls updateApp when Update now is clicked', () => {
         mockContext.hasUpdate = true;
         render(<UpdatePrompt />);

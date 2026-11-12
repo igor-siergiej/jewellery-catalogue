@@ -55,7 +55,7 @@ test.describe.serial('Catalogue-only designs', () => {
             await page.getByRole('button', { name: 'Save changes' }).click();
             await patchResponse;
 
-            await expect(page.getByText('Design updated successfully!')).toBeVisible({ timeout: 10000 });
+            await expect(page.getByText('Design saved')).toBeVisible({ timeout: 10000 });
             await expect(page.getByText('Catalogue only, not sent to Etsy')).toBeVisible();
 
             const designs = await apiGetDesigns(TOKEN);

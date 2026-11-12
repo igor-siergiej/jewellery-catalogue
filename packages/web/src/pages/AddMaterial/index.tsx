@@ -80,20 +80,20 @@ const AddMaterial = () => {
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {
-                    title: 'Yahoooo!',
-                    message: 'Added material successfully!',
+                    title: 'Material created',
+                    message: 'Added to your materials.',
                     severity: 'success',
                     variant: 'standard',
                 },
             });
             form.reset();
         } catch (e) {
-            const message = e instanceof Error ? e.message : 'Unknown Error';
+            const message = e instanceof Error ? e.message : 'Unknown error';
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {
-                    title: 'Error occured during adding material! :(',
+                    title: "Couldn't save the material. Try again.",
                     message: `Details: ${message}`,
                     severity: 'error',
                     variant: 'standard',

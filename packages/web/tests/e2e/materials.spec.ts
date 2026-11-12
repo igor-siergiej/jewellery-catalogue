@@ -24,7 +24,7 @@ async function fillCommon(
 
 async function submitAndOpenMaterials(page: Page) {
     await page.getByRole('button', { name: 'Add material' }).click();
-    await expect(page.getByText('Added material successfully!')).toBeVisible();
+    await expect(page.getByText('Material created')).toBeVisible();
     await page.goto('/materials');
 }
 

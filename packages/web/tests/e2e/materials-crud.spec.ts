@@ -27,7 +27,7 @@ test.describe.serial('Materials CRUD via UI', () => {
 
         await page.getByRole('button', { name: 'Add material' }).click();
 
-        await expect(page.getByText('Added material successfully!')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Material created')).toBeVisible({ timeout: 10000 });
 
         await page.goto('/materials');
         await page.waitForLoadState('networkidle');
@@ -65,6 +65,6 @@ test.describe.serial('Materials CRUD via UI', () => {
         await page.getByRole('button', { name: 'Save changes' }).click();
 
         await expect(page.getByRole('alertdialog')).not.toBeVisible();
-        await expect(page.getByText('Material updated successfully!')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Material saved')).toBeVisible({ timeout: 10000 });
     });
 });

@@ -265,7 +265,7 @@ const GroupCard: React.FC<GroupCardProps> = ({ group, availableMaterials, onUpda
                             disabled={usedMaterialIds.length >= availableMaterials.length}
                         >
                             <Plus className="h-3.5 w-3.5" />
-                            Add Option
+                            Add option
                         </Button>
                     </div>
                 </div>
@@ -301,7 +301,7 @@ const VariantPreview: React.FC<{
                 <TableHeader>
                     <TableRow>
                         <TableHead>Variant</TableHead>
-                        <TableHead>Material Costs</TableHead>
+                        <TableHead>Material costs</TableHead>
                         <TableHead>Price</TableHead>
                         <TableHead>Suggested</TableHead>
                     </TableRow>
@@ -375,12 +375,12 @@ export const VariationGroupBuilder: React.FC<VariationGroupBuilderProps> = ({
 
             <Button type="button" variant="outline" size="sm" className="gap-2" onClick={addGroup}>
                 <Plus className="h-4 w-4" />
-                Add Variation Group
+                Add variation group
             </Button>
 
             {value.length > 0 && (
                 <div className="space-y-2 pt-2">
-                    <h4 className="text-sm font-medium">Generated Variants</h4>
+                    <h4 className="text-sm font-medium">Generated variants</h4>
                     <VariantPreview
                         groups={value}
                         sharedMaterials={sharedMaterials}

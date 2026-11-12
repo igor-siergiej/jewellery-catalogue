@@ -228,7 +228,7 @@ const initializeApp = async () => {
                         maxWidth: '500px',
                     }}
                 >
-                    <h1 style={{ color: '#e53e3e', marginBottom: '1rem' }}>Configuration Error</h1>
+                    <h1 style={{ color: '#e53e3e', marginBottom: '1rem' }}>Configuration error</h1>
                     <p style={{ color: '#4a5568', marginBottom: '1rem' }}>
                         The application failed to load its configuration.
                     </p>

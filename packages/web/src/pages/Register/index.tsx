@@ -13,19 +13,19 @@ const Register = () => {
     useRedirectIfAuthenticated(HOME_PAGE.route, REGISTER_PAGE.route);
 
     return (
-        <AuthLayout title="Jewellery Catalogue" subtitle="Join the goldsmith empire!">
+        <AuthLayout title="Create an account">
             <RegisterForm />
 
-            <p className="text-sm pt-8">Already part of the goldsmith empire?</p>
+            <p className="text-sm text-muted-foreground pt-6">Already have an account?</p>
 
             <Button
-                className="w-full"
+                className="w-full min-h-11 md:min-h-9"
                 variant="secondary"
                 onClick={() => {
                     navigate('/');
                 }}
             >
-                Login!
+                Log in
             </Button>
         </AuthLayout>
     );

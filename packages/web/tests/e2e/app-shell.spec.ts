@@ -96,7 +96,7 @@ test.describe.serial('App shell and session', () => {
         await page.getByRole('button', { name: 'Log out' }).click();
 
         await expect(page).toHaveURL(/\/$/);
-        await expect(page.getByText('Welcome back Goldsmith!')).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Welcome back' })).toBeVisible();
         expect(await page.evaluate(() => localStorage.getItem('accessToken'))).toBeNull();
 
         await page.goto('/home');
@@ -164,7 +164,7 @@ test.describe('Signed out', () => {
         test(`${path} redirects to the start page`, async ({ page }) => {
             await page.goto(path);
             await expect(page).toHaveURL(/\/$/);
-            await expect(page.getByText('Welcome back Goldsmith!')).toBeVisible();
+            await expect(page.getByRole('heading', { name: 'Welcome back' })).toBeVisible();
         });
     }
 });

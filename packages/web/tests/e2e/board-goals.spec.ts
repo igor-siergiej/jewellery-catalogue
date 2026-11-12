@@ -151,7 +151,7 @@ test.describe.serial('Board goals', () => {
         const card = goalCard(page, 'Total sales');
         await card.getByRole('button', { name: 'Sync from Etsy' }).click();
 
-        await expect(page.getByText('Error occured during syncing goal from Etsy! :(')).toBeVisible();
+        await expect(page.getByText("Couldn't sync the goal from Etsy. Try again.")).toBeVisible();
         await expect(card).toContainText('7/100');
         // The sync button doesn't open the edit dialog
         await expect(page.getByRole('dialog', { name: 'Edit goal' })).toHaveCount(0);

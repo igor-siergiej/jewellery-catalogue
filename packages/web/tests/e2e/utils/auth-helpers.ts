@@ -63,6 +63,7 @@ export const waitForAuthServices = async (page: Page) => {
         }
 
         retries++;
+
         if (retries >= maxRetries) {
             throw new Error(`API service not ready after ${maxRetries} attempts at ${apiServiceUrl}/health`);
         }
@@ -72,6 +73,7 @@ export const waitForAuthServices = async (page: Page) => {
 
     // Wait for Auth service
     retries = 0;
+
     while (retries < maxRetries) {
         try {
             const response = await page.request.get(`${authServiceUrl}/health`);
@@ -85,6 +87,7 @@ export const waitForAuthServices = async (page: Page) => {
         }
 
         retries++;
+
         if (retries >= maxRetries) {
             throw new Error(`Auth service not ready after ${maxRetries} attempts at ${authServiceUrl}/health`);
         }
@@ -152,15 +155,15 @@ export const selectors = {
     submitButton: 'button[type="submit"]',
     showPasswordButton: 'button[aria-label="Show password"]',
     hidePasswordButton: 'button[aria-label="Hide password"]',
-    registerButton: 'button:has-text("Register!")',
-    loginButton: 'button:has-text("Login!")',
+    registerButton: 'button:has-text("Create an account")',
+    loginButton: 'button:has-text("Log in")',
     errorAlert: '[role="alert"]',
     usernameRequiredError: 'text=Username is required',
     passwordRequiredError: 'text=Password is required',
     passwordValidationError:
         'text=Password must be at least 8 characters long and contain at least one letter and one number',
-    registrationError: 'text=Registration Error',
-    loginError: 'text=Login Error',
+    registrationError: "text=Couldn't create the account",
+    loginError: "text=Couldn't log in",
 };
 
 /**
@@ -168,17 +171,13 @@ export const selectors = {
  */
 export const pageContent = {
     login: {
-        title: 'Jewellery Catalogue',
-        subtitle: 'Welcome back Goldsmith!',
-        submitButtonText: 'Login',
+        title: 'Welcome back',
+        submitButtonText: 'Log in',
         titleSelector: 'h1',
-        subtitleSelector: 'h2',
     },
     register: {
-        title: 'Jewellery Catalogue',
-        subtitle: 'Join the goldsmith empire!',
-        submitButtonText: 'Register',
+        title: 'Create an account',
+        submitButtonText: 'Create account',
         titleSelector: 'h1',
-        subtitleSelector: 'h2',
     },
 };

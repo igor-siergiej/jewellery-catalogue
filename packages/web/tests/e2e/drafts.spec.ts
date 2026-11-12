@@ -142,7 +142,7 @@ test.describe.serial('Drafts', () => {
         await expect(page.getByPlaceholder('Enter design name')).toHaveValue('Finish Me');
         await page.getByRole('button', { name: 'Create design' }).click();
 
-        await expect(page.getByText('Added design successfully!')).toBeVisible();
+        await expect(page.getByText('Design created')).toBeVisible();
         await expect(page).toHaveURL(/\/designs$/);
         const designs = await apiGetDesigns(TOKEN);
         expect(designs.map((d) => d.name)).toEqual(['Finish Me']);
@@ -156,14 +156,14 @@ test.describe.serial('Drafts', () => {
         await page.goto('/designs');
         await expect(page.getByText('Throwaway Idea', { exact: true })).toBeVisible();
 
-        await page.getByTitle('Delete Draft').click();
+        await page.getByRole('button', { name: 'Delete draft Throwaway Idea' }).click();
         const dialog = page.getByRole('alertdialog');
-        await expect(dialog).toContainText('Delete draft "Throwaway Idea"?');
+        await expect(dialog).toContainText('Delete "Throwaway Idea"?');
         await dialog.getByRole('button', { name: 'Cancel' }).click();
         await expect(page.getByText('Throwaway Idea', { exact: true })).toBeVisible();
         expect(await apiGetDrafts(TOKEN)).toHaveLength(1);
 
-        await page.getByTitle('Delete Draft').click();
+        await page.getByRole('button', { name: 'Delete draft Throwaway Idea' }).click();
         await page.getByRole('alertdialog').getByRole('button', { name: 'Delete' }).click();
         await expect(page.getByText('Throwaway Idea', { exact: true })).toHaveCount(0);
         expect(await apiGetDrafts(TOKEN)).toHaveLength(0);
@@ -182,7 +182,7 @@ test.describe.serial('Drafts', () => {
         await waitForDraft('Half-done Bead', (data) => data.colour === 'green');
 
         await page.goto('/materials');
-        await expect(page.getByText('Material Drafts')).toBeVisible();
+        await expect(page.getByText('Material drafts')).toBeVisible();
         const row = page.getByRole('row', { name: /Half-done Bead/ });
         await row.getByRole('button', { name: 'Resume' }).click();
 
@@ -198,12 +198,12 @@ test.describe.serial('Drafts', () => {
         await page.locator('input[name="packs"]').fill('1');
         await page.getByRole('button', { name: 'Add material' }).click();
 
-        await expect(page.getByText('Added material successfully!')).toBeVisible();
+        await expect(page.getByText('Material created')).toBeVisible();
         expect((await apiGetMaterials(TOKEN)).map((m) => m.name)).toEqual(['Half-done Bead']);
         await expect.poll(async () => (await apiGetDrafts(TOKEN)).length).toBe(0);
 
         await page.goto('/materials');
-        await expect(page.getByText('Material Drafts')).toHaveCount(0);
+        await expect(page.getByText('Material drafts')).toHaveCount(0);
     });
 
     test('deleting a material draft asks for confirmation', async ({ authenticatedPage: page }) => {
@@ -211,13 +211,13 @@ test.describe.serial('Drafts', () => {
         await page.goto('/materials');
 
         const row = page.getByRole('row', { name: /Old Chain Idea/ });
-        await row.getByRole('button', { name: 'Delete draft' }).click();
+        await row.getByRole('button', { name: 'Delete draft Old Chain Idea' }).click();
         await page.getByRole('alertdialog').getByRole('button', { name: 'Cancel' }).click();
         await expect(row).toBeVisible();
 
-        await row.getByRole('button', { name: 'Delete draft' }).click();
+        await row.getByRole('button', { name: 'Delete draft Old Chain Idea' }).click();
         await page.getByRole('alertdialog').getByRole('button', { name: 'Delete' }).click();
-        await expect(page.getByText('Material Drafts')).toHaveCount(0);
+        await expect(page.getByText('Material drafts')).toHaveCount(0);
         expect(await apiGetDrafts(TOKEN)).toHaveLength(0);
     });
 });

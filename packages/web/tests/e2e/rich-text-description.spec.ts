@@ -41,7 +41,7 @@ test.describe.serial('Design description editor', () => {
         await page.keyboard.type('Sterling hooks');
 
         await dialog.getByRole('button', { name: 'Save changes' }).click();
-        await expect(page.getByText('Design updated successfully!')).toBeVisible();
+        await expect(page.getByText('Design saved')).toBeVisible();
 
         await page.reload();
         await expect(page.getByRole('heading', { level: 2, name: 'Care' })).toBeVisible();
@@ -98,7 +98,7 @@ test.describe.serial('Design description editor', () => {
         expect(uploads).toBe(1);
 
         await dialog.getByRole('button', { name: 'Save changes' }).click();
-        await expect(page.getByText('Design updated successfully!')).toBeVisible();
+        await expect(page.getByText('Design saved')).toBeVisible();
 
         const [saved] = await apiGetDesigns(TOKEN);
         expect(saved.description).toContain('/api/image/e2e-inline-photo');

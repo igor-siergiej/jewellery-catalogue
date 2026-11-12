@@ -126,7 +126,7 @@ test.describe.serial('Home stock ledger', () => {
         await page.locator('input[name="quantity"]').fill('100');
         await page.locator('input[name="lowStockThreshold"]').fill('2');
         await page.getByRole('button', { name: 'Add material' }).click();
-        await expect(page.getByText('Added material successfully!')).toBeVisible();
+        await expect(page.getByText('Material created')).toBeVisible();
 
         const beads = await apiGetMaterials(TOKEN);
         expect(beads.find((m) => m.name === 'Alerting Bead')?.lowStockThreshold).toBe(2);

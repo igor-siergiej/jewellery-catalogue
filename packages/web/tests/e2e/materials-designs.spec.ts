@@ -30,7 +30,7 @@ test.describe.serial('Material pricing and low stock variant flows', () => {
 
         await page.getByRole('button', { name: 'Update prices' }).click();
 
-        await expect(page.getByText('Prices updated!')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Prices updated', { exact: true })).toBeVisible({ timeout: 10000 });
     });
 
     test('skipping price dialog does not trigger price update', async ({ authenticatedPage: page }) => {
@@ -57,7 +57,7 @@ test.describe.serial('Material pricing and low stock variant flows', () => {
         await page.getByRole('button', { name: 'Skip' }).click();
 
         await expect(page.getByRole('alertdialog')).not.toBeVisible();
-        await expect(page.getByText('Prices updated!')).not.toBeVisible();
+        await expect(page.getByText('Prices updated', { exact: true })).not.toBeVisible();
     });
 
     test('material cost update propagates to variant totalMaterialCosts', async ({ authenticatedPage: page }) => {
@@ -123,7 +123,7 @@ test.describe.serial('Material pricing and low stock variant flows', () => {
             timeout: 10000,
         });
         await page.getByRole('button', { name: 'Update prices' }).click();
-        await expect(page.getByText('Prices updated!')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Prices updated', { exact: true })).toBeVisible({ timeout: 10000 });
 
         const designs = await apiGetDesigns(MOCK_TOKEN);
         const design = designs.find((d) => d.name === 'Variant Cost Design');

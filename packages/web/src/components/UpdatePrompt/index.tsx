@@ -18,14 +18,19 @@ const UpdatePrompt = () => {
                 <AlertDialogHeader>
                     <AlertDialogTitle>Update available</AlertDialogTitle>
                     <AlertDialogDescription>
-                        A new version is ready. The app will reload; unsaved changes will be lost.
+                        A new version is ready. Updating reloads the app, so finish and save any changes first.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <Button variant="ghost" onClick={dismissUpdate} disabled={isUpdating}>
+                    <Button
+                        variant="outline"
+                        className="min-h-11 md:min-h-9"
+                        onClick={dismissUpdate}
+                        disabled={isUpdating}
+                    >
                         Later
                     </Button>
-                    <Button onClick={updateApp} disabled={isUpdating}>
+                    <Button className="min-h-11 md:min-h-9" onClick={updateApp} disabled={isUpdating}>
                         {isUpdating ? 'Updating…' : 'Update now'}
                     </Button>
                 </AlertDialogFooter>

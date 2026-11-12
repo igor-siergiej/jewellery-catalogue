@@ -19,9 +19,9 @@ export const RegisterForm: React.FC = () => (
     <AuthFormBase
         schema={registerSchema}
         endpoint="/register"
-        errorTitle="Registration Error"
-        submitLabel="Register"
-        loadingLabel="Creating account..."
+        errorTitle="Couldn't create the account"
+        submitLabel="Create account"
+        loadingLabel="Creating account…"
         passwordAutoComplete="new-password"
         onSuccess={() => track('register_completed')}
     />

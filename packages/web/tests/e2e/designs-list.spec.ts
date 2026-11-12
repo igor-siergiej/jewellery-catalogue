@@ -75,7 +75,7 @@ test.describe.serial('Designs list', () => {
 
         await page.getByRole('button', { name: 'More actions for Keep Me' }).click();
         await page.getByRole('menuitem', { name: 'Delete' }).click();
-        const dialog = page.getByRole('alertdialog', { name: 'Delete Keep Me?' });
+        const dialog = page.getByRole('alertdialog', { name: 'Delete "Keep Me"?' });
         await dialog.getByRole('button', { name: 'Cancel' }).click();
 
         await expect(dialog).toBeHidden();

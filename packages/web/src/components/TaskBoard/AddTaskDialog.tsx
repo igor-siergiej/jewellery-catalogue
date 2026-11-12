@@ -44,12 +44,12 @@ const AddTaskDialog: React.FC<{ open: boolean; onOpenChange: (open: boolean) => 
             onOpenChange(false);
             onCreated();
         } catch (e) {
-            const message = e instanceof Error ? e.message : 'Unknown Error';
+            const message = e instanceof Error ? e.message : 'Unknown error';
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {
-                    title: 'Error occured during creating task! :(',
+                    title: "Couldn't create the task. Try again.",
                     message: `Details: ${message}`,
                     severity: 'error',
                     variant: 'standard',

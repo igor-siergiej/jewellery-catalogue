@@ -129,8 +129,8 @@ const AddDesign: React.FC = () => {
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {
-                    title: 'Yahoooo!',
-                    message: 'Added design successfully!',
+                    title: 'Design created',
+                    message: 'Added to your catalogue.',
                     severity: 'success',
                     variant: 'standard',
                 },
@@ -138,12 +138,12 @@ const AddDesign: React.FC = () => {
             navigate(DESIGNS_PAGE.route);
         } catch (e) {
             logger.error('Adding design failed', errorContext(e));
-            const message = e instanceof Error ? e.message : 'Unknown Error';
+            const message = e instanceof Error ? e.message : 'Unknown error';
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {
-                    title: 'Error occured during the adding of the design! :(',
+                    title: "Couldn't save the design. Try again.",
                     message: `Details: ${message}`,
                     severity: 'error',
                     variant: 'standard',

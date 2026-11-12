@@ -47,12 +47,12 @@ const EditGoalDialog: React.FC<{ goal: Goal; onOpenChange: (open: boolean) => vo
             onOpenChange(false);
             onUpdated();
         } catch (e) {
-            const message = e instanceof Error ? e.message : 'Unknown Error';
+            const message = e instanceof Error ? e.message : 'Unknown error';
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {
-                    title: 'Error occured during updating goal! :(',
+                    title: "Couldn't save the goal. Try again.",
                     message: `Details: ${message}`,
                     severity: 'error',
                     variant: 'standard',

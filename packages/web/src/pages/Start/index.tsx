@@ -13,19 +13,19 @@ const Start = () => {
     useRedirectIfAuthenticated(HOME_PAGE.route);
 
     return (
-        <AuthLayout title="Jewellery Catalogue" subtitle="Welcome back Goldsmith!">
+        <AuthLayout title="Welcome back">
             <LoginForm />
 
-            <p className="text-sm pt-8">Haven't joined the goldsmith empire yet?</p>
+            <p className="text-sm text-muted-foreground pt-6">New here?</p>
 
             <Button
-                className="w-full"
+                className="w-full min-h-11 md:min-h-9"
                 variant="secondary"
                 onClick={() => {
                     navigate('/register');
                 }}
             >
-                Register!
+                Create an account
             </Button>
         </AuthLayout>
     );

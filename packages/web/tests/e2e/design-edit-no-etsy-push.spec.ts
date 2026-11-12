@@ -58,7 +58,7 @@ test.describe('Editing a design never publishes to Etsy', () => {
         await page.getByRole('button', { name: 'Save changes' }).click();
         await patchResponse;
 
-        await expect(page.getByText('Design updated successfully!')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Design saved')).toBeVisible({ timeout: 10000 });
 
         expect(etsyPushRequests).toEqual([]);
 
