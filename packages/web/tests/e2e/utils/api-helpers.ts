@@ -1,8 +1,16 @@
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+
 type Material = Record<string, unknown> & { id: string; name: string };
+
 type Design = Record<string, unknown> & { id: string; name: string; variants?: DesignVariant[] };
+
 type DesignVariant = Record<string, unknown> & { id: string; totalMaterialCosts: number };
+
 type Task = Record<string, unknown> & { id: string; title: string };
+
 type Goal = Record<string, unknown> & { id: string; title: string };
+
 type Draft = Record<string, unknown> & { id: string; name: string; type: string };
 
 const getApiUrl = () => process.env.E2E_API_SERVICE_URL || 'http://localhost:3001';
@@ -16,7 +24,9 @@ export async function apiGetMaterials(token: string): Promise<Material[]> {
     const res = await fetch(`${getApiUrl()}/api/materials`, {
         headers: { Authorization: `Bearer ${token}` },
     });
+
     if (!res.ok) throw new Error(`apiGetMaterials failed: ${await res.text()}`);
+
     return res.json();
 }
 
@@ -25,6 +35,7 @@ export async function apiDeleteMaterial(token: string, id: string): Promise<void
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
     });
+
     if (!res.ok && res.status !== 404) throw new Error(`apiDeleteMaterial failed: ${await res.text()}`);
 }
 
@@ -58,7 +69,9 @@ export async function apiCreateBead(
             ...overrides,
         }),
     });
+
     if (!res.ok) throw new Error(`apiCreateBead failed: ${await res.text()}`);
+
     return res.json();
 }
 
@@ -66,7 +79,9 @@ export async function apiGetDesigns(token: string): Promise<Design[]> {
     const res = await fetch(`${getApiUrl()}/api/designs`, {
         headers: { Authorization: `Bearer ${token}` },
     });
+
     if (!res.ok) throw new Error(`apiGetDesigns failed: ${await res.text()}`);
+
     return res.json();
 }
 
@@ -75,6 +90,7 @@ export async function apiDeleteDesign(token: string, id: string): Promise<void> 
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
     });
+
     if (!res.ok && res.status !== 404) throw new Error(`apiDeleteDesign failed: ${await res.text()}`);
 }
 
@@ -85,14 +101,27 @@ export async function apiUploadImage(
 ): Promise<string> {
     const form = new FormData();
     form.append('file', new Blob([bytes], { type: contentType }), 'test.png');
+
     const res = await fetch(`${getApiUrl()}/api/images`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: form,
     });
+
     if (!res.ok) throw new Error(`apiUploadImage failed: ${await res.text()}`);
     const { imageId } = (await res.json()) as { imageId: string };
+
     return imageId;
+}
+
+const FIXTURE_IMAGE_DIR = join(__dirname, '..', 'fixtures', 'images');
+
+export type FixturePhoto = 'blue-lace-agate-ring' | 'celestial-rings' | 'floral-earrings';
+
+export async function apiUploadFixturePhoto(token: string, photo: FixturePhoto): Promise<string> {
+    const bytes = new Uint8Array(await readFile(join(FIXTURE_IMAGE_DIR, `${photo}.jpg`)));
+
+    return apiUploadImage(token, 'image/jpeg', bytes);
 }
 
 export async function apiCreateDesign(
@@ -108,8 +137,12 @@ export async function apiCreateDesign(
         variationGroups?: object[];
         variants?: object[];
         designType?: string;
+        photo?: FixturePhoto;
     }
 ): Promise<Design> {
+    const { photo, ...fields } = design;
+    const existingImageIds = photo ? [await apiUploadFixturePhoto(token, photo)] : ['test-placeholder'];
+
     const res = await fetch(`${getApiUrl()}/api/designs`, {
         method: 'POST',
         headers: authHeaders(token),
@@ -120,11 +153,13 @@ export async function apiCreateDesign(
             totalMaterialCosts: 0,
             price: 1.0,
             // existingImageIds is parsed by the handler with JSON.parse(), so pass as a string
-            existingImageIds: JSON.stringify(['test-placeholder']),
-            ...design,
+            existingImageIds: JSON.stringify(existingImageIds),
+            ...fields,
         }),
     });
+
     if (!res.ok) throw new Error(`apiCreateDesign failed: ${await res.text()}`);
+
     return res.json();
 }
 
@@ -134,7 +169,9 @@ export async function apiProduceDesign(token: string, designId: string, quantity
         headers: authHeaders(token),
         body: JSON.stringify({ addQuantity: quantity }),
     });
+
     if (!res.ok) throw new Error(`apiProduceDesign failed: ${await res.text()}`);
+
     return res.json();
 }
 
@@ -149,7 +186,9 @@ export async function apiProduceDesignVariant(
         headers: authHeaders(token),
         body: JSON.stringify({ addQuantity: quantity, variantId }),
     });
+
     if (!res.ok) throw new Error(`apiProduceDesignVariant failed: ${await res.text()}`);
+
     return res.json();
 }
 
@@ -169,7 +208,9 @@ export async function apiCreateTask(
         headers: authHeaders(token),
         body: JSON.stringify({ subject: 'product', importance: 'medium', recurrence: 'none', ...task }),
     });
+
     if (!res.ok) throw new Error(`apiCreateTask failed: ${await res.text()}`);
+
     return res.json();
 }
 
@@ -178,6 +219,7 @@ export async function apiDeleteTask(token: string, id: string): Promise<void> {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
     });
+
     if (!res.ok && res.status !== 404) throw new Error(`apiDeleteTask failed: ${await res.text()}`);
 }
 
@@ -196,7 +238,9 @@ export async function apiCreateGoal(
         headers: authHeaders(token),
         body: JSON.stringify({ currentValue: 0, source: 'manual', ...goal }),
     });
+
     if (!res.ok) throw new Error(`apiCreateGoal failed: ${await res.text()}`);
+
     return res.json();
 }
 
@@ -205,15 +249,19 @@ export async function apiDeleteGoal(token: string, id: string): Promise<void> {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
     });
+
     if (!res.ok && res.status !== 404) throw new Error(`apiDeleteGoal failed: ${await res.text()}`);
 }
 
 export async function apiCleanupBoard(token: string): Promise<void> {
     const getJson = async (path: string): Promise<{ id: string }[]> => {
         const res = await fetch(`${getApiUrl()}${path}`, { headers: { Authorization: `Bearer ${token}` } });
+
         if (!res.ok) throw new Error(`GET ${path} failed: ${await res.text()}`);
+
         return res.json();
     };
+
     const [tasks, goals] = await Promise.all([getJson('/api/tasks'), getJson('/api/goals')]);
     await Promise.all([
         ...tasks.map((t) => apiDeleteTask(token, t.id)),
@@ -225,7 +273,9 @@ export async function apiGetDrafts(token: string): Promise<Draft[]> {
     const res = await fetch(`${getApiUrl()}/api/drafts`, {
         headers: { Authorization: `Bearer ${token}` },
     });
+
     if (!res.ok) throw new Error(`apiGetDrafts failed: ${await res.text()}`);
+
     return res.json();
 }
 
@@ -238,8 +288,10 @@ export async function apiCreateDraft(
         headers: authHeaders(token),
         body: JSON.stringify({ type: draft.type, name: draft.name, data: draft.data }),
     });
+
     if (!res.ok) throw new Error(`apiCreateDraft failed: ${await res.text()}`);
     const created: Draft = await res.json();
+
     if (!draft.imageId) return created;
 
     const update = await fetch(`${getApiUrl()}/api/drafts/${created.id}`, {
@@ -247,7 +299,9 @@ export async function apiCreateDraft(
         headers: authHeaders(token),
         body: JSON.stringify({ name: draft.name, data: draft.data, imageId: draft.imageId }),
     });
+
     if (!update.ok) throw new Error(`apiCreateDraft (image) failed: ${await update.text()}`);
+
     return update.json();
 }
 
@@ -256,6 +310,7 @@ export async function apiDeleteDraft(token: string, id: string): Promise<void> {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
     });
+
     if (!res.ok && res.status !== 404) throw new Error(`apiDeleteDraft failed: ${await res.text()}`);
 }
 
@@ -285,6 +340,7 @@ export async function apiSetUserSettings(
             ...settings,
         }),
     });
+
     if (!res.ok) throw new Error(`apiSetUserSettings failed: ${await res.text()}`);
 }
 
@@ -294,6 +350,7 @@ export async function apiCleanup(token: string): Promise<void> {
         apiGetDesigns(token),
         apiGetDrafts(token),
     ]);
+
     await Promise.all([
         ...materials.map((m) => apiDeleteMaterial(token, m.id)),
         ...designs.map((d) => apiDeleteDesign(token, d.id)),

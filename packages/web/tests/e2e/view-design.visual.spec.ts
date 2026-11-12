@@ -18,6 +18,7 @@ async function seedSimpleDesign(token: string) {
 
     return apiCreateDesign(token, {
         name: 'Visual Detail Necklace',
+        photo: 'celestial-rings',
         designType: 'NECKLACE',
         timeRequired: '00:30',
         price: 32,
@@ -53,6 +54,7 @@ test.describe('View design page visual regression', () => {
 
         const design = await apiCreateDesign(authToken, {
             name: 'Visual Detail Necklace',
+            photo: 'celestial-rings',
             price: 32,
             description: 'A delicate beaded necklace',
             materials: [{ ...bead, requiredQuantity: 10 }],
@@ -72,6 +74,7 @@ test.describe('View design page visual regression', () => {
 
         const design = await apiCreateDesign(authToken, {
             name: 'Visual Gem Drops',
+            photo: 'floral-earrings',
             designType: 'EARRINGS',
             variationGroups: [
                 {

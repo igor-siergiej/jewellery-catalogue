@@ -17,8 +17,8 @@ test.describe('Designs page visual regression', () => {
     });
 
     test('populated state', async ({ authenticatedPage: page, authToken }) => {
-        await apiCreateDesign(authToken, { name: 'Visual Moon Pendant', price: 24.5 });
-        await apiCreateDesign(authToken, { name: 'Visual Star Earrings', price: 18 });
+        await apiCreateDesign(authToken, { name: 'Visual Moon Pendant', price: 24.5, photo: 'celestial-rings' });
+        await apiCreateDesign(authToken, { name: 'Visual Star Earrings', price: 18, photo: 'floral-earrings' });
         await page.goto('/designs');
         await expect(page.getByText('Visual Moon Pendant')).toBeVisible({ timeout: 10000 });
         await settle(page);
@@ -27,7 +27,7 @@ test.describe('Designs page visual regression', () => {
     });
 
     test('search with no matches', async ({ authenticatedPage: page, authToken }) => {
-        await apiCreateDesign(authToken, { name: 'Visual Moon Pendant', price: 24.5 });
+        await apiCreateDesign(authToken, { name: 'Visual Moon Pendant', price: 24.5, photo: 'celestial-rings' });
         await page.goto('/designs');
         await expect(page.getByText('Visual Moon Pendant')).toBeVisible({ timeout: 10000 });
         await page.getByPlaceholder('Search designs...').fill('zzzzzz');
@@ -38,12 +38,12 @@ test.describe('Designs page visual regression', () => {
     });
 
     test('delete confirmation', async ({ authenticatedPage: page, authToken }) => {
-        await apiCreateDesign(authToken, { name: 'Visual Moon Pendant', price: 24.5 });
+        await apiCreateDesign(authToken, { name: 'Visual Moon Pendant', price: 24.5, photo: 'celestial-rings' });
         await page.goto('/designs');
         await expect(page.getByText('Visual Moon Pendant')).toBeVisible({ timeout: 10000 });
         await page.getByRole('button', { name: /^More actions for / }).click();
         await page.getByRole('menuitem', { name: 'Delete' }).click();
-        const dialog = page.getByRole('alertdialog', { name: 'Delete Visual Moon Pendant?' });
+        const dialog = page.getByRole('alertdialog', { name: 'Delete "Visual Moon Pendant"?' });
         await expect(dialog).toBeVisible();
         await settle(page);
         await expect(page).toHaveScreenshot('designs-delete-confirm.png');

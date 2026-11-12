@@ -1,6 +1,6 @@
 import { expect } from './fixtures';
 import { MOCK_TOKEN_VISUAL_ADD_MATERIAL_DESKTOP, MOCK_TOKEN_VISUAL_ADD_MATERIAL_MOBILE } from './mocks/auth';
-import { expectNoHorizontalScroll, settle, visualTest } from './utils/visual-helpers';
+import { expectNoHorizontalScroll, settle, showWholeForm, visualTest } from './utils/visual-helpers';
 
 const test = visualTest({
     mobile: MOCK_TOKEN_VISUAL_ADD_MATERIAL_MOBILE,
@@ -11,20 +11,22 @@ test.describe('Add material page visual regression', () => {
     test.describe.configure({ mode: 'serial' });
 
     test('empty state', async ({ authenticatedPage: page }) => {
+        await showWholeForm(page, 2000);
         await page.goto('/addMaterial');
         await page.waitForLoadState('networkidle');
         await settle(page);
         await expectNoHorizontalScroll(page);
-        await expect(page).toHaveScreenshot('add-material-empty.png', { fullPage: true });
+        await expect(page).toHaveScreenshot('add-material-empty.png');
     });
 
     test('validation errors', async ({ authenticatedPage: page }) => {
+        await showWholeForm(page, 2000);
         await page.goto('/addMaterial');
         await page.waitForLoadState('networkidle');
         await page.getByRole('button', { name: 'Add material' }).click();
         await expect(page.getByText('Please enter the material name')).toBeVisible();
         await settle(page);
         await expectNoHorizontalScroll(page);
-        await expect(page).toHaveScreenshot('add-material-errors.png', { fullPage: true });
+        await expect(page).toHaveScreenshot('add-material-errors.png');
     });
 });
