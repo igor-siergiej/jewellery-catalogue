@@ -16,6 +16,7 @@ import { useUserSettings } from '../../hooks/useUserSettings';
 import { errorContext, logger } from '../../utils/logger';
 import { DesignForm } from '../DesignForm';
 import { ResponsiveDialog } from '../ResponsiveDialog';
+import { StateView } from '../StateView';
 import { computeVariants } from '../VariationGroupBuilder';
 
 interface EditDesignDialogProps {
@@ -55,7 +56,7 @@ const EditDesignDialog: React.FC<EditDesignDialogProps> = ({ design, open, onOpe
     const [isMakingRequest, setIsMakingRequest] = useState(false);
     const { hourlyWage, profitMargin } = useUserSettings();
 
-    const { data } = useQuery({
+    const { data, isError, refetch } = useQuery({
         ...getMaterialsQuery(() => accessToken, login, logout),
         enabled: !!accessToken,
     });
@@ -149,10 +150,14 @@ const EditDesignDialog: React.FC<EditDesignDialogProps> = ({ design, open, onOpe
                 </>
             }
         >
-            {data && (
+            {data ? (
                 <form id={formId} onSubmit={form.handleSubmit(onSubmit)} onKeyDown={handleFormKeyDown}>
                     <DesignForm key={session} form={form} mode="edit" materials={data} />
                 </form>
+            ) : isError ? (
+                <StateView kind="error" what="materials" onRetry={() => refetch()} />
+            ) : (
+                <StateView kind="loading" what="materials" />
             )}
         </ResponsiveDialog>
     );

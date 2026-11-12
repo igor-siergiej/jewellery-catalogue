@@ -115,7 +115,7 @@ test.describe('View design page visual regression', () => {
         const design = await seedSimpleDesign(authToken);
         await mockLinkedListing(page, design.id);
         await page.goto(`/designs/${design.id}`);
-        await expect(page.getByRole('button', { name: 'Send to Etsy' })).toBeVisible({ timeout: 10000 });
+        await expect(page.getByRole('link', { name: 'View on Etsy' })).toBeVisible({ timeout: 10000 });
         await settle(page);
         await expectNoHorizontalScroll(page);
         await expect(page).toHaveScreenshot('view-design-etsy-linked.png', { fullPage: true, mask: [dateAdded(page)] });
@@ -124,7 +124,7 @@ test.describe('View design page visual regression', () => {
     test('edit dialog', async ({ authenticatedPage: page, authToken }) => {
         const design = await seedSimpleDesign(authToken);
         await page.goto(`/designs/${design.id}`);
-        await page.getByRole('button', { name: 'Edit Details' }).click();
+        await page.getByRole('button', { name: 'Edit design' }).click();
         const dialog = page.getByRole('dialog', { name: 'Edit design' });
         await expect(dialog.locator('.ProseMirror')).toHaveText('A delicate beaded necklace');
         await settle(page);
@@ -134,8 +134,8 @@ test.describe('View design page visual regression', () => {
     test('inventory dialog', async ({ authenticatedPage: page, authToken }) => {
         const design = await seedSimpleDesign(authToken);
         await page.goto(`/designs/${design.id}`);
-        await page.getByRole('button', { name: 'Manage Inventory' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Manage Design Inventory' });
+        await page.getByRole('button', { name: 'Manage inventory' }).click();
+        const dialog = page.getByRole('dialog', { name: /^Stock for / });
         await expect(dialog).toBeVisible();
         await settle(page);
         await expect(dialog).toHaveScreenshot('view-design-inventory-dialog.png');

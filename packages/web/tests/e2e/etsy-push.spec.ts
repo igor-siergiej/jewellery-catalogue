@@ -29,6 +29,14 @@ async function mockLinkedListing(page: Page, designId: string, etsy: Etsy) {
     });
 }
 
+async function mockTaxonomy(page: Page) {
+    await page.route('**/api/etsy/taxonomy', (route) =>
+        route.fulfill({
+            json: [{ id: 1, name: 'Jewellery', children: [{ id: 1234, name: 'Earrings', children: [] }] }],
+        })
+    );
+}
+
 /**
  * The Send to Etsy dialog seeds its description from the settings template when it opens, and doesn't re-seed if
  * the settings arrive later, so wait for them before interacting.
@@ -68,6 +76,7 @@ test.describe.serial('Send to Etsy', () => {
     test('pre-fills the listing from the design and settings, then sends it', async ({ authenticatedPage: page }) => {
         const design = await seedDesign();
         await mockConnection(page, true);
+        await mockTaxonomy(page);
         let pushRequest: Request | undefined;
         await page.route('**/api/designs/*/etsy-push', async (route) => {
             pushRequest = route.request();
@@ -87,8 +96,9 @@ test.describe.serial('Send to Etsy', () => {
         const dialog = page.getByRole('dialog', { name: 'Send to Etsy' });
         await expect(dialog.getByLabel('Title')).toHaveValue('Amethyst Studs');
         await expect(dialog.getByLabel('Description')).toHaveValue('Purple studs.\n\nMade with: Amethyst Bead');
-        await expect(dialog.getByText('Taxonomy #1234 (set for EARRINGS in Settings)')).toBeVisible();
-        await expect(dialog.getByText('1 product photo(s) will be sent.')).toBeVisible();
+        await expect(dialog.getByText('Jewellery > Earrings')).toBeVisible();
+        await expect(dialog.getByText('Set for earrings in Settings')).toBeVisible();
+        await expect(dialog.getByText('1 photo will be sent')).toBeVisible();
         await expect(dialog.getByRole('spinbutton')).toHaveValue('24');
 
         await dialog.getByLabel('Add tag').fill('purple studs');
@@ -103,11 +113,12 @@ test.describe.serial('Send to Etsy', () => {
             tags: ['purple studs'],
             price: 26.5,
         });
-        await expect(page.getByRole('link', { name: 'Draft on Etsy' })).toHaveAttribute(
+        await expect(page.getByRole('link', { name: 'View on Etsy' })).toHaveAttribute(
             'href',
             'https://www.etsy.com/your/shops/me/listing-editor/edit/555'
         );
-        await expect(page.getByRole('button', { name: 'Send to Etsy' })).toBeDisabled();
+        await expect(page.getByRole('region', { name: 'Etsy' }).getByText('Etsy draft')).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Send to Etsy' })).toHaveCount(0);
     });
 
     test('cannot send without a category mapped for the design type', async ({ authenticatedPage: page }) => {
@@ -117,7 +128,7 @@ test.describe.serial('Send to Etsy', () => {
         await page.getByRole('button', { name: 'Send to Etsy' }).click();
 
         const dialog = page.getByRole('dialog', { name: 'Send to Etsy' });
-        await expect(dialog.getByText('No category mapped for this design type')).toBeVisible();
+        await expect(dialog.getByText('No category is set for rings')).toBeVisible();
         await expect(dialog.getByRole('button', { name: 'Send to Etsy' })).toBeDisabled();
     });
 
@@ -174,7 +185,7 @@ test.describe.serial('Send to Etsy', () => {
         const dialog = page.getByRole('dialog', { name: 'Send to Etsy' });
         await expect(dialog.getByText('Resuming an interrupted upload')).toBeVisible();
         await expect(dialog.getByLabel('Title')).toBeDisabled();
-        await expect(dialog.getByRole('button', { name: 'Generate with AI' })).toBeDisabled();
+        await expect(dialog.getByRole('button', { name: 'Write title and description' })).toBeDisabled();
         await dialog.getByRole('button', { name: 'Send to Etsy' }).click();
         await expect.poll(() => pushBody).toEqual({ price: 24 });
     });
@@ -185,10 +196,8 @@ test.describe.serial('Send to Etsy', () => {
         await mockLinkedListing(page, design.id, { listingId: 888, state: 'active', lastPushedAt: 1 });
         await openDesign(page, design.id);
 
-        await expect(page.getByRole('link', { name: 'Active on Etsy' })).toBeVisible();
-        await expect(page.getByRole('button', { name: 'Send to Etsy' })).toHaveAttribute(
-            'title',
-            'This design is already on Etsy'
-        );
+        await expect(page.getByRole('link', { name: 'View on Etsy' })).toBeVisible();
+        await expect(page.getByRole('region', { name: 'Etsy' }).getByText('Listed', { exact: true })).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Send to Etsy' })).toHaveCount(0);
     });
 });

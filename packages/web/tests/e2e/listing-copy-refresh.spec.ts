@@ -37,9 +37,11 @@ test('bulk refresh generates per listing, survives a failure, and only updates E
                 .url()
                 .match(/listings\/(\d+)\//)?.[1]
         );
+
         if (listingId === 2) {
             return route.fulfill({ status: 502, contentType: 'application/json', body: '{"error":"fal down"}' });
         }
+
         return route.fulfill({
             status: 200,
             contentType: 'application/json',
@@ -55,18 +57,19 @@ test('bulk refresh generates per listing, survives a failure, and only updates E
     const applied: unknown[] = [];
     await page.route('**/api/etsy/listings/*/copy', (route) => {
         applied.push(route.request().postDataJSON());
+
         return route.fulfill({ status: 200, contentType: 'application/json', body: '{"updated":true}' });
     });
 
     await page.goto('/listings');
-    await page.getByRole('button', { name: 'Refresh listing copy with AI' }).click();
+    await page.getByRole('button', { name: 'Refresh listing copy' }).click();
     const panel = page.getByTestId('listing-copy-refresh');
 
     // Only linked listings can be refreshed.
     await expect(panel.getByLabel('Select Unlinked Brooch')).toHaveCount(0);
     await panel.getByLabel('Select Old Opal Ring').click();
     await panel.getByLabel('Select Old Moon Pendant').click();
-    await panel.getByRole('button', { name: 'Generate new copy (2)' }).click();
+    await panel.getByRole('button', { name: 'Write new copy (2)' }).click();
 
     const items = panel.getByTestId('listing-refresh-item');
     await expect(items.filter({ hasText: 'Old Moon Pendant' })).toContainText('Failed');

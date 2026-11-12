@@ -44,10 +44,10 @@ test.describe.serial('AI price range on the design page', () => {
         });
 
         await page.goto(`/designs/${design.id}`);
-        await expect(page.getByRole('button', { name: 'Ask AI for a price range' })).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Suggest a price range' })).toBeVisible();
         expect(requests).toBe(0);
 
-        await page.getByRole('button', { name: 'Ask AI for a price range' }).click();
+        await page.getByRole('button', { name: 'Suggest a price range' }).click();
 
         const advice = page.getByTestId('price-advice');
         await expect(advice).toContainText('£24.00 – £32.00');
@@ -73,7 +73,7 @@ test.describe.serial('AI price range on the design page', () => {
         );
 
         await page.goto(`/designs/${design.id}`);
-        await page.getByRole('button', { name: 'Ask AI for a price range' }).click();
+        await page.getByRole('button', { name: 'Suggest a price range' }).click();
 
         await expect(page.getByText("AI features aren't set up yet.")).toBeVisible();
     });
@@ -95,7 +95,7 @@ test.describe.serial('AI price range on the design page', () => {
         );
 
         await page.goto(`/designs/${design.id}`);
-        await page.getByRole('button', { name: 'Ask AI for a price range' }).click();
+        await page.getByRole('button', { name: 'Suggest a price range' }).click();
 
         await expect(page.getByText("You've reached the AI usage limit for now.")).toBeVisible();
     });

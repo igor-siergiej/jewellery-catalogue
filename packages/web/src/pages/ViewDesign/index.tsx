@@ -9,21 +9,21 @@ import { track } from '@/utils/analytics';
 
 import { getDesignQuery } from '../../api/endpoints/getDesign';
 import DesignDescription from '../../components/DesignDescription';
-import DesignUpdateForm from '../../components/DesignUpdateForm';
 import EditDesignDialog from '../../components/EditDesignDialog';
 import EtsyPushDialog from '../../components/EtsyPushDialog';
 import { Image } from '../../components/Image';
-import LoadingScreen from '../../components/Loading';
+import InventoryDialog from '../../components/InventoryDialog';
 import { PriceAdvice } from '../../components/PriceAdvice';
-import { Badge } from '../../components/ui/badge';
+import { StateView } from '../../components/StateView';
+import { EtsyStatusTag, StatusTag } from '../../components/StatusTag';
 import { Button } from '../../components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { MATERIALS_PAGE } from '../../constants/routes';
 import { useEtsyConnection } from '../../hooks/useEtsyConnection';
 import { useEtsyStatus } from '../../hooks/useEtsyStatus';
 import { PRODUCIBLE_QUERY_KEY, useProducible } from '../../hooks/useProducible';
 import { describeDuration } from '../../lib/duration';
+import { etsyListingUrl, getEtsyAction, getEtsyStatus } from '../../lib/etsyStatus';
 import {
     DESIGN_TYPE_LABELS,
     MATERIAL_TYPE_LABELS,
@@ -39,8 +39,8 @@ const ViewDesign = () => {
     const { searchQuery } = useSearch();
     const { accessToken, login, logout } = useAuth();
     const { user } = useUser();
+    const [inventoryDialogOpen, setInventoryDialogOpen] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
-    const [editPropertiesDialogOpen, setEditPropertiesDialogOpen] = useState(false);
     const [imageIndex, setImageIndex] = useState(0);
     const { connected: etsyConnected } = useEtsyConnection();
     const [etsyDialogOpen, setEtsyDialogOpen] = useState(false);
@@ -90,122 +90,81 @@ const ViewDesign = () => {
 
     const hasDescription = description && description !== '<p></p>';
 
-    const handleSuccess = () => {
-        setEditDialogOpen(false);
+    const handleInventorySuccess = () => {
+        setInventoryDialogOpen(false);
         refetch();
         queryClient.invalidateQueries({ queryKey: PRODUCIBLE_QUERY_KEY });
     };
 
-    const handleCancel = () => {
+    const handleEditSuccess = () => {
         setEditDialogOpen(false);
-    };
-
-    const handlePropertiesSuccess = () => {
-        setEditPropertiesDialogOpen(false);
         setImageIndex(0);
         refetch();
         queryClient.invalidateQueries({ queryKey: PRODUCIBLE_QUERY_KEY });
     };
 
     if (isLoading || !user?.id) {
-        return <LoadingScreen />;
+        return <StateView kind="loading" what="design" />;
     }
 
     if (isError || !design) {
-        return <span>Design not found</span>;
+        return (
+            <StateView
+                kind="empty"
+                title="Design not found"
+                body="It may have been deleted, or the link may be wrong."
+                action={
+                    <Button asChild variant="outline">
+                        <Link to="/designs">All designs</Link>
+                    </Button>
+                }
+            />
+        );
     }
+
+    const etsyStatus = getEtsyStatus(design);
+    const etsyAction = getEtsyAction(design, etsyConnected);
+    const showEtsyBlock = etsyAction !== 'none' || etsyStatus !== 'none';
 
     return (
         <>
-            <div className="max-w-6xl mx-auto px-6 py-8">
-                {/* Page header */}
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-8">
+            <div className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-8">
+                <div className="mb-8 flex flex-wrap items-center justify-between gap-2">
                     <Link
                         to="/designs"
-                        className="hidden text-sm text-muted-foreground hover:text-foreground transition-colors md:inline"
+                        className="inline-flex min-h-11 items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
-                        ← All Designs
+                        <ChevronLeft className="size-4" aria-hidden />
+                        All designs
                     </Link>
                     <div className="flex flex-wrap gap-2">
-                        <Button
-                            variant="outline"
-                            onClick={() => setEditPropertiesDialogOpen(true)}
-                            title="Edit Design Properties"
-                        >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit Details
+                        <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
+                            <Edit className="size-4" aria-hidden />
+                            Edit design
                         </Button>
-                        <Button variant="outline" onClick={() => setEditDialogOpen(true)} title="Manage Inventory">
-                            <PackageOpen className="h-4 w-4 mr-2" />
-                            Manage Inventory
+                        <Button variant="outline" onClick={() => setInventoryDialogOpen(true)}>
+                            <PackageOpen className="size-4" aria-hidden />
+                            Manage inventory
                         </Button>
-                        {catalogueOnly ? (
-                            <Badge
-                                variant="outline"
-                                title="This design is kept in the catalogue only and cannot be sent to Etsy"
-                            >
-                                Catalogue only
-                            </Badge>
-                        ) : (
-                            etsyConnected && (
-                                <>
-                                    {etsy?.listingId && (
-                                        <a
-                                            href={`https://www.etsy.com/your/shops/me/listing-editor/edit/${etsy.listingId}`}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground"
-                                        >
-                                            {etsy.state === 'active'
-                                                ? 'Active'
-                                                : etsy.state === 'inactive'
-                                                  ? 'Inactive'
-                                                  : 'Draft'}{' '}
-                                            on Etsy
-                                            <ExternalLink className="h-3 w-3" />
-                                        </a>
-                                    )}
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        disabled={!!etsy?.listingId && !etsy.pushIncomplete}
-                                        title={
-                                            etsy?.listingId && !etsy.pushIncomplete
-                                                ? 'This design is already on Etsy'
-                                                : undefined
-                                        }
-                                        onClick={() => setEtsyDialogOpen(true)}
-                                    >
-                                        Send to Etsy
-                                    </Button>
-                                </>
-                            )
-                        )}
                     </div>
                 </div>
 
-                {/* 2-column layout */}
-                <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-12 items-start">
-                    {/* LEFT: sticky image */}
-                    <div className="lg:sticky lg:top-8 relative">
-                        <div className="rounded-xl overflow-hidden border border-border shadow-lg aspect-[3/4] bg-card">
+                <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[2fr_3fr] lg:gap-12">
+                    <div className="relative lg:sticky lg:top-8">
+                        <div className="aspect-[3/4] overflow-hidden rounded-lg border border-border bg-card">
                             {imageIds && imageIds.length > 0 ? (
                                 <div
                                     className="flex h-full transition-transform duration-500 ease-in-out"
                                     style={{ transform: `translateX(-${imageIndex * 100}%)` }}
                                 >
-                                    {imageIds.map((id) => (
-                                        <div key={id} className="w-full h-full flex-shrink-0">
-                                            <Image imageId={id} size="display" />
+                                    {imageIds.map((imageId) => (
+                                        <div key={imageId} className="h-full w-full flex-shrink-0">
+                                            <Image imageId={imageId} size="display" />
                                         </div>
                                     ))}
                                 </div>
                             ) : etsy?.imageUrls && etsy.imageUrls.length > 0 ? (
-                                <img
-                                    src={etsy.imageUrls[0]}
-                                    alt={name}
-                                    className="w-full h-full object-cover rounded-md"
-                                />
+                                <img src={etsy.imageUrls[0]} alt={name} className="h-full w-full object-cover" />
                             ) : (
                                 <Image imageId="" />
                             )}
@@ -214,267 +173,262 @@ const ViewDesign = () => {
                             <>
                                 <button
                                     type="button"
+                                    aria-label="Previous photo"
                                     onClick={() => setImageIndex((i) => Math.max(0, i - 1))}
                                     disabled={imageIndex === 0}
-                                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 disabled:opacity-0 text-white rounded-full p-1.5 transition-all backdrop-blur-sm"
+                                    className="absolute left-2 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card/90 text-foreground transition-opacity hover:bg-card disabled:pointer-events-none disabled:opacity-0"
                                 >
-                                    <ChevronLeft className="h-5 w-5" />
+                                    <ChevronLeft className="size-5" aria-hidden />
                                 </button>
                                 <button
                                     type="button"
+                                    aria-label="Next photo"
                                     onClick={() => setImageIndex((i) => Math.min(imageIds.length - 1, i + 1))}
                                     disabled={imageIndex === imageIds.length - 1}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 disabled:opacity-0 text-white rounded-full p-1.5 transition-all backdrop-blur-sm"
+                                    className="absolute right-2 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card/90 text-foreground transition-opacity hover:bg-card disabled:pointer-events-none disabled:opacity-0"
                                 >
-                                    <ChevronRight className="h-5 w-5" />
+                                    <ChevronRight className="size-5" aria-hidden />
                                 </button>
-                                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                                    {imageIds.map((id, i) => (
+                                <div className="absolute bottom-1 left-1/2 flex -translate-x-1/2">
+                                    {imageIds.map((imageId, i) => (
                                         <button
-                                            key={id}
+                                            key={imageId}
                                             type="button"
+                                            aria-label={`Show photo ${i + 1} of ${imageIds.length}`}
+                                            aria-current={i === imageIndex}
                                             onClick={() => setImageIndex(i)}
-                                            className={cn(
-                                                'h-1.5 rounded-full transition-all duration-300',
-                                                i === imageIndex
-                                                    ? 'w-4 bg-white'
-                                                    : 'w-1.5 bg-white/50 hover:bg-white/80'
-                                            )}
-                                        />
+                                            className="flex size-6 items-center justify-center"
+                                        >
+                                            <span
+                                                className={cn(
+                                                    'h-1.5 rounded-full border border-border transition-all',
+                                                    i === imageIndex ? 'w-4 bg-primary' : 'w-1.5 bg-card'
+                                                )}
+                                            />
+                                        </button>
                                     ))}
                                 </div>
                             </>
                         )}
                     </div>
 
-                    {/* RIGHT: detail panel */}
-                    <div className="flex flex-col gap-8">
-                        {/* Identity */}
+                    <div className="flex min-w-0 flex-col gap-8">
                         <div className="flex flex-col gap-2">
                             {designType && (
-                                <Badge variant="outline" className="w-fit text-xs tracking-widest uppercase">
-                                    {DESIGN_TYPE_LABELS[designType]}
-                                </Badge>
+                                <p className="text-sm text-muted-foreground">{DESIGN_TYPE_LABELS[designType]}</p>
                             )}
-                            <h1 className="text-4xl font-bold leading-tight">{name}</h1>
-                            <div className="flex items-baseline gap-3 flex-wrap">
-                                {(!variants || variants.length === 0) && (
-                                    <span className="text-3xl font-semibold">£{price.toFixed(2)}</span>
-                                )}
-                                <Badge variant="secondary" className="text-xs">
-                                    {totalQuantity ?? 0} in stock
-                                </Badge>
-                                {canMake && (
-                                    <Badge variant="outline" className="text-xs" data-testid="can-make">
-                                        {canMake}
-                                    </Badge>
-                                )}
-                            </div>
+                            <h1 className="font-display text-4xl font-semibold leading-tight">{name}</h1>
+                            {(!variants || variants.length === 0) && (
+                                <p className="text-3xl font-semibold">£{price.toFixed(2)}</p>
+                            )}
+                            <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                                <span>{totalQuantity ?? 0} in stock</span>
+                                {canMake && <span data-testid="can-make">{canMake}</span>}
+                            </p>
                         </div>
 
-                        <div className="h-px bg-border" />
+                        {showEtsyBlock && (
+                            <section
+                                aria-label="Etsy"
+                                className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-3"
+                            >
+                                {etsyAction === 'catalogue-only' ? (
+                                    <p className="text-sm">Catalogue only, not sent to Etsy</p>
+                                ) : (
+                                    <>
+                                        <EtsyStatusTag status={etsyStatus} />
+                                        {etsyAction === 'send' && (
+                                            <Button type="button" onClick={() => setEtsyDialogOpen(true)}>
+                                                Send to Etsy
+                                            </Button>
+                                        )}
+                                        {etsyAction === 'view' && etsy?.listingId && (
+                                            <Button asChild variant="outline">
+                                                <a
+                                                    href={etsyListingUrl(etsy.listingId)}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                >
+                                                    View on Etsy
+                                                    <ExternalLink className="size-4" aria-hidden />
+                                                </a>
+                                            </Button>
+                                        )}
+                                    </>
+                                )}
+                            </section>
+                        )}
 
-                        {/* Stat cards */}
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                            <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-1">
-                                <span className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
-                                    Time
-                                </span>
-                                <span className="text-lg font-semibold">{describeDuration(timeRequired)}</span>
-                                <span className="text-xs text-muted-foreground">to make</span>
-                            </div>
-                            <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-1">
-                                <span className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
-                                    Materials
-                                </span>
-                                <span className="text-lg font-semibold">£{totalMaterialCosts.toFixed(2)}</span>
-                                <span className="text-xs text-muted-foreground">cost</span>
-                            </div>
-                            <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-1">
-                                <span className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
-                                    Added
-                                </span>
-                                <span className="text-lg font-semibold">
-                                    {new Date(dateAdded).toLocaleDateString('en-GB', {
+                        <dl className="max-w-md text-sm">
+                            {[
+                                ['Time to make', describeDuration(timeRequired)],
+                                ['Material cost', `£${totalMaterialCosts.toFixed(2)}`],
+                                [
+                                    'Added',
+                                    new Date(dateAdded).toLocaleDateString('en-GB', {
                                         month: 'short',
                                         year: 'numeric',
-                                    })}
-                                </span>
-                                <span className="text-xs text-muted-foreground">date</span>
-                            </div>
-                            <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-1">
-                                <span className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
-                                    Low Stock
-                                </span>
-                                <span className="text-lg font-semibold">{lowStockThreshold ?? '—'}</span>
-                                <span className="text-xs text-muted-foreground">threshold</span>
-                            </div>
-                        </div>
+                                    }),
+                                ],
+                                ['Low-stock alert', lowStockThreshold ?? 'Not set'],
+                            ].map(([term, value]) => (
+                                <div
+                                    key={term}
+                                    className="flex justify-between gap-4 border-b border-border py-2 first:pt-0"
+                                >
+                                    <dt className="text-muted-foreground">{term}</dt>
+                                    <dd className="font-medium">{value}</dd>
+                                </div>
+                            ))}
+                        </dl>
 
                         {id && <PriceAdvice designId={id} />}
 
-                        {/* Description */}
                         {hasDescription && (
-                            <div className="flex flex-col gap-3">
-                                <div className="flex items-center gap-3">
-                                    <span className="text-xs uppercase tracking-widest font-semibold text-primary whitespace-nowrap">
-                                        About this design
-                                    </span>
-                                    <div className="flex-1 h-px bg-border" />
-                                </div>
+                            <section className="flex flex-col gap-3">
+                                <h2 className="text-base font-semibold">About this design</h2>
                                 <DesignDescription html={description} />
-                            </div>
+                            </section>
                         )}
 
-                        {/* Maker Docs */}
                         {(diagramImageIds && diagramImageIds.length > 0) || makingNotes ? (
-                            <div className="mt-8 rounded-lg border border-border bg-muted/30 p-6">
-                                <h2 className="text-lg font-medium mb-1">Maker Docs</h2>
-                                <p className="text-xs text-muted-foreground mb-4">Private — never shown on Etsy</p>
+                            <section className="rounded-lg border border-border bg-card p-4">
+                                <h2 className="text-base font-semibold">Maker docs</h2>
+                                <p className="mb-4 text-sm text-muted-foreground">Private, never shown on Etsy</p>
 
                                 {diagramImageIds && diagramImageIds.length > 0 && (
-                                    <div className="flex flex-wrap gap-3 mb-4">
-                                        {diagramImageIds.map((id) => (
+                                    <div className="mb-4 flex flex-wrap gap-3">
+                                        {diagramImageIds.map((diagramId) => (
                                             <div
-                                                key={id}
-                                                className="w-24 h-24 rounded-md overflow-hidden border border-border"
+                                                key={diagramId}
+                                                className="size-24 overflow-hidden rounded-md border border-border"
                                             >
-                                                <Image imageId={id} size="display" />
+                                                <Image imageId={diagramId} size="display" />
                                             </div>
                                         ))}
                                     </div>
                                 )}
 
-                                {makingNotes && <p className="text-sm whitespace-pre-wrap">{makingNotes}</p>}
-                            </div>
+                                {makingNotes && <p className="whitespace-pre-wrap text-sm">{makingNotes}</p>}
+                            </section>
                         ) : null}
 
-                        {/* Variants */}
                         {variants && variants.length > 0 && (
-                            <div className="flex flex-col gap-3">
-                                <div className="flex items-center gap-3">
-                                    <span className="text-xs uppercase tracking-widest font-semibold text-primary">
-                                        Variants
-                                    </span>
-                                    <div className="flex-1 h-px bg-border" />
-                                </div>
+                            <section className="flex flex-col gap-3">
+                                <h2 className="text-base font-semibold">Variants</h2>
                                 <Table>
                                     <TableHeader>
-                                        <TableRow>
+                                        <TableRow className="hover:bg-transparent">
                                             <TableHead>Variant</TableHead>
-                                            <TableHead>Material Costs</TableHead>
-                                            <TableHead>Price</TableHead>
-                                            <TableHead>In Stock</TableHead>
-                                            <TableHead>Can Make</TableHead>
+                                            <TableHead data-numeric>Material cost</TableHead>
+                                            <TableHead data-numeric>Price</TableHead>
+                                            <TableHead data-numeric>In stock</TableHead>
+                                            <TableHead data-numeric>Can make</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {variants.map((variant) => (
                                             <TableRow key={variant.id}>
-                                                <TableCell className="font-medium">{variant.name}</TableCell>
-                                                <TableCell>£{variant.totalMaterialCosts.toFixed(2)}</TableCell>
-                                                <TableCell>£{variant.price.toFixed(2)}</TableCell>
-                                                <TableCell>{variant.totalQuantity}</TableCell>
-                                                <TableCell>{variantCanMake.get(variant.id) ?? '—'}</TableCell>
+                                                <TableCell
+                                                    data-name
+                                                    title={variant.name}
+                                                    className="w-full font-medium"
+                                                >
+                                                    {variant.name}
+                                                </TableCell>
+                                                <TableCell data-numeric>
+                                                    £{variant.totalMaterialCosts.toFixed(2)}
+                                                </TableCell>
+                                                <TableCell data-numeric>£{variant.price.toFixed(2)}</TableCell>
+                                                <TableCell data-numeric>{variant.totalQuantity}</TableCell>
+                                                <TableCell data-numeric>
+                                                    {variantCanMake.get(variant.id) ?? '–'}
+                                                </TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
                                 </Table>
-                            </div>
+                            </section>
                         )}
 
-                        {/* Materials */}
                         {materials && materials.length > 0 && (
-                            <div className="flex flex-col gap-3">
-                                <div className="flex items-center gap-3">
-                                    <span className="text-xs uppercase tracking-widest font-semibold text-primary">
-                                        {variants && variants.length > 0 ? 'Shared Materials' : 'Materials'}
-                                    </span>
-                                    <div className="flex-1 h-px bg-border" />
-                                </div>
+                            <section className="flex flex-col gap-3">
+                                <h2 className="text-base font-semibold">
+                                    {variants && variants.length > 0 ? 'Shared materials' : 'Materials'}
+                                </h2>
                                 <Table>
                                     <TableHeader>
-                                        <TableRow>
+                                        <TableRow className="hover:bg-transparent">
                                             <TableHead>Material</TableHead>
                                             <TableHead>Type</TableHead>
                                             <TableHead>Attributes</TableHead>
-                                            <TableHead>Required</TableHead>
+                                            <TableHead data-numeric>Required</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {materials.map((material) => (
-                                            <TableRow key={material.id}>
-                                                <TableCell>
-                                                    <Link
-                                                        to={MATERIALS_PAGE.route}
-                                                        className="text-primary hover:underline"
-                                                    >
-                                                        {material.name}
-                                                    </Link>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge variant="secondary" className="capitalize">
-                                                        {MATERIAL_TYPE_LABELS[material.type]}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div className="flex gap-1.5 flex-wrap">
-                                                        {material.type === 'BEAD' && material.colour && (
-                                                            <Badge variant="secondary" className="capitalize">
-                                                                {material.colour}
-                                                            </Badge>
-                                                        )}
-                                                        {(material.type === 'WIRE' ||
-                                                            material.type === 'CHAIN' ||
-                                                            material.type === 'EAR_HOOK') &&
-                                                            material.metalType && (
-                                                                <Badge variant="outline">
+                                        {materials.map((material) => {
+                                            const isMetal =
+                                                material.type === 'WIRE' ||
+                                                material.type === 'CHAIN' ||
+                                                material.type === 'EAR_HOOK';
+
+                                            return (
+                                                <TableRow key={material.id}>
+                                                    <TableCell data-name title={material.name} className="w-1/3">
+                                                        <Link
+                                                            to={MATERIALS_PAGE.route}
+                                                            className="text-primary hover:underline"
+                                                        >
+                                                            {material.name}
+                                                        </Link>
+                                                    </TableCell>
+                                                    <TableCell>{MATERIAL_TYPE_LABELS[material.type]}</TableCell>
+                                                    <TableCell>
+                                                        <div className="flex flex-wrap gap-1.5">
+                                                            {material.type === 'BEAD' && material.colour && (
+                                                                <StatusTag>{material.colour}</StatusTag>
+                                                            )}
+                                                            {isMetal && material.metalType && (
+                                                                <StatusTag>
                                                                     {METAL_TYPE_LABELS[material.metalType]}
-                                                                </Badge>
+                                                                </StatusTag>
                                                             )}
-                                                        {(material.type === 'WIRE' ||
-                                                            material.type === 'CHAIN' ||
-                                                            material.type === 'EAR_HOOK') &&
-                                                            material.wireType && (
-                                                                <Badge variant="secondary">
+                                                            {isMetal && material.wireType && (
+                                                                <StatusTag>
                                                                     {WIRE_TYPE_LABELS[material.wireType]}
-                                                                </Badge>
+                                                                </StatusTag>
                                                             )}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {('requiredLength' in material &&
-                                                        `${material.requiredLength} cm`) ||
-                                                        ('requiredQuantity' in material &&
-                                                            `${material.requiredQuantity} pcs`)}
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell data-numeric>
+                                                        {('requiredLength' in material &&
+                                                            `${material.requiredLength} cm`) ||
+                                                            ('requiredQuantity' in material &&
+                                                                `${material.requiredQuantity} pcs`)}
+                                                    </TableCell>
+                                                </TableRow>
+                                            );
+                                        })}
                                     </TableBody>
                                 </Table>
-                            </div>
+                            </section>
                         )}
                     </div>
                 </div>
             </div>
 
-            <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-                <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle>Manage Design Inventory</DialogTitle>
-                    </DialogHeader>
-                    {design && <DesignUpdateForm design={design} onSuccess={handleSuccess} onCancel={handleCancel} />}
-                </DialogContent>
-            </Dialog>
-
-            <EditDesignDialog
+            <InventoryDialog
                 design={design}
-                open={editPropertiesDialogOpen}
-                onOpenChange={setEditPropertiesDialogOpen}
-                onSuccess={handlePropertiesSuccess}
+                open={inventoryDialogOpen}
+                onOpenChange={setInventoryDialogOpen}
+                onSuccess={handleInventorySuccess}
             />
 
-            {design && <EtsyPushDialog design={design} open={etsyDialogOpen} onOpenChange={setEtsyDialogOpen} />}
+            {editDialogOpen && (
+                <EditDesignDialog design={design} open onOpenChange={setEditDialogOpen} onSuccess={handleEditSuccess} />
+            )}
+
+            <EtsyPushDialog design={design} open={etsyDialogOpen} onOpenChange={setEtsyDialogOpen} />
         </>
     );
 };

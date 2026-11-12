@@ -41,7 +41,7 @@ test.describe('Editing a design never publishes to Etsy', () => {
         await page.goto(`/designs/${design.id}`);
         await page.waitForLoadState('networkidle');
 
-        await page.getByRole('button', { name: 'Edit Details' }).click();
+        await page.getByRole('button', { name: 'Edit design' }).click();
         await expect(page.getByRole('dialog', { name: 'Edit design' })).toBeVisible({ timeout: 10000 });
 
         await page.getByRole('button', { name: 'More options' }).click();

@@ -72,7 +72,7 @@ test.describe.serial('Etsy integration against the mock', () => {
         const dialog = page.getByRole('dialog', { name: 'Send to Etsy' });
         await dialog.getByRole('button', { name: 'Send to Etsy' }).click();
         await expect(dialog).toBeHidden({ timeout: 15000 });
-        await expect(page.getByRole('link', { name: 'Draft on Etsy' })).toBeVisible();
+        await expect(page.getByRole('link', { name: 'View on Etsy' })).toBeVisible();
 
         const { shopId } = await findMockShop(shopName);
         const pushed = (await mockShopListings(shopId)).find((l) => l.title === 'Mock Amethyst Studs');
@@ -80,6 +80,6 @@ test.describe.serial('Etsy integration against the mock', () => {
 
         await setMockListingState(pushed?.listing_id as number, 'active');
         await page.reload();
-        await expect(page.getByRole('link', { name: 'Active on Etsy' })).toBeVisible();
+        await expect(page.getByRole('link', { name: 'View on Etsy' })).toBeVisible();
     });
 });

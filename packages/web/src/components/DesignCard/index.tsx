@@ -10,8 +10,8 @@ import { VIEW_DESIGN_PAGE } from '../../constants/routes';
 import { describeDuration } from '../../lib/duration';
 import { getEtsyStatus } from '../../lib/etsyStatus';
 import { track } from '../../utils/analytics';
-import DesignUpdateForm from '../DesignUpdateForm';
 import { Image } from '../Image';
+import InventoryDialog from '../InventoryDialog';
 import { EtsyStatusTag, StatusTag } from '../StatusTag';
 import {
     AlertDialog,
@@ -24,7 +24,6 @@ import {
     AlertDialogTitle,
 } from '../ui/alert-dialog';
 import { Button } from '../ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
 export interface DesignCardProps {
@@ -67,10 +66,6 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
         if (onDesignUpdated) {
             onDesignUpdated();
         }
-    };
-
-    const handleCancel = () => {
-        setEditDialogOpen(false);
     };
 
     const nameId = `design-name-${id}`;
@@ -161,14 +156,12 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
                 </div>
             </article>
 
-            <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-                <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle>Manage Design Inventory</DialogTitle>
-                    </DialogHeader>
-                    <DesignUpdateForm design={design} onSuccess={handleSuccess} onCancel={handleCancel} />
-                </DialogContent>
-            </Dialog>
+            <InventoryDialog
+                design={design}
+                open={editDialogOpen}
+                onOpenChange={setEditDialogOpen}
+                onSuccess={handleSuccess}
+            />
 
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <AlertDialogContent>

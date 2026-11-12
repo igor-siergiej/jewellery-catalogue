@@ -20,11 +20,11 @@ test.describe.serial('Design stock quantity', () => {
         await page.getByRole('button', { name: /^More actions for / }).click();
         await page.getByRole('menuitem', { name: 'Manage inventory' }).click();
 
-        await expect(page.getByText('Manage Design Inventory')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByRole('dialog', { name: /^Stock for / })).toBeVisible({ timeout: 10000 });
         await page.locator('#set-stock-quantity').fill('12');
-        await page.getByRole('button', { name: 'Update Stock' }).click();
+        await page.getByRole('button', { name: 'Set stock' }).click();
 
-        await expect(page.getByText('Stock updated!')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Stock updated')).toBeVisible({ timeout: 10000 });
 
         const designs = await apiGetDesigns(TOKEN);
         const updated = designs.find((d) => d.id === design.id);
@@ -57,13 +57,13 @@ test.describe.serial('Design stock quantity', () => {
         await page.getByRole('button', { name: /^More actions for / }).click();
         await page.getByRole('menuitem', { name: 'Manage inventory' }).click();
 
-        await expect(page.getByText('Manage Design Inventory')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByRole('dialog', { name: /^Stock for / })).toBeVisible({ timeout: 10000 });
 
         const syncButton = page.getByRole('button', { name: 'Sync from Etsy' });
         await expect(syncButton).toBeVisible({ timeout: 10000 });
         await syncButton.click();
 
-        await expect(page.getByText('Stock synced from Etsy!')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Stock synced from Etsy')).toBeVisible({ timeout: 10000 });
     });
 
     test('sync button is not shown for a design with no linked Etsy listing', async ({ authenticatedPage: page }) => {
@@ -76,7 +76,7 @@ test.describe.serial('Design stock quantity', () => {
         await page.getByRole('button', { name: /^More actions for / }).click();
         await page.getByRole('menuitem', { name: 'Manage inventory' }).click();
 
-        await expect(page.getByText('Manage Design Inventory')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByRole('dialog', { name: /^Stock for / })).toBeVisible({ timeout: 10000 });
         await expect(page.getByRole('button', { name: 'Sync from Etsy' })).not.toBeVisible();
     });
 });

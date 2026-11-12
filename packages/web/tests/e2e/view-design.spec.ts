@@ -1,3 +1,5 @@
+import type { Page } from '@playwright/test';
+
 import { expect, test } from './fixtures';
 import { MOCK_TOKEN_VIEW_DESIGN, MOCK_TOKEN_VIEW_DESIGN_OTHER } from './mocks/auth';
 import { TEST_PNG } from './utils/add-design-form';
@@ -32,6 +34,22 @@ async function seedSimpleDesign(beadQuantity = 100) {
         price: 7.8,
         lowStockThreshold: 3,
         description: '<p>Hand-wrapped silver ring.</p>',
+    });
+}
+
+/** Shows the design as the API would return it for an Etsy-linked or catalogue-only design. */
+async function mockEtsyDesign(page: Page, designId: string, overrides: object, connected = true) {
+    await page.route('**/api/etsy/connection', (route) =>
+        route.fulfill({ json: connected ? { connected: true, shopName: 'Test Shop' } : { connected: false } })
+    );
+    await page.route(new RegExp(`/api/designs/${designId}$`), async (route) => {
+        if (route.request().method() !== 'GET') return route.continue();
+        const response = await route.fetch();
+        await route.fulfill({ response, json: { ...(await response.json()), ...overrides } });
+    });
+    await page.route(`**/api/designs/${designId}/etsy-status`, async (route) => {
+        const response = await route.fetch({ url: route.request().url().replace('/etsy-status', ''), method: 'GET' });
+        await route.fulfill({ json: { ...(await response.json()), ...overrides } });
     });
 }
 
@@ -110,7 +128,7 @@ test.describe.serial('View design', () => {
         await stripDesignEditImageUploads(page);
         await page.goto(`/designs/${design.id}`);
 
-        await page.getByRole('button', { name: 'Edit Details' }).click();
+        await page.getByRole('button', { name: 'Edit design' }).click();
         const dialog = page.getByRole('dialog', { name: 'Edit design' });
         await dialog.getByPlaceholder('Enter design name').fill('Renamed Ring');
         await dialog.getByRole('radio', { name: 'Necklaces' }).click();
@@ -134,7 +152,7 @@ test.describe.serial('View design', () => {
         const design = await seedSimpleDesign();
         await page.goto(`/designs/${design.id}`);
 
-        await page.getByRole('button', { name: 'Edit Details' }).click();
+        await page.getByRole('button', { name: 'Edit design' }).click();
         const dialog = page.getByRole('dialog', { name: 'Edit design' });
         await dialog.getByPlaceholder('Enter design name').fill('Not Saved');
         await dialog.getByRole('button', { name: 'Cancel' }).click();
@@ -148,13 +166,13 @@ test.describe.serial('View design', () => {
         const design = await seedSimpleDesign();
         await page.goto(`/designs/${design.id}`);
 
-        await page.getByRole('button', { name: 'Manage Inventory' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Manage Design Inventory' });
-        await expect(dialog.getByText('Maximum: 10 designs')).toBeVisible();
+        await page.getByRole('button', { name: 'Manage inventory' }).click();
+        const dialog = page.getByRole('dialog', { name: 'Stock for Spacer Ring' });
+        await expect(dialog.getByText('Up to 10 designs')).toBeVisible();
         await dialog.locator('input[name="addQuantity"]').fill('3');
-        await expect(dialog.getByText('New Design Stock: 3 (+3)')).toBeVisible();
-        await expect(dialog.getByText(/Silver Spacer: 100\.00 pcs → 70\.00 pcs/)).toBeVisible();
-        await dialog.getByRole('button', { name: 'Produce Designs' }).click();
+        await expect(dialog.getByText('New stock: 3 (+3)')).toBeVisible();
+        await expect(dialog.getByText(/Silver Spacer: 100 pcs → 70 pcs/)).toBeVisible();
+        await dialog.getByRole('button', { name: 'Produce designs' }).click();
 
         await expect(page.getByText('3 in stock')).toBeVisible();
         await expect(page.getByTestId('can-make')).toHaveText('Can make 7');
@@ -167,10 +185,104 @@ test.describe.serial('View design', () => {
         await page.goto(`/designs/${design.id}`);
 
         await expect(page.getByTestId('can-make')).toHaveText('Can make 0');
-        await page.getByRole('button', { name: 'Manage Inventory' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Manage Design Inventory' });
-        await expect(dialog.getByText('Cannot Produce')).toBeVisible();
-        await expect(dialog.getByRole('button', { name: 'Produce Designs' })).toBeDisabled();
+        await page.getByRole('button', { name: 'Manage inventory' }).click();
+        const dialog = page.getByRole('dialog', { name: 'Stock for Spacer Ring' });
+        await expect(dialog.getByText('Cannot produce yet')).toBeVisible();
+        await expect(dialog.getByRole('button', { name: 'Produce designs' })).toBeDisabled();
+    });
+
+    test('a listed design links to Etsy and shows no disabled Send to Etsy button', async ({
+        authenticatedPage: page,
+    }) => {
+        const design = await seedSimpleDesign();
+        await mockEtsyDesign(page, design.id, { etsy: { listingId: 4242, state: 'active', lastPushedAt: 1 } });
+        await page.goto(`/designs/${design.id}`);
+
+        const etsyBlock = page.getByRole('region', { name: 'Etsy' });
+        await expect(etsyBlock.getByText('Listed', { exact: true })).toBeVisible();
+        await expect(etsyBlock.getByRole('link', { name: 'View on Etsy' })).toHaveAttribute(
+            'href',
+            'https://www.etsy.com/your/shops/me/listing-editor/edit/4242'
+        );
+        await expect(page.getByRole('button', { name: 'Send to Etsy' })).toHaveCount(0);
+    });
+
+    test('an unlisted design shows its status with Send to Etsy as the one action', async ({
+        authenticatedPage: page,
+    }) => {
+        const design = await seedSimpleDesign();
+        await mockEtsyDesign(page, design.id, {});
+        await page.goto(`/designs/${design.id}`);
+
+        const etsyBlock = page.getByRole('region', { name: 'Etsy' });
+        await expect(etsyBlock.getByText('Not on Etsy')).toBeVisible();
+        await expect(etsyBlock.getByRole('button', { name: 'Send to Etsy' })).toBeEnabled();
+        await expect(etsyBlock.getByRole('link')).toHaveCount(0);
+    });
+
+    test('a catalogue-only design explains why it is not sent to Etsy', async ({ authenticatedPage: page }) => {
+        const design = await seedSimpleDesign();
+        await mockEtsyDesign(page, design.id, { catalogueOnly: true });
+        await page.goto(`/designs/${design.id}`);
+
+        await expect(page.getByRole('region', { name: 'Etsy' })).toHaveText('Catalogue only, not sent to Etsy');
+        await expect(page.getByRole('button', { name: 'Send to Etsy' })).toHaveCount(0);
+    });
+
+    test('shows no Etsy block when Etsy is not connected and the design is not linked', async ({
+        authenticatedPage: page,
+    }) => {
+        const design = await seedSimpleDesign();
+        await mockEtsyDesign(page, design.id, {}, false);
+        await page.goto(`/designs/${design.id}`);
+
+        await expect(page.getByRole('heading', { level: 1, name: 'Spacer Ring' })).toBeVisible();
+        await expect(page.getByRole('region', { name: 'Etsy' })).toHaveCount(0);
+    });
+
+    test('has a single All designs link and the new action labels', async ({ authenticatedPage: page }) => {
+        const design = await seedSimpleDesign();
+        await page.goto(`/designs/${design.id}`);
+
+        await expect(page.getByRole('link', { name: 'All designs' })).toHaveCount(1);
+        await expect(page.getByRole('button', { name: 'Edit design' })).not.toHaveAttribute('title', /.+/);
+        await expect(page.getByRole('button', { name: 'Manage inventory' })).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Suggest a price range' })).toBeVisible();
+        await expect(page.getByText('Time to make')).toBeVisible();
+        await expect(page.getByText('Low-stock alert')).toBeVisible();
+    });
+
+    test('the edit dialog loads materials only when opened and shows a loading state', async ({
+        authenticatedPage: page,
+    }) => {
+        const design = await seedSimpleDesign();
+        let materialRequests = 0;
+        await page.route('**/api/materials', async (route) => {
+            materialRequests += 1;
+            await new Promise((resolve) => setTimeout(resolve, 800));
+            await route.continue();
+        });
+        await page.goto(`/designs/${design.id}`);
+        await expect(page.getByRole('heading', { level: 1, name: 'Spacer Ring' })).toBeVisible();
+        expect(materialRequests).toBe(0);
+
+        await page.getByRole('button', { name: 'Edit design' }).click();
+        const dialog = page.getByRole('dialog', { name: 'Edit design' });
+        await expect(dialog.getByText('Loading materials')).toBeVisible();
+        await expect(dialog.getByPlaceholder('Enter design name')).toBeVisible();
+        expect(materialRequests).toBeGreaterThan(0);
+    });
+
+    test('an out-of-stock material is shown as short by the amount missing', async ({ authenticatedPage: page }) => {
+        const design = await seedSimpleDesign(4);
+        await page.goto(`/designs/${design.id}`);
+
+        await page.getByRole('button', { name: 'Manage inventory' }).click();
+        const dialog = page.getByRole('dialog', { name: 'Stock for Spacer Ring' });
+        await expect(dialog.getByRole('row', { name: /Silver Spacer/ })).toContainText('Short by 6 pcs');
+        await expect(dialog.getByRole('button', { name: 'Set stock' })).toBeDisabled();
+        await dialog.getByLabel('New stock count').fill('5');
+        await expect(dialog.getByRole('button', { name: 'Set stock' })).toBeEnabled();
     });
 
     test('an unknown design id shows "Design not found"', async ({ authenticatedPage: page }) => {

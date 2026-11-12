@@ -195,7 +195,7 @@ test.describe.serial('Add Design', () => {
         });
 
         await page.goto(`/designs/${design.id}`);
-        await page.getByRole('button', { name: 'Edit Details' }).click();
+        await page.getByRole('button', { name: 'Edit design' }).click();
         const dialog = page.getByRole('dialog', { name: 'Edit design' });
 
         await expect(dialog.getByRole('button', { name: 'More options' })).toHaveAttribute('aria-expanded', 'true');

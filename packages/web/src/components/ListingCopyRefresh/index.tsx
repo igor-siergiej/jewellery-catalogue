@@ -1,6 +1,6 @@
 import { useAuth } from '@imapps/web-utils';
 import type { EtsyListingCopy, EtsyListingRefreshProposal } from '@jewellery-catalogue/types';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
 import { makeApplyListingCopyRequest, makeProposeListingCopyRequest } from '@/api/endpoints/etsyListingRefresh';
@@ -21,7 +21,7 @@ type ItemState =
 
 const STATUS_LABEL: Record<ItemState['status'], string> = {
     queued: 'Waiting',
-    generating: 'Generating…',
+    generating: 'Writing…',
     ready: 'Ready to review',
     failed: 'Failed',
     skipped: 'Skipped',
@@ -31,7 +31,7 @@ const STATUS_LABEL: Record<ItemState['status'], string> = {
 
 const CopyColumn = ({ heading, copy }: { heading: string; copy: EtsyListingCopy }) => (
     <div className="min-w-0 space-y-2">
-        <p className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">{heading}</p>
+        <p className="text-sm font-semibold text-muted-foreground">{heading}</p>
         <p className="font-medium break-words">{copy.title}</p>
         <div className="flex flex-wrap gap-1">
             {copy.tags.map((tag) => (
@@ -55,13 +55,16 @@ export const ListingCopyRefresh = ({ listings }: { listings: EtsyListingWithLink
 
     const setItem = (listingId: number, state: ItemState) =>
         setItems((current) => new Map(current).set(listingId, state));
+
     const titleOf = (listingId: number) => listings.find((l) => l.listingId === listingId)?.title ?? listingId;
 
     const toggle = (listingId: number) =>
         setSelected((current) => {
             const next = new Set(current);
+
             if (next.has(listingId)) next.delete(listingId);
             else next.add(listingId);
+
             return next;
         });
 
@@ -72,6 +75,7 @@ export const ListingCopyRefresh = ({ listings }: { listings: EtsyListingWithLink
         // A failed listing is marked on its own row; the rest of the batch carries on.
         await runWithConcurrency(ids, CONCURRENCY, async (listingId) => {
             setItem(listingId, { status: 'generating' });
+
             try {
                 const proposal = await makeProposeListingCopyRequest(listingId, () => accessToken, login, logout);
                 setItem(listingId, { status: 'ready', proposal });
@@ -84,6 +88,7 @@ export const ListingCopyRefresh = ({ listings }: { listings: EtsyListingWithLink
 
     const accept = async (proposal: EtsyListingRefreshProposal) => {
         setItem(proposal.listingId, { status: 'applying' });
+
         try {
             await makeApplyListingCopyRequest(proposal.listingId, proposal.proposed, () => accessToken, login, logout);
             setItem(proposal.listingId, { status: 'applied' });
@@ -95,7 +100,7 @@ export const ListingCopyRefresh = ({ listings }: { listings: EtsyListingWithLink
     if (!open) {
         return (
             <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
-                <Sparkles className="h-4 w-4" /> Refresh listing copy with AI
+                Refresh listing copy
             </Button>
         );
     }
@@ -128,8 +133,8 @@ export const ListingCopyRefresh = ({ listings }: { listings: EtsyListingWithLink
                 </div>
                 <div className="flex flex-wrap gap-2">
                     <Button onClick={generate} disabled={selected.size === 0 || running}>
-                        {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                        Generate new copy ({selected.size})
+                        {running && <Loader2 className="h-4 w-4 animate-spin" />}
+                        Write new copy ({selected.size})
                     </Button>
                     <Button variant="ghost" onClick={() => setOpen(false)} disabled={running}>
                         Close
@@ -138,6 +143,7 @@ export const ListingCopyRefresh = ({ listings }: { listings: EtsyListingWithLink
 
                 {[...items.entries()].map(([listingId, state]) => {
                     const proposal = 'proposal' in state ? state.proposal : undefined;
+
                     return (
                         <div
                             key={listingId}

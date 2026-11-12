@@ -40,7 +40,7 @@ test.describe.serial('Catalogue-only designs', () => {
             await page.goto(`/designs/${design.id}`);
             await page.waitForLoadState('networkidle');
 
-            await page.getByRole('button', { name: 'Edit Details' }).click();
+            await page.getByRole('button', { name: 'Edit design' }).click();
             await expect(page.getByRole('dialog', { name: 'Edit design' })).toBeVisible({ timeout: 10000 });
 
             await page.getByRole('checkbox', { name: 'Catalogue only' }).click();
@@ -56,9 +56,7 @@ test.describe.serial('Catalogue-only designs', () => {
             await patchResponse;
 
             await expect(page.getByText('Design updated successfully!')).toBeVisible({ timeout: 10000 });
-            await expect(
-                page.getByTitle('This design is kept in the catalogue only and cannot be sent to Etsy')
-            ).toBeVisible();
+            await expect(page.getByText('Catalogue only, not sent to Etsy')).toBeVisible();
 
             const designs = await apiGetDesigns(TOKEN);
             const updated = designs.find((d) => d.id === design.id);

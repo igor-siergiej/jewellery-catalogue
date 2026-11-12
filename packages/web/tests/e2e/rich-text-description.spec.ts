@@ -23,7 +23,7 @@ test.describe.serial('Design description editor', () => {
     test('toolbar formatting is saved and rendered on the design page', async ({ authenticatedPage: page }) => {
         const design = await seedDesign();
         await page.goto(`/designs/${design.id}`);
-        await page.getByRole('button', { name: 'Edit Details' }).click();
+        await page.getByRole('button', { name: 'Edit design' }).click();
         const dialog = page.getByRole('dialog', { name: 'Edit design' });
 
         const editor = dialog.locator('.ProseMirror');
@@ -60,7 +60,7 @@ test.describe.serial('Design description editor', () => {
     test('undo reverts typing but never wipes the saved description', async ({ authenticatedPage: page }) => {
         const design = await seedDesign('<p>Original copy.</p>');
         await page.goto(`/designs/${design.id}`);
-        await page.getByRole('button', { name: 'Edit Details' }).click();
+        await page.getByRole('button', { name: 'Edit design' }).click();
         const dialog = page.getByRole('dialog', { name: 'Edit design' });
 
         const editor = dialog.locator('.ProseMirror');
@@ -85,7 +85,7 @@ test.describe.serial('Design description editor', () => {
             return route.fulfill({ json: { imageId: 'e2e-inline-photo' } });
         });
         await page.goto(`/designs/${design.id}`);
-        await page.getByRole('button', { name: 'Edit Details' }).click();
+        await page.getByRole('button', { name: 'Edit design' }).click();
         const dialog = page.getByRole('dialog', { name: 'Edit design' });
 
         await dialog.locator('.ProseMirror').click();
@@ -108,7 +108,7 @@ test.describe.serial('Design description editor', () => {
         const design = await seedDesign();
         await page.route(/\/api\/images$/, (route) => route.fulfill({ status: 500, json: { message: 'boom' } }));
         await page.goto(`/designs/${design.id}`);
-        await page.getByRole('button', { name: 'Edit Details' }).click();
+        await page.getByRole('button', { name: 'Edit design' }).click();
         const dialog = page.getByRole('dialog', { name: 'Edit design' });
 
         await dialog.locator('.ProseMirror').click();

@@ -83,13 +83,13 @@ test.describe.serial('Design inventory management', () => {
         await page.getByRole('button', { name: /^More actions for / }).click();
         await page.getByRole('menuitem', { name: 'Manage inventory' }).click();
 
-        await expect(page.getByText('Manage Design Inventory')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByRole('dialog', { name: /^Stock for / })).toBeVisible({ timeout: 10000 });
 
         await page.locator('input[name="addQuantity"]').fill('3');
 
-        await page.getByRole('button', { name: 'Produce Designs' }).click();
+        await page.getByRole('button', { name: 'Produce designs' }).click();
 
-        await expect(page.getByText('Design inventory updated successfully!')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Design inventory updated')).toBeVisible({ timeout: 10000 });
 
         const designs = await apiGetDesigns(TOKEN);
         const design = designs.find((d) => d.name === 'Producible Design');
@@ -161,15 +161,15 @@ test.describe.serial('Design inventory management', () => {
         await page.getByRole('button', { name: /^More actions for / }).click();
         await page.getByRole('menuitem', { name: 'Manage inventory' }).click();
 
-        await expect(page.getByText('Manage Design Inventory')).toBeVisible({ timeout: 10000 });
-        await expect(page.getByRole('heading', { name: 'Select Variant to Produce' })).toBeVisible();
+        await expect(page.getByRole('dialog', { name: /^Stock for / })).toBeVisible({ timeout: 10000 });
+        await expect(page.getByRole('heading', { name: 'Variant to produce' })).toBeVisible();
 
         await page.locator('tr').filter({ hasText: 'Red' }).click();
 
         await page.locator('input[name="addQuantity"]').fill('2');
-        await page.getByRole('button', { name: 'Produce Designs' }).click();
+        await page.getByRole('button', { name: 'Produce designs' }).click();
 
-        await expect(page.getByText('Design inventory updated successfully!')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Design inventory updated')).toBeVisible({ timeout: 10000 });
 
         const designs = await apiGetDesigns(TOKEN);
         const design = designs.find((d) => d.name === 'Variant Production Design');
