@@ -31,7 +31,8 @@ test.describe.serial('Drafts', () => {
         await page.goto('/addDesign');
 
         await page.getByPlaceholder('Enter design name').fill('Draft Ring');
-        await page.getByLabel('Time Spent Crafting').fill('01:15');
+        await page.getByLabel('Hours').fill('1');
+        await page.getByLabel('Minutes').fill('15');
         await addSharedMaterial(page, 'Silver Spacer', 4);
         await page.locator('input[type="file"]').first().setInputFiles(PNG);
 
@@ -47,7 +48,8 @@ test.describe.serial('Drafts', () => {
 
         await expect(page).toHaveURL(new RegExp(`/addDesign\\?draftId=${draft.id}`));
         await expect(page.getByPlaceholder('Enter design name')).toHaveValue('Draft Ring');
-        await expect(page.getByLabel('Time Spent Crafting')).toHaveValue('01:15');
+        await expect(page.getByLabel('Hours')).toHaveValue('1');
+        await expect(page.getByLabel('Minutes')).toHaveValue('15');
         await expect(page.locator('form').getByText('Silver Spacer')).toBeVisible();
         await expect(page.locator('form').getByText('4 pcs')).toBeVisible();
         // The draft's image comes back as an uploaded image id (a thumbnail with a remove button), not a

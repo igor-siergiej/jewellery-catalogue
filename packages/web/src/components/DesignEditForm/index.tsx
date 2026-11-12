@@ -16,12 +16,12 @@ import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/
 import makeEditDesignRequest from '../../api/endpoints/editDesign';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
 import { AddMaterialsTable } from '../../components/AddMaterialsTable';
+import DurationInput from '../../components/DurationInput';
 import MakerDocsSection from '../../components/MakerDocsSection';
 import MultiImageUpload from '../../components/MultiImageUpload';
 import PriceBreakdown from '../../components/PriceBreakdown';
 import RichTextEditor from '../../components/RichTextEditor';
 import SuggestedPrice from '../../components/SuggestedPrice';
-import TimeInput from '../../components/TimeInput';
 import { computeVariants, VariationGroupBuilder } from '../../components/VariationGroupBuilder';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
@@ -76,6 +76,7 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
 
     const onSubmit: SubmitHandler<FormDesign> = async (formData) => {
         setIsMakingRequest(true);
+
         try {
             const variants = computeVariants(
                 variationGroups,
@@ -84,6 +85,7 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                 profitMargin,
                 currentTimeRequired
             );
+
             await makeEditDesignRequest(design.id, { ...formData, variants }, () => accessToken, login, logout);
 
             dispatch({
@@ -133,6 +135,7 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                 profitMargin,
                 currentTimeRequired
             );
+
             const minPrice = variants.length > 0 ? Math.min(...variants.map((v) => v.price)) : 0;
             form.setValue('price', minPrice >= 0 ? minPrice : 0);
         } else {
@@ -182,7 +185,7 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                                 />
                             </div>
                             <div className="flex-1">
-                                <TimeInput form={form} />
+                                <DurationInput form={form} name="timeRequired" />
                             </div>
                         </div>
                     </div>
@@ -388,10 +391,12 @@ const DesignEditForm: React.FC<DesignEditFormProps> = ({ design, onSuccess, onCa
                                         profitMargin,
                                         currentTimeRequired
                                     );
+
                                     return variants.length > 0
                                         ? Math.min(...variants.map((v) => v.totalMaterialCosts))
                                         : 0;
                                 }
+
                                 return form.watch('totalMaterialCosts') ?? 0;
                             })()}
                             timeRequired={currentTimeRequired}

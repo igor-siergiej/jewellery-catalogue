@@ -30,7 +30,8 @@ async function openAddDesign(page: Page) {
 
 async function fillBasics(page: Page, name: string) {
     await page.getByPlaceholder('Enter design name').fill(name);
-    await page.getByLabel('Time Spent Crafting').fill('00:30');
+    await page.getByLabel('Hours').fill('0');
+    await page.getByLabel('Minutes').fill('30');
     await page.locator('form').getByRole('button', { name: 'Earrings' }).click();
     await page.locator('input[type="file"]').first().setInputFiles(PNG);
 }

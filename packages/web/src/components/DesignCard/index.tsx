@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import makeDeleteDesignRequest from '../../api/endpoints/deleteDesign';
 import makeUpdateDesignRequest from '../../api/endpoints/updateDesign';
 import { VIEW_DESIGN_PAGE } from '../../constants/routes';
+import { describeDuration } from '../../lib/duration';
 import { getEtsyStatus } from '../../lib/etsyStatus';
 import { track } from '../../utils/analytics';
 import DesignUpdateForm from '../DesignUpdateForm';
@@ -146,7 +147,7 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
                                 ? `${design.variants.length} variants · ${totalQuantity} in stock`
                                 : `${totalQuantity} in stock`}
                         </span>{' '}
-                        · {timeRequired} hours
+                        · {describeDuration(timeRequired)}
                     </p>
                     {canMake && (
                         <p className="text-sm text-muted-foreground" data-testid="can-make">

@@ -33,7 +33,8 @@ test.describe('Add design page visual regression', () => {
         await apiCreateBead(authToken, { name: 'Visual Quartz', pricePerPack: 4, quantity: 20 });
         await page.goto('/addDesign');
         await page.getByPlaceholder('Enter design name').fill('Visual Gem Drops');
-        await page.getByLabel('Time Spent Crafting').fill('00:30');
+        await page.getByLabel('Hours').fill('0');
+        await page.getByLabel('Minutes').fill('30');
         await page.locator('form').getByRole('button', { name: 'Earrings' }).click();
         await addSharedMaterial(page, 'Visual Spacer', 2);
 

@@ -23,6 +23,7 @@ import { MATERIALS_PAGE } from '../../constants/routes';
 import { useEtsyConnection } from '../../hooks/useEtsyConnection';
 import { useEtsyStatus } from '../../hooks/useEtsyStatus';
 import { PRODUCIBLE_QUERY_KEY, useProducible } from '../../hooks/useProducible';
+import { describeDuration } from '../../lib/duration';
 import {
     DESIGN_TYPE_LABELS,
     MATERIAL_TYPE_LABELS,
@@ -283,7 +284,7 @@ const ViewDesign = () => {
                                 <span className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
                                     Time
                                 </span>
-                                <span className="text-lg font-semibold">{timeRequired} min</span>
+                                <span className="text-lg font-semibold">{describeDuration(timeRequired)}</span>
                                 <span className="text-xs text-muted-foreground">to make</span>
                             </div>
                             <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-1">

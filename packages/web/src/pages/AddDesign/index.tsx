@@ -18,12 +18,12 @@ import { DRAFTS_ENDPOINT } from '../../api/endpoints';
 import makeAddDesignRequest from '../../api/endpoints/addDesign';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
 import { AddMaterialsTable } from '../../components/AddMaterialsTable';
+import DurationInput from '../../components/DurationInput';
 import MakerDocsSection from '../../components/MakerDocsSection';
 import MultiImageUpload from '../../components/MultiImageUpload';
 import PriceBreakdown from '../../components/PriceBreakdown';
 import RichTextEditor from '../../components/RichTextEditor';
 import SuggestedPrice from '../../components/SuggestedPrice';
-import TimeInput from '../../components/TimeInput';
 import { computeVariants, VariationGroupBuilder } from '../../components/VariationGroupBuilder';
 import { DESIGNS_PAGE } from '../../constants/routes';
 import { useAlert } from '../../context/Alert';
@@ -243,7 +243,7 @@ const AddDesign: React.FC = () => {
                                         />
                                     </div>
                                     <div className="flex-1">
-                                        <TimeInput form={form} />
+                                        <DurationInput form={form} name="timeRequired" />
                                     </div>
                                 </div>
                             </div>
