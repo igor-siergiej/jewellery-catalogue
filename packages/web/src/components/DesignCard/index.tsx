@@ -73,7 +73,7 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
                         aria-label={favourite ? 'Remove from favourites' : 'Add to favourites'}
                         aria-pressed={!!favourite}
                     >
-                        <Heart className={favourite ? 'fill-primary text-primary' : ''} />
+                        <Heart className={favourite ? 'fill-foreground text-foreground' : ''} />
                     </Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
