@@ -1,9 +1,12 @@
 import { expect, test } from './fixtures';
 import { MOCK_TOKEN } from './mocks/auth';
 import { apiCreateBead, apiCreateDesign, apiGetDesigns, apiProduceDesignVariant } from './utils/api-helpers';
+import { chooseMaterialAction } from './utils/materials-ui';
 
 test.describe.serial('Material pricing and low stock variant flows', () => {
-    test('material price change triggers "Update Design Prices?" dialog', async ({ authenticatedPage: page }) => {
+    test('material price change asks to update prices for the designs that use it', async ({
+        authenticatedPage: page,
+    }) => {
         const bead = await apiCreateBead(MOCK_TOKEN, { name: 'Pricing Test Bead', pricePerPack: 5.0 });
         await apiCreateDesign(MOCK_TOKEN, {
             name: 'Pricing Test Design',
@@ -15,16 +18,17 @@ test.describe.serial('Material pricing and low stock variant flows', () => {
         await page.goto('/materials');
         await page.waitForLoadState('networkidle');
 
-        await page.locator(`tr:has-text("Pricing Test Bead") button:has(span:text("Edit material"))`).click();
+        await chooseMaterialAction(page, 'Pricing Test Bead', 'Edit');
         await page.waitForSelector('input[name="pricePerPack"]', { timeout: 10000 });
 
         await page.locator('input[name="pricePerPack"]').fill('9.99');
-        await page.getByRole('button', { name: 'Update Material' }).click();
+        await page.getByRole('button', { name: 'Save changes' }).click();
 
-        await expect(page.getByText('Update Design Prices?')).toBeVisible({ timeout: 10000 });
-        await expect(page.getByText(/1 design/)).toBeVisible();
+        await expect(page.getByRole('alertdialog', { name: 'Update prices for 1 design?' })).toBeVisible({
+            timeout: 10000,
+        });
 
-        await page.getByRole('button', { name: 'Update Prices' }).click();
+        await page.getByRole('button', { name: 'Update prices' }).click();
 
         await expect(page.getByText('Prices updated!')).toBeVisible({ timeout: 10000 });
     });
@@ -41,16 +45,18 @@ test.describe.serial('Material pricing and low stock variant flows', () => {
         await page.goto('/materials');
         await page.waitForLoadState('networkidle');
 
-        await page.locator(`tr:has-text("Skip Test Bead") button:has(span:text("Edit material"))`).click();
+        await chooseMaterialAction(page, 'Skip Test Bead', 'Edit');
         await page.waitForSelector('input[name="pricePerPack"]', { timeout: 10000 });
 
         await page.locator('input[name="pricePerPack"]').fill('9.99');
-        await page.getByRole('button', { name: 'Update Material' }).click();
+        await page.getByRole('button', { name: 'Save changes' }).click();
 
-        await expect(page.getByText('Update Design Prices?')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByRole('alertdialog', { name: /Update prices for 1 design/ })).toBeVisible({
+            timeout: 10000,
+        });
         await page.getByRole('button', { name: 'Skip' }).click();
 
-        await expect(page.getByText('Update Design Prices?')).not.toBeVisible();
+        await expect(page.getByRole('alertdialog')).not.toBeVisible();
         await expect(page.getByText('Prices updated!')).not.toBeVisible();
     });
 
@@ -107,14 +113,16 @@ test.describe.serial('Material pricing and low stock variant flows', () => {
         await page.goto('/materials');
         await page.waitForLoadState('networkidle');
 
-        await page.locator(`tr:has-text("Variant Cost Bead") button:has(span:text("Edit material"))`).click();
+        await chooseMaterialAction(page, 'Variant Cost Bead', 'Edit');
         await page.waitForSelector('input[name="pricePerPack"]', { timeout: 10000 });
 
         await page.locator('input[name="pricePerPack"]').fill('20.00');
-        await page.getByRole('button', { name: 'Update Material' }).click();
+        await page.getByRole('button', { name: 'Save changes' }).click();
 
-        await expect(page.getByText('Update Design Prices?')).toBeVisible({ timeout: 10000 });
-        await page.getByRole('button', { name: 'Update Prices' }).click();
+        await expect(page.getByRole('alertdialog', { name: /Update prices for 1 design/ })).toBeVisible({
+            timeout: 10000,
+        });
+        await page.getByRole('button', { name: 'Update prices' }).click();
         await expect(page.getByText('Prices updated!')).toBeVisible({ timeout: 10000 });
 
         const designs = await apiGetDesigns(MOCK_TOKEN);

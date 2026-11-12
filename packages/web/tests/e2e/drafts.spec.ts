@@ -175,7 +175,7 @@ test.describe.serial('Drafts', () => {
         await page.goto('/addMaterial');
         await page.locator('input[name="name"]').fill('Half-done Bead');
         await page.locator('input[name="brand"]').fill('DraftBrand');
-        await page.getByRole('button', { name: 'Bead' }).click();
+        await page.getByRole('radio', { name: 'Bead' }).click();
         await page.locator('input[name="colour"]').fill('green');
 
         await expect(page.getByText('Draft saved')).toBeVisible({ timeout: 10000 });
@@ -196,7 +196,7 @@ test.describe.serial('Drafts', () => {
         await page.locator('input[name="quantity"]').fill('100');
         await page.locator('input[name="pricePerPack"]').fill('5.00');
         await page.locator('input[name="packs"]').fill('1');
-        await page.getByRole('button', { name: 'Add Material!' }).click();
+        await page.getByRole('button', { name: 'Add material' }).click();
 
         await expect(page.getByText('Added material successfully!')).toBeVisible();
         expect((await apiGetMaterials(TOKEN)).map((m) => m.name)).toEqual(['Half-done Bead']);

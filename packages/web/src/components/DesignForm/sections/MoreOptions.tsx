@@ -10,12 +10,12 @@ import { Input } from '@/components/ui/input';
 
 import { useUserSettings } from '../../../hooks/useUserSettings';
 import { cn } from '../../../lib/utils';
+import { FormSection } from '../../FormSection';
 import MakerDocsSection from '../../MakerDocsSection';
 import RichTextEditor from '../../RichTextEditor';
 import { VariationGroupBuilder } from '../../VariationGroupBuilder';
 import { hasMoreOptionsData } from '../moreOptions';
 import type { AddDesignFormData } from '../types';
-import { FormSection } from './FormSection';
 
 const MORE_FIELDS = ['variationGroups', 'description', 'diagramImages', 'makingNotes', 'lowStockThreshold'] as const;
 

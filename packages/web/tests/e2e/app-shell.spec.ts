@@ -111,7 +111,7 @@ test.describe.serial('App shell and session', () => {
     });
 
     test('an expired token is refreshed and the request retried', async ({ authenticatedPage: page }) => {
-        await apiCreateBead(TOKEN, { name: 'After Refresh Bead' });
+        await apiCreateBead(TOKEN, { name: 'After Refresh Bead', exact: true });
         let refreshes = 0;
         await page.route(`${AUTH_URL}/refresh`, (route) => {
             refreshes++;
@@ -127,7 +127,7 @@ test.describe.serial('App shell and session', () => {
         });
         await page.goto('/materials');
 
-        await expect(page.getByRole('cell', { name: 'After Refresh Bead' })).toBeVisible();
+        await expect(page.getByRole('cell', { name: 'After Refresh Bead', exact: true })).toBeVisible();
         expect(rejected).toBe(true);
         expect(refreshes).toBeGreaterThan(0);
     });
@@ -144,9 +144,9 @@ test.describe.serial('App shell and session', () => {
 
     test("one user never sees another user's designs or materials", async ({ authenticatedPage: page }) => {
         await apiCleanup(MOCK_TOKEN_APP_SHELL_OTHER);
-        await apiCreateBead(MOCK_TOKEN_APP_SHELL_OTHER, { name: 'Their Bead' });
+        await apiCreateBead(MOCK_TOKEN_APP_SHELL_OTHER, { name: 'Their Bead', exact: true });
         await apiCreateDesign(MOCK_TOKEN_APP_SHELL_OTHER, { name: 'Their Design' });
-        await apiCreateBead(TOKEN, { name: 'My Bead' });
+        await apiCreateBead(TOKEN, { name: 'My Bead', exact: true });
         await apiCreateDesign(TOKEN, { name: 'My Design' });
 
         await page.goto('/designs');
@@ -154,8 +154,8 @@ test.describe.serial('App shell and session', () => {
         await expect(page.getByText('Their Design')).toHaveCount(0);
 
         await page.goto('/materials');
-        await expect(page.getByRole('cell', { name: 'My Bead' })).toBeVisible();
-        await expect(page.getByRole('cell', { name: 'Their Bead' })).toHaveCount(0);
+        await expect(page.getByRole('cell', { name: 'My Bead', exact: true })).toBeVisible();
+        await expect(page.getByRole('cell', { name: 'Their Bead', exact: true })).toHaveCount(0);
     });
 });
 

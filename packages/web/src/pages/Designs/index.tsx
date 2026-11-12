@@ -20,7 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Item, ItemContent, ItemFooter, ItemHeader, ItemTitle } from '@/components/ui/item';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, UNDERLINE_TAB_CLASS, UNDERLINE_TAB_LIST_CLASS } from '@/components/ui/tabs';
 
 import { getDraftsQuery, makeDeleteDraftRequest } from '../../api/endpoints/drafts';
 import { getDesignsQuery } from '../../api/endpoints/getDesigns';
@@ -35,9 +35,6 @@ import { ETSY_STATUS_LABEL, type EtsyStatus } from '../../lib/etsyStatus';
 import { DESIGN_TYPE_LABELS } from '../../lib/materialLabels';
 import { sortFavouritesFirst } from '../../lib/sortFavouritesFirst';
 import { canMakeLabel } from '../../utils/canMakeLabel';
-
-const TAB_CLASS =
-    'min-h-11 rounded-none border-b-2 border-transparent px-3 py-1 text-sm md:min-h-9 data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground';
 
 const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, onDeleted }) => {
     const { accessToken, login, logout } = useAuth();
@@ -234,12 +231,12 @@ const Designs = () => {
                     value={typeFilter}
                     onValueChange={(v) => setFilters({ type: v as DesignType | 'all' })}
                 >
-                    <TabsList className="h-auto gap-1 rounded-none border-b bg-transparent p-0">
-                        <TabsTrigger value="all" className={TAB_CLASS}>
+                    <TabsList className={UNDERLINE_TAB_LIST_CLASS}>
+                        <TabsTrigger value="all" className={UNDERLINE_TAB_CLASS}>
                             All <span className="ml-1 text-muted-foreground">{data.length}</span>
                         </TabsTrigger>
                         {(Object.keys(DesignType) as Array<DesignType>).map((type) => (
-                            <TabsTrigger key={type} value={type} className={TAB_CLASS}>
+                            <TabsTrigger key={type} value={type} className={UNDERLINE_TAB_CLASS}>
                                 {DESIGN_TYPE_LABELS[type]}{' '}
                                 <span className="ml-1 text-muted-foreground">
                                     {data.filter((d) => d.designType === type).length}

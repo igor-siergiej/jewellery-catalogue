@@ -8,9 +8,9 @@ import { Input } from '@/components/ui/input';
 
 import { DESIGN_TYPE_LABELS } from '../../../lib/materialLabels';
 import DurationInput from '../../DurationInput';
+import { FormSection } from '../../FormSection';
 import { OptionPicker } from '../../OptionPicker';
 import type { AddDesignFormData } from '../types';
-import { FormSection } from './FormSection';
 
 const TYPE_OPTIONS = (Object.keys(DesignType) as DesignType[]).map((type) => ({
     value: type,

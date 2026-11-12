@@ -4,8 +4,8 @@ import type { UseFormReturn } from 'react-hook-form';
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 
 import { AddMaterialsTable } from '../../AddMaterialsTable';
+import { FormSection } from '../../FormSection';
 import type { AddDesignFormData } from '../types';
-import { FormSection } from './FormSection';
 
 interface MaterialsSectionProps {
     form: UseFormReturn<AddDesignFormData>;

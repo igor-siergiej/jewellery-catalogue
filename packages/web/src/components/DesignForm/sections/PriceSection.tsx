@@ -4,11 +4,11 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessa
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
 
 import { useUserSettings } from '../../../hooks/useUserSettings';
+import { FormSection } from '../../FormSection';
 import PriceBreakdown from '../../PriceBreakdown';
 import SuggestedPrice from '../../SuggestedPrice';
 import { computeVariants } from '../../VariationGroupBuilder';
 import type { AddDesignFormData } from '../types';
-import { FormSection } from './FormSection';
 
 export function PriceSection({ form }: { form: UseFormReturn<AddDesignFormData> }) {
     const { hourlyWage, profitMargin, markupMultiplier, hourlyRate } = useUserSettings();

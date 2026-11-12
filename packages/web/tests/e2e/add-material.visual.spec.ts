@@ -21,7 +21,7 @@ test.describe('Add material page visual regression', () => {
     test('validation errors', async ({ authenticatedPage: page }) => {
         await page.goto('/addMaterial');
         await page.waitForLoadState('networkidle');
-        await page.getByRole('button', { name: 'Add Material!' }).click();
+        await page.getByRole('button', { name: 'Add material' }).click();
         await expect(page.getByText('Please enter the material name')).toBeVisible();
         await settle(page);
         await expectNoHorizontalScroll(page);

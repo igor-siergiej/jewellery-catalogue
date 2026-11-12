@@ -120,12 +120,12 @@ test.describe.serial('Home stock ledger', () => {
         await page.locator('input[name="purchaseUrl"]').fill('http://example.com');
         await page.locator('input[name="pricePerPack"]').fill('5');
         await page.locator('input[name="packs"]').fill('1');
-        await page.getByRole('button', { name: 'Bead', exact: true }).click();
+        await page.getByRole('radio', { name: 'Bead', exact: true }).click();
         await page.locator('input[name="colour"]').fill('red');
         await page.locator('input[name="diameter"]').fill('4');
         await page.locator('input[name="quantity"]').fill('100');
         await page.locator('input[name="lowStockThreshold"]').fill('2');
-        await page.getByRole('button', { name: 'Add Material!' }).click();
+        await page.getByRole('button', { name: 'Add material' }).click();
         await expect(page.getByText('Added material successfully!')).toBeVisible();
 
         const beads = await apiGetMaterials(TOKEN);

@@ -53,4 +53,10 @@ const TabsContent = React.forwardRef<
 
 TabsContent.displayName = TabsPrimitive.Content.displayName;
 
-export { Tabs, TabsContent, TabsList, TabsTrigger };
+/** Underline tab styling shared by the Designs and Materials lists. */
+const UNDERLINE_TAB_LIST_CLASS = 'h-auto gap-1 rounded-none border-b bg-transparent p-0';
+
+const UNDERLINE_TAB_CLASS =
+    'min-h-11 rounded-none border-b-2 border-transparent px-3 py-1 text-sm md:min-h-9 data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground';
+
+export { Tabs, TabsContent, TabsList, TabsTrigger, UNDERLINE_TAB_CLASS, UNDERLINE_TAB_LIST_CLASS };

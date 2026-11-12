@@ -5,7 +5,7 @@ export const MATERIAL_TYPE_LABELS: Record<MaterialType, string> = {
     [MaterialType.WIRE]: 'Wire',
     [MaterialType.BEAD]: 'Bead',
     [MaterialType.CHAIN]: 'Chain',
-    [MaterialType.EAR_HOOK]: 'Ear Hook',
+    [MaterialType.EAR_HOOK]: 'Ear hook',
 };
 
 // User-friendly labels for Wire Types
