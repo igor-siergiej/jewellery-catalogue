@@ -65,8 +65,8 @@ async function settle(page: Page) {
 }
 
 test.describe('Accessibility (axe, WCAG 2 A and AA)', () => {
-    // One user for the file; the fixture wipes its data per test, so tests must not run in parallel
-    test.describe.configure({ mode: 'default' });
+    // One user for the file; the fixture wipes its data per test, so tests run serially or they delete each other's seeded data
+    test.describe.configure({ mode: 'serial' });
 
     for (const [label, path, ready] of [
         ['stock', '/home', 'Amethyst Drops'],

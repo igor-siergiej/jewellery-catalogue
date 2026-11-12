@@ -8,9 +8,6 @@ const TOKEN = MOCK_TOKEN_KEYBOARD;
 
 test.use({ authToken: TOKEN });
 
-// Every test wipes the shared user's data in its fixture, so parallel tests would delete each other's seeded design
-test.describe.configure({ mode: 'serial' });
-
 async function seed() {
     const bead = await apiCreateBead(TOKEN, { name: 'Amethyst Bead', quantity: 40 });
 
@@ -61,8 +58,8 @@ async function expectFocusRing(locator: Locator) {
 }
 
 test.describe('Keyboard', () => {
-    // One user for the file; the fixture wipes its data per test, so tests must not run in parallel
-    test.describe.configure({ mode: 'default' });
+    // One user for the file; the fixture wipes its data per test, so tests run serially or they delete each other's seeded design
+    test.describe.configure({ mode: 'serial' });
 
     test('Tab reaches the first sidebar link with a visible focus ring', async ({ authenticatedPage: page }) => {
         await seed();
