@@ -65,8 +65,9 @@ test.describe.serial('Etsy integration against the mock', () => {
             existingImageIds: JSON.stringify([imageId]),
         });
 
+        const settingsLoaded = page.waitForResponse('**/api/user-settings');
         await page.goto(`/designs/${design.id}`);
-        await page.waitForResponse('**/api/user-settings');
+        await settingsLoaded;
         await page.getByRole('button', { name: 'Send to Etsy' }).click();
         const dialog = page.getByRole('dialog', { name: 'Send to Etsy' });
         await dialog.getByRole('button', { name: 'Send to Etsy' }).click();
