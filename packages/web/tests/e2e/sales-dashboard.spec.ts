@@ -8,9 +8,13 @@ test.describe('Sales dashboard on Home', () => {
     test('shows totals and per-design rows, and refetches when the range changes', async ({
         authenticatedPage: page,
     }) => {
+        await page.route('**/api/etsy/connection', (route) =>
+            route.fulfill({ json: { connected: true, shopName: 'Test Shop' } })
+        );
         const requestedUrls: string[] = [];
         await page.route('**/api/sales/report**', (route) => {
             requestedUrls.push(route.request().url());
+
             return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(SALES_REPORT) });
         });
 
@@ -29,6 +33,9 @@ test.describe('Sales dashboard on Home', () => {
     });
 
     test('stays hidden until the first Etsy sale is recorded', async ({ authenticatedPage: page }) => {
+        await page.route('**/api/etsy/connection', (route) =>
+            route.fulfill({ json: { connected: true, shopName: 'Test Shop' } })
+        );
         await page.route('**/api/sales/report**', (route) =>
             route.fulfill({
                 status: 200,
@@ -39,7 +46,7 @@ test.describe('Sales dashboard on Home', () => {
 
         await page.goto('/home');
 
-        await expect(page.getByText('All Stock Levels Good!')).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Stock', exact: true })).toBeVisible();
         await expect(page.getByTestId('sales-dashboard')).toHaveCount(0);
     });
 });

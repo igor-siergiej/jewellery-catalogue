@@ -127,7 +127,9 @@ test.describe.serial('Material pricing and low stock variant flows', () => {
         }
     });
 
-    test('low stock page edit button pre-selects variant in production dialog', async ({ authenticatedPage: page }) => {
+    test('stock ledger row for a variant design links to the design and names the low variant', async ({
+        authenticatedPage: page,
+    }) => {
         const bead1 = await apiCreateBead(MOCK_TOKEN, {
             name: 'Ruby Bead',
             colour: 'ruby',
@@ -154,24 +156,16 @@ test.describe.serial('Material pricing and low stock variant flows', () => {
         });
 
         await page.goto('/home');
-        await page.waitForLoadState('networkidle');
 
-        const variant1RowName = `${design.name} — ${bead1.name}`;
-        const variant1Row = page.locator('tr').filter({ hasText: variant1RowName });
-        await expect(variant1Row).toBeVisible({ timeout: 10000 });
+        const row = page.getByRole('row').filter({ hasText: design.name });
+        await expect(row).toBeVisible({ timeout: 10000 });
+        await expect(row).toContainText(`${bead1.name} · 0 left`);
 
-        await variant1Row.locator('button:has(span:text("Edit design"))').click();
-
-        await expect(page.getByText('Manage Design Inventory')).toBeVisible({ timeout: 10000 });
-        await expect(page.getByRole('heading', { name: 'Select Variant to Produce' })).toBeVisible();
-
-        const selectedBadge = page.locator(`tr:has-text("${bead1.name}")`).filter({ hasText: 'Selected' });
-        await expect(selectedBadge).toBeVisible();
+        await row.getByRole('link', { name: design.name }).click();
+        await expect(page).toHaveURL(`/designs/${design.id}`);
     });
 
-    test('low stock dashboard shows only the low-stock variant row, not the in-stock one', async ({
-        authenticatedPage: page,
-    }) => {
+    test('stock ledger names only the low-stock variant, not the in-stock one', async ({ authenticatedPage: page }) => {
         const bead1 = await apiCreateBead(MOCK_TOKEN, {
             name: 'Amber Bead',
             colour: 'amber',
@@ -207,11 +201,10 @@ test.describe.serial('Material pricing and low stock variant flows', () => {
         await page.goto('/home');
         await page.waitForLoadState('networkidle');
 
-        const v2RowName = `${design.name} — ${bead2.name}`;
-        const v1RowName = `${design.name} — ${bead1.name}`;
-
-        await expect(page.locator('tr').filter({ hasText: v2RowName })).toBeVisible({ timeout: 10000 });
-        await expect(page.locator('tr').filter({ hasText: v1RowName })).not.toBeVisible();
+        const row = page.getByRole('row').filter({ hasText: design.name });
+        await expect(row).toBeVisible({ timeout: 10000 });
+        await expect(row).toContainText(`${bead2.name} · 0 left`);
+        await expect(row).not.toContainText(bead1.name);
     });
 });
 

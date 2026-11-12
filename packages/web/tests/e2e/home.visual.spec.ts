@@ -10,7 +10,7 @@ test.describe('Home page visual regression', () => {
 
     test('empty state', async ({ authenticatedPage: page }) => {
         await page.goto('/home');
-        await expect(page.getByText('Low Stock').first()).toBeVisible({ timeout: 10000 });
+        await expect(page.getByRole('heading', { name: 'Stock', exact: true })).toBeVisible({ timeout: 10000 });
         await settle(page);
         await expectNoHorizontalScroll(page);
         await expect(page).toHaveScreenshot('home-empty.png', { fullPage: true });
