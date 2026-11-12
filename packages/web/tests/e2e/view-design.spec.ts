@@ -111,13 +111,13 @@ test.describe.serial('View design', () => {
         await page.goto(`/designs/${design.id}`);
 
         await page.getByRole('button', { name: 'Edit Details' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Edit Design Properties' });
+        const dialog = page.getByRole('dialog', { name: 'Edit design' });
         await dialog.getByPlaceholder('Enter design name').fill('Renamed Ring');
-        await dialog.getByRole('button', { name: 'Necklaces' }).click();
+        await dialog.getByRole('radio', { name: 'Necklaces' }).click();
         await dialog.getByPlaceholder('e.g., 5').fill('7');
         await dialog.getByPlaceholder('Steps, measurements, gotchas').fill('Use the round pliers.');
         await dialog.locator('input[type="file"]').first().setInputFiles(TEST_PNG('second.png'));
-        await dialog.getByRole('button', { name: 'Save Changes' }).click();
+        await dialog.getByRole('button', { name: 'Save changes' }).click();
         await expect(dialog).toBeHidden();
 
         await page.reload();
@@ -135,7 +135,7 @@ test.describe.serial('View design', () => {
         await page.goto(`/designs/${design.id}`);
 
         await page.getByRole('button', { name: 'Edit Details' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Edit Design Properties' });
+        const dialog = page.getByRole('dialog', { name: 'Edit design' });
         await dialog.getByPlaceholder('Enter design name').fill('Not Saved');
         await dialog.getByRole('button', { name: 'Cancel' }).click();
 

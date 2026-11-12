@@ -24,7 +24,7 @@ test.describe.serial('Design description editor', () => {
         const design = await seedDesign();
         await page.goto(`/designs/${design.id}`);
         await page.getByRole('button', { name: 'Edit Details' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Edit Design Properties' });
+        const dialog = page.getByRole('dialog', { name: 'Edit design' });
 
         const editor = dialog.locator('.ProseMirror');
         await editor.click();
@@ -40,7 +40,7 @@ test.describe.serial('Design description editor', () => {
         await page.keyboard.press('Enter');
         await page.keyboard.type('Sterling hooks');
 
-        await dialog.getByRole('button', { name: 'Save Changes' }).click();
+        await dialog.getByRole('button', { name: 'Save changes' }).click();
         await expect(page.getByText('Design updated successfully!')).toBeVisible();
 
         await page.reload();
@@ -61,7 +61,7 @@ test.describe.serial('Design description editor', () => {
         const design = await seedDesign('<p>Original copy.</p>');
         await page.goto(`/designs/${design.id}`);
         await page.getByRole('button', { name: 'Edit Details' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Edit Design Properties' });
+        const dialog = page.getByRole('dialog', { name: 'Edit design' });
 
         const editor = dialog.locator('.ProseMirror');
         await expect(editor).toHaveText('Original copy.');
@@ -86,15 +86,18 @@ test.describe.serial('Design description editor', () => {
         });
         await page.goto(`/designs/${design.id}`);
         await page.getByRole('button', { name: 'Edit Details' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Edit Design Properties' });
+        const dialog = page.getByRole('dialog', { name: 'Edit design' });
 
         await dialog.locator('.ProseMirror').click();
         await page.keyboard.type('Worn by the sea.');
-        await dialog.locator('input[type="file"][accept="image/*"]').last().setInputFiles(TEST_PNG('sea.png'));
+        await dialog
+            .getByRole('region', { name: 'Description' })
+            .locator('input[type="file"]')
+            .setInputFiles(TEST_PNG('sea.png'));
         await expect(dialog.locator('.ProseMirror img')).toHaveAttribute('src', /\/api\/image\/e2e-inline-photo/);
         expect(uploads).toBe(1);
 
-        await dialog.getByRole('button', { name: 'Save Changes' }).click();
+        await dialog.getByRole('button', { name: 'Save changes' }).click();
         await expect(page.getByText('Design updated successfully!')).toBeVisible();
 
         const [saved] = await apiGetDesigns(TOKEN);
@@ -106,11 +109,14 @@ test.describe.serial('Design description editor', () => {
         await page.route(/\/api\/images$/, (route) => route.fulfill({ status: 500, json: { message: 'boom' } }));
         await page.goto(`/designs/${design.id}`);
         await page.getByRole('button', { name: 'Edit Details' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Edit Design Properties' });
+        const dialog = page.getByRole('dialog', { name: 'Edit design' });
 
         await dialog.locator('.ProseMirror').click();
         await page.keyboard.type('No photo yet.');
-        await dialog.locator('input[type="file"][accept="image/*"]').last().setInputFiles(TEST_PNG('sea.png'));
+        await dialog
+            .getByRole('region', { name: 'Description' })
+            .locator('input[type="file"]')
+            .setInputFiles(TEST_PNG('sea.png'));
         await expect(dialog.getByRole('button', { name: 'Insert image' })).toBeEnabled();
         await expect(dialog.locator('.ProseMirror img')).toHaveCount(0);
         await expect(dialog.locator('.ProseMirror')).toContainText('No photo yet.');

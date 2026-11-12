@@ -20,7 +20,7 @@ test.describe('Add design page visual regression', () => {
     test('validation errors', async ({ authenticatedPage: page }) => {
         await page.goto('/addDesign');
         await page.waitForLoadState('networkidle');
-        await page.getByRole('button', { name: 'Create Design' }).click();
+        await page.getByRole('button', { name: 'Create design' }).click();
         await expect(page.getByText('Please enter the design name')).toBeVisible();
         await settle(page);
         await expectNoHorizontalScroll(page);
@@ -35,10 +35,11 @@ test.describe('Add design page visual regression', () => {
         await page.getByPlaceholder('Enter design name').fill('Visual Gem Drops');
         await page.getByLabel('Hours').fill('0');
         await page.getByLabel('Minutes').fill('30');
-        await page.locator('form').getByRole('button', { name: 'Earrings' }).click();
+        await page.locator('form').getByRole('radio', { name: 'Earrings' }).click();
         await addSharedMaterial(page, 'Visual Spacer', 2);
 
-        const variations = page.locator('div.grid:has(> div > h2:text-is("Variations"))');
+        await page.getByRole('button', { name: 'More options' }).click();
+        const variations = page.getByRole('region', { name: 'Variations' });
         await variations.getByRole('button', { name: 'Add Variation Group' }).click();
         await variations.getByPlaceholder('Group name (e.g. Gemstone)').fill('Gemstone');
         await variations.getByPlaceholder('Qty').fill('1');

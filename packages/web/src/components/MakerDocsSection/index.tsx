@@ -16,7 +16,7 @@ const MakerDocsSection: React.FC<MakerDocsSectionProps> = ({ control }) => (
             name="diagramImages"
             render={({ field, fieldState }) => (
                 <FormItem>
-                    <FormLabel>Diagrams (private — never shown on Etsy)</FormLabel>
+                    <FormLabel>Diagrams</FormLabel>
                     <FormControl>
                         <MultiImageUpload
                             value={field.value ?? []}
@@ -33,7 +33,7 @@ const MakerDocsSection: React.FC<MakerDocsSectionProps> = ({ control }) => (
             name="makingNotes"
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Making notes (private — never shown on Etsy)</FormLabel>
+                    <FormLabel>Making notes</FormLabel>
                     <FormControl>
                         <Textarea
                             placeholder="Steps, measurements, gotchas for making this design again..."

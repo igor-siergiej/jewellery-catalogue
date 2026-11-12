@@ -41,17 +41,18 @@ test.describe.serial('Catalogue-only designs', () => {
             await page.waitForLoadState('networkidle');
 
             await page.getByRole('button', { name: 'Edit Details' }).click();
-            await expect(page.getByText('Edit Design Properties')).toBeVisible({ timeout: 10000 });
+            await expect(page.getByRole('dialog', { name: 'Edit design' })).toBeVisible({ timeout: 10000 });
 
             await page.getByRole('checkbox', { name: 'Catalogue only' }).click();
             // Required by the form's validation despite being labeled optional.
-            await page.getByRole('spinbutton', { name: 'Low Stock Threshold (Optional)' }).fill('5');
+            await page.getByRole('button', { name: 'More options' }).click();
+            await page.getByRole('spinbutton', { name: 'Low stock threshold' }).fill('5');
 
             const patchResponse = page.waitForResponse(
                 (res) => res.url().includes(`/api/designs/${design.id}`) && res.request().method() === 'PATCH'
             );
 
-            await page.getByRole('button', { name: 'Save Changes' }).click();
+            await page.getByRole('button', { name: 'Save changes' }).click();
             await patchResponse;
 
             await expect(page.getByText('Design updated successfully!')).toBeVisible({ timeout: 10000 });

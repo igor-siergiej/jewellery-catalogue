@@ -20,12 +20,12 @@ const SuggestedPrice: React.FC<SuggestedPriceProps> = ({
     const suggested = getSuggestedPrice({ materialsCost, timeRequired, markupMultiplier, hourlyRate });
 
     return (
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex flex-wrap items-center gap-2 text-sm">
             <span className="text-muted-foreground">
-                Suggested: <span className="font-mono text-foreground">£{suggested.toFixed(2)}</span>
+                Suggested <span className="tabular-nums text-foreground">£{suggested.toFixed(2)}</span>
             </span>
-            <Button type="button" variant="ghost" size="sm" onClick={() => onUse(suggested)}>
-                Use this price
+            <Button type="button" variant="outline" size="sm" onClick={() => onUse(suggested)}>
+                Use £{suggested.toFixed(2)}
             </Button>
         </div>
     );

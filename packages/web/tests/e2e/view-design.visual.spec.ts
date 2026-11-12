@@ -125,7 +125,7 @@ test.describe('View design page visual regression', () => {
         const design = await seedSimpleDesign(authToken);
         await page.goto(`/designs/${design.id}`);
         await page.getByRole('button', { name: 'Edit Details' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Edit Design Properties' });
+        const dialog = page.getByRole('dialog', { name: 'Edit design' });
         await expect(dialog.locator('.ProseMirror')).toHaveText('A delicate beaded necklace');
         await settle(page);
         await expect(dialog).toHaveScreenshot('view-design-edit-dialog.png');

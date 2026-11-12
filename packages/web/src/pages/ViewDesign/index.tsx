@@ -9,8 +9,8 @@ import { track } from '@/utils/analytics';
 
 import { getDesignQuery } from '../../api/endpoints/getDesign';
 import DesignDescription from '../../components/DesignDescription';
-import DesignEditForm from '../../components/DesignEditForm';
 import DesignUpdateForm from '../../components/DesignUpdateForm';
+import EditDesignDialog from '../../components/EditDesignDialog';
 import EtsyPushDialog from '../../components/EtsyPushDialog';
 import { Image } from '../../components/Image';
 import LoadingScreen from '../../components/Loading';
@@ -105,10 +105,6 @@ const ViewDesign = () => {
         setImageIndex(0);
         refetch();
         queryClient.invalidateQueries({ queryKey: PRODUCIBLE_QUERY_KEY });
-    };
-
-    const handlePropertiesCancel = () => {
-        setEditPropertiesDialogOpen(false);
     };
 
     if (isLoading || !user?.id) {
@@ -471,20 +467,12 @@ const ViewDesign = () => {
                 </DialogContent>
             </Dialog>
 
-            <Dialog open={editPropertiesDialogOpen} onOpenChange={setEditPropertiesDialogOpen}>
-                <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle>Edit Design Properties</DialogTitle>
-                    </DialogHeader>
-                    {design && (
-                        <DesignEditForm
-                            design={design}
-                            onSuccess={handlePropertiesSuccess}
-                            onCancel={handlePropertiesCancel}
-                        />
-                    )}
-                </DialogContent>
-            </Dialog>
+            <EditDesignDialog
+                design={design}
+                open={editPropertiesDialogOpen}
+                onOpenChange={setEditPropertiesDialogOpen}
+                onSuccess={handlePropertiesSuccess}
+            />
 
             {design && <EtsyPushDialog design={design} open={etsyDialogOpen} onOpenChange={setEtsyDialogOpen} />}
         </>

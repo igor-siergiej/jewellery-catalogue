@@ -20,8 +20,11 @@ const formatTime = (timeRequired: string): string => {
     if (Number.isNaN(hours) || Number.isNaN(minutes)) return '0 min';
 
     const parts: string[] = [];
+
     if (hours > 0) parts.push(`${hours} hr`);
+
     if (minutes > 0) parts.push(`${minutes} min`);
+
     return parts.length > 0 ? parts.join(' ') : '0 min';
 };
 
@@ -46,7 +49,7 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
             <div className="rounded-md border bg-muted/50 p-4 text-sm space-y-2">
                 <div className="flex justify-between">
                     <span className="text-muted-foreground">Materials cost</span>
-                    <span className="font-mono">£{materialsCost.toFixed(2)}</span>
+                    <span className="tabular-nums">£{materialsCost.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                     <span className="text-muted-foreground">
@@ -55,21 +58,21 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
                             ({timeDisplay} × £{hourlyWage}/hr)
                         </span>
                     </span>
-                    <span className="font-mono">£{labourCost.toFixed(2)}</span>
+                    <span className="tabular-nums">£{labourCost.toFixed(2)}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span className="font-mono">£{subtotal.toFixed(2)}</span>
+                    <span className="tabular-nums">£{subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                     <span className="text-muted-foreground">Profit ({profitMargin}%)</span>
-                    <span className="font-mono">+£{profitAmount.toFixed(2)}</span>
+                    <span className="tabular-nums">+£{profitAmount.toFixed(2)}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between font-medium">
-                    <span>Calculated Price</span>
-                    <span className="font-mono">£{calculatedPrice.toFixed(2)}</span>
+                    <span>Calculated price</span>
+                    <span className="tabular-nums">£{calculatedPrice.toFixed(2)}</span>
                 </div>
             </div>
 
