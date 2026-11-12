@@ -12,7 +12,7 @@ import type {
     RequiredEarHook,
     RequiredMaterial,
     RequiredWire,
-} from '@jewellery-catalogue/types/src/requiredMaterial';
+} from '@jewellery-catalogue/types';
 
 const BeadPriceCalculator = (requiredBead: RequiredBead, bead: Bead) => {
     const { requiredQuantity } = requiredBead;
@@ -60,7 +60,7 @@ const EarHookPriceCalculator = (requiredEarHook: RequiredEarHook, earHook: EarHo
     return parseFloat(totalPrice.toFixed(2));
 };
 
-export const MaterialPriceResolver = (requiredMaterial: RequiredMaterial, material: Material) => {
+const MaterialPriceResolver = (requiredMaterial: RequiredMaterial, material: Material) => {
     const MaterialPriceCalculatorMap = {
         [MaterialType.BEAD]: BeadPriceCalculator(requiredMaterial as RequiredBead, material as Bead),
         [MaterialType.WIRE]: WirePriceCalculator(requiredMaterial as RequiredWire, material as Wire),

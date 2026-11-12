@@ -36,7 +36,7 @@ const renderTemplate = (template: string, description: string, materials: Array<
 const generateErrorMessage = (error: Error): string =>
     aiErrorMessage(error, "Couldn't generate the listing. Your text is unchanged; try again.");
 
-export const describePhotoCount = (count: number): string => {
+const describePhotoCount = (count: number): string => {
     if (count === 0) return 'No product photos. You can add them on Etsy before publishing.';
 
     return count === 1 ? '1 photo will be sent' : `${count} photos will be sent`;

@@ -14,7 +14,7 @@ export interface MaterialRowActions {
     onDelete: (material: Material) => void;
 }
 
-export const openPurchaseUrl = (url: string | null | undefined) => {
+const openPurchaseUrl = (url: string | null | undefined) => {
     if (url) {
         window.open(url, '_blank', 'noopener,noreferrer');
     }

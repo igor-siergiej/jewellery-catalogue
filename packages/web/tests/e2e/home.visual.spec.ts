@@ -29,6 +29,7 @@ test.describe('Home page visual regression', () => {
         await expect(page).toHaveScreenshot('home-populated.png', { fullPage: true });
     });
     test('collapsed sidebar', async ({ authenticatedPage: page }, testInfo) => {
+        // fallow-ignore-next-line weakened-tests -- project-conditional skip, not a disabled test; it runs on desktop-visual
         test.skip(testInfo.project.name !== 'desktop-visual', 'the sidebar only collapses to a rail on desktop');
         await page.goto('/home');
         await expect(page.getByRole('heading', { name: 'Stock', exact: true })).toBeVisible({ timeout: 10000 });

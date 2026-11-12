@@ -1,10 +1,5 @@
 import { type Material, MaterialType } from '@jewellery-catalogue/types';
-import type {
-    RequiredBead,
-    RequiredChain,
-    RequiredEarHook,
-    RequiredWire,
-} from '@jewellery-catalogue/types/src/requiredMaterial';
+import type { RequiredBead, RequiredChain, RequiredEarHook, RequiredWire } from '@jewellery-catalogue/types';
 
 import type { TableMaterial } from '../types';
 
