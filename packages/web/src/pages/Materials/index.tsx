@@ -133,12 +133,12 @@ const Materials = () => {
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <h1 className="font-display text-3xl font-semibold">Materials</h1>
                 <div className="flex flex-wrap items-center gap-2">
-                    <Button asChild variant="outline" className="min-h-11 md:min-h-9">
+                    <Button asChild variant="outline">
                         <Link to={SHOPPING_LIST_PAGE.route}>
                             <ShoppingCart /> Shopping list
                         </Link>
                     </Button>
-                    <Button asChild className="min-h-11 md:min-h-9">
+                    <Button asChild>
                         <Link to={ADD_MATERIAL_PAGE.route}>
                             <Plus /> Add material
                         </Link>

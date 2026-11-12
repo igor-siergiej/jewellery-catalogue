@@ -72,13 +72,7 @@ const ChecklistEditor: React.FC<{
                         addItem();
                     }}
                 />
-                <Button
-                    type="button"
-                    variant="outline"
-                    className="min-h-11 md:min-h-9"
-                    onClick={addItem}
-                    disabled={!draft.trim()}
-                >
+                <Button type="button" variant="outline" onClick={addItem} disabled={!draft.trim()}>
                     Add
                 </Button>
             </div>

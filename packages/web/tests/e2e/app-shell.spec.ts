@@ -52,7 +52,10 @@ test.describe.serial('App shell and session', () => {
 
     test('the brand link goes to Stock', async ({ authenticatedPage: page }) => {
         await page.goto('/designs');
-        await page.locator('[data-sidebar="sidebar"] a[aria-label="Stock"]').click();
+        await page
+            .locator('[data-sidebar="sidebar"]')
+            .getByRole('link', { name: "Mari's Crystal Jewellery, Stock" })
+            .click();
         await expect(page).toHaveURL(/\/home$/);
     });
 

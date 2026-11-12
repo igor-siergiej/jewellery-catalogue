@@ -210,7 +210,7 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
                     title="No materials yet"
                     body="Add your first material to start tracking stock."
                     action={
-                        <Button asChild className="min-h-11 md:min-h-9">
+                        <Button asChild>
                             <Link to={ADD_MATERIAL_PAGE.route}>
                                 <Plus /> Add material
                             </Link>

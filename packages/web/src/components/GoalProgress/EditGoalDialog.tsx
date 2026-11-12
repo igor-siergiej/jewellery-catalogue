@@ -71,20 +71,10 @@ const EditGoalDialog: React.FC<{ goal: Goal; onOpenChange: (open: boolean) => vo
             description="Change this goal's target and progress."
             footer={
                 <>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        className="min-h-11 md:min-h-9"
-                        onClick={() => onOpenChange(false)}
-                    >
+                    <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                         Cancel
                     </Button>
-                    <Button
-                        type="submit"
-                        form={formId}
-                        className="min-h-11 md:min-h-9"
-                        disabled={submitting || !canSubmitGoal(values)}
-                    >
+                    <Button type="submit" form={formId} disabled={submitting || !canSubmitGoal(values)}>
                         Save changes
                     </Button>
                 </>

@@ -163,6 +163,16 @@ export async function apiCreateDesign(
     return res.json();
 }
 
+export async function apiSetCatalogueOnly(token: string, designId: string): Promise<void> {
+    const res = await fetch(`${getApiUrl()}/api/designs/${designId}`, {
+        method: 'PUT',
+        headers: authHeaders(token),
+        body: JSON.stringify({ catalogueOnly: 'true' }),
+    });
+
+    if (!res.ok) throw new Error(`apiSetCatalogueOnly failed: ${await res.text()}`);
+}
+
 export async function apiProduceDesign(token: string, designId: string, quantity: number): Promise<Design> {
     const res = await fetch(`${getApiUrl()}/api/designs/${designId}`, {
         method: 'PUT',

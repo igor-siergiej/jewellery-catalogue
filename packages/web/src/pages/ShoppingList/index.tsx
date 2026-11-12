@@ -188,7 +188,7 @@ const ShoppingList = () => {
                     title="No designs yet"
                     body="Add a design to work out what you need to buy."
                     action={
-                        <Button asChild className="min-h-11 md:min-h-9">
+                        <Button asChild>
                             <Link to={ADD_DESIGN_PAGE.route}>Add design</Link>
                         </Button>
                     }
@@ -270,7 +270,7 @@ const ShoppingList = () => {
                                     variant="ghost"
                                     size="icon"
                                     className="size-11 justify-self-end sm:justify-self-auto md:size-9"
-                                    aria-label="Remove"
+                                    aria-label={`Remove ${designsById.get(row.designId)?.name ?? 'item'}`}
                                     onClick={() => setRows((current) => current.filter((r) => r.key !== row.key))}
                                 >
                                     <Trash2 className="h-4 w-4" />
@@ -279,11 +279,10 @@ const ShoppingList = () => {
                         );
                     })}
                     <div className="flex flex-wrap gap-2 pt-1">
-                        <Button variant="outline" className="min-h-11 md:min-h-9" onClick={addRow}>
+                        <Button variant="outline" onClick={addRow}>
                             <Plus className="h-4 w-4" /> Add item
                         </Button>
                         <Button
-                            className="min-h-11 md:min-h-9"
                             onClick={() => {
                                 setCopied(false);
                                 buildList.mutate(rows);
@@ -313,10 +312,10 @@ const ShoppingList = () => {
                             </p>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            <Button variant="outline" className="min-h-11 md:min-h-9" onClick={handleCopy}>
+                            <Button variant="outline" onClick={handleCopy}>
                                 <Copy className="h-4 w-4" /> {copied ? 'Copied' : 'Copy'}
                             </Button>
-                            <Button variant="outline" className="min-h-11 md:min-h-9" onClick={() => downloadCsv(list)}>
+                            <Button variant="outline" onClick={() => downloadCsv(list)}>
                                 <Download className="h-4 w-4" /> Download CSV
                             </Button>
                         </div>

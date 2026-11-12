@@ -49,12 +49,7 @@ export const LinkDesignDialog: React.FC<LinkDesignDialogProps> = ({ listingId, o
             title="Link an existing design"
             description="Pick a design to link to this Etsy listing."
             footer={
-                <Button
-                    type="button"
-                    variant="outline"
-                    className="min-h-11 md:min-h-9"
-                    onClick={() => onOpenChange(false)}
-                >
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                     Cancel
                 </Button>
             }

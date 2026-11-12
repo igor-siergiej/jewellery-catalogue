@@ -3,7 +3,7 @@ import { useAuth } from '@imapps/web-utils';
 import { type Design, type FormDesign, formDesignSchema } from '@jewellery-catalogue/types';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
-import { useId, useLayoutEffect, useRef, useState } from 'react';
+import { useId, useState } from 'react';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
@@ -66,18 +66,6 @@ const EditDesignDialog: React.FC<EditDesignDialogProps> = ({ design, open, onOpe
     const variationGroups = form.watch('variationGroups') ?? [];
 
     const { dispatch } = useAlert();
-
-    // Each opening starts from the saved design; the session key remounts the fields so their local state resets too
-    const designRef = useRef(design);
-    designRef.current = design;
-    const [session, setSession] = useState(0);
-
-    useLayoutEffect(() => {
-        if (!open) return;
-
-        form.reset(toFormValues(designRef.current));
-        setSession((n) => n + 1);
-    }, [open, form]);
 
     const onSubmit: SubmitHandler<FormDesign> = async (formData) => {
         setIsMakingRequest(true);
@@ -152,7 +140,7 @@ const EditDesignDialog: React.FC<EditDesignDialogProps> = ({ design, open, onOpe
         >
             {data ? (
                 <form id={formId} onSubmit={form.handleSubmit(onSubmit)} onKeyDown={handleFormKeyDown}>
-                    <DesignForm key={session} form={form} mode="edit" materials={data} />
+                    <DesignForm form={form} mode="edit" materials={data} />
                 </form>
             ) : isError ? (
                 <StateView kind="error" what="materials" onRetry={() => refetch()} />

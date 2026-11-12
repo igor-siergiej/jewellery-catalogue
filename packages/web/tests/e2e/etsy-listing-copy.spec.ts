@@ -45,6 +45,8 @@ async function openPushDialog(page: Page, name: string) {
     return page.getByRole('dialog');
 }
 
+test.describe.configure({ mode: 'serial' });
+
 test.describe('Etsy listing copy', () => {
     test('generated copy is editable and the edits are what gets pushed', async ({ authenticatedPage: page }) => {
         await mockEtsyReady(page);

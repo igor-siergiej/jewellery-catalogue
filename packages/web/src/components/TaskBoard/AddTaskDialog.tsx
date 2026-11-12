@@ -68,20 +68,10 @@ const AddTaskDialog: React.FC<{ open: boolean; onOpenChange: (open: boolean) => 
             description="Add something to your board."
             footer={
                 <>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        className="min-h-11 md:min-h-9"
-                        onClick={() => onOpenChange(false)}
-                    >
+                    <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                         Cancel
                     </Button>
-                    <Button
-                        type="submit"
-                        form={formId}
-                        className="min-h-11 md:min-h-9"
-                        disabled={submitting || !canSubmitTask(values)}
-                    >
+                    <Button type="submit" form={formId} disabled={submitting || !canSubmitTask(values)}>
                         Add task
                     </Button>
                 </>

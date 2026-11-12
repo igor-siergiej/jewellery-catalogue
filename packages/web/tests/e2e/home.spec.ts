@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
 import { MOCK_TOKEN_HOME } from './mocks/auth';
-import { apiCreateBead, apiCreateDesign, apiGetMaterials } from './utils/api-helpers';
+import { apiCreateBead, apiCreateDesign, apiGetMaterials, apiSetCatalogueOnly } from './utils/api-helpers';
 import { expectNoHorizontalScroll } from './utils/visual-helpers';
 
 const TOKEN = MOCK_TOKEN_HOME;
@@ -55,6 +55,27 @@ test.describe.serial('Home stock ledger', () => {
 
         await page.getByRole('link', { name: 'Review', exact: true }).click();
         await expect(page).toHaveURL('/designs?etsy=none');
+    });
+
+    test('a catalogue-only design is not counted as not on Etsy and is not listed by the Review filter', async ({
+        authenticatedPage: page,
+    }) => {
+        await apiCreateDesign(TOKEN, { name: 'Gap Design' });
+        const catalogueOnly = await apiCreateDesign(TOKEN, { name: 'Catalogue Design' });
+        await apiSetCatalogueOnly(TOKEN, catalogueOnly.id);
+        await page.goto('/home');
+
+        const panel = page.locator('section').filter({ has: page.getByRole('heading', { name: 'Not on Etsy yet' }) });
+        await expect(panel).toContainText('1');
+        await expect(panel.getByText('2', { exact: true })).toHaveCount(0);
+
+        await panel.getByRole('link', { name: 'Review' }).click();
+        await expect(page).toHaveURL('/designs?etsy=none');
+        await expect(page.getByRole('article', { name: 'Gap Design', exact: true })).toBeVisible();
+        await expect(page.getByRole('article', { name: 'Catalogue Design', exact: true })).toHaveCount(0);
+
+        await page.goto('/designs');
+        await expect(page.getByRole('article', { name: 'Catalogue Design', exact: true })).toBeVisible();
     });
 
     test('a long design name truncates without horizontal scroll at 412px, and rows are tappable', async ({

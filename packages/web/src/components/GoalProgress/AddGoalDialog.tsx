@@ -68,20 +68,10 @@ const AddGoalDialog: React.FC<{ open: boolean; onOpenChange: (open: boolean) => 
             description="Set a target to work towards."
             footer={
                 <>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        className="min-h-11 md:min-h-9"
-                        onClick={() => onOpenChange(false)}
-                    >
+                    <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                         Cancel
                     </Button>
-                    <Button
-                        type="submit"
-                        form={formId}
-                        className="min-h-11 md:min-h-9"
-                        disabled={submitting || !canSubmitGoal(values)}
-                    >
+                    <Button type="submit" form={formId} disabled={submitting || !canSubmitGoal(values)}>
                         Add goal
                     </Button>
                 </>

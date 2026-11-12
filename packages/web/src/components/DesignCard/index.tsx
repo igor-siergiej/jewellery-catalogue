@@ -9,6 +9,7 @@ import makeUpdateDesignRequest from '../../api/endpoints/updateDesign';
 import { VIEW_DESIGN_PAGE } from '../../constants/routes';
 import { describeDuration } from '../../lib/duration';
 import { getEtsyStatus } from '../../lib/etsyStatus';
+import { pluralise } from '../../lib/utils';
 import { track } from '../../utils/analytics';
 import { DeleteConfirmDialog } from '../DeleteConfirmDialog';
 import { Image } from '../Image';
@@ -72,7 +73,7 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
                         aria-label={favourite ? 'Remove from favourites' : 'Add to favourites'}
                         aria-pressed={!!favourite}
                     >
-                        <Heart className={favourite ? 'fill-destructive text-destructive' : ''} />
+                        <Heart className={favourite ? 'fill-primary text-primary' : ''} />
                     </Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -128,7 +129,7 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
                     <p className="text-sm text-muted-foreground">
                         <span className={outOfStock ? 'font-medium text-destructive' : undefined}>
                             {design.variants && design.variants.length > 0
-                                ? `${design.variants.length} variants · ${totalQuantity} in stock`
+                                ? `${pluralise(design.variants.length, 'variant')} · ${totalQuantity} in stock`
                                 : `${totalQuantity} in stock`}
                         </span>{' '}
                         · {describeDuration(timeRequired)}

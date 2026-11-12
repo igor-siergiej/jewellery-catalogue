@@ -49,6 +49,7 @@ const ViewDesign = () => {
     const {
         data: design,
         isError,
+        error,
         isLoading,
         refetch,
     } = useQuery({
@@ -105,6 +106,12 @@ const ViewDesign = () => {
 
     if (isLoading || !user?.id) {
         return <StateView kind="loading" what="design" />;
+    }
+
+    const notFound = error instanceof Error && error.message.includes('not ok 404');
+
+    if (isError && !notFound) {
+        return <StateView kind="error" what="design" onRetry={() => refetch()} />;
     }
 
     if (isError || !design) {
@@ -190,24 +197,26 @@ const ViewDesign = () => {
                                 >
                                     <ChevronRight className="size-5" aria-hidden />
                                 </button>
-                                <div className="absolute bottom-1 left-1/2 flex -translate-x-1/2">
-                                    {imageIds.map((imageId, i) => (
-                                        <button
-                                            key={imageId}
-                                            type="button"
-                                            aria-label={`Show photo ${i + 1} of ${imageIds.length}`}
-                                            aria-current={i === imageIndex}
-                                            onClick={() => setImageIndex(i)}
-                                            className="flex size-6 items-center justify-center"
-                                        >
-                                            <span
-                                                className={cn(
-                                                    'h-1.5 rounded-full border border-border transition-all',
-                                                    i === imageIndex ? 'w-4 bg-primary' : 'w-1.5 bg-card'
-                                                )}
-                                            />
-                                        </button>
-                                    ))}
+                                <div className="absolute inset-x-0 bottom-1 flex overflow-x-auto">
+                                    <div className="mx-auto flex">
+                                        {imageIds.map((imageId, i) => (
+                                            <button
+                                                key={imageId}
+                                                type="button"
+                                                aria-label={`Show photo ${i + 1} of ${imageIds.length}`}
+                                                aria-current={i === imageIndex}
+                                                onClick={() => setImageIndex(i)}
+                                                className="flex size-6 shrink-0 items-center justify-center max-md:h-11 max-md:w-11"
+                                            >
+                                                <span
+                                                    className={cn(
+                                                        'h-1.5 rounded-full border border-border transition-all',
+                                                        i === imageIndex ? 'w-4 bg-foreground' : 'w-1.5 bg-card'
+                                                    )}
+                                                />
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             </>
                         )}

@@ -10,10 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuthSubmit } from '@/hooks/useAuthSubmit';
 
-type AuthFormFields = {
-    username: string;
-    password: string;
-};
+type AuthFormFields = { username: string; password: string };
 
 interface AuthFormBaseProps {
     schema: ZodSchema<AuthFormFields>;
@@ -88,7 +85,7 @@ export const AuthFormBase: React.FC<AuthFormBaseProps> = ({
                 <p className="text-sm text-destructive min-h-[20px]">{errors.password?.message || ''}</p>
             </div>
 
-            <Button type="submit" disabled={isLoading} className="w-full min-h-11 md:min-h-9">
+            <Button type="submit" disabled={isLoading} className="w-full">
                 {isLoading ? loadingLabel : submitLabel}
             </Button>
         </form>

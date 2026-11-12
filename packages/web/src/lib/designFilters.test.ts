@@ -34,10 +34,16 @@ describe('applyDesignFilters', () => {
         design({ id: 'a', designType: 'RING' }),
         design({ id: 'b', designType: 'RING', etsy: { listingId: 1, state: 'active' } as Design['etsy'] }),
         design({ id: 'c', designType: 'EARRINGS' }),
+        design({ id: 'd', designType: 'RING', catalogueOnly: true }),
     ];
 
     it('keeps only not-on-Etsy designs', () => {
         expect(applyDesignFilters(designs, { type: 'all', etsy: 'none' }).map((d) => d.id)).toEqual(['a', 'c']);
+    });
+
+    it('lists catalogue-only designs under all but not under not-on-Etsy', () => {
+        expect(applyDesignFilters(designs, { type: 'all', etsy: 'all' }).map((d) => d.id)).toContain('d');
+        expect(applyDesignFilters(designs, { type: 'all', etsy: 'none' }).map((d) => d.id)).not.toContain('d');
     });
 
     it('combines type and etsy', () => {
@@ -45,6 +51,6 @@ describe('applyDesignFilters', () => {
     });
 
     it('returns everything for all', () => {
-        expect(applyDesignFilters(designs, { type: 'all', etsy: 'all' })).toHaveLength(3);
+        expect(applyDesignFilters(designs, { type: 'all', etsy: 'all' })).toHaveLength(4);
     });
 });

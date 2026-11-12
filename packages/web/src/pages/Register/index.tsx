@@ -19,7 +19,7 @@ const Register = () => {
             <p className="text-sm text-muted-foreground pt-6">Already have an account?</p>
 
             <Button
-                className="w-full min-h-11 md:min-h-9"
+                className="w-full"
                 variant="secondary"
                 onClick={() => {
                     navigate('/');

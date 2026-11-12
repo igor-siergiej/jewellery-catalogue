@@ -26,14 +26,13 @@ import {
     getMaterialAvailability,
     type MaterialAvailability,
 } from '@/lib/materialAvailability';
-import { cn } from '@/lib/utils';
+import { cn, pluralise } from '@/lib/utils';
 
 interface InventoryDialogProps {
     design: Design;
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess: () => void;
-    initialVariantId?: string;
 }
 
 const Section = ({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) => (
@@ -63,16 +62,10 @@ const showSuccess = (dispatch: ReturnType<typeof useAlert>['dispatch'], message:
         payload: { title: 'Success', message, severity: 'success', variant: 'standard' },
     });
 
-const InventoryDialogContent: React.FC<InventoryDialogProps> = ({
-    design,
-    open,
-    onOpenChange,
-    onSuccess,
-    initialVariantId,
-}) => {
+const InventoryDialogContent: React.FC<InventoryDialogProps> = ({ design, open, onOpenChange, onSuccess }) => {
     const formId = useId();
     const [isUpdating, setIsUpdating] = useState(false);
-    const [selectedVariantId, setSelectedVariantId] = useState<string | undefined>(initialVariantId);
+    const [selectedVariantId, setSelectedVariantId] = useState<string | undefined>();
     const { accessToken, login, logout } = useAuth();
     const { dispatch } = useAlert();
 
@@ -416,7 +409,7 @@ const InventoryDialogContent: React.FC<InventoryDialogProps> = ({
                                                 />
                                             </FormControl>
                                             <FormDescription>
-                                                Up to {maxCanProduce} design{maxCanProduce !== 1 ? 's' : ''}
+                                                Up to {pluralise(maxCanProduce, 'design')}
                                             </FormDescription>
                                             <FormMessage />
                                         </FormItem>

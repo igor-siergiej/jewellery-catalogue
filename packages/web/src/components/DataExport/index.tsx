@@ -52,7 +52,6 @@ export const DataExport = () => {
                         key={path}
                         type="button"
                         variant="outline"
-                        className="min-h-11 md:min-h-9"
                         disabled={busy !== null}
                         onClick={() => download(path)}
                     >

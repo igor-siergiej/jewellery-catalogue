@@ -265,7 +265,7 @@ Settled after a builder review, not decided by the owner:
    also moves to the URL. No API change.
 3. **Variants in the ledger.** One row per design. "In stock" is the sum across variants;
    "can make" is the design-level value from `useProducible`. A design sorts as a problem
-   if any variant is at or below its threshold, and the row shows a second line naming
+   if any variant is below its threshold, and the row shows a second line naming
    the problem variants ("Gold · 0 left").
 4. **Brand images.** Users' own uploaded design photos are the product imagery in the app.
    Two or three photos from the Etsy shop (owner gave permission) are committed as e2e

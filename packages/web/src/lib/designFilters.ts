@@ -30,8 +30,12 @@ export function toSearchParams(f: DesignFilters): URLSearchParams {
     return params;
 }
 
+// Catalogue-only designs are never Etsy work, so they don't count as "not on Etsy".
+const matchesEtsy = (d: Design, etsy: EtsyStatus) =>
+    etsy === 'none' ? getEtsyStatus(d) === 'none' && !d.catalogueOnly : getEtsyStatus(d) === etsy;
+
 export function applyDesignFilters(designs: Design[], f: DesignFilters): Design[] {
     return designs.filter(
-        (d) => (f.type === 'all' || d.designType === f.type) && (f.etsy === 'all' || getEtsyStatus(d) === f.etsy)
+        (d) => (f.type === 'all' || d.designType === f.type) && (f.etsy === 'all' || matchesEtsy(d, f.etsy))
     );
 }

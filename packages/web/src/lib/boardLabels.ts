@@ -29,6 +29,3 @@ export const GOAL_SOURCE_LABELS: Record<GoalSource, string> = {
     etsy_active_listings: 'Etsy active listings',
     etsy_sales_count: 'Etsy total sales',
 };
-
-export const pluralise = (count: number, singular: string, plural = `${singular}s`) =>
-    `${count} ${count === 1 ? singular : plural}`;

@@ -18,6 +18,7 @@ import { useEtsyListings } from '../../hooks/useEtsyListings';
 import { useEtsyReconcile } from '../../hooks/useEtsyReconcile';
 import { useSearchAnalytics } from '../../hooks/useSearchAnalytics';
 import { useUnmatchedEtsySales } from '../../hooks/useUnmatchedEtsySales';
+import { pluralise } from '../../lib/utils';
 
 const Listings = () => {
     const { accessToken, login, logout } = useAuth();
@@ -69,7 +70,7 @@ const Listings = () => {
                     title="Etsy is not connected"
                     body="Connect your shop to see its listings here."
                     action={
-                        <Button asChild className="min-h-11 md:min-h-9">
+                        <Button asChild>
                             <Link to={SETTINGS_PAGE.route}>Connect your Etsy shop</Link>
                         </Button>
                     }
@@ -99,8 +100,8 @@ const Listings = () => {
             <div>
                 <h1 className="font-display text-3xl font-semibold">Etsy</h1>
                 <p className="text-sm text-muted-foreground">
-                    {listings.length} listing{listings.length === 1 ? '' : 's'} on Etsy (active and sold out). Drafts
-                    sitting on Etsy outside this app aren't included.
+                    {pluralise(listings.length, 'listing')} on Etsy (active and sold out). Drafts sitting on Etsy
+                    outside this app aren't included.
                 </p>
             </div>
 

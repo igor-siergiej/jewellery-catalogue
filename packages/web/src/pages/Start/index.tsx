@@ -19,7 +19,7 @@ const Start = () => {
             <p className="text-sm text-muted-foreground pt-6">New here?</p>
 
             <Button
-                className="w-full min-h-11 md:min-h-9"
+                className="w-full"
                 variant="secondary"
                 onClick={() => {
                     navigate('/register');

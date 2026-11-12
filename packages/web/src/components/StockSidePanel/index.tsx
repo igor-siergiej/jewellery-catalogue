@@ -7,7 +7,7 @@ import { LISTINGS_PAGE, SHOPPING_LIST_PAGE } from '@/constants/routes';
 interface StockSidePanelProps {
     notOnEtsyCount: number;
     unlinkedListingsCount: number | null;
-    lowMaterials: Material[];
+    lowMaterials: Material[] | undefined;
 }
 
 const Count = ({ children }: { children: ReactNode }) => (
@@ -42,8 +42,8 @@ export const StockSidePanel = ({ notOnEtsyCount, unlinkedListingsCount, lowMater
                 </Link>
             </Panel>
         )}
-        <Panel title="Running low" count={lowMaterials.length}>
-            {lowMaterials.length === 0 ? (
+        <Panel title="Running low" count={lowMaterials?.length}>
+            {lowMaterials === undefined ? null : lowMaterials.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No materials below their threshold.</p>
             ) : (
                 <ul className="space-y-1 text-sm">

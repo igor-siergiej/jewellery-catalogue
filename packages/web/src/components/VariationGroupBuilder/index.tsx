@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { MATERIAL_TYPE_LABELS } from '@/lib/materialLabels';
+import { pluralise } from '@/lib/utils';
 import { getTotalMaterialCosts } from '@/utils/getPriceOfMaterials';
 import { getSuggestedPrice } from '@/utils/getSuggestedPrice';
 import { getWageCosts } from '@/utils/getWageCost';
@@ -234,9 +235,7 @@ const GroupCard: React.FC<GroupCardProps> = ({ group, availableMaterials, onUpda
                     />
                     {unitLabel && <span className="text-xs text-muted-foreground">{unitLabel}</span>}
                 </div>
-                <span className="text-xs text-muted-foreground ml-1">
-                    {group.options.length} option{group.options.length !== 1 ? 's' : ''}
-                </span>
+                <span className="text-xs text-muted-foreground ml-1">{pluralise(group.options.length, 'option')}</span>
                 <div className="ml-auto">
                     <Button
                         type="button"

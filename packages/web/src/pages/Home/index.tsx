@@ -17,24 +17,25 @@ import { useEtsyListings } from '@/hooks/useEtsyListings';
 import { useProducible } from '@/hooks/useProducible';
 import { isNotOnEtsyYet } from '@/lib/etsyStatus';
 import { buildStockRows, type StockRow } from '@/lib/stockLedger';
+import { pluralise } from '@/lib/utils';
 import { getLowStockMaterials } from '@/utils/lowStock';
 
-const plural = (n: number, noun: string) => `${n} ${noun}${n === 1 ? '' : 's'}`;
+const LISTINGS_STALE_MS = 5 * 60 * 1000;
 
 const summarise = (rows: StockRow[]) => {
     const out = rows.filter((r) => r.severity === 'out').length;
     const low = rows.filter((r) => r.severity === 'low').length;
 
     const parts = [
-        out > 0 && `${plural(out, 'design')} out of stock`,
-        low > 0 && `${plural(low, 'design')} running low`,
+        out > 0 && `${pluralise(out, 'design')} out of stock`,
+        low > 0 && `${pluralise(low, 'design')} running low`,
     ].filter(Boolean);
 
     return parts.length ? parts.join(', ') : 'Everything is in stock';
 };
 
 const AddDesignButton = () => (
-    <Button asChild className="min-h-11 md:min-h-9">
+    <Button asChild>
         <Link to={ADD_DESIGN_PAGE.route}>
             <Plus />
             Add design
@@ -46,7 +47,7 @@ const Home = () => {
     const { accessToken, login, logout } = useAuth();
     const producible = useProducible();
     const { connected: etsyConnected } = useEtsyConnection();
-    const { listings, isError: listingsError } = useEtsyListings(etsyConnected);
+    const { listings, isError: listingsError } = useEtsyListings(etsyConnected, LISTINGS_STALE_MS);
 
     const designsQuery = useQuery({
         ...getDesignsQuery(() => accessToken, login, logout),
@@ -103,7 +104,7 @@ const Home = () => {
                     <StockSidePanel
                         notOnEtsyCount={designs.filter(isNotOnEtsyYet).length}
                         unlinkedListingsCount={unlinkedListingsCount}
-                        lowMaterials={getLowStockMaterials(materials ?? [])}
+                        lowMaterials={materials && getLowStockMaterials(materials)}
                     />
                 </div>
             )}

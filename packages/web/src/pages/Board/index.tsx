@@ -16,7 +16,7 @@ import TaskFilters from '../../components/TaskBoard/TaskFilters';
 import { Button } from '../../components/ui/button';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-import { pluralise } from '../../lib/boardLabels';
+import { pluralise } from '../../lib/utils';
 
 const Board = () => {
     const { accessToken, login, logout } = useAuth();
@@ -190,9 +190,7 @@ const Board = () => {
         <div className="space-y-6 p-4 md:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <h1 className="font-display text-3xl font-semibold">Board</h1>
-                <Button className="min-h-11 md:min-h-9" onClick={() => setAddTaskOpen(true)}>
-                    Add task
-                </Button>
+                <Button onClick={() => setAddTaskOpen(true)}>Add task</Button>
             </div>
 
             <section aria-labelledby="goals-heading" className="space-y-2">
@@ -200,7 +198,7 @@ const Board = () => {
                     <h2 id="goals-heading" className="text-sm text-muted-foreground">
                         {pluralise(goals?.length ?? 0, 'goal')}
                     </h2>
-                    <Button variant="outline" className="min-h-11 md:min-h-9" onClick={() => setAddGoalOpen(true)}>
+                    <Button variant="outline" onClick={() => setAddGoalOpen(true)}>
                         Add goal
                     </Button>
                 </div>

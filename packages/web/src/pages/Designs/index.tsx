@@ -67,8 +67,8 @@ const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, o
                     </Button>
                 </div>
                 <ItemHeader className="basis-auto justify-center">
-                    <div className="w-full aspect-square md:w-64 md:h-64 md:aspect-auto flex items-center justify-center rounded-md bg-primary/10 border border-primary/20">
-                        <FileEdit className="h-16 w-16 text-primary/40" />
+                    <div className="w-full aspect-square md:w-64 md:h-64 md:aspect-auto flex items-center justify-center rounded-md bg-muted border">
+                        <FileEdit className="h-16 w-16 text-muted-foreground" />
                     </div>
                 </ItemHeader>
                 <ItemContent className="flex-none items-start text-left w-full">
@@ -105,7 +105,7 @@ const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, o
 
 const Designs = () => {
     const { accessToken, login, logout } = useAuth();
-    const { searchQuery } = useSearch();
+    const { searchQuery, setSearchQuery } = useSearch();
     const queryClient = useQueryClient();
     const [searchParams, setSearchParams] = useSearchParams();
     const filters = parseDesignFilters(searchParams);
@@ -195,12 +195,12 @@ const Designs = () => {
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <h1 className="font-display text-3xl font-semibold">Designs</h1>
                 <div className="flex flex-wrap items-center gap-2">
-                    <Button asChild variant="outline" className="min-h-11 md:min-h-9">
+                    <Button asChild variant="outline">
                         <Link to={SHOPPING_LIST_PAGE.route}>
                             <ShoppingCart /> Shopping list
                         </Link>
                     </Button>
-                    <Button asChild className="min-h-11 md:min-h-9">
+                    <Button asChild>
                         <Link to={ADD_DESIGN_PAGE.route}>
                             <Plus /> Add design
                         </Link>
@@ -254,7 +254,13 @@ const Designs = () => {
                     }
                     action={
                         hasFilters && data.length > 0 ? (
-                            <Button variant="outline" onClick={() => setSearchParams({}, { replace: true })}>
+                            <Button
+                                variant="outline"
+                                onClick={() => {
+                                    setSearchParams({}, { replace: true });
+                                    setSearchQuery('');
+                                }}
+                            >
                                 Clear filters
                             </Button>
                         ) : undefined

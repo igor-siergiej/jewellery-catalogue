@@ -69,20 +69,10 @@ const EditTaskDialog: React.FC<{ task: Task; onOpenChange: (open: boolean) => vo
             description="Change this task's details."
             footer={
                 <>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        className="min-h-11 md:min-h-9"
-                        onClick={() => onOpenChange(false)}
-                    >
+                    <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                         Cancel
                     </Button>
-                    <Button
-                        type="submit"
-                        form={formId}
-                        className="min-h-11 md:min-h-9"
-                        disabled={submitting || !canSubmitTask(values)}
-                    >
+                    <Button type="submit" form={formId} disabled={submitting || !canSubmitTask(values)}>
                         Save changes
                     </Button>
                 </>

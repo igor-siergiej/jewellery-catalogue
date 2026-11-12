@@ -69,7 +69,7 @@ test.describe('Keyboard', () => {
         await tabTo(page, '[data-slot="sidebar"] a');
 
         const focused = page.locator(':focus');
-        await expect(focused).toHaveAttribute('aria-label', 'Stock');
+        await expect(focused).toHaveAttribute('aria-label', "Mari's Crystal Jewellery, Stock");
         await expectFocusRing(focused);
     });
 

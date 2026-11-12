@@ -22,15 +22,10 @@ const UpdatePrompt = () => {
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <Button
-                        variant="outline"
-                        className="min-h-11 md:min-h-9"
-                        onClick={dismissUpdate}
-                        disabled={isUpdating}
-                    >
+                    <Button variant="outline" onClick={dismissUpdate} disabled={isUpdating}>
                         Later
                     </Button>
-                    <Button className="min-h-11 md:min-h-9" onClick={updateApp} disabled={isUpdating}>
+                    <Button onClick={updateApp} disabled={isUpdating}>
                         {isUpdating ? 'Updating…' : 'Update now'}
                     </Button>
                 </AlertDialogFooter>

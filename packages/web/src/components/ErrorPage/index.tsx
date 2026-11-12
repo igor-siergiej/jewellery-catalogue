@@ -13,7 +13,7 @@ const ErrorPage = ({ error }: Props) => (
                 page.
             </p>
             {error?.message ? <p className="mb-6 text-sm text-muted-foreground">{error.message}</p> : null}
-            <a className={`${buttonVariants()} min-h-11 md:min-h-9`} href="/">
+            <a className={buttonVariants()} href="/">
                 Back to home
             </a>
         </div>

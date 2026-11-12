@@ -27,18 +27,12 @@ const AppVersionCard = () => {
                 <p className="text-sm text-muted-foreground">Version {__APP_VERSION__}</p>
             )}
             <div className="flex items-center gap-2">
-                <Button
-                    type="button"
-                    variant="outline"
-                    className="min-h-11 md:min-h-9"
-                    onClick={handleCheck}
-                    disabled={isChecking || isUpdating}
-                >
+                <Button type="button" variant="outline" onClick={handleCheck} disabled={isChecking || isUpdating}>
                     {isChecking && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Check for updates
                 </Button>
                 {hasUpdate && (
-                    <Button type="button" className="min-h-11 md:min-h-9" onClick={updateApp} disabled={isUpdating}>
+                    <Button type="button" onClick={updateApp} disabled={isUpdating}>
                         {isUpdating ? 'Updating…' : 'Update now'}
                     </Button>
                 )}

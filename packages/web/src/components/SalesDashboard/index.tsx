@@ -6,7 +6,7 @@ import { DesktopOnly, MobileCard, MobileCardList } from '@/components/MobileCard
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { VIEW_DESIGN_PAGE } from '@/constants/routes';
 import { useSalesReport } from '@/hooks/useSalesReport';
-import { cn } from '@/lib/utils';
+import { cn, pluralise } from '@/lib/utils';
 
 type RangeKey = '30d' | '90d' | 'year' | 'all';
 
@@ -83,7 +83,7 @@ export const SalesDashboard = ({ className }: { className?: string }) => {
                         onClick={() => setRange(key)}
                         className={cn(
                             'min-h-11 cursor-pointer whitespace-nowrap rounded-sm px-3 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring md:min-h-8',
-                            range === key ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+                            range === key ? 'bg-accent text-primary' : 'hover:bg-accent'
                         )}
                     >
                         {label}
@@ -100,8 +100,8 @@ export const SalesDashboard = ({ className }: { className?: string }) => {
 
                 {unmatched.unitsSold > 0 && (
                     <p className="text-sm text-muted-foreground">
-                        Plus {unmatched.unitsSold} sale{unmatched.unitsSold === 1 ? '' : 's'} (
-                        {money(unmatched.revenue)}) not linked to a design, so excluded from cost and profit.
+                        Plus {pluralise(unmatched.unitsSold, 'sale')} ({money(unmatched.revenue)}) not linked to a
+                        design, so excluded from cost and profit.
                     </p>
                 )}
 

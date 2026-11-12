@@ -90,7 +90,7 @@ const Settings = () => {
     const [pricingAction, setPricingAction] = useState<'save' | 'recalculate' | null>(null);
     const [recalculateResult, setRecalculateResult] = useState<{ updated: number; total: number } | null>(null);
     const [countWarning, setCountWarning] = useState(false);
-    const [pendingPriceUpdate, setPendingPriceUpdate] = useState<{ count: number } | null>(null);
+    const [pendingPriceUpdate, setPendingPriceUpdate] = useState<{ count: number; standalone?: boolean } | null>(null);
     const pricingBusy = pricingStatus === 'saving' || pricingStatus === 'recalculating';
 
     useEffect(() => {
@@ -229,7 +229,7 @@ const Settings = () => {
         try {
             const count = await fetchDesignCount();
 
-            if (count > 0) setPendingPriceUpdate({ count });
+            if (count > 0) setPendingPriceUpdate({ count, standalone: true });
         } catch {
             setPricingError("Couldn't count your designs. Try again.");
             setPricingStatus('error');
@@ -294,7 +294,6 @@ const Settings = () => {
                             <Button
                                 type="button"
                                 variant="outline"
-                                className="min-h-11 md:min-h-9"
                                 disabled={broken ? isConnecting : isDisconnecting}
                                 onClick={broken ? handleConnect : () => disconnect()}
                             >
@@ -309,12 +308,7 @@ const Settings = () => {
                         </div>
                     </div>
                 ) : (
-                    <Button
-                        type="button"
-                        className="min-h-11 md:min-h-9"
-                        disabled={isConnecting}
-                        onClick={handleConnect}
-                    >
+                    <Button type="button" disabled={isConnecting} onClick={handleConnect}>
                         {isConnecting ? 'Redirecting…' : 'Connect Etsy'}
                     </Button>
                 )}
@@ -408,7 +402,6 @@ const Settings = () => {
                     <Button
                         type="button"
                         variant="outline"
-                        className="min-h-11 md:min-h-9"
                         disabled={pricingBusy || cachedDesigns?.length === 0}
                         onClick={handleUpdateAllPrices}
                     >
@@ -534,7 +527,7 @@ const Settings = () => {
                 )}
 
                 <div className="sticky bottom-0 z-10 -mx-4 flex flex-wrap items-center gap-3 border-t border-border bg-background px-4 py-3 md:static md:mx-0 md:px-0">
-                    <Button type="submit" className="min-h-11 md:min-h-9" disabled={pricingBusy}>
+                    <Button type="submit" disabled={pricingBusy}>
                         {saveLabel}
                     </Button>
                     {pricingStatus === 'recalculating' && (
@@ -579,11 +572,18 @@ const Settings = () => {
                         <AlertDialogTitle>
                             Update prices for {pendingCount} {pendingCount === 1 ? 'design' : 'designs'}?
                         </AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Your hourly wage or profit margin changed. Update prices recalculates the selling price of{' '}
-                            {pendingCount === 1 ? 'your design' : 'every design'} with the new values. Save without
-                            updating keeps the current prices.
-                        </AlertDialogDescription>
+                        {pendingPriceUpdate?.standalone ? (
+                            <AlertDialogDescription>
+                                This recalculates {pendingCount === 1 ? "your design's" : "every design's"} price from
+                                your current hourly wage and margin.
+                            </AlertDialogDescription>
+                        ) : (
+                            <AlertDialogDescription>
+                                Your hourly wage or profit margin changed. Update prices recalculates the selling price
+                                of {pendingCount === 1 ? 'your design' : 'every design'} with the new values. Save
+                                without updating keeps the current prices.
+                            </AlertDialogDescription>
+                        )}
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel onClick={() => handleSavePricing(false)}>
