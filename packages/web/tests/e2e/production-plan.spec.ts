@@ -9,9 +9,7 @@ const TOKEN = MOCK_TOKEN_PRODUCTION_PLAN;
 test.use({ authToken: TOKEN });
 
 function findDesignCard(page: Page, designName: string) {
-    const title = page.locator('[data-slot="item-title"]').filter({ hasText: designName });
-
-    return page.locator('[data-slot="item"]').filter({ has: title });
+    return page.getByRole('article', { name: designName, exact: true });
 }
 
 test.describe.serial('What can I make? and the shopping list', () => {

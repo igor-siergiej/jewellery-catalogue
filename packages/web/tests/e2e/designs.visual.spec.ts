@@ -41,7 +41,8 @@ test.describe('Designs page visual regression', () => {
         await apiCreateDesign(authToken, { name: 'Visual Moon Pendant', price: 24.5 });
         await page.goto('/designs');
         await expect(page.getByText('Visual Moon Pendant')).toBeVisible({ timeout: 10000 });
-        await page.getByTitle('Delete Design').click();
+        await page.getByRole('button', { name: /^More actions for / }).click();
+        await page.getByRole('menuitem', { name: 'Delete' }).click();
         const dialog = page.getByRole('alertdialog', { name: 'Delete Visual Moon Pendant?' });
         await expect(dialog).toBeVisible();
         await settle(page);

@@ -8,14 +8,13 @@ const TOKEN = MOCK_TOKEN_DESIGNS_LIST;
 
 test.use({ authToken: TOKEN });
 
-const cardTitle = (page: Page, name: string) =>
-    page.locator('[data-slot="item-title"]').filter({ hasText: new RegExp(`^${name}$`) });
+const cardTitle = (page: Page, name: string) => page.getByRole('article', { name, exact: true });
 
 test.describe.serial('Designs list', () => {
     test('fresh user sees the empty state', async ({ authenticatedPage: page }) => {
         await page.goto('/designs');
-        await expect(page.getByText('No Designs Yet')).toBeVisible();
-        await expect(page.getByRole('tab', { name: 'All (0)' })).toBeVisible();
+        await expect(page.getByText('No designs yet')).toBeVisible();
+        await expect(page.getByRole('tab', { name: 'All 0' })).toBeVisible();
     });
 
     test('search filters designs by name and shows a no-match state', async ({ authenticatedPage: page }) => {
@@ -29,7 +28,7 @@ test.describe.serial('Designs list', () => {
         await expect(cardTitle(page, 'Copper Cuff')).toHaveCount(0);
 
         await search.fill('zzzzzz');
-        await expect(page.getByText('No Matching Designs')).toBeVisible();
+        await expect(page.getByText('No matching designs')).toBeVisible();
 
         await search.fill('');
         await expect(cardTitle(page, 'Amethyst Drops')).toBeVisible();
@@ -42,18 +41,18 @@ test.describe.serial('Designs list', () => {
         await apiCreateDesign(TOKEN, { name: 'Band Ring', designType: 'RING' });
         await page.goto('/designs');
 
-        await expect(page.getByRole('tab', { name: 'All (3)' })).toBeVisible();
-        await page.getByRole('tab', { name: 'Rings (1)' }).click();
+        await expect(page.getByRole('tab', { name: 'All 3' })).toBeVisible();
+        await page.getByRole('tab', { name: 'Rings 1' }).click();
         await expect(cardTitle(page, 'Band Ring')).toBeVisible();
         await expect(cardTitle(page, 'Drop Earrings')).toHaveCount(0);
 
-        await page.getByRole('tab', { name: 'Earrings (2)' }).click();
+        await page.getByRole('tab', { name: 'Earrings 2' }).click();
         await expect(cardTitle(page, 'Drop Earrings')).toBeVisible();
         await expect(cardTitle(page, 'Stud Earrings')).toBeVisible();
         await expect(cardTitle(page, 'Band Ring')).toHaveCount(0);
 
-        await page.getByRole('tab', { name: 'Bracelets (0)' }).click();
-        await expect(page.getByText('No Matching Designs')).toBeVisible();
+        await page.getByRole('tab', { name: 'Bracelets 0' }).click();
+        await expect(page.getByText('No matching designs')).toBeVisible();
     });
 
     test('cards show stock and how many can be made from material stock', async ({ authenticatedPage: page }) => {
@@ -62,11 +61,11 @@ test.describe.serial('Designs list', () => {
         await apiCreateDesign(TOKEN, { name: 'No Materials' });
         await page.goto('/designs');
 
-        const makeable = page.locator('[data-slot="item"]').filter({ has: cardTitle(page, 'Makeable') });
+        const makeable = cardTitle(page, 'Makeable');
         await expect(makeable).toContainText('0 in stock');
         await expect(makeable.getByTestId('can-make')).toHaveText('Can make 2');
         // A design with no materials has no limit, so no badge
-        const noMaterials = page.locator('[data-slot="item"]').filter({ has: cardTitle(page, 'No Materials') });
+        const noMaterials = cardTitle(page, 'No Materials');
         await expect(noMaterials.getByTestId('can-make')).toHaveCount(0);
     });
 
@@ -74,7 +73,8 @@ test.describe.serial('Designs list', () => {
         await apiCreateDesign(TOKEN, { name: 'Keep Me' });
         await page.goto('/designs');
 
-        await page.getByTitle('Delete Design').click();
+        await page.getByRole('button', { name: 'More actions for Keep Me' }).click();
+        await page.getByRole('menuitem', { name: 'Delete' }).click();
         const dialog = page.getByRole('alertdialog', { name: 'Delete Keep Me?' });
         await dialog.getByRole('button', { name: 'Cancel' }).click();
 
@@ -90,6 +90,32 @@ test.describe.serial('Designs list', () => {
         await cardTitle(page, 'Open Me').click();
         await expect(page).toHaveURL(`/designs/${design.id}`);
         await expect(page.getByRole('heading', { level: 1, name: 'Open Me' })).toBeVisible();
+    });
+
+    test('the Etsy filter comes from the URL and survives reload', async ({ authenticatedPage: page }) => {
+        const listed = await apiCreateDesign(TOKEN, { name: 'Linked One' });
+        await apiCreateDesign(TOKEN, { name: 'Unlinked One' });
+
+        const res = await fetch(
+            `${process.env.E2E_API_SERVICE_URL || 'http://localhost:3001'}/api/designs/${listed.id}`,
+            {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TOKEN}` },
+                body: JSON.stringify({ etsy: { listingId: 99, state: 'active', lastPushedAt: null } }),
+            }
+        );
+
+        expect(res.ok).toBe(true);
+
+        await page.goto('/designs?etsy=none');
+        await expect(cardTitle(page, 'Unlinked One')).toBeVisible();
+        await expect(cardTitle(page, 'Linked One')).toHaveCount(0);
+        await expect(page.getByRole('combobox', { name: 'Etsy status' })).toHaveText('Not on Etsy');
+
+        await page.reload();
+        await expect(cardTitle(page, 'Unlinked One')).toBeVisible();
+        await expect(cardTitle(page, 'Linked One')).toHaveCount(0);
+        await expect(page.getByRole('combobox', { name: 'Etsy status' })).toHaveText('Not on Etsy');
     });
 
     test('the shopping list link opens the shopping list', async ({ authenticatedPage: page }) => {

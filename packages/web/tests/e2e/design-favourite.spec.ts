@@ -9,9 +9,7 @@ const TOKEN = MOCK_TOKEN_DESIGN_FAVOURITE;
 test.use({ authToken: TOKEN });
 
 function findDesignCard(page: Page, designName: string) {
-    const title = page.locator('[data-slot="item-title"]').filter({ hasText: designName });
-
-    return page.locator('[data-slot="item"]').filter({ has: title });
+    return page.getByRole('article', { name: designName, exact: true });
 }
 
 test.describe.serial('Design card favouriting', () => {
@@ -25,14 +23,14 @@ test.describe.serial('Design card favouriting', () => {
             const card = findDesignCard(page, 'Favourite Me Design');
             await expect(card).toBeVisible({ timeout: 10000 });
 
-            await card.locator('button[aria-label="Favourite design"]').click();
-            await expect(card.locator('button[aria-label="Unfavourite design"]')).toBeVisible({ timeout: 10000 });
+            await card.locator('button[aria-label="Add to favourites"]').click();
+            await expect(card.locator('button[aria-label="Remove from favourites"]')).toBeVisible({ timeout: 10000 });
 
             await page.reload();
             await page.waitForLoadState('networkidle');
 
             const reloadedCard = findDesignCard(page, 'Favourite Me Design');
-            await expect(reloadedCard.locator('button[aria-label="Unfavourite design"]')).toBeVisible({
+            await expect(reloadedCard.locator('button[aria-label="Remove from favourites"]')).toBeVisible({
                 timeout: 10000,
             });
         } finally {
@@ -52,7 +50,7 @@ test.describe.serial('Design card favouriting', () => {
             await page.goto('/designs');
             await page.waitForLoadState('networkidle');
 
-            const titles = page.locator('[data-slot="item-title"]');
+            const titles = page.getByRole('article').getByRole('heading');
             await expect(titles).toHaveCount(names.length, { timeout: 10000 });
 
             const initialOrder = await titles.allTextContents();
@@ -60,8 +58,8 @@ test.describe.serial('Design card favouriting', () => {
             expect(initialOrder[0]).not.toBe(lastName);
 
             const lastCard = findDesignCard(page, lastName);
-            await lastCard.locator('button[aria-label="Favourite design"]').click();
-            await expect(lastCard.locator('button[aria-label="Unfavourite design"]')).toBeVisible({
+            await lastCard.locator('button[aria-label="Add to favourites"]').click();
+            await expect(lastCard.locator('button[aria-label="Remove from favourites"]')).toBeVisible({
                 timeout: 10000,
             });
 

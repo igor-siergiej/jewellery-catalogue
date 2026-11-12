@@ -17,7 +17,8 @@ test.describe.serial('Design stock quantity', () => {
         await page.waitForLoadState('networkidle');
 
         await expect(page.getByText('Direct Stock Design')).toBeVisible({ timeout: 10000 });
-        await page.locator('[title="Manage Inventory"]').click();
+        await page.getByRole('button', { name: /^More actions for / }).click();
+        await page.getByRole('menuitem', { name: 'Manage inventory' }).click();
 
         await expect(page.getByText('Manage Design Inventory')).toBeVisible({ timeout: 10000 });
         await page.locator('#set-stock-quantity').fill('12');
@@ -53,7 +54,8 @@ test.describe.serial('Design stock quantity', () => {
         await page.waitForLoadState('networkidle');
 
         await expect(page.getByText('Etsy Synced Stock Design')).toBeVisible({ timeout: 10000 });
-        await page.locator('[title="Manage Inventory"]').click();
+        await page.getByRole('button', { name: /^More actions for / }).click();
+        await page.getByRole('menuitem', { name: 'Manage inventory' }).click();
 
         await expect(page.getByText('Manage Design Inventory')).toBeVisible({ timeout: 10000 });
 
@@ -71,7 +73,8 @@ test.describe.serial('Design stock quantity', () => {
         await page.waitForLoadState('networkidle');
 
         await expect(page.getByText('Unlinked Stock Design')).toBeVisible({ timeout: 10000 });
-        await page.locator('[title="Manage Inventory"]').click();
+        await page.getByRole('button', { name: /^More actions for / }).click();
+        await page.getByRole('menuitem', { name: 'Manage inventory' }).click();
 
         await expect(page.getByText('Manage Design Inventory')).toBeVisible({ timeout: 10000 });
         await expect(page.getByRole('button', { name: 'Sync from Etsy' })).not.toBeVisible();

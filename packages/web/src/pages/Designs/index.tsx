@@ -2,9 +2,9 @@ import { useAuth } from '@imapps/web-utils';
 import { DesignType, type Draft } from '@jewellery-catalogue/types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Fuse from 'fuse.js';
-import { FileEdit, ShoppingCart, Sparkles, Trash2 } from 'lucide-react';
+import { FileEdit, Plus, ShoppingCart, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import {
     AlertDialog,
@@ -18,21 +18,26 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { Item, ItemContent, ItemFooter, ItemHeader, ItemTitle } from '@/components/ui/item';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { getDraftsQuery, makeDeleteDraftRequest } from '../../api/endpoints/drafts';
 import { getDesignsQuery } from '../../api/endpoints/getDesigns';
 import { DesignCard } from '../../components/DesignCard';
-import LoadingScreen from '../../components/Loading';
+import { StateView } from '../../components/StateView';
 import { ADD_DESIGN_PAGE, SHOPPING_LIST_PAGE } from '../../constants/routes';
 import { useSearch } from '../../context/SearchContext';
 import { PRODUCIBLE_QUERY_KEY, useProducible } from '../../hooks/useProducible';
 import { useSearchAnalytics } from '../../hooks/useSearchAnalytics';
+import { applyDesignFilters, parseDesignFilters, toSearchParams } from '../../lib/designFilters';
+import { ETSY_STATUS_LABEL, type EtsyStatus } from '../../lib/etsyStatus';
 import { DESIGN_TYPE_LABELS } from '../../lib/materialLabels';
 import { sortFavouritesFirst } from '../../lib/sortFavouritesFirst';
 import { canMakeLabel } from '../../utils/canMakeLabel';
+
+const TAB_CLASS =
+    'min-h-11 rounded-none border-b-2 border-transparent px-3 py-1 text-sm md:min-h-9 data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground';
 
 const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, onDeleted }) => {
     const { accessToken, login, logout } = useAuth();
@@ -58,7 +63,7 @@ const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, o
         <>
             <Item
                 variant="outline"
-                className="w-full md:w-64 flex-col items-start bg-card relative cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]"
+                className="w-full flex-col items-start bg-card relative cursor-pointer hover:border-primary"
                 onClick={handleCardClick}
             >
                 <div className="absolute top-2 right-2 z-10 flex gap-1">
@@ -122,7 +127,9 @@ const Designs = () => {
     const { accessToken, login, logout } = useAuth();
     const { searchQuery } = useSearch();
     const queryClient = useQueryClient();
-    const [typeFilter, setTypeFilter] = useState<DesignType | 'all'>('all');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const filters = parseDesignFilters(searchParams);
+    const typeFilter = filters.type;
 
     const { data, isError, refetch } = useQuery({
         ...getDesignsQuery(() => accessToken, login, logout),
@@ -155,21 +162,31 @@ const Designs = () => {
     useSearchAnalytics('designs', searchedData.length);
 
     if (isError) {
-        return <span>Something went wrong! :(</span>;
+        return (
+            <div className="p-4 md:p-6">
+                <StateView kind="error" what="designs" onRetry={() => refetch()} />
+            </div>
+        );
     }
 
     if (!data) {
-        return <LoadingScreen />;
+        return (
+            <div className="p-4 md:p-6">
+                <StateView kind="loading" what="designs" />
+            </div>
+        );
     }
 
-    const filteredData = sortFavouritesFirst(
-        typeFilter === 'all' ? searchedData : searchedData.filter((d) => d.designType === typeFilter)
-    );
+    const setFilters = (next: Partial<typeof filters>) =>
+        setSearchParams(toSearchParams({ ...filters, ...next }), { replace: true });
+
+    const filteredData = sortFavouritesFirst(applyDesignFilters(searchedData, filters));
 
     const searchedDrafts = searchQuery
         ? (drafts ?? []).filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()))
         : (drafts ?? []);
-    const filteredDrafts = typeFilter === 'all' ? searchedDrafts : [];
+
+    const filteredDrafts = typeFilter === 'all' && filters.etsy === 'all' ? searchedDrafts : [];
 
     const designs = filteredData.map((design) => {
         return (
@@ -191,46 +208,80 @@ const Designs = () => {
 
     const isEmpty = filteredData.length === 0 && filteredDrafts.length === 0;
 
+    const hasFilters = filters.type !== 'all' || filters.etsy !== 'all' || !!searchQuery;
+
     return (
-        <div className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="space-y-4 p-4 md:p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <h1 className="font-display text-3xl font-semibold">Designs</h1>
+                <div className="flex flex-wrap items-center gap-2">
+                    <Button asChild variant="outline" className="min-h-11 md:min-h-9">
+                        <Link to={SHOPPING_LIST_PAGE.route}>
+                            <ShoppingCart /> Shopping list
+                        </Link>
+                    </Button>
+                    <Button asChild className="min-h-11 md:min-h-9">
+                        <Link to={ADD_DESIGN_PAGE.route}>
+                            <Plus /> Add design
+                        </Link>
+                    </Button>
+                </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3">
                 <Tabs
                     className="min-w-0 max-w-full"
                     value={typeFilter}
-                    onValueChange={(v) => setTypeFilter(v as DesignType | 'all')}
+                    onValueChange={(v) => setFilters({ type: v as DesignType | 'all' })}
                 >
-                    <TabsList>
-                        <TabsTrigger value="all">All ({data.length})</TabsTrigger>
+                    <TabsList className="h-auto gap-1 rounded-none border-b bg-transparent p-0">
+                        <TabsTrigger value="all" className={TAB_CLASS}>
+                            All <span className="ml-1 text-muted-foreground">{data.length}</span>
+                        </TabsTrigger>
                         {(Object.keys(DesignType) as Array<DesignType>).map((type) => (
-                            <TabsTrigger key={type} value={type}>
-                                {DESIGN_TYPE_LABELS[type]} ({data.filter((d) => d.designType === type).length})
+                            <TabsTrigger key={type} value={type} className={TAB_CLASS}>
+                                {DESIGN_TYPE_LABELS[type]}{' '}
+                                <span className="ml-1 text-muted-foreground">
+                                    {data.filter((d) => d.designType === type).length}
+                                </span>
                             </TabsTrigger>
                         ))}
                     </TabsList>
                 </Tabs>
-                <Button asChild variant="outline" size="sm">
-                    <Link to={SHOPPING_LIST_PAGE.route}>
-                        <ShoppingCart className="h-4 w-4" /> Shopping list
-                    </Link>
-                </Button>
+                <Select value={filters.etsy} onValueChange={(v) => setFilters({ etsy: v as EtsyStatus | 'all' })}>
+                    <SelectTrigger aria-label="Etsy status" className="min-h-11 w-48 md:min-h-9">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Etsy statuses</SelectItem>
+                        {(Object.keys(ETSY_STATUS_LABEL) as EtsyStatus[]).map((status) => (
+                            <SelectItem key={status} value={status}>
+                                {ETSY_STATUS_LABEL[status]}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             </div>
 
             {isEmpty ? (
-                <Empty>
-                    <EmptyHeader>
-                        <EmptyMedia variant="icon">
-                            <Sparkles />
-                        </EmptyMedia>
-                        <EmptyTitle>{data.length === 0 ? 'No Designs Yet' : 'No Matching Designs'}</EmptyTitle>
-                        <EmptyDescription>
-                            {data.length === 0
-                                ? 'Start creating beautiful jewellery designs to see them here!'
-                                : 'Try adjusting your search query'}
-                        </EmptyDescription>
-                    </EmptyHeader>
-                </Empty>
+                <StateView
+                    kind="empty"
+                    title={data.length === 0 ? 'No designs yet' : 'No matching designs'}
+                    body={
+                        data.length === 0
+                            ? 'Add your first design to start tracking stock.'
+                            : 'Try a different search or filter.'
+                    }
+                    action={
+                        hasFilters && data.length > 0 ? (
+                            <Button variant="outline" onClick={() => setSearchParams({}, { replace: true })}>
+                                Clear filters
+                            </Button>
+                        ) : undefined
+                    }
+                />
             ) : (
-                <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:justify-center md:gap-6">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                     {draftCards}
                     {designs}
                 </div>
