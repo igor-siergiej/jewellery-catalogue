@@ -16,16 +16,18 @@ const UserInfo = () => {
 
     return (
         <div className="flex flex-col gap-1 p-2">
-            <span className="truncate px-2 text-sm font-medium text-sidebar-foreground">{user.username}</span>
-            <div className="flex items-center gap-1">
+            <span className="truncate px-2 text-sm group-data-[collapsible=icon]:hidden font-medium text-sidebar-foreground">
+                {user.username}
+            </span>
+            <div className="flex items-center gap-1 group-data-[collapsible=icon]:flex-col">
                 <Button
                     asChild
                     variant="ghost"
-                    className="h-11 flex-1 justify-start gap-2 px-2 text-sidebar-foreground md:h-9"
+                    className="h-11 flex-1 justify-start gap-2 px-2 text-sidebar-foreground md:h-9 group-data-[collapsible=icon]:size-9 group-data-[collapsible=icon]:flex-none group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
                 >
                     <Link to={SETTINGS_PAGE.route}>
                         <Settings className="h-4 w-4" />
-                        Settings
+                        <span className="group-data-[collapsible=icon]:sr-only">Settings</span>
                     </Link>
                 </Button>
                 <Button

@@ -42,9 +42,7 @@ test.describe.serial('App shell and session', () => {
             await expect(nav.getByRole('link', { name, exact: true })).toBeVisible();
         }
 
-        for (const name of ['Settings']) {
-            await expect(sidebar.getByRole('link', { name, exact: true })).toBeVisible();
-        }
+        await expect(sidebar.getByRole('link', { name: 'Settings', exact: true })).toBeVisible();
 
         await expect(sidebar.getByRole('link', { name: 'Add Design' })).toHaveCount(0);
         await expect(sidebar.getByRole('button', { name: 'Add Design' })).toHaveCount(0);
@@ -68,11 +66,26 @@ test.describe.serial('App shell and session', () => {
     });
 
     test('the header has no Settings button or Back to Designs', async ({ authenticatedPage: page }) => {
-        await page.goto('/designs');
+        await apiCleanup(TOKEN);
+        const design = await apiCreateDesign(TOKEN, { name: 'Header Check Design' });
+        await page.goto(`/designs/${design.id}`);
+        await expect(page.getByRole('heading', { name: 'Header Check Design' })).toBeVisible();
         const header = page.locator('header');
         await expect(header.getByRole('button', { name: 'Settings' })).toHaveCount(0);
         await expect(header.getByRole('link', { name: 'Settings' })).toHaveCount(0);
         await expect(page.getByRole('button', { name: 'Back to Designs' })).toHaveCount(0);
+    });
+
+    test('collapsed sidebar keeps Settings and Log out reachable', async ({ authenticatedPage: page }) => {
+        await page.setViewportSize({ width: 1280, height: 800 });
+        await page.goto('/home');
+        await page.locator('[data-slot="sidebar-trigger"]').click();
+        const sidebar = page.locator('[data-sidebar="sidebar"]');
+        await expect(page.locator('[data-slot="sidebar"][data-state="collapsed"]')).toBeVisible();
+
+        await expect(sidebar.getByRole('button', { name: 'Log out' })).toBeVisible();
+        await sidebar.getByRole('link', { name: 'Settings', exact: true }).click();
+        await expect(page).toHaveURL(/\/settings$/);
     });
 
     test('logging out ends the session', async ({ authenticatedPage: page }) => {

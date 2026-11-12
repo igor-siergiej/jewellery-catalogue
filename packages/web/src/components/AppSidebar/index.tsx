@@ -74,11 +74,9 @@ const AppSidebar = () => {
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
-            {!isCollapsed && (
-                <SidebarFooter>
-                    <UserInfo />
-                </SidebarFooter>
-            )}
+            <SidebarFooter>
+                <UserInfo />
+            </SidebarFooter>
         </Sidebar>
     );
 };
