@@ -64,7 +64,7 @@ export const SalesDashboard = ({ className }: { className?: string }) => {
             className={cn('space-y-4 rounded-md border bg-card p-4 md:p-6', className)}
         >
             <div className="space-y-1">
-                <h2 className="font-display text-2xl font-semibold">Sales</h2>
+                <h2 className="text-lg font-semibold">Sales</h2>
                 <p className="text-sm text-muted-foreground">
                     Etsy sales since order syncing began. Profit is revenue minus current material costs and making time
                     at your hourly rate.

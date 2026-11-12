@@ -61,7 +61,7 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
         <>
             <article
                 aria-labelledby={nameId}
-                className="relative flex w-full cursor-pointer flex-col overflow-hidden rounded-lg border bg-card text-card-foreground transition-colors hover:border-primary md:w-64"
+                className="relative flex w-full cursor-pointer flex-col overflow-hidden rounded-lg border bg-card text-card-foreground transition-colors hover:border-primary"
             >
                 <div className="absolute right-2 top-2 z-10 flex gap-1">
                     <Button

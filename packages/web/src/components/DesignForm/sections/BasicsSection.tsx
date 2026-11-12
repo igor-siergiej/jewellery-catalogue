@@ -73,7 +73,7 @@ export function BasicsSection({ form, mode }: BasicsSectionProps) {
                             <FormControl>
                                 <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                             </FormControl>
-                            <div className="space-y-1 leading-none">
+                            <div className="space-y-1.5">
                                 <FormLabel>Catalogue only</FormLabel>
                                 <FormDescription>
                                     Keep this design in the catalogue only. It can't be sent to Etsy.
