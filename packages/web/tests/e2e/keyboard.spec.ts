@@ -8,6 +8,9 @@ const TOKEN = MOCK_TOKEN_KEYBOARD;
 
 test.use({ authToken: TOKEN });
 
+// Every test wipes the shared user's data in its fixture, so parallel tests would delete each other's seeded design
+test.describe.configure({ mode: 'serial' });
+
 async function seed() {
     const bead = await apiCreateBead(TOKEN, { name: 'Amethyst Bead', quantity: 40 });
 
