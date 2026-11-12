@@ -105,10 +105,10 @@ const OptionRow: React.FC<OptionRowProps> = ({
     );
 
     return (
-        <div className="grid grid-cols-12 gap-2 items-center py-2 px-3 border-b last:border-0 hover:bg-muted/20">
-            <div className="col-span-8">
+        <div className="flex items-center gap-2 py-2 px-3 border-b last:border-0 hover:bg-muted/20 md:grid md:grid-cols-12">
+            <div className="min-w-0 flex-1 md:col-span-8">
                 <Select value={option.material.id || ''} onValueChange={onMaterialChange}>
-                    <SelectTrigger className="h-8">
+                    <SelectTrigger className="h-11 md:h-8">
                         <SelectValue placeholder="Select material" />
                     </SelectTrigger>
                     <SelectContent>
@@ -120,15 +120,22 @@ const OptionRow: React.FC<OptionRowProps> = ({
                     </SelectContent>
                 </Select>
             </div>
-            <div className="col-span-3">
+            <div className="shrink-0 md:col-span-3">
                 {currentMaterial && (
                     <Badge variant="secondary" className="text-xs">
                         {MATERIAL_TYPE_LABELS[currentMaterial.type]}
                     </Badge>
                 )}
             </div>
-            <div className="col-span-1 flex justify-end">
-                <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={onDelete}>
+            <div className="flex shrink-0 justify-end md:col-span-1">
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-11 w-11 md:h-7 md:w-7"
+                    aria-label="Remove option"
+                    onClick={onDelete}
+                >
                     <Trash2 className="h-3.5 w-3.5 text-destructive" />
                 </Button>
             </div>
@@ -203,13 +210,14 @@ const GroupCard: React.FC<GroupCardProps> = ({ group, availableMaterials, onUpda
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 shrink-0"
+                    className="h-11 w-11 shrink-0 md:h-6 md:w-6"
+                    aria-label={collapsed ? 'Expand group' : 'Collapse group'}
                     onClick={() => setCollapsed(!collapsed)}
                 >
                     {collapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
                 </Button>
                 <Input
-                    className="h-7 min-w-28 flex-1 font-medium sm:max-w-[160px]"
+                    className="h-11 min-w-28 flex-1 font-medium md:h-7 sm:max-w-[160px]"
                     placeholder="Group name (e.g. Gemstone)"
                     value={group.name}
                     onChange={(e) => onUpdate({ ...group, name: e.target.value })}
@@ -217,7 +225,7 @@ const GroupCard: React.FC<GroupCardProps> = ({ group, availableMaterials, onUpda
                 <div className="flex items-center gap-1 ml-2">
                     <Input
                         type="number"
-                        className="h-7 w-20"
+                        className="h-11 w-20 md:h-7"
                         placeholder="Qty"
                         value={group.required}
                         min={0}
@@ -230,7 +238,14 @@ const GroupCard: React.FC<GroupCardProps> = ({ group, availableMaterials, onUpda
                     {group.options.length} option{group.options.length !== 1 ? 's' : ''}
                 </span>
                 <div className="ml-auto">
-                    <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={onDelete}>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-11 w-11 md:h-7 md:w-7"
+                        aria-label="Remove variation group"
+                        onClick={onDelete}
+                    >
                         <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                 </div>
@@ -239,7 +254,7 @@ const GroupCard: React.FC<GroupCardProps> = ({ group, availableMaterials, onUpda
             {!collapsed && (
                 <div>
                     {group.options.length > 0 && (
-                        <div className="grid grid-cols-12 gap-2 px-3 py-1.5 bg-muted/10 border-b text-xs font-medium text-muted-foreground">
+                        <div className="hidden grid-cols-12 gap-2 px-3 py-1.5 bg-muted/10 border-b text-xs font-medium text-muted-foreground md:grid">
                             <div className="col-span-8">Material</div>
                             <div className="col-span-3">Type</div>
                             <div className="col-span-1" />
@@ -260,7 +275,7 @@ const GroupCard: React.FC<GroupCardProps> = ({ group, availableMaterials, onUpda
                             type="button"
                             variant="outline"
                             size="sm"
-                            className="gap-1.5 text-xs h-7"
+                            className="h-11 gap-1.5 text-xs md:h-7"
                             onClick={addOption}
                             disabled={usedMaterialIds.length >= availableMaterials.length}
                         >
@@ -373,7 +388,7 @@ export const VariationGroupBuilder: React.FC<VariationGroupBuilderProps> = ({
                 ))}
             </div>
 
-            <Button type="button" variant="outline" size="sm" className="gap-2" onClick={addGroup}>
+            <Button type="button" variant="outline" size="sm" className="h-11 gap-2 md:h-8" onClick={addGroup}>
                 <Plus className="h-4 w-4" />
                 Add variation group
             </Button>

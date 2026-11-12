@@ -152,7 +152,7 @@ const ViewDesign = () => {
 
                 <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[2fr_3fr] lg:gap-12">
                     <div className="relative lg:sticky lg:top-8">
-                        <div className="aspect-[3/4] overflow-hidden rounded-lg border border-border bg-card">
+                        <div className="aspect-square overflow-hidden rounded-lg border border-border bg-muted">
                             {imageIds && imageIds.length > 0 ? (
                                 <div
                                     className="flex h-full transition-transform duration-500 ease-in-out"

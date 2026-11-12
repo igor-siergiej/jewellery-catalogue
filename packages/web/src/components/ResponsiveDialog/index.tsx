@@ -19,7 +19,8 @@ interface ResponsiveDialogProps {
     className?: string;
 }
 
-const FOOTER_CLASS = 'flex flex-col-reverse gap-2 border-t bg-background px-4 py-3 sm:flex-row sm:justify-between';
+const FOOTER_CLASS =
+    'flex flex-col-reverse gap-2 border-t bg-background px-4 py-3 sm:flex-row sm:justify-between max-md:[&_[data-slot=button]]:h-11 max-md:[&_button]:h-11';
 
 export function ResponsiveDialog({
     open,
