@@ -1,6 +1,6 @@
 import { expect } from './fixtures';
 import { MOCK_TOKEN_VISUAL_DESIGNS_DESKTOP, MOCK_TOKEN_VISUAL_DESIGNS_MOBILE } from './mocks/auth';
-import { apiCreateDesign } from './utils/api-helpers';
+import { apiCreateDesign, apiCreateDraft } from './utils/api-helpers';
 import { expectNoHorizontalScroll, settle, visualTest } from './utils/visual-helpers';
 
 const test = visualTest({ mobile: MOCK_TOKEN_VISUAL_DESIGNS_MOBILE, desktop: MOCK_TOKEN_VISUAL_DESIGNS_DESKTOP });
@@ -47,5 +47,24 @@ test.describe('Designs page visual regression', () => {
         await expect(dialog).toBeVisible();
         await settle(page);
         await expect(page).toHaveScreenshot('designs-delete-confirm.png');
+    });
+
+    test('draft and photoless cards match the design card layout', async ({ authenticatedPage: page, authToken }) => {
+        await apiCreateDraft(authToken, {
+            type: 'design',
+            name: 'Visual Draft Ring',
+            data: { name: 'Visual Draft Ring' },
+        });
+        await apiCreateDesign(authToken, { name: 'Visual Photoless Studs', price: 12 });
+        await apiCreateDesign(authToken, { name: 'Visual Moon Pendant', price: 24.5, photo: 'celestial-rings' });
+        await page.goto('/designs');
+        await expect(page.getByText('Visual Draft Ring')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Visual Moon Pendant')).toBeVisible();
+        await settle(page);
+        await expectNoHorizontalScroll(page);
+        await expect(page).toHaveScreenshot('designs-draft-and-photoless.png', {
+            fullPage: true,
+            mask: [page.getByText(/^Edited /)],
+        });
     });
 });
