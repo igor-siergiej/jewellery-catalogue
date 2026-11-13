@@ -54,6 +54,10 @@ async function mockEtsyDesign(page: Page, designId: string, overrides: object, c
 }
 
 test.describe.serial('View design', () => {
+    test.afterEach(async ({ authenticatedPage: page }) => {
+        await page.unrouteAll({ behavior: 'ignoreErrors' });
+    });
+
     test('shows the details of a simple design', async ({ authenticatedPage: page }) => {
         const design = await seedSimpleDesign();
         await page.goto(`/designs/${design.id}`);

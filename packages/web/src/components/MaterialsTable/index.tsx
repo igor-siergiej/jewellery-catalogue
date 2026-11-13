@@ -21,7 +21,7 @@ import { useSearchAnalytics } from '@/hooks/useSearchAnalytics';
 import { type MaterialColumnKey, type MaterialTab, sortValue } from '@/lib/materialColumns';
 import { cn } from '@/lib/utils';
 
-export interface IMaterialTableProps {
+interface IMaterialTableProps {
     materials: Array<Material>;
     onMaterialUpdated?: () => void;
 }

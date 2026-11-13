@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 
 import { formatDuration, parseDuration } from '../../lib/duration';
 
-export interface DurationInputProps<T extends FieldValues> {
+interface DurationInputProps<T extends FieldValues> {
     form: UseFormReturn<T>;
     name: FieldPath<T>;
     label?: string;

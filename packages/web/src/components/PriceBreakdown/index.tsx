@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { Separator } from '@/components/ui/separator';
+import { parseDuration } from '@/lib/duration';
 
 import { getWageCosts } from '../../utils/getWageCost';
 
@@ -13,12 +14,7 @@ interface PriceBreakdownProps {
 }
 
 const formatTime = (timeRequired: string): string => {
-    const [hoursStr, minutesStr] = timeRequired.split(':');
-    const hours = parseInt(hoursStr, 10);
-    const minutes = parseInt(minutesStr, 10);
-
-    if (Number.isNaN(hours) || Number.isNaN(minutes)) return '0 min';
-
+    const { hours, minutes } = parseDuration(timeRequired);
     const parts: string[] = [];
 
     if (hours > 0) parts.push(`${hours} hr`);

@@ -3,7 +3,10 @@ import { MOCK_TOKEN_VISUAL_HOME_DESKTOP, MOCK_TOKEN_VISUAL_HOME_MOBILE } from '.
 import { apiCreateDesign } from './utils/api-helpers';
 import { expectNoHorizontalScroll, settle, visualTest } from './utils/visual-helpers';
 
-const test = visualTest({ mobile: MOCK_TOKEN_VISUAL_HOME_MOBILE, desktop: MOCK_TOKEN_VISUAL_HOME_DESKTOP });
+const test = visualTest({
+    mobile: MOCK_TOKEN_VISUAL_HOME_MOBILE,
+    desktop: MOCK_TOKEN_VISUAL_HOME_DESKTOP,
+});
 
 test.describe('Home page visual regression', () => {
     test.describe.configure({ mode: 'serial' });
@@ -23,13 +26,16 @@ test.describe('Home page visual regression', () => {
             photo: 'blue-lace-agate-ring',
         });
         await page.goto('/home');
-        await expect(page.getByText('Visual Low Design').first()).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Visual Low Design').first()).toBeVisible({
+            timeout: 10000,
+        });
         await settle(page);
         await expectNoHorizontalScroll(page);
-        await expect(page).toHaveScreenshot('home-populated.png', { fullPage: true });
+        await expect(page).toHaveScreenshot('home-populated.png', {
+            fullPage: true,
+        });
     });
     test('collapsed sidebar', async ({ authenticatedPage: page }, testInfo) => {
-        // fallow-ignore-next-line weakened-tests -- project-conditional skip, not a disabled test; it runs on desktop-visual
         test.skip(testInfo.project.name !== 'desktop-visual', 'the sidebar only collapses to a rail on desktop');
         await page.goto('/home');
         await expect(page.getByRole('heading', { name: 'Stock', exact: true })).toBeVisible({ timeout: 10000 });

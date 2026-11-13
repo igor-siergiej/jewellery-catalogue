@@ -23,7 +23,7 @@ import { Button } from '@/components/ui/button';
 import { useAlert } from '@/context/Alert';
 import { AlertStoreActions } from '@/context/Alert/types';
 
-export interface IMaterialUpdateFormProps {
+interface IMaterialUpdateFormProps {
     material: Material;
     onSuccess: () => void;
     onCancel: () => void;

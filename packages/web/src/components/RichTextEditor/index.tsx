@@ -26,7 +26,7 @@ import { errorContext, logger } from '@/utils/logger';
 
 import { ResizableImage } from './ResizableImage';
 
-export interface RichTextEditorProps {
+interface RichTextEditorProps {
     value: string;
     onChange: (value: string) => void;
     placeholder?: string;
