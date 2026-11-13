@@ -15,23 +15,25 @@ import { AlertStoreActions } from '../../context/Alert/types';
 import { useDesignFormSupport } from '../../hooks/useDesignFormSupport';
 import { useDraftPage } from '../../hooks/useDraftPage';
 
+const DEFAULT_VALUES: Partial<FormDesign> = {
+    name: '',
+    timeRequired: '',
+    materials: [],
+    description: '',
+    totalMaterialCosts: 0,
+    images: [],
+    diagramImages: [],
+    makingNotes: '',
+    lowStockThreshold: undefined,
+    variationGroups: [],
+    variants: [],
+};
+
 const AddDesign: React.FC = () => {
     const form = useForm<FormDesign>({
         resolver: zodResolver(formDesignSchema),
         mode: 'onSubmit',
-        defaultValues: {
-            name: '',
-            timeRequired: '',
-            materials: [],
-            description: '',
-            totalMaterialCosts: 0,
-            images: [],
-            diagramImages: [],
-            makingNotes: '',
-            lowStockThreshold: undefined,
-            variationGroups: [],
-            variants: [],
-        },
+        defaultValues: DEFAULT_VALUES,
     });
 
     const [isMakingRequest, setIsMakingRequest] = useState(false);
@@ -47,7 +49,7 @@ const AddDesign: React.FC = () => {
         type: 'design',
         onLoaded: (draft) => {
             if (draft.data) {
-                form.reset(draft.data as FormDesign);
+                form.reset({ ...DEFAULT_VALUES, ...(draft.data as Partial<FormDesign>) });
             }
 
             if (draft.imageId) {

@@ -127,6 +127,22 @@ test.describe.serial('View design', () => {
         await expect(page.getByTestId('can-make')).toHaveText('Can make up to 6');
     });
 
+    test('the edit dialog applies the suggested price and removes a photo', async ({ authenticatedPage: page }) => {
+        const design = await seedSimpleDesign();
+        await page.goto(`/designs/${design.id}`);
+
+        await page.getByRole('button', { name: 'Edit design' }).click();
+        const dialog = page.getByRole('dialog', { name: 'Edit design' });
+        const useSuggested = dialog.getByRole('button', { name: /^Use £/ });
+        const suggested = (await useSuggested.innerText()).replace('Use £', '');
+        await useSuggested.click();
+        await expect(dialog.getByLabel('Final price')).toHaveValue(String(Number(suggested)));
+
+        await expect(dialog.getByRole('button', { name: 'Remove image' })).toHaveCount(1);
+        await dialog.getByRole('button', { name: 'Remove image' }).click();
+        await expect(dialog.getByRole('button', { name: 'Remove image' })).toHaveCount(0);
+    });
+
     test('editing design properties persists across reload', async ({ authenticatedPage: page }) => {
         const design = await seedSimpleDesign();
         await stripDesignEditImageUploads(page);

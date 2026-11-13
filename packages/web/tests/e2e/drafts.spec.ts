@@ -151,6 +151,14 @@ test.describe.serial('Drafts', () => {
         await expect(page.getByText('Draft', { exact: true })).toHaveCount(0);
     });
 
+    test('a design draft saved with only a name opens the form', async ({ authenticatedPage: page }) => {
+        const draft = await apiCreateDraft(TOKEN, { type: 'design', name: 'Bare Idea', data: { name: 'Bare Idea' } });
+        await page.goto(`/addDesign?draftId=${draft.id}`);
+
+        await expect(page.getByPlaceholder('Enter design name')).toHaveValue('Bare Idea');
+        await expect(page.getByRole('button', { name: 'Create design' })).toBeVisible();
+    });
+
     test('deleting a design draft asks for confirmation', async ({ authenticatedPage: page }) => {
         await apiCreateDraft(TOKEN, { type: 'design', name: 'Throwaway Idea', data: { name: 'Throwaway Idea' } });
         await page.goto('/designs');

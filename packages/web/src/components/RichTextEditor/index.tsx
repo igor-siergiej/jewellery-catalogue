@@ -110,7 +110,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
     }
 
     return (
-        <div className="border rounded-md overflow-hidden">
+        <div className="border rounded-md overflow-hidden transition-[box-shadow] has-[.tiptap-editor:focus]:border-ring has-[.tiptap-editor:focus]:ring-[3px] has-[.tiptap-editor:focus]:ring-ring">
             <div className="bg-muted/50 border-b p-2 flex gap-1 flex-wrap">
                 <Button
                     type="button"

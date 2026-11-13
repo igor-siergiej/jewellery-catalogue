@@ -56,6 +56,8 @@ export default defineConfig(({ mode }) => {
         },
         server: {
             port: 3000,
+            // Pre-transform every page so the first e2e visit to a route doesn't wait on a cold transform.
+            warmup: { clientFiles: ['./src/index.tsx', './src/pages/*/index.tsx'] },
             proxy: {
                 '/api': {
                     target: 'http://localhost:3001',

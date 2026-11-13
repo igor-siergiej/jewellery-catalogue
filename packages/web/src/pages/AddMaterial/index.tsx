@@ -14,17 +14,19 @@ import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
 import { useDraftPage } from '../../hooks/useDraftPage';
 
+const DEFAULT_VALUES: Partial<FormMaterial> = {
+    name: '',
+    brand: '',
+    purchaseUrl: '',
+    materialCode: '',
+    type: MaterialType.WIRE,
+};
+
 const AddMaterial = () => {
     const form = useForm({
         resolver: zodResolver(formMaterialSchema),
         mode: 'onSubmit',
-        defaultValues: {
-            name: '',
-            brand: '',
-            purchaseUrl: '',
-            materialCode: '',
-            type: MaterialType.WIRE,
-        },
+        defaultValues: DEFAULT_VALUES,
     });
 
     const [isMakingRequest, setIsMakingRequest] = useState(false);
@@ -36,7 +38,7 @@ const AddMaterial = () => {
         type: 'material',
         onLoaded: (draft) => {
             if (draft.data) {
-                form.reset(draft.data as FormMaterial);
+                form.reset({ ...DEFAULT_VALUES, ...(draft.data as Partial<FormMaterial>) });
             }
         },
     });
