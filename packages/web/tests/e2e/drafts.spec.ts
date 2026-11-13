@@ -31,7 +31,8 @@ test.describe.serial('Drafts', () => {
         await page.goto('/addDesign');
 
         await page.getByPlaceholder('Enter design name').fill('Draft Ring');
-        await page.getByLabel('Time Spent Crafting').fill('01:15');
+        await page.getByLabel('Hours').fill('1');
+        await page.getByLabel('Minutes').fill('15');
         await addSharedMaterial(page, 'Silver Spacer', 4);
         await page.locator('input[type="file"]').first().setInputFiles(PNG);
 
@@ -47,14 +48,71 @@ test.describe.serial('Drafts', () => {
 
         await expect(page).toHaveURL(new RegExp(`/addDesign\\?draftId=${draft.id}`));
         await expect(page.getByPlaceholder('Enter design name')).toHaveValue('Draft Ring');
-        await expect(page.getByLabel('Time Spent Crafting')).toHaveValue('01:15');
+        await expect(page.getByLabel('Hours')).toHaveValue('1');
+        await expect(page.getByLabel('Minutes')).toHaveValue('15');
         await expect(page.locator('form').getByText('Silver Spacer')).toBeVisible();
         await expect(page.locator('form').getByText('4 pcs')).toBeVisible();
         // The draft's image comes back as an uploaded image id (a thumbnail with a remove button), not a
         // local file preview
-        const images = page.locator('div.grid:has(> div > h2:text-is("Upload Images"))');
+        const images = page.getByRole('region', { name: 'Photos' });
         await expect(images.getByRole('img', { name: 'Preview' })).toHaveCount(0);
         await expect(images.getByRole('button')).toHaveCount(2);
+    });
+
+    test('a design draft restores every field, including the type, variations and the "More options" fields', async ({
+        authenticatedPage: page,
+    }) => {
+        await apiCreateBead(TOKEN, { name: 'Silver Spacer' });
+        await apiCreateBead(TOKEN, { name: 'Amethyst Bead' });
+        await page.goto('/addDesign');
+
+        await page.getByPlaceholder('Enter design name').fill('Full Draft');
+        await page.getByLabel('Hours').fill('2');
+        await page.getByLabel('Minutes').fill('5');
+        await page.locator('form').getByRole('radio', { name: 'Rings', exact: true }).click();
+        await addSharedMaterial(page, 'Silver Spacer', 4);
+        await page.getByRole('button', { name: 'More options' }).click();
+        const variations = page.getByRole('region', { name: 'Variations' });
+        await variations.getByRole('button', { name: 'Add Variation Group' }).click();
+        await variations.getByPlaceholder('Group name (e.g. Gemstone)').fill('Gemstone');
+        await variations.getByPlaceholder('Qty').fill('1');
+        await variations.getByRole('button', { name: 'Add Option' }).click();
+        await variations.getByRole('combobox').first().click();
+        await page.getByRole('option', { name: 'Amethyst Bead' }).click();
+        await page.getByPlaceholder('Steps, measurements, gotchas').fill('Wrap twice');
+        await page.getByPlaceholder('e.g., 5').fill('3');
+        await page.locator('.ProseMirror').click();
+        await page.keyboard.type('Pretty rings.');
+
+        await waitForDraft(
+            'Full Draft',
+            (data) =>
+                data.makingNotes === 'Wrap twice' &&
+                data.lowStockThreshold === 3 &&
+                String(data.description).includes('Pretty rings.') &&
+                Array.isArray(data.variationGroups) &&
+                data.variationGroups.length === 1
+        );
+        const [draft] = await apiGetDrafts(TOKEN);
+
+        await page.goto('/designs');
+        await page.goto(`/addDesign?draftId=${draft.id}`);
+
+        await expect(page.getByPlaceholder('Enter design name')).toHaveValue('Full Draft');
+        await expect(page.getByLabel('Hours')).toHaveValue('2');
+        await expect(page.getByLabel('Minutes')).toHaveValue('5');
+        await expect(page.getByRole('radio', { name: 'Rings', exact: true })).toHaveAttribute('aria-checked', 'true');
+        await expect(page.locator('form').getByText('4 pcs')).toBeVisible();
+        await expect(page.getByRole('button', { name: 'More options' })).toHaveAttribute('aria-expanded', 'true');
+        await expect(
+            page.getByRole('region', { name: 'Variations' }).getByPlaceholder('Group name (e.g. Gemstone)')
+        ).toHaveValue('Gemstone');
+        await expect(
+            page.getByRole('region', { name: 'Variations' }).getByRole('row', { name: /Amethyst Bead/ })
+        ).toBeVisible();
+        await expect(page.getByPlaceholder('Steps, measurements, gotchas')).toHaveValue('Wrap twice');
+        await expect(page.getByPlaceholder('e.g., 5')).toHaveValue('3');
+        await expect(page.locator('.ProseMirror')).toHaveText('Pretty rings.');
     });
 
     test('creating a design from a resumed draft removes the draft', async ({ authenticatedPage: page }) => {
@@ -82,9 +140,9 @@ test.describe.serial('Drafts', () => {
 
         await page.goto(`/addDesign?draftId=${draft.id}`);
         await expect(page.getByPlaceholder('Enter design name')).toHaveValue('Finish Me');
-        await page.getByRole('button', { name: 'Create Design' }).click();
+        await page.getByRole('button', { name: 'Create design' }).click();
 
-        await expect(page.getByText('Added design successfully!')).toBeVisible();
+        await expect(page.getByText('Design created')).toBeVisible();
         await expect(page).toHaveURL(/\/designs$/);
         const designs = await apiGetDesigns(TOKEN);
         expect(designs.map((d) => d.name)).toEqual(['Finish Me']);
@@ -93,19 +151,27 @@ test.describe.serial('Drafts', () => {
         await expect(page.getByText('Draft', { exact: true })).toHaveCount(0);
     });
 
+    test('a design draft saved with only a name opens the form', async ({ authenticatedPage: page }) => {
+        const draft = await apiCreateDraft(TOKEN, { type: 'design', name: 'Bare Idea', data: { name: 'Bare Idea' } });
+        await page.goto(`/addDesign?draftId=${draft.id}`);
+
+        await expect(page.getByPlaceholder('Enter design name')).toHaveValue('Bare Idea');
+        await expect(page.getByRole('button', { name: 'Create design' })).toBeVisible();
+    });
+
     test('deleting a design draft asks for confirmation', async ({ authenticatedPage: page }) => {
         await apiCreateDraft(TOKEN, { type: 'design', name: 'Throwaway Idea', data: { name: 'Throwaway Idea' } });
         await page.goto('/designs');
         await expect(page.getByText('Throwaway Idea', { exact: true })).toBeVisible();
 
-        await page.getByTitle('Delete Draft').click();
+        await page.getByRole('button', { name: 'Delete draft Throwaway Idea' }).click();
         const dialog = page.getByRole('alertdialog');
-        await expect(dialog).toContainText('Delete draft "Throwaway Idea"?');
+        await expect(dialog).toContainText('Delete "Throwaway Idea"?');
         await dialog.getByRole('button', { name: 'Cancel' }).click();
         await expect(page.getByText('Throwaway Idea', { exact: true })).toBeVisible();
         expect(await apiGetDrafts(TOKEN)).toHaveLength(1);
 
-        await page.getByTitle('Delete Draft').click();
+        await page.getByRole('button', { name: 'Delete draft Throwaway Idea' }).click();
         await page.getByRole('alertdialog').getByRole('button', { name: 'Delete' }).click();
         await expect(page.getByText('Throwaway Idea', { exact: true })).toHaveCount(0);
         expect(await apiGetDrafts(TOKEN)).toHaveLength(0);
@@ -117,14 +183,14 @@ test.describe.serial('Drafts', () => {
         await page.goto('/addMaterial');
         await page.locator('input[name="name"]').fill('Half-done Bead');
         await page.locator('input[name="brand"]').fill('DraftBrand');
-        await page.getByRole('button', { name: 'Bead' }).click();
+        await page.getByRole('radio', { name: 'Bead' }).click();
         await page.locator('input[name="colour"]').fill('green');
 
         await expect(page.getByText('Draft saved')).toBeVisible({ timeout: 10000 });
         await waitForDraft('Half-done Bead', (data) => data.colour === 'green');
 
         await page.goto('/materials');
-        await expect(page.getByText('Material Drafts')).toBeVisible();
+        await expect(page.getByText('Material drafts')).toBeVisible();
         const row = page.getByRole('row', { name: /Half-done Bead/ });
         await row.getByRole('button', { name: 'Resume' }).click();
 
@@ -138,14 +204,14 @@ test.describe.serial('Drafts', () => {
         await page.locator('input[name="quantity"]').fill('100');
         await page.locator('input[name="pricePerPack"]').fill('5.00');
         await page.locator('input[name="packs"]').fill('1');
-        await page.getByRole('button', { name: 'Add Material!' }).click();
+        await page.getByRole('button', { name: 'Add material' }).click();
 
-        await expect(page.getByText('Added material successfully!')).toBeVisible();
+        await expect(page.getByText('Material created')).toBeVisible();
         expect((await apiGetMaterials(TOKEN)).map((m) => m.name)).toEqual(['Half-done Bead']);
         await expect.poll(async () => (await apiGetDrafts(TOKEN)).length).toBe(0);
 
         await page.goto('/materials');
-        await expect(page.getByText('Material Drafts')).toHaveCount(0);
+        await expect(page.getByText('Material drafts')).toHaveCount(0);
     });
 
     test('deleting a material draft asks for confirmation', async ({ authenticatedPage: page }) => {
@@ -153,13 +219,13 @@ test.describe.serial('Drafts', () => {
         await page.goto('/materials');
 
         const row = page.getByRole('row', { name: /Old Chain Idea/ });
-        await row.getByRole('button', { name: 'Delete draft' }).click();
+        await row.getByRole('button', { name: 'Delete draft Old Chain Idea' }).click();
         await page.getByRole('alertdialog').getByRole('button', { name: 'Cancel' }).click();
         await expect(row).toBeVisible();
 
-        await row.getByRole('button', { name: 'Delete draft' }).click();
+        await row.getByRole('button', { name: 'Delete draft Old Chain Idea' }).click();
         await page.getByRole('alertdialog').getByRole('button', { name: 'Delete' }).click();
-        await expect(page.getByText('Material Drafts')).toHaveCount(0);
+        await expect(page.getByText('Material drafts')).toHaveCount(0);
         expect(await apiGetDrafts(TOKEN)).toHaveLength(0);
     });
 });

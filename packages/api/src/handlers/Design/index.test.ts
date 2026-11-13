@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'bun:test';
 
-import { APIError } from '@imapps/api-utils/hono';
-
 import { dependencyContainer } from '../../dependencies';
 import { DependencyToken } from '../../dependencies/types';
 import * as designHandlers from './index';
@@ -54,9 +52,20 @@ describe('addDesign body parsing', () => {
         expect(captured.body).toBe(fakeDesign);
     });
 
-    it('rejects when neither files nor existingImageIds are provided', async () => {
-        const { ctx } = makeCtx({ contentType: 'application/json', json: { name: 'Ring' } });
-        await expect(designHandlers.addDesign(ctx)).rejects.toBeInstanceOf(APIError);
+    it('accepts a JSON body with no images', async () => {
+        const { ctx, captured } = makeCtx({ contentType: 'application/json', json: { name: 'Ring' } });
+
+        await designHandlers.addDesign(ctx);
+        expect(captured.status).toBe(200);
+        expect(addDesignCalls.at(-1)?.[1]).toEqual([]);
+        expect(addDesignCalls.at(-1)?.[2]).toEqual([]);
+    });
+
+    it('accepts a multipart body with no files and no existingImageIds', async () => {
+        const { ctx, captured } = makeCtx({ contentType: 'multipart/form-data; boundary=x', form: { name: 'Ring' } });
+
+        await designHandlers.addDesign(ctx);
+        expect(captured.status).toBe(200);
     });
 
     it('accepts a multipart body with existingImageIds', async () => {

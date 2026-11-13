@@ -12,7 +12,7 @@ test.describe('Mobile sidebar', () => {
         const drawer = page.locator('[data-mobile="true"]');
         await expect(drawer).toBeVisible();
 
-        await drawer.getByRole('button', { name: 'Materials' }).click();
+        await drawer.locator('[data-sidebar="menu"]').getByRole('link', { name: 'Materials', exact: true }).click();
 
         await expect(page).toHaveURL(/\/materials/);
         await expect(drawer).toBeHidden();

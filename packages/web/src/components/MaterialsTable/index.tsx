@@ -1,28 +1,27 @@
-import {
-    type Bead,
-    type Chain,
-    type EarHook,
-    type Material,
-    MaterialType,
-    type Wire,
-} from '@jewellery-catalogue/types';
+import { type Material, MaterialType } from '@jewellery-catalogue/types';
 import Fuse from 'fuse.js';
-import { ChevronLeft, ChevronRight, Package } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 
+import { MaterialsLedger, type MaterialSortDirection } from '@/components/MaterialsLedger';
+import { StateView } from '@/components/StateView';
 import { Button } from '@/components/ui/button';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+    UNDERLINE_TAB_CLASS,
+    UNDERLINE_TAB_LIST_CLASS,
+} from '@/components/ui/tabs';
+import { ADD_MATERIAL_PAGE } from '@/constants/routes';
 import { useSearch } from '@/context/SearchContext';
 import { useSearchAnalytics } from '@/hooks/useSearchAnalytics';
+import { type MaterialColumnKey, type MaterialTab, sortValue } from '@/lib/materialColumns';
+import { cn } from '@/lib/utils';
 
-import AllMaterialsTable from './AllMaterialsTable';
-import BeadTable from './BeadTable';
-import ChainTable from './ChainTable';
-import EarHookTable from './EarHookTable';
-import WireTable from './WireTable';
-
-export interface IMaterialTableProps {
+interface IMaterialTableProps {
     materials: Array<Material>;
     onMaterialUpdated?: () => void;
 }
@@ -68,18 +67,19 @@ const Pagination: React.FC<PaginationProps> = ({
     }
 
     return (
-        <div className="flex items-center justify-between p-4 border-t bg-muted/20">
+        <div className="flex flex-col gap-3 pt-4 md:flex-row md:items-center md:justify-between">
             <div className="text-sm text-muted-foreground">
                 Showing {startIndex + 1} to {Math.min(endIndex, totalMaterials)} of {totalMaterials} materials
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
                 <select
                     value={pageSize}
                     onChange={(e) => {
                         setPageSize(Number(e.target.value));
                         setCurrentPage(0);
                     }}
-                    className="px-3 py-1 text-sm border rounded-md bg-background"
+                    aria-label="Rows per page"
+                    className="h-11 cursor-pointer rounded-md border bg-card px-3 text-sm md:h-8"
                 >
                     <option value={5}>5 per page</option>
                     <option value={10}>10 per page</option>
@@ -90,17 +90,22 @@ const Pagination: React.FC<PaginationProps> = ({
                     size="sm"
                     onClick={goToPreviousPage}
                     disabled={currentPage === 0}
-                    className="h-8 w-8 p-0"
+                    aria-label="Previous page"
+                    className="size-11 p-0 md:size-8"
                 >
                     <ChevronLeft className="h-4 w-4" />
                 </Button>
                 {pageNumbers.map((pageNum) => (
                     <Button
                         key={pageNum}
-                        variant={currentPage === pageNum ? 'default' : 'outline'}
+                        variant="outline"
                         size="sm"
                         onClick={() => goToPage(pageNum)}
-                        className="h-8 w-8 p-0"
+                        aria-current={currentPage === pageNum ? 'page' : undefined}
+                        className={cn(
+                            'size-11 p-0 md:size-8',
+                            currentPage === pageNum && 'border-primary bg-accent text-primary'
+                        )}
                     >
                         {pageNum + 1}
                     </Button>
@@ -110,7 +115,8 @@ const Pagination: React.FC<PaginationProps> = ({
                     size="sm"
                     onClick={() => goToNextPage(totalMaterials)}
                     disabled={currentPage === totalPages - 1}
-                    className="h-8 w-8 p-0"
+                    aria-label="Next page"
+                    className="size-11 p-0 md:size-8"
                 >
                     <ChevronRight className="h-4 w-4" />
                 </Button>
@@ -119,26 +125,40 @@ const Pagination: React.FC<PaginationProps> = ({
     );
 };
 
-function sortMaterials<T>(items: T[], field: string, dir: 'asc' | 'desc'): T[] {
+const TABS: Array<{ value: MaterialTab; label: string }> = [
+    { value: 'all', label: 'All' },
+    { value: MaterialType.WIRE, label: 'Wire' },
+    { value: MaterialType.BEAD, label: 'Beads' },
+    { value: MaterialType.CHAIN, label: 'Chains' },
+    { value: MaterialType.EAR_HOOK, label: 'Ear hooks' },
+];
+
+function sortMaterials(items: Material[], key: MaterialColumnKey, dir: MaterialSortDirection): Material[] {
     return [...items].sort((a, b) => {
-        const aVal = (a as Record<string, unknown>)[field];
-        const bVal = (b as Record<string, unknown>)[field];
+        const aVal = sortValue(a, key);
+        const bVal = sortValue(b, key);
+
         if (aVal == null && bVal == null) return 0;
+
         if (aVal == null) return dir === 'asc' ? 1 : -1;
+
         if (bVal == null) return dir === 'asc' ? -1 : 1;
+
         if (typeof aVal === 'string' && typeof bVal === 'string') {
             return dir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
         }
+
         return dir === 'asc' ? (aVal as number) - (bVal as number) : (bVal as number) - (aVal as number);
     });
 }
 
 const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUpdated }) => {
     const { searchQuery } = useSearch();
+    const [tab, setTab] = useState<MaterialTab>('all');
     const [currentPage, setCurrentPage] = useState(0);
     const [pageSize, setPageSize] = useState(10);
-    const [sortField, setSortField] = useState<string | null>(null);
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+    const [sortKey, setSortKey] = useState<MaterialColumnKey | null>(null);
+    const [sortDirection, setSortDirection] = useState<MaterialSortDirection>('asc');
 
     const fuse = useMemo(
         () => new Fuse(materials, { keys: ['name', 'brand', 'materialCode'], threshold: 0.4 }),
@@ -147,31 +167,31 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
 
     const filteredMaterials = useMemo(() => {
         if (!searchQuery) return materials;
+
         return fuse.search(searchQuery).map((r) => r.item);
     }, [searchQuery, fuse, materials]);
 
     useSearchAnalytics('materials', filteredMaterials.length);
 
-    const effectivePage = (total: number) => Math.min(currentPage, Math.max(0, Math.ceil(total / pageSize) - 1));
+    const tabMaterials = tab === 'all' ? filteredMaterials : filteredMaterials.filter((m) => m.type === tab);
+    const totalPages = Math.ceil(tabMaterials.length / pageSize);
+    const effectivePage = Math.min(currentPage, Math.max(0, totalPages - 1));
 
-    const handleSort = (field: string) => {
-        if (sortField === field) {
+    const handleSort = (key: MaterialColumnKey) => {
+        if (sortKey === key) {
             setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
         } else {
-            setSortField(field);
+            setSortKey(key);
             setSortDirection('asc');
         }
+
         setCurrentPage(0);
     };
 
-    const wireMaterials = filteredMaterials.filter((m): m is Wire => m.type === MaterialType.WIRE);
-    const beadMaterials = filteredMaterials.filter((m): m is Bead => m.type === MaterialType.BEAD);
-    const chainMaterials = filteredMaterials.filter((m): m is Chain => m.type === MaterialType.CHAIN);
-    const earHookMaterials = filteredMaterials.filter((m): m is EarHook => m.type === MaterialType.EAR_HOOK);
-
     const goToNextPage = (totalMaterials: number) => {
-        const totalPages = Math.ceil(totalMaterials / pageSize);
-        if (currentPage < totalPages - 1) {
+        const pages = Math.ceil(totalMaterials / pageSize);
+
+        if (currentPage < pages - 1) {
             setCurrentPage(currentPage + 1);
         }
     };
@@ -182,142 +202,72 @@ const MaterialsTable: React.FC<IMaterialTableProps> = ({ materials, onMaterialUp
         }
     };
 
-    const goToPage = (page: number) => {
-        setCurrentPage(page);
-    };
-
     if (materials.length === 0) {
         return (
-            <div className="border rounded-lg overflow-hidden">
-                <Empty>
-                    <EmptyHeader>
-                        <EmptyMedia variant="icon">
-                            <Package />
-                        </EmptyMedia>
-                        <EmptyTitle>No Materials Found</EmptyTitle>
-                        <EmptyDescription>Add materials to your inventory to see them listed here.</EmptyDescription>
-                    </EmptyHeader>
-                </Empty>
+            <div className="rounded-md border bg-card">
+                <StateView
+                    kind="empty"
+                    title="No materials yet"
+                    body="Add your first material to start tracking stock."
+                    action={
+                        <Button asChild>
+                            <Link to={ADD_MATERIAL_PAGE.route}>
+                                <Plus /> Add material
+                            </Link>
+                        </Button>
+                    }
+                />
             </div>
         );
     }
 
-    const getPaginatedMaterials = <T extends Material>(items: Array<T>): Array<T> => {
-        const sorted = sortField ? sortMaterials(items, sortField, sortDirection) : items;
-        const startIndex = effectivePage(items.length) * pageSize;
-        return sorted.slice(startIndex, startIndex + pageSize);
-    };
-
-    const sortProps = { sortField, sortDirection, onSort: handleSort };
+    const sorted = sortKey ? sortMaterials(tabMaterials, sortKey, sortDirection) : tabMaterials;
+    const pageMaterials = sorted.slice(effectivePage * pageSize, effectivePage * pageSize + pageSize);
 
     return (
-        <div className="space-y-4">
-            <Tabs
-                defaultValue="all"
-                onValueChange={() => {
-                    setCurrentPage(0);
-                    setSortField(null);
-                }}
-            >
-                <TabsList>
-                    <TabsTrigger value="all">All Materials</TabsTrigger>
-                    <TabsTrigger value="wire">Wires ({wireMaterials.length})</TabsTrigger>
-                    <TabsTrigger value="bead">Beads ({beadMaterials.length})</TabsTrigger>
-                    <TabsTrigger value="chain">Chains ({chainMaterials.length})</TabsTrigger>
-                    <TabsTrigger value="ear-hook">Ear Hooks ({earHookMaterials.length})</TabsTrigger>
-                </TabsList>
+        <Tabs
+            value={tab}
+            onValueChange={(value) => {
+                setTab(value as MaterialTab);
+                setCurrentPage(0);
+                setSortKey(null);
+            }}
+            className="min-w-0 space-y-4"
+        >
+            <TabsList className={cn(UNDERLINE_TAB_LIST_CLASS, 'max-w-full')}>
+                {TABS.map(({ value, label }) => (
+                    <TabsTrigger key={value} value={value} className={UNDERLINE_TAB_CLASS}>
+                        {label}{' '}
+                        <span className="ml-1 text-muted-foreground">
+                            {value === 'all'
+                                ? filteredMaterials.length
+                                : filteredMaterials.filter((m) => m.type === value).length}
+                        </span>
+                    </TabsTrigger>
+                ))}
+            </TabsList>
 
-                <TabsContent value="all">
-                    <AllMaterialsTable
-                        materials={getPaginatedMaterials(filteredMaterials)}
-                        onMaterialUpdated={onMaterialUpdated}
-                        {...sortProps}
-                    />
-                    <Pagination
-                        totalMaterials={filteredMaterials.length}
-                        currentPage={effectivePage(filteredMaterials.length)}
-                        pageSize={pageSize}
-                        setPageSize={setPageSize}
-                        setCurrentPage={setCurrentPage}
-                        goToNextPage={goToNextPage}
-                        goToPreviousPage={goToPreviousPage}
-                        goToPage={goToPage}
-                    />
-                </TabsContent>
-
-                <TabsContent value="wire">
-                    <WireTable
-                        materials={getPaginatedMaterials(wireMaterials)}
-                        onMaterialUpdated={onMaterialUpdated}
-                        {...sortProps}
-                    />
-                    <Pagination
-                        totalMaterials={wireMaterials.length}
-                        currentPage={effectivePage(wireMaterials.length)}
-                        pageSize={pageSize}
-                        setPageSize={setPageSize}
-                        setCurrentPage={setCurrentPage}
-                        goToNextPage={goToNextPage}
-                        goToPreviousPage={goToPreviousPage}
-                        goToPage={goToPage}
-                    />
-                </TabsContent>
-
-                <TabsContent value="bead">
-                    <BeadTable
-                        materials={getPaginatedMaterials(beadMaterials)}
-                        onMaterialUpdated={onMaterialUpdated}
-                        {...sortProps}
-                    />
-                    <Pagination
-                        totalMaterials={beadMaterials.length}
-                        currentPage={effectivePage(beadMaterials.length)}
-                        pageSize={pageSize}
-                        setPageSize={setPageSize}
-                        setCurrentPage={setCurrentPage}
-                        goToNextPage={goToNextPage}
-                        goToPreviousPage={goToPreviousPage}
-                        goToPage={goToPage}
-                    />
-                </TabsContent>
-
-                <TabsContent value="chain">
-                    <ChainTable
-                        materials={getPaginatedMaterials(chainMaterials)}
-                        onMaterialUpdated={onMaterialUpdated}
-                        {...sortProps}
-                    />
-                    <Pagination
-                        totalMaterials={chainMaterials.length}
-                        currentPage={effectivePage(chainMaterials.length)}
-                        pageSize={pageSize}
-                        setPageSize={setPageSize}
-                        setCurrentPage={setCurrentPage}
-                        goToNextPage={goToNextPage}
-                        goToPreviousPage={goToPreviousPage}
-                        goToPage={goToPage}
-                    />
-                </TabsContent>
-
-                <TabsContent value="ear-hook">
-                    <EarHookTable
-                        materials={getPaginatedMaterials(earHookMaterials)}
-                        onMaterialUpdated={onMaterialUpdated}
-                        {...sortProps}
-                    />
-                    <Pagination
-                        totalMaterials={earHookMaterials.length}
-                        currentPage={effectivePage(earHookMaterials.length)}
-                        pageSize={pageSize}
-                        setPageSize={setPageSize}
-                        setCurrentPage={setCurrentPage}
-                        goToNextPage={goToNextPage}
-                        goToPreviousPage={goToPreviousPage}
-                        goToPage={goToPage}
-                    />
-                </TabsContent>
-            </Tabs>
-        </div>
+            <TabsContent value={tab} className="mt-0">
+                <MaterialsLedger
+                    materials={pageMaterials}
+                    tab={tab}
+                    sortKey={sortKey}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    onMaterialUpdated={onMaterialUpdated}
+                />
+                <Pagination
+                    totalMaterials={tabMaterials.length}
+                    currentPage={effectivePage}
+                    pageSize={pageSize}
+                    setPageSize={setPageSize}
+                    setCurrentPage={setCurrentPage}
+                    goToNextPage={goToNextPage}
+                    goToPreviousPage={goToPreviousPage}
+                    goToPage={setCurrentPage}
+                />
+            </TabsContent>
+        </Tabs>
     );
 };
 

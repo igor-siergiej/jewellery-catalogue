@@ -12,7 +12,7 @@ export const visualTest = (tokens: { mobile: string; desktop: string }) =>
 export const settle = async (page: Page) => {
     await page.waitForLoadState('networkidle');
     await page.evaluate(() => document.fonts.ready);
-    await expect.poll(() => page.evaluate(() => document.fonts.check('16px Delius'))).toBe(true);
+    await expect.poll(() => page.evaluate(() => document.fonts.check('16px "IBM Plex Sans"'))).toBe(true);
     await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
 };
 
@@ -45,4 +45,9 @@ export const expectNoHorizontalScroll = async (page: Page) => {
     });
 
     expect(offenders, 'content overflows the viewport horizontally').toEqual([]);
+};
+
+// The page scrolls inside the app shell and the submit bar is sticky, so a tall viewport shows the whole form
+export const showWholeForm = async (page: Page, height: number) => {
+    await page.setViewportSize({ width: page.viewportSize()!.width, height });
 };

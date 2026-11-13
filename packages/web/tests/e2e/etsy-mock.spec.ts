@@ -65,13 +65,16 @@ test.describe.serial('Etsy integration against the mock', () => {
             existingImageIds: JSON.stringify([imageId]),
         });
 
+        const settingsLoaded = page.waitForResponse('**/api/user-settings');
         await page.goto(`/designs/${design.id}`);
-        await page.waitForResponse('**/api/user-settings');
+        await settingsLoaded;
         await page.getByRole('button', { name: 'Send to Etsy' }).click();
         const dialog = page.getByRole('dialog', { name: 'Send to Etsy' });
         await dialog.getByRole('button', { name: 'Send to Etsy' }).click();
         await expect(dialog).toBeHidden({ timeout: 15000 });
-        await expect(page.getByRole('link', { name: 'Draft on Etsy' })).toBeVisible();
+        const etsyBlock = page.getByRole('region', { name: 'Etsy' });
+        await expect(etsyBlock.getByText('Etsy draft')).toBeVisible();
+        await expect(etsyBlock.getByRole('link', { name: 'View on Etsy' })).toBeVisible();
 
         const { shopId } = await findMockShop(shopName);
         const pushed = (await mockShopListings(shopId)).find((l) => l.title === 'Mock Amethyst Studs');
@@ -79,6 +82,7 @@ test.describe.serial('Etsy integration against the mock', () => {
 
         await setMockListingState(pushed?.listing_id as number, 'active');
         await page.reload();
-        await expect(page.getByRole('link', { name: 'Active on Etsy' })).toBeVisible();
+        await expect(etsyBlock.getByText('Listed', { exact: true })).toBeVisible();
+        await expect(etsyBlock.getByRole('link', { name: 'View on Etsy' })).toBeVisible();
     });
 });

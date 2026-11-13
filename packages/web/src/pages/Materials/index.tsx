@@ -5,24 +5,16 @@ import { FileEdit, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 import { getDraftsQuery, makeDeleteDraftRequest } from '../../api/endpoints/drafts';
 import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
-import LoadingScreen from '../../components/Loading';
+import { ListPageHeader } from '../../components/ListPageHeader';
 import MaterialsTable from '../../components/MaterialsTable';
+import { StateView } from '../../components/StateView';
 import { ADD_MATERIAL_PAGE } from '../../constants/routes';
 
 const DraftsTable: React.FC<{ drafts: Array<Draft>; onDeleted: () => void }> = ({ drafts, onDeleted }) => {
@@ -46,38 +38,33 @@ const DraftsTable: React.FC<{ drafts: Array<Draft>; onDeleted: () => void }> = (
             <div className="rounded-md border bg-card mb-4">
                 <div className="px-4 py-3 border-b flex items-center gap-2">
                     <FileEdit className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Material Drafts</span>
+                    <h2 className="text-sm font-medium">Material drafts</h2>
                     <Badge variant="secondary">{drafts.length}</Badge>
                 </div>
-                <Table>
+                <Table className="table-fixed">
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
-                            <TableHead className="font-semibold">Name</TableHead>
-                            <TableHead className="font-semibold">Last Edited</TableHead>
-                            <TableHead className="font-semibold text-right">Actions</TableHead>
+                            <TableHead className="px-3">Name</TableHead>
+                            <TableHead className="hidden w-48 px-3 md:table-cell">Last edited</TableHead>
+                            <TableHead className="w-40 px-3 text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {drafts.map((draft) => (
                             <TableRow key={draft.id} className="hover:bg-muted/50">
-                                <TableCell className="font-medium">
-                                    <span className="flex items-center gap-2">
-                                        {draft.name}
-                                        <Badge variant="outline" className="text-xs">
-                                            Draft
-                                        </Badge>
-                                    </span>
+                                <TableCell data-name title={draft.name} className="px-3 font-medium">
+                                    {draft.name}
                                 </TableCell>
-                                <TableCell className="text-muted-foreground text-sm">
+                                <TableCell className="hidden px-3 text-sm text-muted-foreground md:table-cell">
                                     {new Date(draft.updatedAt).toLocaleString()}
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="px-3">
                                     <div className="flex items-center justify-end gap-2">
                                         <Button
                                             variant="ghost"
                                             size="sm"
                                             onClick={() => handleResume(draft)}
-                                            className="h-8 px-3 text-xs"
+                                            className="min-h-11 px-3 text-sm md:min-h-8"
                                         >
                                             Resume
                                         </Button>
@@ -85,8 +72,8 @@ const DraftsTable: React.FC<{ drafts: Array<Draft>; onDeleted: () => void }> = (
                                             variant="ghost"
                                             size="sm"
                                             onClick={() => setDraftToDelete(draft)}
-                                            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                                            aria-label="Delete draft"
+                                            className="size-11 p-0 text-destructive hover:text-destructive md:size-8"
+                                            aria-label={`Delete draft ${draft.name}`}
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
@@ -98,25 +85,12 @@ const DraftsTable: React.FC<{ drafts: Array<Draft>; onDeleted: () => void }> = (
                 </Table>
             </div>
 
-            <AlertDialog open={!!draftToDelete} onOpenChange={(open) => !open && setDraftToDelete(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Draft</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Delete draft "{draftToDelete?.name}"? This cannot be undone.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={confirmDelete}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
-                            Delete
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <DeleteConfirmDialog
+                name={draftToDelete?.name ?? null}
+                description="The draft is permanently removed. This can't be undone."
+                onConfirm={confirmDelete}
+                onCancel={() => setDraftToDelete(null)}
+            />
         </>
     );
 };
@@ -125,7 +99,7 @@ const Materials = () => {
     const { accessToken, login, logout } = useAuth();
     const queryClient = useQueryClient();
 
-    const { data, isError, error, refetch } = useQuery({
+    const { data, isError, refetch } = useQuery({
         ...getMaterialsQuery(() => accessToken, login, logout),
         enabled: !!accessToken,
     });
@@ -141,19 +115,23 @@ const Materials = () => {
 
     if (isError) {
         return (
-            <span>
-                Something went wrong! :(
-                {error.message}
-            </span>
+            <div className="p-4 md:p-6">
+                <StateView kind="error" what="materials" onRetry={() => refetch()} />
+            </div>
         );
     }
 
     if (!data) {
-        return <LoadingScreen />;
+        return (
+            <div className="p-4 md:p-6">
+                <StateView kind="loading" what="materials" />
+            </div>
+        );
     }
 
     return (
-        <div>
+        <div className="space-y-4 p-4 md:p-6">
+            <ListPageHeader title="Materials" addLabel="Add material" addRoute={ADD_MATERIAL_PAGE.route} />
             {drafts && drafts.length > 0 && <DraftsTable drafts={drafts} onDeleted={handleDraftDeleted} />}
             <MaterialsTable materials={data} onMaterialUpdated={() => refetch()} />
         </div>

@@ -16,28 +16,31 @@ test.describe.serial('Design inventory management', () => {
         await expect(page.getByText('Listed Design')).toBeVisible({ timeout: 10000 });
     });
 
-    test('long design title wraps instead of overflowing the card', async ({ authenticatedPage: page }) => {
-        const longName = 'A Very Long Design Title That Should Wrap Onto Multiple Lines Instead Of Overflowing';
+    test('long design title truncates on one line without horizontal scroll', async ({ authenticatedPage: page }) => {
+        const longName = 'A Very Long Design Title That Should Truncate Onto One Line Instead Of Overflowing';
         await apiCreateDesign(TOKEN, { name: longName, price: 5.0 });
 
+        await page.setViewportSize({ width: 360, height: 800 });
         await page.goto('/designs');
         await page.waitForLoadState('networkidle');
 
-        const title = page.locator('[data-slot="item-title"]').filter({ hasText: longName });
-        await expect(title).toBeVisible({ timeout: 10000 });
+        const card = page.getByRole('article', { name: longName });
+        await expect(card).toBeVisible({ timeout: 10000 });
+        const title = card.getByRole('heading', { name: longName });
+        await expect(title).toHaveAttribute('title', longName);
 
-        const card = page.locator('[data-slot="item"]').filter({ has: title });
         const cardBox = await card.boundingBox();
         const titleBox = await title.boundingBox();
-
         expect(cardBox).not.toBeNull();
         expect(titleBox).not.toBeNull();
-        // The card stays a fixed width instead of growing to fit the long title on one line.
-        expect(cardBox!.width).toBeLessThan(300);
-        // The title wraps within the card instead of overflowing sideways past it.
         expect(titleBox!.width).toBeLessThanOrEqual(cardBox!.width);
-        // Wrapped onto more than one line, so it's taller than a single line of this text would be.
-        expect(titleBox!.height).toBeGreaterThan(20);
+        expect(titleBox!.height).toBeLessThan(30);
+
+        const overflow = await page.evaluate(
+            () => document.documentElement.scrollWidth - document.documentElement.clientWidth
+        );
+
+        expect(overflow).toBeLessThanOrEqual(0);
     });
 
     test('delete design from designs page', async ({ authenticatedPage: page }) => {
@@ -48,12 +51,13 @@ test.describe.serial('Design inventory management', () => {
 
         await expect(page.getByText('Deletable Design')).toBeVisible({ timeout: 10000 });
 
-        await page.locator('[title="Delete Design"]').click();
+        await page.getByRole('button', { name: /^More actions for / }).click();
+        await page.getByRole('menuitem', { name: 'Delete' }).click();
 
-        await expect(page.getByText('Delete Deletable Design?')).toBeVisible({ timeout: 5000 });
-        await page.getByRole('button', { name: 'Delete' }).click();
+        await expect(page.getByText('Delete "Deletable Design"?')).toBeVisible({ timeout: 5000 });
+        await page.getByRole('alertdialog').getByRole('button', { name: 'Delete' }).click();
 
-        await expect(page.locator('[data-slot="item-title"]').filter({ hasText: 'Deletable Design' })).not.toBeVisible({
+        await expect(page.getByRole('article', { name: 'Deletable Design' })).not.toBeVisible({
             timeout: 10000,
         });
     });
@@ -76,15 +80,16 @@ test.describe.serial('Design inventory management', () => {
         await page.goto('/designs');
         await page.waitForLoadState('networkidle');
 
-        await page.locator('[title="Manage Inventory"]').click();
+        await page.getByRole('button', { name: /^More actions for / }).click();
+        await page.getByRole('menuitem', { name: 'Manage inventory' }).click();
 
-        await expect(page.getByText('Manage Design Inventory')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByRole('dialog', { name: /^Stock for / })).toBeVisible({ timeout: 10000 });
 
         await page.locator('input[name="addQuantity"]').fill('3');
 
-        await page.getByRole('button', { name: 'Produce Designs' }).click();
+        await page.getByRole('button', { name: 'Produce designs' }).click();
 
-        await expect(page.getByText('Design inventory updated successfully!')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Design inventory updated')).toBeVisible({ timeout: 10000 });
 
         const designs = await apiGetDesigns(TOKEN);
         const design = designs.find((d) => d.name === 'Producible Design');
@@ -153,17 +158,18 @@ test.describe.serial('Design inventory management', () => {
         await page.goto('/designs');
         await page.waitForLoadState('networkidle');
 
-        await page.locator('[title="Manage Inventory"]').click();
+        await page.getByRole('button', { name: /^More actions for / }).click();
+        await page.getByRole('menuitem', { name: 'Manage inventory' }).click();
 
-        await expect(page.getByText('Manage Design Inventory')).toBeVisible({ timeout: 10000 });
-        await expect(page.getByRole('heading', { name: 'Select Variant to Produce' })).toBeVisible();
+        await expect(page.getByRole('dialog', { name: /^Stock for / })).toBeVisible({ timeout: 10000 });
+        await expect(page.getByRole('heading', { name: 'Variant to produce' })).toBeVisible();
 
         await page.locator('tr').filter({ hasText: 'Red' }).click();
 
         await page.locator('input[name="addQuantity"]').fill('2');
-        await page.getByRole('button', { name: 'Produce Designs' }).click();
+        await page.getByRole('button', { name: 'Produce designs' }).click();
 
-        await expect(page.getByText('Design inventory updated successfully!')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Design inventory updated')).toBeVisible({ timeout: 10000 });
 
         const designs = await apiGetDesigns(TOKEN);
         const design = designs.find((d) => d.name === 'Variant Production Design');

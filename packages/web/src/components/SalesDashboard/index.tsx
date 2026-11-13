@@ -1,14 +1,12 @@
 import type { SalesReportDesignRow } from '@jewellery-catalogue/types';
-import { TrendingUp } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { DesktopOnly, MobileCard, MobileCardList } from '@/components/MobileCardList';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { VIEW_DESIGN_PAGE } from '@/constants/routes';
 import { useSalesReport } from '@/hooks/useSalesReport';
+import { cn, pluralise } from '@/lib/utils';
 
 type RangeKey = '30d' | '90d' | 'year' | 'all';
 
@@ -23,9 +21,12 @@ const RANGES: Array<{ key: RangeKey; label: string }> = [
 const rangeStart = (key: RangeKey): number | null => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
     if (key === 'all') return null;
+
     if (key === 'year') return new Date(today.getFullYear(), 0, 1).getTime();
     const days = key === '30d' ? 30 : 90;
+
     return today.getTime() - days * 24 * 60 * 60 * 1000;
 };
 
@@ -58,31 +59,38 @@ export const SalesDashboard = ({ className }: { className?: string }) => {
     const { totals, unmatched, designs } = report;
 
     return (
-        <Card data-testid="sales-dashboard" className={className}>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Sales
-                </CardTitle>
-                <CardDescription>
+        <section
+            data-testid="sales-dashboard"
+            className={cn('space-y-4 rounded-md border bg-card p-4 md:p-6', className)}
+        >
+            <div className="space-y-1">
+                <h2 className="text-lg font-semibold">Sales</h2>
+                <p className="text-sm text-muted-foreground">
                     Etsy sales since order syncing began. Profit is revenue minus current material costs and making time
                     at your hourly rate.
-                </CardDescription>
-                <div className="flex flex-wrap gap-2 pt-2">
-                    {RANGES.map(({ key, label }) => (
-                        <Button
-                            key={key}
-                            size="sm"
-                            variant={range === key ? 'default' : 'outline'}
-                            aria-pressed={range === key}
-                            onClick={() => setRange(key)}
-                        >
-                            {label}
-                        </Button>
-                    ))}
-                </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
+                </p>
+            </div>
+            <div
+                className="grid grid-cols-2 gap-1 rounded-md border p-1 sm:inline-flex"
+                role="group"
+                aria-label="Period"
+            >
+                {RANGES.map(({ key, label }) => (
+                    <button
+                        key={key}
+                        type="button"
+                        aria-pressed={range === key}
+                        onClick={() => setRange(key)}
+                        className={cn(
+                            'min-h-11 cursor-pointer whitespace-nowrap rounded-sm px-3 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring md:min-h-8',
+                            range === key ? 'bg-accent text-primary' : 'hover:bg-accent'
+                        )}
+                    >
+                        {label}
+                    </button>
+                ))}
+            </div>
+            <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                     <Stat label="Revenue" value={money(totals.revenue)} />
                     <Stat label="Units sold" value={String(totals.unitsSold)} />
@@ -92,8 +100,8 @@ export const SalesDashboard = ({ className }: { className?: string }) => {
 
                 {unmatched.unitsSold > 0 && (
                     <p className="text-sm text-muted-foreground">
-                        Plus {unmatched.unitsSold} sale{unmatched.unitsSold === 1 ? '' : 's'} (
-                        {money(unmatched.revenue)}) not linked to a design, so excluded from cost and profit.
+                        Plus {pluralise(unmatched.unitsSold, 'sale')} ({money(unmatched.revenue)}) not linked to a
+                        design, so excluded from cost and profit.
                     </p>
                 )}
 
@@ -152,7 +160,7 @@ export const SalesDashboard = ({ className }: { className?: string }) => {
                         </DesktopOnly>
                     </>
                 )}
-            </CardContent>
-        </Card>
+            </div>
+        </section>
     );
 };

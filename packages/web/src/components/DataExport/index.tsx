@@ -3,7 +3,6 @@ import { Download, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const EXPORTS = [
     { path: '/api/export/materials.csv', label: 'Materials (CSV)' },
@@ -23,8 +22,10 @@ export const DataExport = () => {
     const download = async (path: string) => {
         setBusy(path);
         setError(false);
+
         try {
             const response = await fetch(path, { headers: { Authorization: `Bearer ${accessToken}` } });
+
             if (!response.ok) throw new Error(`Export failed ${response.status}`);
             const url = URL.createObjectURL(await response.blob());
             const link = document.createElement('a');
@@ -40,29 +41,30 @@ export const DataExport = () => {
     };
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Your data</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                    Download your materials and designs as spreadsheets, or everything as a JSON backup. Etsy login
-                    details are never included.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                    {EXPORTS.map(({ path, label }) => (
-                        <Button key={path} variant="outline" disabled={busy !== null} onClick={() => download(path)}>
-                            {busy === path ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                                <Download className="h-4 w-4" />
-                            )}
-                            {label}
-                        </Button>
-                    ))}
-                </div>
-                {error && <p className="text-sm text-destructive">Couldn't download the export. Try again.</p>}
-            </CardContent>
-        </Card>
+        <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+                Download your materials and designs as spreadsheets, or everything as a JSON backup. Etsy login details
+                are never included.
+            </p>
+            <div className="flex flex-wrap gap-2">
+                {EXPORTS.map(({ path, label }) => (
+                    <Button
+                        key={path}
+                        type="button"
+                        variant="outline"
+                        disabled={busy !== null}
+                        onClick={() => download(path)}
+                    >
+                        {busy === path ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                            <Download className="h-4 w-4" />
+                        )}
+                        {label}
+                    </Button>
+                ))}
+            </div>
+            {error && <p className="text-sm text-destructive">Couldn't download the export. Try again.</p>}
+        </div>
     );
 };

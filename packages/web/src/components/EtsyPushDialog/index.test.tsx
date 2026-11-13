@@ -1,11 +1,17 @@
 import type { Design } from '@jewellery-catalogue/types';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vite-plus/test';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 
 import EtsyPushDialog from '.';
 
 vi.mock('../../hooks/useUserSettings', () => ({
     useUserSettings: () => ({ etsyDescriptionTemplate: '{description}', etsyTaxonomyMap: { RING: 1 } }),
+}));
+
+const taxonomy = vi.hoisted(() => ({ options: [] as Array<{ id: number; label: string }>, isLoading: false }));
+
+vi.mock('../../hooks/useEtsyTaxonomy', () => ({
+    useEtsyTaxonomy: () => taxonomy,
 }));
 
 const push = vi.fn().mockResolvedValue({});
@@ -45,7 +51,20 @@ const sendButton = () => screen.getByRole('button', { name: 'Send to Etsy' }) as
 const titleInput = () => screen.getByLabelText('Title') as HTMLInputElement;
 
 describe('EtsyPushDialog', () => {
-    afterEach(cleanup);
+    beforeAll(() => {
+        window.matchMedia ??= ((query: string) => ({
+            matches: false,
+            media: query,
+            addEventListener: () => {},
+            removeEventListener: () => {},
+        })) as unknown as typeof window.matchMedia;
+    });
+
+    afterEach(() => {
+        cleanup();
+        taxonomy.options = [];
+        taxonomy.isLoading = false;
+    });
 
     it('clamps a long design name to the Etsy title limit', () => {
         render(<EtsyPushDialog design={design({ name: 'a'.repeat(200) })} open onOpenChange={() => {}} />);
@@ -68,9 +87,11 @@ describe('EtsyPushDialog', () => {
         const etsy = { pushIncomplete: true } as Design['etsy'];
         render(<EtsyPushDialog design={design({ etsy })} open onOpenChange={() => {}} />);
         expect(
-            screen.getByText('Resuming an interrupted upload — the listing text was already sent to Etsy.')
+            screen.getByText('Resuming an interrupted upload. The listing text was already sent to Etsy.')
         ).toBeTruthy();
-        expect((screen.getByRole('button', { name: /Generate/ }) as HTMLButtonElement).disabled).toBe(true);
+        expect(
+            (screen.getByRole('button', { name: 'Write title and description' }) as HTMLButtonElement).disabled
+        ).toBe(true);
         expect(titleInput().disabled).toBe(true);
         expect((screen.getByLabelText('Description') as HTMLTextAreaElement).disabled).toBe(true);
         expect((screen.getByLabelText('Add tag') as HTMLInputElement).disabled).toBe(true);
@@ -83,5 +104,39 @@ describe('EtsyPushDialog', () => {
         render(<EtsyPushDialog design={design({ etsy, description: '' })} open onOpenChange={() => {}} />);
         fireEvent.click(sendButton());
         await waitFor(() => expect(push).toHaveBeenCalledWith({ price: 10 }));
+    });
+
+    it('shows the category by its Etsy name', () => {
+        taxonomy.options = [{ id: 1, label: 'Jewellery > Rings' }];
+        render(<EtsyPushDialog design={design()} open onOpenChange={() => {}} />);
+        expect(screen.getByText('Jewellery > Rings')).toBeTruthy();
+        expect(screen.queryByText(/Taxonomy #/)).toBeNull();
+    });
+
+    it('falls back to the category id while the name is unknown', () => {
+        render(<EtsyPushDialog design={design()} open onOpenChange={() => {}} />);
+        expect(screen.getByText('Etsy category 1')).toBeTruthy();
+        expect(screen.queryByText(/Taxonomy #/)).toBeNull();
+    });
+
+    it('says when no category is mapped and keeps Send disabled', () => {
+        render(<EtsyPushDialog design={design({ designType: 'NECKLACE' as never })} open onOpenChange={() => {}} />);
+        expect(screen.getByText(/No category is set for necklaces/)).toBeTruthy();
+        expect(sendButton().disabled).toBe(true);
+    });
+
+    it.each([
+        [0, 'No product photos. You can add them on Etsy before publishing.'],
+        [1, '1 photo will be sent'],
+        [3, '3 photos will be sent'],
+    ])('describes %i product photos', (count, text) => {
+        const imageIds = Array.from({ length: count }, (_, i) => `img-${i}`);
+        render(<EtsyPushDialog design={design({ imageIds })} open onOpenChange={() => {}} />);
+        expect(screen.getByText(text)).toBeTruthy();
+    });
+
+    it('labels the AI action by its outcome', () => {
+        render(<EtsyPushDialog design={design()} open onOpenChange={() => {}} />);
+        expect(screen.getByRole('button', { name: 'Write title and description' })).toBeTruthy();
     });
 });

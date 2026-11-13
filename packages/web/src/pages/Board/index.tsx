@@ -8,7 +8,7 @@ import { getTasksQuery, makeUpdateTaskRequest } from '../../api/endpoints/tasks'
 import GoalProgress from '../../components/GoalProgress';
 import AddGoalDialog from '../../components/GoalProgress/AddGoalDialog';
 import EditGoalDialog from '../../components/GoalProgress/EditGoalDialog';
-import LoadingScreen from '../../components/Loading';
+import { StateView } from '../../components/StateView';
 import TaskBoard from '../../components/TaskBoard';
 import AddTaskDialog from '../../components/TaskBoard/AddTaskDialog';
 import EditTaskDialog from '../../components/TaskBoard/EditTaskDialog';
@@ -16,6 +16,7 @@ import TaskFilters from '../../components/TaskBoard/TaskFilters';
 import { Button } from '../../components/ui/button';
 import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
+import { pluralise } from '../../lib/utils';
 
 const Board = () => {
     const { accessToken, login, logout } = useAuth();
@@ -32,16 +33,17 @@ const Board = () => {
         data: tasks,
         isLoading: tasksLoading,
         isError: tasksIsError,
-        error: tasksError,
+        refetch: refetchTasks,
     } = useQuery({
         ...getTasksQuery(() => accessToken, login, logout),
         enabled: !!accessToken,
     });
+
     const {
         data: goals,
         isLoading: goalsLoading,
         isError: goalsIsError,
-        error: goalsError,
+        refetch: refetchGoals,
     } = useQuery({
         ...getGoalsQuery(() => accessToken, login, logout),
         enabled: !!accessToken,
@@ -50,11 +52,13 @@ const Board = () => {
     const toggleImportanceFilter = (importance: TaskImportance) => {
         setImportanceFilter((prev) => {
             const next = new Set(prev);
+
             if (next.has(importance)) {
                 next.delete(importance);
             } else {
                 next.add(importance);
             }
+
             return next;
         });
     };
@@ -62,174 +66,173 @@ const Board = () => {
     const filteredTasks = useMemo(() => {
         return (tasks ?? []).filter((task) => {
             if (subjectFilter !== 'all' && task.subject !== subjectFilter) return false;
+
             if (importanceFilter.size > 0 && !importanceFilter.has(task.importance)) return false;
+
             return true;
         });
     }, [tasks, subjectFilter, importanceFilter]);
 
     if (tasksIsError || goalsIsError) {
         return (
-            <span>
-                Something went wrong! :(
-                {(tasksError ?? goalsError)?.message}
-            </span>
+            <div className="p-4 md:p-6">
+                <StateView
+                    kind="error"
+                    what="your board"
+                    onRetry={() => {
+                        refetchTasks();
+                        refetchGoals();
+                    }}
+                />
+            </div>
         );
     }
 
     if (tasksLoading || goalsLoading) {
-        return <LoadingScreen />;
+        return (
+            <div className="p-4 md:p-6">
+                <StateView kind="loading" what="your board" />
+            </div>
+        );
     }
 
-    const handleStatusChange = async (taskId: string, status: TaskStatus) => {
+    const saveAndRefresh = async (kind: 'task' | 'goal', save: () => Promise<unknown>) => {
         try {
-            await makeUpdateTaskRequest(taskId, { status }, () => accessToken, login, logout);
-            queryClient.invalidateQueries({ queryKey: ['tasks'] });
+            await save();
+            queryClient.invalidateQueries({ queryKey: [`${kind}s`] });
         } catch (e) {
-            const message = e instanceof Error ? e.message : 'Unknown Error';
+            const message = e instanceof Error ? e.message : 'Unknown error';
 
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {
-                    title: 'Error occured during updating task! :(',
+                    title: `Couldn't save the ${kind}. Try again.`,
                     message: `Details: ${message}`,
                     severity: 'error',
                     variant: 'standard',
                 },
             });
         }
+    };
+
+    const handleStatusChange = async (taskId: string, status: TaskStatus) => {
+        await saveAndRefresh('task', () => makeUpdateTaskRequest(taskId, { status }, () => accessToken, login, logout));
     };
 
     const handleToggleFavourite = async (taskId: string) => {
         const task = (tasks ?? []).find((t) => t.id === taskId);
+
         if (!task) return;
 
-        try {
-            await makeUpdateTaskRequest(taskId, { favourite: !task.favourite }, () => accessToken, login, logout);
-            queryClient.invalidateQueries({ queryKey: ['tasks'] });
-        } catch (e) {
-            const message = e instanceof Error ? e.message : 'Unknown Error';
-
-            dispatch({
-                type: AlertStoreActions.SHOW_ALERT,
-                payload: {
-                    title: 'Error occured during updating task! :(',
-                    message: `Details: ${message}`,
-                    severity: 'error',
-                    variant: 'standard',
-                },
-            });
-        }
+        await saveAndRefresh('task', () =>
+            makeUpdateTaskRequest(taskId, { favourite: !task.favourite }, () => accessToken, login, logout)
+        );
     };
 
     const handleToggleChecklistItem = async (taskId: string, itemId: string) => {
         const task = (tasks ?? []).find((t) => t.id === taskId);
+
         if (!task?.checklist) return;
 
         const checklist = task.checklist.map((item) => (item.id === itemId ? { ...item, done: !item.done } : item));
 
-        try {
-            await makeUpdateTaskRequest(taskId, { checklist }, () => accessToken, login, logout);
-            queryClient.invalidateQueries({ queryKey: ['tasks'] });
-        } catch (e) {
-            const message = e instanceof Error ? e.message : 'Unknown Error';
-
-            dispatch({
-                type: AlertStoreActions.SHOW_ALERT,
-                payload: {
-                    title: 'Error occured during updating task! :(',
-                    message: `Details: ${message}`,
-                    severity: 'error',
-                    variant: 'standard',
-                },
-            });
-        }
+        await saveAndRefresh('task', () =>
+            makeUpdateTaskRequest(taskId, { checklist }, () => accessToken, login, logout)
+        );
     };
 
     const handleToggleGoalFavourite = async (goalId: string) => {
         const goal = (goals ?? []).find((g) => g.id === goalId);
+
         if (!goal) return;
 
-        try {
-            await makeUpdateGoalRequest(goalId, { favourite: !goal.favourite }, () => accessToken, login, logout);
-            queryClient.invalidateQueries({ queryKey: ['goals'] });
-        } catch (e) {
-            const message = e instanceof Error ? e.message : 'Unknown Error';
-
-            dispatch({
-                type: AlertStoreActions.SHOW_ALERT,
-                payload: {
-                    title: 'Error occured during updating goal! :(',
-                    message: `Details: ${message}`,
-                    severity: 'error',
-                    variant: 'standard',
-                },
-            });
-        }
+        await saveAndRefresh('goal', () =>
+            makeUpdateGoalRequest(goalId, { favourite: !goal.favourite }, () => accessToken, login, logout)
+        );
     };
 
     return (
-        <div className="p-0 sm:p-6">
-            <div className="flex items-center justify-between mb-4">
-                <h1 className="text-2xl font-semibold">Board</h1>
-                <Button onClick={() => setAddTaskOpen(true)}>Add Task</Button>
-            </div>
-            <TaskFilters
-                tasks={tasks ?? []}
-                subjectFilter={subjectFilter}
-                importanceFilter={importanceFilter}
-                onSubjectFilterChange={setSubjectFilter}
-                onImportanceFilterChange={toggleImportanceFilter}
-            />
-            <TaskBoard
-                tasks={filteredTasks}
-                onStatusChange={handleStatusChange}
-                onToggleFavourite={handleToggleFavourite}
-                onToggleChecklistItem={handleToggleChecklistItem}
-                onEdit={setEditingTask}
-            />
-
-            <div className="flex items-center justify-between mb-2 mt-6">
-                <p className="text-sm text-muted-foreground">{goals?.length ?? 0} goals</p>
-                <Button variant="outline" onClick={() => setAddGoalOpen(true)}>
-                    Add Goal
-                </Button>
-            </div>
-            <div className="flex gap-3 overflow-x-auto pb-2">
-                {goals?.map((goal) => (
-                    <GoalProgress
-                        key={goal.id}
-                        goal={goal}
-                        onSynced={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
-                        onEdit={setEditingGoal}
-                        onToggleFavourite={handleToggleGoalFavourite}
-                    />
-                ))}
+        <div className="space-y-6 p-4 md:p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <h1 className="font-display text-3xl font-semibold">Board</h1>
+                <Button onClick={() => setAddTaskOpen(true)}>Add task</Button>
             </div>
 
-            <AddTaskDialog
-                open={addTaskOpen}
-                onOpenChange={setAddTaskOpen}
-                onCreated={() => queryClient.invalidateQueries({ queryKey: ['tasks'] })}
-            />
-            <AddGoalDialog
-                open={addGoalOpen}
-                onOpenChange={setAddGoalOpen}
-                onCreated={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
-            />
-            <EditGoalDialog
-                goal={editingGoal}
-                onOpenChange={(open) => {
-                    if (!open) setEditingGoal(null);
-                }}
-                onUpdated={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
-            />
-            <EditTaskDialog
-                task={editingTask}
-                onOpenChange={(open) => {
-                    if (!open) setEditingTask(null);
-                }}
-                onUpdated={() => queryClient.invalidateQueries({ queryKey: ['tasks'] })}
-            />
+            <section aria-labelledby="goals-heading" className="space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h2 id="goals-heading" className="text-sm text-muted-foreground">
+                        {pluralise(goals?.length ?? 0, 'goal')}
+                    </h2>
+                    <Button variant="outline" onClick={() => setAddGoalOpen(true)}>
+                        Add goal
+                    </Button>
+                </div>
+                {(goals?.length ?? 0) > 0 && (
+                    <div className="flex gap-3 overflow-x-auto pb-2">
+                        {goals?.map((goal) => (
+                            <GoalProgress
+                                key={goal.id}
+                                goal={goal}
+                                onSynced={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
+                                onEdit={setEditingGoal}
+                                onToggleFavourite={handleToggleGoalFavourite}
+                            />
+                        ))}
+                    </div>
+                )}
+            </section>
+
+            <div className="space-y-4">
+                <TaskFilters
+                    tasks={tasks ?? []}
+                    subjectFilter={subjectFilter}
+                    importanceFilter={importanceFilter}
+                    onSubjectFilterChange={setSubjectFilter}
+                    onImportanceFilterChange={toggleImportanceFilter}
+                />
+                <TaskBoard
+                    tasks={filteredTasks}
+                    onStatusChange={handleStatusChange}
+                    onToggleFavourite={handleToggleFavourite}
+                    onToggleChecklistItem={handleToggleChecklistItem}
+                    onEdit={setEditingTask}
+                />
+            </div>
+
+            {addTaskOpen && (
+                <AddTaskDialog
+                    open
+                    onOpenChange={setAddTaskOpen}
+                    onCreated={() => queryClient.invalidateQueries({ queryKey: ['tasks'] })}
+                />
+            )}
+            {addGoalOpen && (
+                <AddGoalDialog
+                    open
+                    onOpenChange={setAddGoalOpen}
+                    onCreated={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
+                />
+            )}
+            {editingGoal && (
+                <EditGoalDialog
+                    key={editingGoal.id}
+                    goal={editingGoal}
+                    onOpenChange={(open) => {
+                        if (!open) setEditingGoal(null);
+                    }}
+                    onUpdated={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
+                />
+            )}
+            {editingTask && (
+                <EditTaskDialog
+                    key={editingTask.id}
+                    task={editingTask}
+                    onOpenChange={(open) => {
+                        if (!open) setEditingTask(null);
+                    }}
+                    onUpdated={() => queryClient.invalidateQueries({ queryKey: ['tasks'] })}
+                />
+            )}
         </div>
     );
 };

@@ -2,49 +2,46 @@ import { useAuth } from '@imapps/web-utils';
 import { DesignType, type Draft } from '@jewellery-catalogue/types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Fuse from 'fuse.js';
-import { FileEdit, ShoppingCart, Sparkles, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
+import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog';
+import { Image } from '@/components/Image';
+import { StatusTag } from '@/components/StatusTag';
 import { Button } from '@/components/ui/button';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { Item, ItemContent, ItemFooter, ItemHeader, ItemTitle } from '@/components/ui/item';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    FILTER_TAB_PROPS,
+    Tabs,
+    TabsList,
+    TabsTrigger,
+    UNDERLINE_TAB_CLASS,
+    UNDERLINE_TAB_LIST_CLASS,
+} from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 
 import { getDraftsQuery, makeDeleteDraftRequest } from '../../api/endpoints/drafts';
 import { getDesignsQuery } from '../../api/endpoints/getDesigns';
 import { DesignCard } from '../../components/DesignCard';
-import LoadingScreen from '../../components/Loading';
-import { ADD_DESIGN_PAGE, SHOPPING_LIST_PAGE } from '../../constants/routes';
+import { CARD_ACTIONS_CLASS, CARD_ICON_BUTTON_CLASS, CARD_ICON_CLASS } from '../../components/DesignCard/cardActions';
+import { ListPageHeader } from '../../components/ListPageHeader';
+import { StateView } from '../../components/StateView';
+import { ADD_DESIGN_PAGE } from '../../constants/routes';
 import { useSearch } from '../../context/SearchContext';
 import { PRODUCIBLE_QUERY_KEY, useProducible } from '../../hooks/useProducible';
 import { useSearchAnalytics } from '../../hooks/useSearchAnalytics';
+import { applyDesignFilters, parseDesignFilters, toSearchParams } from '../../lib/designFilters';
+import { ETSY_STATUS_LABEL, type EtsyStatus } from '../../lib/etsyStatus';
 import { DESIGN_TYPE_LABELS } from '../../lib/materialLabels';
 import { sortFavouritesFirst } from '../../lib/sortFavouritesFirst';
 import { canMakeLabel } from '../../utils/canMakeLabel';
 
 const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, onDeleted }) => {
     const { accessToken, login, logout } = useAuth();
-    const navigate = useNavigate();
     const [confirmOpen, setConfirmOpen] = useState(false);
 
-    const handleCardClick = () => {
-        navigate(`${ADD_DESIGN_PAGE.route}?draftId=${draft.id}`);
-    };
-
-    const handleDeleteClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
+    const handleDeleteClick = () => {
         setConfirmOpen(true);
     };
 
@@ -54,75 +51,67 @@ const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, o
         onDeleted();
     };
 
+    const nameId = `draft-name-${draft.id}`;
+
     return (
         <>
-            <Item
-                variant="outline"
-                className="w-full md:w-64 flex-col items-start bg-card relative cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]"
-                onClick={handleCardClick}
+            <article
+                aria-labelledby={nameId}
+                className="relative flex w-full cursor-pointer flex-col overflow-hidden rounded-lg border bg-card text-card-foreground transition-colors hover:border-primary"
             >
-                <div className="absolute top-2 right-2 z-10 flex gap-1">
+                <div className={CARD_ACTIONS_CLASS}>
                     <Button
                         type="button"
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                        className={cn(
+                            CARD_ICON_BUTTON_CLASS,
+                            'text-destructive hover:bg-destructive hover:text-destructive-foreground'
+                        )}
                         onClick={handleDeleteClick}
-                        title="Delete Draft"
+                        aria-label={`Delete draft ${draft.name}`}
                     >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className={CARD_ICON_CLASS} />
                     </Button>
                 </div>
-                <ItemHeader className="basis-auto justify-center">
-                    <div className="w-full aspect-square md:w-64 md:h-64 md:aspect-auto flex items-center justify-center rounded-md bg-primary/10 border border-primary/20">
-                        <FileEdit className="h-16 w-16 text-primary/40" />
-                    </div>
-                </ItemHeader>
-                <ItemContent className="flex-none items-start text-left w-full">
-                    <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="secondary" className="text-xs">
-                            Draft
-                        </Badge>
-                    </div>
-                    <ItemTitle className="text-lg font-semibold w-full whitespace-normal break-words">
-                        {draft.name}
-                    </ItemTitle>
-                    <ItemFooter className="flex items-center gap-1 w-full">
-                        <span className="text-xs text-muted-foreground">
-                            {new Date(draft.updatedAt).toLocaleString()}
-                        </span>
-                    </ItemFooter>
-                </ItemContent>
-            </Item>
-
-            <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Draft</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Delete draft "{draft.name}"? This cannot be undone.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={confirmDelete}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                <div className="relative aspect-square w-full">
+                    <Image imageId={draft.imageId ?? ''} size="thumb" />
+                </div>
+                <div className="flex min-w-0 flex-col gap-1 p-3">
+                    <h2 id={nameId} className="truncate text-base font-semibold" title={draft.name}>
+                        <Link
+                            to={`${ADD_DESIGN_PAGE.route}?draftId=${draft.id}`}
+                            className="after:absolute after:inset-0 after:rounded-lg focus-visible:outline-none focus-visible:after:ring-[3px] focus-visible:after:ring-inset focus-visible:after:ring-primary"
                         >
-                            Delete
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+                            {draft.name}
+                        </Link>
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                        Edited {new Date(draft.updatedAt).toLocaleDateString()}
+                    </p>
+                    <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                        <StatusTag>Draft</StatusTag>
+                    </div>
+                </div>
+            </article>
+
+            <DeleteConfirmDialog
+                name={confirmOpen ? draft.name : null}
+                description="The draft is permanently removed. This can't be undone."
+                onConfirm={confirmDelete}
+                onCancel={() => setConfirmOpen(false)}
+            />
         </>
     );
 };
 
 const Designs = () => {
     const { accessToken, login, logout } = useAuth();
-    const { searchQuery } = useSearch();
+    const { searchQuery, setSearchQuery } = useSearch();
     const queryClient = useQueryClient();
-    const [typeFilter, setTypeFilter] = useState<DesignType | 'all'>('all');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const filters = parseDesignFilters(searchParams);
+    const typeFilter = filters.type;
 
     const { data, isError, refetch } = useQuery({
         ...getDesignsQuery(() => accessToken, login, logout),
@@ -155,21 +144,31 @@ const Designs = () => {
     useSearchAnalytics('designs', searchedData.length);
 
     if (isError) {
-        return <span>Something went wrong! :(</span>;
+        return (
+            <div className="p-4 md:p-6">
+                <StateView kind="error" what="designs" onRetry={() => refetch()} />
+            </div>
+        );
     }
 
     if (!data) {
-        return <LoadingScreen />;
+        return (
+            <div className="p-4 md:p-6">
+                <StateView kind="loading" what="designs" />
+            </div>
+        );
     }
 
-    const filteredData = sortFavouritesFirst(
-        typeFilter === 'all' ? searchedData : searchedData.filter((d) => d.designType === typeFilter)
-    );
+    const setFilters = (next: Partial<typeof filters>) =>
+        setSearchParams(toSearchParams({ ...filters, ...next }), { replace: true });
+
+    const filteredData = sortFavouritesFirst(applyDesignFilters(searchedData, filters));
 
     const searchedDrafts = searchQuery
         ? (drafts ?? []).filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()))
         : (drafts ?? []);
-    const filteredDrafts = typeFilter === 'all' ? searchedDrafts : [];
+
+    const filteredDrafts = typeFilter === 'all' && filters.etsy === 'all' ? searchedDrafts : [];
 
     const designs = filteredData.map((design) => {
         return (
@@ -191,46 +190,72 @@ const Designs = () => {
 
     const isEmpty = filteredData.length === 0 && filteredDrafts.length === 0;
 
+    const hasFilters = filters.type !== 'all' || filters.etsy !== 'all' || !!searchQuery;
+
     return (
-        <div className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="space-y-4 p-4 md:p-6">
+            <ListPageHeader title="Designs" addLabel="Add design" addRoute={ADD_DESIGN_PAGE.route} />
+
+            <div className="flex flex-wrap items-center justify-between gap-3">
                 <Tabs
                     className="min-w-0 max-w-full"
                     value={typeFilter}
-                    onValueChange={(v) => setTypeFilter(v as DesignType | 'all')}
+                    onValueChange={(v) => setFilters({ type: v as DesignType | 'all' })}
                 >
-                    <TabsList>
-                        <TabsTrigger value="all">All ({data.length})</TabsTrigger>
+                    <TabsList className={UNDERLINE_TAB_LIST_CLASS}>
+                        <TabsTrigger value="all" className={UNDERLINE_TAB_CLASS} {...FILTER_TAB_PROPS}>
+                            All <span className="ml-1 text-muted-foreground">{data.length}</span>
+                        </TabsTrigger>
                         {(Object.keys(DesignType) as Array<DesignType>).map((type) => (
-                            <TabsTrigger key={type} value={type}>
-                                {DESIGN_TYPE_LABELS[type]} ({data.filter((d) => d.designType === type).length})
+                            <TabsTrigger key={type} value={type} className={UNDERLINE_TAB_CLASS} {...FILTER_TAB_PROPS}>
+                                {DESIGN_TYPE_LABELS[type]}{' '}
+                                <span className="ml-1 text-muted-foreground">
+                                    {data.filter((d) => d.designType === type).length}
+                                </span>
                             </TabsTrigger>
                         ))}
                     </TabsList>
                 </Tabs>
-                <Button asChild variant="outline" size="sm">
-                    <Link to={SHOPPING_LIST_PAGE.route}>
-                        <ShoppingCart className="h-4 w-4" /> Shopping list
-                    </Link>
-                </Button>
+                <Select value={filters.etsy} onValueChange={(v) => setFilters({ etsy: v as EtsyStatus | 'all' })}>
+                    <SelectTrigger aria-label="Etsy status" className="min-h-11 w-48 md:min-h-9">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Etsy statuses</SelectItem>
+                        {(Object.keys(ETSY_STATUS_LABEL) as EtsyStatus[]).map((status) => (
+                            <SelectItem key={status} value={status}>
+                                {ETSY_STATUS_LABEL[status]}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             </div>
 
             {isEmpty ? (
-                <Empty>
-                    <EmptyHeader>
-                        <EmptyMedia variant="icon">
-                            <Sparkles />
-                        </EmptyMedia>
-                        <EmptyTitle>{data.length === 0 ? 'No Designs Yet' : 'No Matching Designs'}</EmptyTitle>
-                        <EmptyDescription>
-                            {data.length === 0
-                                ? 'Start creating beautiful jewellery designs to see them here!'
-                                : 'Try adjusting your search query'}
-                        </EmptyDescription>
-                    </EmptyHeader>
-                </Empty>
+                <StateView
+                    kind="empty"
+                    title={data.length === 0 ? 'No designs yet' : 'No matching designs'}
+                    body={
+                        data.length === 0
+                            ? 'Add your first design to start tracking stock.'
+                            : 'Try a different search or filter.'
+                    }
+                    action={
+                        hasFilters && data.length > 0 ? (
+                            <Button
+                                variant="outline"
+                                onClick={() => {
+                                    setSearchParams({}, { replace: true });
+                                    setSearchQuery('');
+                                }}
+                            >
+                                Clear filters
+                            </Button>
+                        ) : undefined
+                    }
+                />
             ) : (
-                <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:justify-center md:gap-6">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                     {draftCards}
                     {designs}
                 </div>

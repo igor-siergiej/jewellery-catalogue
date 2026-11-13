@@ -17,12 +17,12 @@ test.describe.serial('Board task description', () => {
             await expect(page.getByText('Photograph new earrings')).toBeVisible({ timeout: 10000 });
 
             await page.locator('button[aria-label="Edit task Photograph new earrings"]').click();
-            await expect(page.getByText('Edit Task')).toBeVisible({ timeout: 10000 });
+            await expect(page.getByText('Edit task', { exact: true })).toBeVisible({ timeout: 10000 });
 
             await page.getByLabel('Description').fill('Use the lightbox, natural light preferred');
 
-            await page.getByRole('button', { name: 'Save Changes' }).click();
-            await expect(page.getByText('Edit Task')).not.toBeVisible({ timeout: 10000 });
+            await page.getByRole('button', { name: 'Save changes' }).click();
+            await expect(page.getByText('Edit task', { exact: true })).not.toBeVisible({ timeout: 10000 });
 
             await expect(page.getByText('Use the lightbox, natural light preferred')).toBeVisible({
                 timeout: 10000,

@@ -1,4 +1,3 @@
-import { APIError } from '@imapps/api-utils/hono';
 import type { EditDesign, UploadDesign } from '@jewellery-catalogue/types';
 import type { Context } from 'hono';
 
@@ -64,10 +63,6 @@ export const addDesign = async (c: Ctx) => {
         typeof existingDiagramImageIdsRaw === 'string' && existingDiagramImageIdsRaw
             ? JSON.parse(existingDiagramImageIdsRaw)
             : [];
-
-    if (files.length === 0 && existingImageIds.length === 0) {
-        throw new APIError('At least one image file or imageId is required', 400);
-    }
 
     const designData: UploadDesign = {
         name: name!,

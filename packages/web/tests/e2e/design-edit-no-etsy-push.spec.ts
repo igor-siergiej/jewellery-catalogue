@@ -12,12 +12,14 @@ test.describe('Editing a design never publishes to Etsy', () => {
         authenticatedPage: page,
     }) => {
         const bead = await apiCreateBead(TOKEN, { name: 'Draft Test Bead' });
+
         const design = await apiCreateDesign(TOKEN, {
             name: 'Etsy Linked Draft',
             price: 12.0,
             materials: [{ ...bead, requiredQuantity: 1 }],
             totalMaterialCosts: (bead as { pricePerBead: number }).pricePerBead,
         });
+
         // designType is required by the edit form's validation but isn't part of apiCreateDesign's
         // input shape, so set it (along with the etsy link) via a follow-up PUT.
         const linkRes = await fetch(`${API_URL}/api/designs/${design.id}`, {
@@ -28,6 +30,7 @@ test.describe('Editing a design never publishes to Etsy', () => {
                 etsy: { listingId: 999, state: 'active', lastPushedAt: null },
             }),
         });
+
         expect(linkRes.ok).toBe(true);
 
         const etsyPushRequests: string[] = [];
@@ -38,22 +41,24 @@ test.describe('Editing a design never publishes to Etsy', () => {
         await page.goto(`/designs/${design.id}`);
         await page.waitForLoadState('networkidle');
 
-        await page.getByRole('button', { name: 'Edit Details' }).click();
-        await expect(page.getByText('Edit Design Properties')).toBeVisible({ timeout: 10000 });
+        await page.getByRole('button', { name: 'Edit design' }).click();
+        await expect(page.getByRole('dialog', { name: 'Edit design' })).toBeVisible({ timeout: 10000 });
 
+        await page.getByRole('button', { name: 'More options' }).click();
         await page.locator('.ProseMirror').click();
         await page.keyboard.type('Updated maker description, not yet ready for Etsy.');
         // Required by the form's validation despite being labeled optional — unrelated
         // pre-existing quirk, just needs a value so the save isn't blocked.
-        await page.getByRole('spinbutton', { name: 'Low Stock Threshold (Optional)' }).fill('5');
+        await page.getByRole('spinbutton', { name: 'Low stock threshold' }).fill('5');
 
         const patchResponse = page.waitForResponse(
             (res) => res.url().includes(`/api/designs/${design.id}`) && res.request().method() === 'PATCH'
         );
-        await page.getByRole('button', { name: 'Save Changes' }).click();
+
+        await page.getByRole('button', { name: 'Save changes' }).click();
         await patchResponse;
 
-        await expect(page.getByText('Design updated successfully!')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Design saved')).toBeVisible({ timeout: 10000 });
 
         expect(etsyPushRequests).toEqual([]);
 

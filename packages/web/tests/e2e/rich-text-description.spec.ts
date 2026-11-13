@@ -23,25 +23,32 @@ test.describe.serial('Design description editor', () => {
     test('toolbar formatting is saved and rendered on the design page', async ({ authenticatedPage: page }) => {
         const design = await seedDesign();
         await page.goto(`/designs/${design.id}`);
-        await page.getByRole('button', { name: 'Edit Details' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Edit Design Properties' });
+        await page.getByRole('button', { name: 'Edit design' }).click();
+        const dialog = page.getByRole('dialog', { name: 'Edit design' });
 
         const editor = dialog.locator('.ProseMirror');
+
+        // tiptap returns focus to the editor on a later frame; keys typed before then hit the button.
+        const format = async (name: string) => {
+            await dialog.getByRole('button', { name, exact: true }).click();
+            await expect(editor).toBeFocused();
+        };
+
         await editor.click();
-        await dialog.getByRole('button', { name: 'Heading 2' }).click();
+        await format('Heading 2');
         await page.keyboard.type('Care');
         await page.keyboard.press('Enter');
-        await dialog.getByRole('button', { name: 'Bold' }).click();
+        await format('Bold');
         await page.keyboard.type('Keep dry');
-        await dialog.getByRole('button', { name: 'Bold' }).click();
+        await format('Bold');
         await page.keyboard.press('Enter');
-        await dialog.getByRole('button', { name: 'Bullet list' }).click();
+        await format('Bullet list');
         await page.keyboard.type('Freshwater pearls');
         await page.keyboard.press('Enter');
         await page.keyboard.type('Sterling hooks');
 
-        await dialog.getByRole('button', { name: 'Save Changes' }).click();
-        await expect(page.getByText('Design updated successfully!')).toBeVisible();
+        await dialog.getByRole('button', { name: 'Save changes' }).click();
+        await expect(page.getByText('Design saved')).toBeVisible();
 
         await page.reload();
         await expect(page.getByRole('heading', { level: 2, name: 'Care' })).toBeVisible();
@@ -60,8 +67,8 @@ test.describe.serial('Design description editor', () => {
     test('undo reverts typing but never wipes the saved description', async ({ authenticatedPage: page }) => {
         const design = await seedDesign('<p>Original copy.</p>');
         await page.goto(`/designs/${design.id}`);
-        await page.getByRole('button', { name: 'Edit Details' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Edit Design Properties' });
+        await page.getByRole('button', { name: 'Edit design' }).click();
+        const dialog = page.getByRole('dialog', { name: 'Edit design' });
 
         const editor = dialog.locator('.ProseMirror');
         await expect(editor).toHaveText('Original copy.');
@@ -85,17 +92,20 @@ test.describe.serial('Design description editor', () => {
             return route.fulfill({ json: { imageId: 'e2e-inline-photo' } });
         });
         await page.goto(`/designs/${design.id}`);
-        await page.getByRole('button', { name: 'Edit Details' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Edit Design Properties' });
+        await page.getByRole('button', { name: 'Edit design' }).click();
+        const dialog = page.getByRole('dialog', { name: 'Edit design' });
 
         await dialog.locator('.ProseMirror').click();
         await page.keyboard.type('Worn by the sea.');
-        await dialog.locator('input[type="file"][accept="image/*"]').last().setInputFiles(TEST_PNG('sea.png'));
+        await dialog
+            .getByRole('region', { name: 'Description' })
+            .locator('input[type="file"]')
+            .setInputFiles(TEST_PNG('sea.png'));
         await expect(dialog.locator('.ProseMirror img')).toHaveAttribute('src', /\/api\/image\/e2e-inline-photo/);
         expect(uploads).toBe(1);
 
-        await dialog.getByRole('button', { name: 'Save Changes' }).click();
-        await expect(page.getByText('Design updated successfully!')).toBeVisible();
+        await dialog.getByRole('button', { name: 'Save changes' }).click();
+        await expect(page.getByText('Design saved')).toBeVisible();
 
         const [saved] = await apiGetDesigns(TOKEN);
         expect(saved.description).toContain('/api/image/e2e-inline-photo');
@@ -105,12 +115,15 @@ test.describe.serial('Design description editor', () => {
         const design = await seedDesign();
         await page.route(/\/api\/images$/, (route) => route.fulfill({ status: 500, json: { message: 'boom' } }));
         await page.goto(`/designs/${design.id}`);
-        await page.getByRole('button', { name: 'Edit Details' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Edit Design Properties' });
+        await page.getByRole('button', { name: 'Edit design' }).click();
+        const dialog = page.getByRole('dialog', { name: 'Edit design' });
 
         await dialog.locator('.ProseMirror').click();
         await page.keyboard.type('No photo yet.');
-        await dialog.locator('input[type="file"][accept="image/*"]').last().setInputFiles(TEST_PNG('sea.png'));
+        await dialog
+            .getByRole('region', { name: 'Description' })
+            .locator('input[type="file"]')
+            .setInputFiles(TEST_PNG('sea.png'));
         await expect(dialog.getByRole('button', { name: 'Insert image' })).toBeEnabled();
         await expect(dialog.locator('.ProseMirror img')).toHaveCount(0);
         await expect(dialog.locator('.ProseMirror')).toContainText('No photo yet.');

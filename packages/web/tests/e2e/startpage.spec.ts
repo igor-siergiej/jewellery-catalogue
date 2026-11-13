@@ -84,7 +84,7 @@ test.describe('Given Start Page', () => {
 
         const bodyElement = page.locator('body');
 
-        await expect(bodyElement).toHaveCSS('background-color', 'rgb(204, 218, 244)');
+        await expect(bodyElement).toHaveCSS('background-color', 'rgb(247, 248, 253)');
 
         const fontLinks = page.locator('link[href*="fonts.googleapis.com"]');
 

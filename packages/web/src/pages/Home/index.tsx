@@ -1,125 +1,115 @@
 import { useAuth } from '@imapps/web-utils';
 import { useQuery } from '@tanstack/react-query';
-import { AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 
 import { getDesignsQuery } from '@/api/endpoints/getDesigns';
 import { getMaterialsQuery } from '@/api/endpoints/getMaterials';
-import LoadingScreen from '@/components/Loading';
-import LowStockDesignsTable from '@/components/LowStockDesignsTable';
-import LowStockMaterialsTable from '@/components/LowStockMaterialsTable';
 import { SalesDashboard } from '@/components/SalesDashboard';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { getLowStockDesignRows, getLowStockMaterials } from '@/utils/lowStock';
+import { StateView } from '@/components/StateView';
+import { StockLedger } from '@/components/StockLedger';
+import { StockSidePanel } from '@/components/StockSidePanel';
+import { Button } from '@/components/ui/button';
+import { ADD_DESIGN_PAGE } from '@/constants/routes';
+import { useEtsyConnection } from '@/hooks/useEtsyConnection';
+import { useEtsyListings } from '@/hooks/useEtsyListings';
+import { useProducible } from '@/hooks/useProducible';
+import { isNotOnEtsyYet } from '@/lib/etsyStatus';
+import { buildStockRows, type StockRow } from '@/lib/stockLedger';
+import { pluralise } from '@/lib/utils';
+import { getLowStockMaterials } from '@/utils/lowStock';
+
+const LISTINGS_STALE_MS = 5 * 60 * 1000;
+
+const summarise = (rows: StockRow[]) => {
+    const out = rows.filter((r) => r.severity === 'out').length;
+    const low = rows.filter((r) => r.severity === 'low').length;
+
+    const parts = [
+        out > 0 && `${pluralise(out, 'design')} out of stock`,
+        low > 0 && `${pluralise(low, 'design')} running low`,
+    ].filter(Boolean);
+
+    return parts.length ? parts.join(', ') : 'Everything is in stock';
+};
+
+const AddDesignButton = () => (
+    <Button asChild>
+        <Link to={ADD_DESIGN_PAGE.route}>
+            <Plus />
+            Add design
+        </Link>
+    </Button>
+);
 
 const Home = () => {
     const { accessToken, login, logout } = useAuth();
+    const producible = useProducible();
+    const { connected: etsyConnected } = useEtsyConnection();
+    const { listings, isError: listingsError } = useEtsyListings(etsyConnected, LISTINGS_STALE_MS);
 
-    const {
-        data: materials,
-        isError: materialsError,
-        refetch: refetchMaterials,
-    } = useQuery({
-        ...getMaterialsQuery(() => accessToken, login, logout),
-        enabled: !!accessToken,
-    });
-
-    const {
-        data: designs,
-        isError: designsError,
-        refetch: refetchDesigns,
-    } = useQuery({
+    const designsQuery = useQuery({
         ...getDesignsQuery(() => accessToken, login, logout),
         enabled: !!accessToken,
     });
 
-    if (!materials || !designs) {
-        return <LoadingScreen />;
-    }
+    const { data: materials } = useQuery({
+        ...getMaterialsQuery(() => accessToken, login, logout),
+        enabled: !!accessToken,
+    });
 
-    if (materialsError || designsError) {
-        return <span>Something went wrong! :(</span>;
-    }
+    const designs = designsQuery.data;
+    const rows = useMemo(() => (designs ? buildStockRows(designs, producible) : []), [designs, producible]);
 
-    const lowStockMaterials = getLowStockMaterials(materials);
-    const lowStockDesignRows = getLowStockDesignRows(designs);
-
-    const hasAnyLowStock = lowStockMaterials.length > 0 || lowStockDesignRows.length > 0;
-
-    const handleRefresh = () => {
-        refetchMaterials();
-        refetchDesigns();
-    };
-
-    if (!hasAnyLowStock) {
+    if (designsQuery.isError) {
         return (
-            <>
-                <SalesDashboard className="m-6" />
-                <div className="flex items-center justify-center min-h-screen">
-                    <Empty>
-                        <EmptyHeader>
-                            <EmptyMedia variant="icon">
-                                <CheckCircle2 className="text-green-500" />
-                            </EmptyMedia>
-                            <EmptyTitle>All Stock Levels Good!</EmptyTitle>
-                            <EmptyDescription>
-                                No items are below their low stock thresholds. Everything is well stocked.
-                            </EmptyDescription>
-                        </EmptyHeader>
-                    </Empty>
-                </div>
-            </>
+            <div className="p-4 md:p-6">
+                <StateView kind="error" what="your stock" onRetry={() => designsQuery.refetch()} />
+            </div>
         );
     }
 
+    if (!designs) {
+        return (
+            <div className="p-4 md:p-6">
+                <StateView kind="loading" what="your stock" />
+            </div>
+        );
+    }
+
+    const unlinkedListingsCount =
+        etsyConnected && !listingsError ? listings.filter((l) => l.linkedDesignId === null).length : null;
+
     return (
-        <div className="space-y-6 p-6">
-            {/* Header */}
-            <div className="space-y-2">
-                <h1 className="text-3xl font-bold flex items-center gap-2">
-                    <AlertTriangle className="text-orange-500" />
-                    Low Stock Dashboard
-                </h1>
-                <p className="text-muted-foreground">Items that have fallen below their low stock thresholds</p>
+        <div className="space-y-6 p-4 md:p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="min-w-0">
+                    <h1 className="font-display text-3xl font-semibold">Stock</h1>
+                    {rows.length > 0 && <p className="text-sm text-muted-foreground">{summarise(rows)}</p>}
+                </div>
+                {rows.length > 0 && <AddDesignButton />}
             </div>
 
-            <SalesDashboard />
-
-            {/* Low Stock Materials Section */}
-            {lowStockMaterials.length > 0 && (
-                <Card className="border-orange-200 bg-orange-50">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <AlertTriangle className="h-5 w-5 text-orange-500" />
-                            Low Stock Materials ({lowStockMaterials.length})
-                        </CardTitle>
-                        <CardDescription>
-                            {lowStockMaterials.length} material(s) below their low stock threshold
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <LowStockMaterialsTable materials={lowStockMaterials} onMaterialUpdated={handleRefresh} />
-                    </CardContent>
-                </Card>
+            {rows.length === 0 ? (
+                <StateView
+                    kind="empty"
+                    title="No designs yet"
+                    body="Add your first design to start tracking stock."
+                    action={<AddDesignButton />}
+                />
+            ) : (
+                <div className="grid grid-cols-[minmax(0,1fr)] gap-6 md:grid-cols-[minmax(0,1fr)_16rem] lg:grid-cols-[minmax(0,1fr)_18rem]">
+                    <StockLedger rows={rows} />
+                    <StockSidePanel
+                        notOnEtsyCount={designs.filter(isNotOnEtsyYet).length}
+                        unlinkedListingsCount={unlinkedListingsCount}
+                        lowMaterials={materials && getLowStockMaterials(materials)}
+                    />
+                </div>
             )}
 
-            {/* Low Stock Designs Section */}
-            {lowStockDesignRows.length > 0 && (
-                <Card className="border-orange-200 bg-orange-50">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <AlertTriangle className="h-5 w-5 text-orange-500" />
-                            Low Stock Designs ({lowStockDesignRows.length})
-                        </CardTitle>
-                        <CardDescription>
-                            {lowStockDesignRows.length} design(s) below their low stock threshold
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <LowStockDesignsTable rows={lowStockDesignRows} onDesignUpdated={handleRefresh} />
-                    </CardContent>
-                </Card>
-            )}
+            {etsyConnected && <SalesDashboard />}
         </div>
     );
 };

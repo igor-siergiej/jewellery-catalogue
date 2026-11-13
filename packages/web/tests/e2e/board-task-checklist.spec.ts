@@ -17,15 +17,15 @@ test.describe.serial('Board task checklist', () => {
             await expect(page.getByText('Assemble bracelet order')).toBeVisible({ timeout: 10000 });
 
             await page.locator('button[aria-label="Edit task Assemble bracelet order"]').click();
-            await expect(page.getByText('Edit Task')).toBeVisible({ timeout: 10000 });
+            await expect(page.getByText('Edit task', { exact: true })).toBeVisible({ timeout: 10000 });
 
             await page.getByPlaceholder('Add checklist item').fill('Cut wire');
             await page.getByRole('button', { name: 'Add', exact: true }).click();
             await page.getByPlaceholder('Add checklist item').fill('Polish clasp');
             await page.getByRole('button', { name: 'Add', exact: true }).click();
 
-            await page.getByRole('button', { name: 'Save Changes' }).click();
-            await expect(page.getByText('Edit Task')).not.toBeVisible({ timeout: 10000 });
+            await page.getByRole('button', { name: 'Save changes' }).click();
+            await expect(page.getByText('Edit task', { exact: true })).not.toBeVisible({ timeout: 10000 });
 
             await expect(page.getByText('Checklist 0/2')).toBeVisible({ timeout: 10000 });
 

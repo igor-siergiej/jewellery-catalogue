@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test';
 import { expect, test } from './fixtures';
 import { MOCK_TOKEN_ADD_DESIGN } from './mocks/auth';
 import { addSharedMaterial, TEST_PNG } from './utils/add-design-form';
-import { apiCreateBead, apiGetDesigns, apiSetUserSettings } from './utils/api-helpers';
+import { apiCreateBead, apiCreateDesign, apiGetDesigns, apiSetUserSettings } from './utils/api-helpers';
 import { mockDraftImageUpload, stripDesignImageUploads, uploadedImageId } from './utils/upload-mocks';
 
 const TOKEN = MOCK_TOKEN_ADD_DESIGN;
@@ -25,13 +25,14 @@ async function openAddDesign(page: Page) {
     await stripDesignImageUploads(page);
     await mockDraftImageUpload(page);
     await page.goto('/addDesign');
-    await expect(page.getByRole('heading', { name: 'Adding New Design' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'New design' })).toBeVisible();
 }
 
 async function fillBasics(page: Page, name: string) {
     await page.getByPlaceholder('Enter design name').fill(name);
-    await page.getByLabel('Time Spent Crafting').fill('00:30');
-    await page.locator('form').getByRole('button', { name: 'Earrings' }).click();
+    await page.getByLabel('Hours').fill('0');
+    await page.getByLabel('Minutes').fill('30');
+    await page.locator('form').getByRole('radio', { name: 'Earrings' }).click();
     await page.locator('input[type="file"]').first().setInputFiles(PNG);
 }
 
@@ -48,14 +49,15 @@ test.describe.serial('Add Design', () => {
         const finalPrice = page.getByPlaceholder('0.00');
         await expect(finalPrice).toHaveValue('7.8');
 
+        await page.getByRole('button', { name: 'More options' }).click();
         await page.getByPlaceholder('Steps, measurements, gotchas').fill('Wrap twice, then crimp.');
         await page.getByPlaceholder('e.g., 5').fill('3');
         await page.locator('.ProseMirror').click();
         await page.keyboard.type('Dainty studs with silver spacers.');
 
-        await page.getByRole('button', { name: 'Create Design' }).click();
+        await page.getByRole('button', { name: 'Create design' }).click();
 
-        await expect(page.getByText('Added design successfully!')).toBeVisible();
+        await expect(page.getByText('Design created')).toBeVisible();
         await expect(page).toHaveURL(/\/designs$/);
         await expect(page.getByText('Spacer Studs')).toBeVisible();
 
@@ -78,7 +80,7 @@ test.describe.serial('Add Design', () => {
         await addSharedMaterial(page, 'Silver Spacer', 10);
 
         await page.getByPlaceholder('0.00').fill('15');
-        await page.getByRole('button', { name: 'Create Design' }).click();
+        await page.getByRole('button', { name: 'Create design' }).click();
         await expect(page).toHaveURL(/\/designs$/);
 
         const [design] = await apiGetDesigns(TOKEN);
@@ -92,7 +94,8 @@ test.describe.serial('Add Design', () => {
         await fillBasics(page, 'Gem Drops');
         await addSharedMaterial(page, 'Silver Spacer', 2);
 
-        const variations = page.locator('div.grid:has(> div > h2:text-is("Variations"))');
+        await page.getByRole('button', { name: 'More options' }).click();
+        const variations = page.getByRole('region', { name: 'Variations' });
         await variations.getByRole('button', { name: 'Add Variation Group' }).click();
         await variations.getByPlaceholder('Group name (e.g. Gemstone)').fill('Gemstone');
         await variations.getByPlaceholder('Qty').fill('1');
@@ -104,7 +107,7 @@ test.describe.serial('Add Design', () => {
         await variations.getByRole('combobox').nth(1).click();
         await page.getByRole('option', { name: 'Quartz Bead' }).click();
 
-        await expect(page.getByText('Shared Materials')).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Shared materials' })).toBeVisible();
         await expect(page.getByText('Used in every variant')).toBeVisible();
 
         // shared 2 × £0.05 = £0.10; amethyst £0.50 → £0.60 → (0.60 + 6) × 1.2 = £7.92
@@ -116,7 +119,7 @@ test.describe.serial('Add Design', () => {
         await expect(quartz.getByRole('cell').nth(1)).toHaveText('£0.30');
         await expect(quartz.getByRole('cell').nth(2)).toHaveText('£7.56');
 
-        await page.getByRole('button', { name: 'Create Design' }).click();
+        await page.getByRole('button', { name: 'Create design' }).click();
         await expect(page).toHaveURL(/\/designs$/);
 
         const [design] = await apiGetDesigns(TOKEN);
@@ -145,7 +148,7 @@ test.describe.serial('Add Design', () => {
         await expect(page.getByRole('img', { name: 'Preview' })).toBeVisible();
         await addSharedMaterial(page, 'Silver Spacer', 1);
 
-        await page.getByRole('button', { name: 'Create Design' }).click();
+        await page.getByRole('button', { name: 'Create design' }).click();
         await expect(page).toHaveURL(/\/designs$/);
 
         const [design] = await apiGetDesigns(TOKEN);
@@ -158,13 +161,45 @@ test.describe.serial('Add Design', () => {
         authenticatedPage: page,
     }) => {
         await openAddDesign(page);
-        await page.getByRole('button', { name: 'Create Design' }).click();
+        await page.getByRole('button', { name: 'Create design' }).click();
 
         await expect(page.getByText('Please enter the design name')).toBeVisible();
         await expect(page.getByText('Please enter the time required')).toBeVisible();
         await expect(page.getByText('Please add at least one material or variation group').first()).toBeVisible();
         await expect(page).toHaveURL(/\/addDesign/);
         expect(await apiGetDesigns(TOKEN)).toHaveLength(0);
+    });
+
+    test('"More options" is collapsed on a new design', async ({ authenticatedPage: page }) => {
+        await openAddDesign(page);
+
+        const more = page.getByRole('button', { name: 'More options' });
+        await expect(more).toHaveAttribute('aria-expanded', 'false');
+        await expect(page.getByPlaceholder('e.g., 5')).toBeHidden();
+
+        await more.click();
+        await expect(more).toHaveAttribute('aria-expanded', 'true');
+        await expect(page.getByPlaceholder('e.g., 5')).toBeVisible();
+    });
+
+    test('"More options" is expanded when editing a design that has a description', async ({
+        authenticatedPage: page,
+    }) => {
+        const bead = await apiCreateBead(TOKEN, { name: 'Silver Spacer' });
+
+        const design = await apiCreateDesign(TOKEN, {
+            name: 'Described Studs',
+            designType: 'EARRINGS',
+            materials: [{ ...bead, requiredQuantity: 2 }],
+            description: '<p>Dainty studs.</p>',
+        });
+
+        await page.goto(`/designs/${design.id}`);
+        await page.getByRole('button', { name: 'Edit design' }).click();
+        const dialog = page.getByRole('dialog', { name: 'Edit design' });
+
+        await expect(dialog.getByRole('button', { name: 'More options' })).toHaveAttribute('aria-expanded', 'true');
+        await expect(dialog.locator('.ProseMirror')).toHaveText('Dainty studs.');
     });
 
     test('a material row needs a material and a positive amount before it can be saved', async ({
@@ -186,5 +221,32 @@ test.describe.serial('Add Design', () => {
         await page.getByRole('option', { name: 'Silver Spacer' }).click();
         await page.getByRole('button', { name: 'Save material' }).click();
         await expect.poll(() => alerts).toEqual(['Please select a material', 'Please enter a valid required amount']);
+    });
+
+    test('a design can be saved without a photo and shows a placeholder in the list and on its page', async ({
+        authenticatedPage: page,
+    }) => {
+        await openAddDesign(page);
+        await page.getByPlaceholder('Enter design name').fill('Photoless Studs');
+        await page.getByLabel('Hours').fill('0');
+        await page.getByLabel('Minutes').fill('30');
+        await page.locator('form').getByRole('radio', { name: 'Earrings' }).click();
+        await addSharedMaterial(page, 'Silver Spacer', 10);
+
+        await page.getByRole('button', { name: 'Create design' }).click();
+        await expect(page.getByText('Design created')).toBeVisible();
+        await expect(page).toHaveURL(/\/designs$/);
+
+        const [design] = await apiGetDesigns(TOKEN);
+        expect(design).toMatchObject({ name: 'Photoless Studs', imageIds: [] });
+
+        const cardImage = page.getByRole('article', { name: 'Photoless Studs' }).getByTestId('design-card-main-image');
+        await expect(cardImage.getByTestId('image-placeholder')).toBeVisible();
+        await expect(cardImage.locator('img')).toHaveCount(0);
+
+        await page.getByRole('link', { name: 'Photoless Studs' }).click();
+        await expect(page.getByRole('heading', { level: 1, name: 'Photoless Studs' })).toBeVisible();
+        await expect(page.getByTestId('image-placeholder')).toBeVisible();
+        await expect(page.locator('main img')).toHaveCount(0);
     });
 });

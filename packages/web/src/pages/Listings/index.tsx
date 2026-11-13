@@ -1,16 +1,15 @@
+import { useAuth } from '@imapps/web-utils';
+import { useQuery } from '@tanstack/react-query';
 import Fuse from 'fuse.js';
-import { ExternalLink, ShoppingBag } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+import { getDesignsQuery } from '../../api/endpoints/getDesigns';
 import { LinkDesignDialog } from '../../components/LinkDesignDialog';
 import { ListingCopyRefresh } from '../../components/ListingCopyRefresh';
-import LoadingScreen from '../../components/Loading';
-import { DesktopOnly, MobileCard, MobileCardList } from '../../components/MobileCardList';
-import { Badge } from '../../components/ui/badge';
+import { ListingsLedger } from '../../components/ListingsLedger';
+import { StateView } from '../../components/StateView';
 import { Button } from '../../components/ui/button';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '../../components/ui/empty';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { UnmatchedEtsySales } from '../../components/UnmatchedEtsySales';
 import { SETTINGS_PAGE, VIEW_DESIGN_PAGE } from '../../constants/routes';
 import { useSearch } from '../../context/SearchContext';
@@ -19,15 +18,24 @@ import { useEtsyListings } from '../../hooks/useEtsyListings';
 import { useEtsyReconcile } from '../../hooks/useEtsyReconcile';
 import { useSearchAnalytics } from '../../hooks/useSearchAnalytics';
 import { useUnmatchedEtsySales } from '../../hooks/useUnmatchedEtsySales';
+import { pluralise } from '../../lib/utils';
 
 const Listings = () => {
+    const { accessToken, login, logout } = useAuth();
     const { connected: etsyConnected, isLoading: isConnectionLoading } = useEtsyConnection();
-    const { listings, isLoading, isError } = useEtsyListings(etsyConnected);
+    const { listings, isLoading, isError, refetch } = useEtsyListings(etsyConnected);
     const { sales: unmatchedSales } = useUnmatchedEtsySales(etsyConnected);
     const navigate = useNavigate();
     const { createFromListing, isCreating } = useEtsyReconcile();
     const [linkDialogListingId, setLinkDialogListingId] = useState<number | null>(null);
     const { searchQuery } = useSearch();
+
+    const { data: designs } = useQuery({
+        ...getDesignsQuery(() => accessToken, login, logout),
+        enabled: etsyConnected && !!accessToken,
+    });
+
+    const designsById = useMemo(() => new Map((designs ?? []).map((d) => [d.id, d])), [designs]);
 
     const fuse = useMemo(() => {
         return new Fuse(listings, {
@@ -47,43 +55,53 @@ const Listings = () => {
     };
 
     if (isConnectionLoading) {
-        return <LoadingScreen />;
+        return (
+            <div className="p-4 md:p-6">
+                <StateView kind="loading" what="Etsy" />
+            </div>
+        );
     }
 
     if (!etsyConnected) {
         return (
-            <Empty>
-                <EmptyHeader>
-                    <EmptyMedia variant="icon">
-                        <ShoppingBag />
-                    </EmptyMedia>
-                    <EmptyTitle>Etsy Not Connected</EmptyTitle>
-                    <EmptyDescription>
-                        <Link to={SETTINGS_PAGE.route} className="text-primary hover:underline">
-                            Connect your Etsy shop
-                        </Link>{' '}
-                        to see your active listings here.
-                    </EmptyDescription>
-                </EmptyHeader>
-            </Empty>
+            <div className="p-4 md:p-6">
+                <StateView
+                    kind="empty"
+                    title="Etsy is not connected"
+                    body="Connect your shop to see its listings here."
+                    action={
+                        <Button asChild>
+                            <Link to={SETTINGS_PAGE.route}>Connect your Etsy shop</Link>
+                        </Button>
+                    }
+                />
+            </div>
         );
     }
 
     if (isLoading) {
-        return <LoadingScreen />;
+        return (
+            <div className="p-4 md:p-6">
+                <StateView kind="loading" what="your Etsy listings" />
+            </div>
+        );
     }
 
     if (isError) {
-        return <span>Something went wrong! :(</span>;
+        return (
+            <div className="p-4 md:p-6">
+                <StateView kind="error" what="your Etsy listings" onRetry={() => refetch()} />
+            </div>
+        );
     }
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-6 p-4 md:p-6">
             <div>
-                <h1 className="text-2xl font-semibold">Etsy Listings</h1>
+                <h1 className="font-display text-3xl font-semibold">Etsy</h1>
                 <p className="text-sm text-muted-foreground">
-                    {listings.length} listing{listings.length === 1 ? '' : 's'} on Etsy (active and sold out). Drafts
-                    sitting on Etsy outside this app aren't included.
+                    {pluralise(listings.length, 'listing')} on Etsy (active and sold out). Drafts sitting on Etsy
+                    outside this app aren't included.
                 </p>
             </div>
 
@@ -92,164 +110,21 @@ const Listings = () => {
             <ListingCopyRefresh listings={listings.filter((l) => l.linkedDesignId !== null)} />
 
             {listings.length === 0 ? (
-                <Empty>
-                    <EmptyHeader>
-                        <EmptyMedia variant="icon">
-                            <ShoppingBag />
-                        </EmptyMedia>
-                        <EmptyTitle>No Listings</EmptyTitle>
-                        <EmptyDescription>
-                            Your shop has no active or sold-out Etsy listings right now.
-                        </EmptyDescription>
-                    </EmptyHeader>
-                </Empty>
+                <StateView
+                    kind="empty"
+                    title="No listings"
+                    body="Your shop has no active or sold-out Etsy listings right now."
+                />
             ) : filteredListings.length === 0 ? (
-                <Empty>
-                    <EmptyHeader>
-                        <EmptyMedia variant="icon">
-                            <ShoppingBag />
-                        </EmptyMedia>
-                        <EmptyTitle>No Matching Listings</EmptyTitle>
-                        <EmptyDescription>Try adjusting your search query.</EmptyDescription>
-                    </EmptyHeader>
-                </Empty>
+                <StateView kind="empty" title="No matching listings" body="Try a different search." />
             ) : (
-                <>
-                    <MobileCardList>
-                        {filteredListings.map((listing) => (
-                            <MobileCard
-                                key={listing.listingId}
-                                title={listing.title}
-                                badges={listing.state === 'sold_out' && <Badge variant="secondary">Sold out</Badge>}
-                                media={
-                                    listing.imageUrl ? (
-                                        <img
-                                            src={listing.imageUrl}
-                                            alt={listing.title}
-                                            className="h-14 w-14 shrink-0 rounded object-cover"
-                                        />
-                                    ) : (
-                                        <div className="h-14 w-14 shrink-0 rounded bg-muted" />
-                                    )
-                                }
-                                facts={[{ label: 'Price', value: `£${listing.price.toFixed(2)}` }]}
-                                actions={
-                                    <>
-                                        {listing.linkedDesignId ? (
-                                            <Button asChild variant="outline" className="h-10 flex-1">
-                                                <Link
-                                                    to={VIEW_DESIGN_PAGE.getRoute(listing.linkedDesignId)}
-                                                    state={{ from: 'listing' }}
-                                                >
-                                                    View design
-                                                </Link>
-                                            </Button>
-                                        ) : (
-                                            <>
-                                                <Button
-                                                    className="h-10 flex-1"
-                                                    disabled={isCreating}
-                                                    onClick={() => handleCreate(listing.listingId)}
-                                                >
-                                                    Create design
-                                                </Button>
-                                                <Button
-                                                    variant="secondary"
-                                                    className="h-10 flex-1"
-                                                    onClick={() => setLinkDialogListingId(listing.listingId)}
-                                                >
-                                                    Link existing
-                                                </Button>
-                                            </>
-                                        )}
-                                        <Button asChild variant="outline" className="h-10 flex-1">
-                                            <a href={listing.url} target="_blank" rel="noreferrer">
-                                                Etsy <ExternalLink className="h-3 w-3" />
-                                            </a>
-                                        </Button>
-                                    </>
-                                }
-                            />
-                        ))}
-                    </MobileCardList>
-                    <DesktopOnly>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="hidden sm:table-cell" />
-                                    <TableHead>Title</TableHead>
-                                    <TableHead>Price</TableHead>
-                                    <TableHead>Linked Design</TableHead>
-                                    <TableHead>Etsy</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredListings.map((listing) => (
-                                    <TableRow key={listing.listingId}>
-                                        <TableCell className="hidden sm:table-cell">
-                                            {listing.imageUrl ? (
-                                                <img
-                                                    src={listing.imageUrl}
-                                                    alt={listing.title}
-                                                    className="h-10 w-10 rounded object-cover"
-                                                />
-                                            ) : (
-                                                <div className="h-10 w-10 rounded bg-muted" />
-                                            )}
-                                        </TableCell>
-                                        <TableCell className="font-medium">
-                                            <div className="flex items-center gap-2">
-                                                {listing.title}
-                                                {listing.state === 'sold_out' && (
-                                                    <Badge variant="secondary">Sold out</Badge>
-                                                )}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>£{listing.price.toFixed(2)}</TableCell>
-                                        <TableCell>
-                                            {listing.linkedDesignId ? (
-                                                <Link
-                                                    to={VIEW_DESIGN_PAGE.getRoute(listing.linkedDesignId)}
-                                                    state={{ from: 'listing' }}
-                                                    className="text-primary hover:underline"
-                                                >
-                                                    View design
-                                                </Link>
-                                            ) : (
-                                                <div className="flex flex-wrap gap-2">
-                                                    <Button
-                                                        size="sm"
-                                                        disabled={isCreating}
-                                                        onClick={() => handleCreate(listing.listingId)}
-                                                    >
-                                                        Create design
-                                                    </Button>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="secondary"
-                                                        onClick={() => setLinkDialogListingId(listing.listingId)}
-                                                    >
-                                                        Link existing
-                                                    </Button>
-                                                </div>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            <a
-                                                href={listing.url}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
-                                            >
-                                                View <ExternalLink className="h-3 w-3" />
-                                            </a>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </DesktopOnly>
-                </>
+                <ListingsLedger
+                    listings={filteredListings}
+                    designsById={designsById}
+                    creating={isCreating}
+                    onCreate={handleCreate}
+                    onLink={setLinkDialogListingId}
+                />
             )}
 
             {linkDialogListingId !== null && (

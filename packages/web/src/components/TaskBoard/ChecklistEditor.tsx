@@ -16,6 +16,7 @@ const ChecklistEditor: React.FC<{
 
     const addItem = () => {
         const text = draft.trim();
+
         if (!text) return;
 
         onChange([...items, { id: crypto.randomUUID(), text, done: false }]);
@@ -50,7 +51,7 @@ const ChecklistEditor: React.FC<{
                         type="button"
                         aria-label={`Remove ${item.text}`}
                         onClick={() => onChange(items.filter((i) => i.id !== item.id))}
-                        className="text-muted-foreground hover:text-foreground"
+                        className="inline-flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:text-foreground md:size-8"
                     >
                         <X className="h-4 w-4" />
                     </button>
@@ -60,6 +61,7 @@ const ChecklistEditor: React.FC<{
             <div className="flex items-center gap-2">
                 <Input
                     id={`${idPrefix}-checklist-item`}
+                    className="h-11 md:h-9"
                     placeholder="Add checklist item"
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}

@@ -10,9 +10,7 @@ const API_URL = process.env.E2E_API_SERVICE_URL || 'http://localhost:3001';
 test.use({ authToken: TOKEN });
 
 function findDesignCard(page: Page, designName: string) {
-    const title = page.locator('[data-slot="item-title"]').filter({ hasText: designName });
-
-    return page.locator('[data-slot="item"]').filter({ has: title });
+    return page.getByRole('article', { name: designName, exact: true });
 }
 
 test.describe.serial('Catalogue-only designs', () => {
@@ -42,24 +40,23 @@ test.describe.serial('Catalogue-only designs', () => {
             await page.goto(`/designs/${design.id}`);
             await page.waitForLoadState('networkidle');
 
-            await page.getByRole('button', { name: 'Edit Details' }).click();
-            await expect(page.getByText('Edit Design Properties')).toBeVisible({ timeout: 10000 });
+            await page.getByRole('button', { name: 'Edit design' }).click();
+            await expect(page.getByRole('dialog', { name: 'Edit design' })).toBeVisible({ timeout: 10000 });
 
             await page.getByRole('checkbox', { name: 'Catalogue only' }).click();
             // Required by the form's validation despite being labeled optional.
-            await page.getByRole('spinbutton', { name: 'Low Stock Threshold (Optional)' }).fill('5');
+            await page.getByRole('button', { name: 'More options' }).click();
+            await page.getByRole('spinbutton', { name: 'Low stock threshold' }).fill('5');
 
             const patchResponse = page.waitForResponse(
                 (res) => res.url().includes(`/api/designs/${design.id}`) && res.request().method() === 'PATCH'
             );
 
-            await page.getByRole('button', { name: 'Save Changes' }).click();
+            await page.getByRole('button', { name: 'Save changes' }).click();
             await patchResponse;
 
-            await expect(page.getByText('Design updated successfully!')).toBeVisible({ timeout: 10000 });
-            await expect(
-                page.getByTitle('This design is kept in the catalogue only and cannot be sent to Etsy')
-            ).toBeVisible();
+            await expect(page.getByText('Design saved')).toBeVisible({ timeout: 10000 });
+            await expect(page.getByText('Catalogue only, not sent to Etsy')).toBeVisible();
 
             const designs = await apiGetDesigns(TOKEN);
             const updated = designs.find((d) => d.id === design.id);

@@ -1,29 +1,24 @@
 import { useAuth } from '@imapps/web-utils';
 import type { Design } from '@jewellery-catalogue/types';
-import { Clock, Hammer, Heart, PackageOpen, ShoppingBag, Trash2 } from 'lucide-react';
+import { Heart, MoreHorizontal, PackageOpen, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import makeDeleteDesignRequest from '../../api/endpoints/deleteDesign';
 import makeUpdateDesignRequest from '../../api/endpoints/updateDesign';
 import { VIEW_DESIGN_PAGE } from '../../constants/routes';
+import { useMenuAction } from '../../hooks/useMenuAction';
+import { describeDuration } from '../../lib/duration';
+import { getEtsyStatus } from '../../lib/etsyStatus';
+import { cn, pluralise } from '../../lib/utils';
 import { track } from '../../utils/analytics';
-import DesignUpdateForm from '../DesignUpdateForm';
+import { DeleteConfirmDialog } from '../DeleteConfirmDialog';
 import { Image } from '../Image';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '../ui/alert-dialog';
-import { Badge } from '../ui/badge';
+import InventoryDialog from '../InventoryDialog';
+import { EtsyStatusTag, StatusTag } from '../StatusTag';
 import { Button } from '../ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
-import { Item, ItemContent, ItemFooter, ItemHeader, ItemTitle } from '../ui/item';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { CARD_ACTIONS_CLASS, CARD_ICON_BUTTON_CLASS, CARD_ICON_CLASS } from './cardActions';
 
 export interface DesignCardProps {
     design: Design;
@@ -36,29 +31,14 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
     const etsyImageUrl = design.etsy?.imageUrls?.[0];
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const navigate = useNavigate();
     const { accessToken, login, logout } = useAuth();
+    const menuAction = useMenuAction();
 
-    const handleCardClick = () => {
-        navigate(VIEW_DESIGN_PAGE.getRoute(id), { state: { from: 'designs' } });
-    };
-
-    const handleFavoriteClick = async (e: React.MouseEvent) => {
-        e.stopPropagation();
+    const handleFavoriteClick = async () => {
         const nextFavourite = !favourite;
         await makeUpdateDesignRequest(id, { favourite: nextFavourite }, () => accessToken, login, logout);
         track(nextFavourite ? 'favourite_added' : 'favourite_removed', { designId: id });
         onDesignUpdated?.();
-    };
-
-    const handleEditClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setEditDialogOpen(true);
-    };
-
-    const handleDeleteClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setDeleteDialogOpen(true);
     };
 
     const handleDeleteConfirm = async () => {
@@ -77,144 +57,111 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
         }
     };
 
-    const handleCancel = () => {
-        setEditDialogOpen(false);
-    };
+    const nameId = `design-name-${id}`;
+    const status = getEtsyStatus(design);
+    const outOfStock = totalQuantity === 0;
 
     return (
         <>
-            <Item
-                key={id}
-                variant="outline"
-                className="w-full md:w-64 flex-col items-start bg-card relative cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]"
-                onClick={handleCardClick}
+            <article
+                aria-labelledby={nameId}
+                className="relative flex w-full cursor-pointer flex-col overflow-hidden rounded-lg border bg-card text-card-foreground transition-colors hover:border-primary"
             >
-                <div className="absolute top-2 right-2 z-10 flex gap-1">
+                <div className={CARD_ACTIONS_CLASS}>
                     <Button
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8 text-black"
-                        onClick={handleEditClick}
-                        title="Manage Inventory"
-                    >
-                        <PackageOpen className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8 text-black"
+                        className={CARD_ICON_BUTTON_CLASS}
                         onClick={handleFavoriteClick}
-                        aria-label={favourite ? 'Unfavourite design' : 'Favourite design'}
+                        aria-label={favourite ? 'Remove from favourites' : 'Add to favourites'}
                         aria-pressed={!!favourite}
                     >
-                        <Heart className={`h-4 w-4 ${favourite ? 'fill-red-500 text-red-500' : ''}`} />
+                        <Heart className={cn(CARD_ICON_CLASS, favourite && 'fill-foreground text-foreground')} />
                     </Button>
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                        onClick={handleDeleteClick}
-                        title="Delete Design"
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
-                </div>
-                <ItemHeader className="basis-auto justify-start">
-                    <div
-                        className="w-full aspect-square md:w-56 md:h-56 md:aspect-auto relative"
-                        data-testid="design-card-main-image"
-                    >
-                        {imageIds?.[0] ? (
-                            <Image imageId={imageIds[0]} size="thumb" />
-                        ) : etsyImageUrl ? (
-                            <img src={etsyImageUrl} alt={name} className="w-full h-full object-contain rounded-md" />
-                        ) : (
-                            <Image imageId="" />
-                        )}
-                        {etsyImageUrl && (
-                            <div
-                                className="absolute bottom-2 left-2 h-10 w-10 rounded-md border-2 border-background bg-muted overflow-hidden shadow"
-                                title="Linked Etsy listing image"
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className={CARD_ICON_BUTTON_CLASS}
+                                aria-label={`More actions for ${name}`}
                             >
-                                <img
-                                    src={etsyImageUrl}
-                                    alt="Linked Etsy listing"
-                                    className="h-full w-full object-cover"
-                                />
-                                <ShoppingBag className="absolute -top-1 -right-1 h-3.5 w-3.5 text-primary bg-background rounded-full p-0.5" />
-                            </div>
-                        )}
-                    </div>
-                </ItemHeader>
-                <ItemContent className="flex-none items-start text-left w-full">
-                    <ItemTitle className="text-lg font-semibold w-full whitespace-normal break-words">{name}</ItemTitle>
-                    <ItemFooter className="flex items-center gap-1.5 w-full flex-wrap">
-                        <Badge
-                            variant="secondary"
-                            className="gap-1 font-normal text-white leading-none [&_svg]:text-white [&_svg]:shrink-0"
+                                <MoreHorizontal className={CARD_ICON_CLASS} />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" onCloseAutoFocus={menuAction.onCloseAutoFocus}>
+                            <DropdownMenuItem onSelect={() => menuAction.run(() => setEditDialogOpen(true))}>
+                                <PackageOpen /> Manage inventory
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onSelect={() => menuAction.run(() => setDeleteDialogOpen(true))}
+                            >
+                                <Trash2 /> Delete
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+                <div className="relative aspect-square w-full" data-testid="design-card-main-image">
+                    {imageIds?.[0] ? (
+                        <Image imageId={imageIds[0]} size="thumb" />
+                    ) : etsyImageUrl ? (
+                        <img src={etsyImageUrl} alt={name} className="h-full w-full object-contain" />
+                    ) : (
+                        <Image imageId="" />
+                    )}
+                    {etsyImageUrl && (
+                        <div
+                            className="absolute bottom-2 left-2 h-10 w-10 overflow-hidden rounded-md border-2 border-background bg-muted"
+                            title="Linked Etsy listing image"
                         >
-                            <Clock className="h-3.5 w-3.5" />
-                            {timeRequired} hours
-                        </Badge>
-
-                        <Badge
-                            variant="secondary"
-                            className={
-                                totalQuantity === 0
-                                    ? 'gap-1 font-normal border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400'
-                                    : 'gap-1 font-normal text-white leading-none [&_svg]:text-white [&_svg]:shrink-0'
-                            }
+                            <img src={etsyImageUrl} alt="Linked Etsy listing" className="h-full w-full object-cover" />
+                        </div>
+                    )}
+                </div>
+                <div className="flex min-w-0 flex-col gap-1 p-3">
+                    <h2 id={nameId} className="truncate text-base font-semibold" title={name}>
+                        <Link
+                            to={VIEW_DESIGN_PAGE.getRoute(id)}
+                            state={{ from: 'designs' }}
+                            className="after:absolute after:inset-0 after:rounded-lg focus-visible:outline-none focus-visible:after:ring-[3px] focus-visible:after:ring-inset focus-visible:after:ring-primary"
                         >
-                            <PackageOpen className="h-3.5 w-3.5" />
+                            {name}
+                        </Link>
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                        <span className={outOfStock ? 'font-medium text-destructive' : undefined}>
                             {design.variants && design.variants.length > 0
-                                ? `${design.variants.length} variants · ${totalQuantity} in stock`
+                                ? `${pluralise(design.variants.length, 'variant')} · ${totalQuantity} in stock`
                                 : `${totalQuantity} in stock`}
-                        </Badge>
+                        </span>{' '}
+                        · {describeDuration(timeRequired)}
+                    </p>
+                    {canMake && (
+                        <p className="text-sm text-muted-foreground" data-testid="can-make">
+                            {canMake}
+                        </p>
+                    )}
+                    <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                        <EtsyStatusTag status={status} />
+                        {catalogueOnly && <StatusTag>Catalogue only</StatusTag>}
+                    </div>
+                </div>
+            </article>
 
-                        {canMake && (
-                            <Badge variant="outline" className="gap-1 font-normal" data-testid="can-make">
-                                <Hammer className="h-3.5 w-3.5" />
-                                {canMake}
-                            </Badge>
-                        )}
+            <InventoryDialog
+                design={design}
+                open={editDialogOpen}
+                onOpenChange={setEditDialogOpen}
+                onSuccess={handleSuccess}
+            />
 
-                        {catalogueOnly && (
-                            <Badge variant="outline" className="gap-1 font-normal">
-                                Catalogue only
-                            </Badge>
-                        )}
-                    </ItemFooter>
-                </ItemContent>
-            </Item>
-
-            <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-                <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle>Manage Design Inventory</DialogTitle>
-                    </DialogHeader>
-                    <DesignUpdateForm design={design} onSuccess={handleSuccess} onCancel={handleCancel} />
-                </DialogContent>
-            </Dialog>
-
-            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Delete {name}?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This action cannot be undone. The design will be permanently removed from your catalogue.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            onClick={handleDeleteConfirm}
-                        >
-                            Delete
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <DeleteConfirmDialog
+                name={deleteDialogOpen ? name : null}
+                description="The design is permanently removed from your catalogue. This can't be undone."
+                onConfirm={handleDeleteConfirm}
+                onCancel={() => setDeleteDialogOpen(false)}
+            />
         </>
     );
 };

@@ -1,4 +1,5 @@
 import './index.css';
+import './lib/zodConfig';
 import { AuthConfigProvider, AuthProvider, ProtectedRoute, UserProvider } from '@imapps/web-utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ReactDOM from 'react-dom/client';
@@ -227,7 +228,7 @@ const initializeApp = async () => {
                         maxWidth: '500px',
                     }}
                 >
-                    <h1 style={{ color: '#e53e3e', marginBottom: '1rem' }}>Configuration Error</h1>
+                    <h1 style={{ color: '#e53e3e', marginBottom: '1rem' }}>Configuration error</h1>
                     <p style={{ color: '#4a5568', marginBottom: '1rem' }}>
                         The application failed to load its configuration.
                     </p>

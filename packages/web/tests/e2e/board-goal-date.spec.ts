@@ -17,9 +17,9 @@ test.describe.serial('Board goal target date', () => {
             await expect(page.getByText('Ship winter collection')).toBeVisible({ timeout: 10000 });
 
             await page.getByRole('button', { name: 'Edit goal Ship winter collection' }).click();
-            await expect(page.getByText('Edit Goal')).toBeVisible({ timeout: 10000 });
+            await expect(page.getByText('Edit goal', { exact: true })).toBeVisible({ timeout: 10000 });
 
-            await page.getByRole('button', { name: 'Optional' }).click();
+            await page.getByLabel('Target date').click();
 
             // "Today" is always inside the currently-displayed month, unlike an
             // arbitrary grid cell which may be an outside-month day.
@@ -27,8 +27,8 @@ test.describe.serial('Board goal target date', () => {
             const dayLabel = await today.getAttribute('data-day');
             await today.click();
 
-            await page.getByRole('button', { name: 'Save Changes' }).click();
-            await expect(page.getByText('Edit Goal')).not.toBeVisible({ timeout: 10000 });
+            await page.getByRole('button', { name: 'Save changes' }).click();
+            await expect(page.getByText('Edit goal', { exact: true })).not.toBeVisible({ timeout: 10000 });
 
             await expect(page.getByText(`Target: ${dayLabel}`)).toBeVisible({ timeout: 10000 });
 

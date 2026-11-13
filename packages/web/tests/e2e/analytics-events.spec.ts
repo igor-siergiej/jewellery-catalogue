@@ -15,8 +15,7 @@ const POLL = { timeout: 15000 };
 // name ambiguous on the Designs page.
 const uniqueName = (label: string) => `${label} ${Date.now().toString(36)}`;
 
-const designCard = (page: Page, name: string) =>
-    page.locator('[data-slot="item"]').filter({ has: page.getByText(name) });
+const designCard = (page: Page, name: string) => page.getByRole('article', { name, exact: true });
 
 // Not tagged @smoke: these flows need a signed-in app and seeded data, so they
 // only run against the local stack. The post-deploy smoke covers the page view
@@ -68,7 +67,7 @@ test.describe.serial('Given the analytics events', () => {
             const hits = await mockAnalytics(page);
 
             await page.goto('/designs');
-            await designCard(page, name).getByRole('button', { name: 'Favourite design' }).click();
+            await designCard(page, name).getByRole('button', { name: 'Add to favourites' }).click();
 
             await expect
                 .poll(() => hits.find((h) => h.payload.name === 'favourite_added')?.payload.data, POLL)

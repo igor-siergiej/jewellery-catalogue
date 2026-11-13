@@ -32,9 +32,6 @@ test.describe('Authentication Flow', () => {
 
             // Check page elements
             await expect(page.locator(pageContent.register.titleSelector)).toContainText(pageContent.register.title);
-            await expect(page.locator(pageContent.register.subtitleSelector)).toContainText(
-                pageContent.register.subtitle
-            );
 
             // Check form fields
             await expect(page.locator(selectors.usernameInput)).toBeVisible();
@@ -43,6 +40,7 @@ test.describe('Authentication Flow', () => {
 
             // Check navigation link
             await expect(page.locator(selectors.loginButton)).toBeVisible();
+            await expect(page.getByText('Already have an account?')).toBeVisible();
         });
 
         test('should validate required fields on register form', async ({ page }) => {
@@ -122,7 +120,7 @@ test.describe('Authentication Flow', () => {
             await expect(page.locator(selectors.registrationError)).toBeVisible();
         });
 
-        test('should navigate to login page when Login button is clicked', async ({ page }) => {
+        test('should navigate to login page when Log in button is clicked', async ({ page }) => {
             await page.goto('/register');
             await page.waitForLoadState('networkidle');
 
@@ -170,7 +168,6 @@ test.describe('Authentication Flow', () => {
 
             // Check page elements
             await expect(page.locator(pageContent.login.titleSelector)).toContainText(pageContent.login.title);
-            await expect(page.locator(pageContent.login.subtitleSelector)).toContainText(pageContent.login.subtitle);
 
             // Check form fields
             await expect(page.locator(selectors.usernameInput)).toBeVisible();
@@ -179,6 +176,8 @@ test.describe('Authentication Flow', () => {
 
             // Check navigation link
             await expect(page.locator(selectors.registerButton)).toBeVisible();
+            await expect(page.getByText('New here?')).toBeVisible();
+            await expect(page.getByText("MARI'S")).toBeVisible();
         });
 
         test('should validate required fields on login form', async ({ page }) => {
@@ -226,7 +225,7 @@ test.describe('Authentication Flow', () => {
             await expect(page.locator(selectors.loginError)).toBeVisible();
         });
 
-        test('should navigate to register page when Register button is clicked', async ({ page }) => {
+        test('should navigate to register page when Create an account button is clicked', async ({ page }) => {
             await page.goto('/');
             await page.waitForLoadState('networkidle');
 

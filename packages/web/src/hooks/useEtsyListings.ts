@@ -4,19 +4,22 @@ import { useQuery } from '@tanstack/react-query';
 import { type EtsyListingWithLinkStatus, makeGetEtsyListingsRequest } from '../api/endpoints/etsyListings';
 
 export const useEtsyListings = (
-    enabled: boolean
-): { listings: EtsyListingWithLinkStatus[]; isLoading: boolean; isError: boolean } => {
+    enabled: boolean,
+    staleTime?: number
+): { listings: EtsyListingWithLinkStatus[]; isLoading: boolean; isError: boolean; refetch: () => void } => {
     const { accessToken, login, logout } = useAuth();
 
-    const { data, isLoading, isError } = useQuery({
+    const { data, isLoading, isError, refetch } = useQuery({
         queryKey: ['etsy-listings'],
         queryFn: () => makeGetEtsyListingsRequest(() => accessToken, login, logout),
         enabled: enabled && !!accessToken,
+        staleTime,
     });
 
     return {
         listings: data ?? [],
         isLoading,
         isError,
+        refetch,
     };
 };

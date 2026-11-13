@@ -18,6 +18,7 @@ async function seedSimpleDesign(token: string) {
 
     return apiCreateDesign(token, {
         name: 'Visual Detail Necklace',
+        photo: 'celestial-rings',
         designType: 'NECKLACE',
         timeRequired: '00:30',
         price: 32,
@@ -53,6 +54,7 @@ test.describe('View design page visual regression', () => {
 
         const design = await apiCreateDesign(authToken, {
             name: 'Visual Detail Necklace',
+            photo: 'celestial-rings',
             price: 32,
             description: 'A delicate beaded necklace',
             materials: [{ ...bead, requiredQuantity: 10 }],
@@ -72,6 +74,7 @@ test.describe('View design page visual regression', () => {
 
         const design = await apiCreateDesign(authToken, {
             name: 'Visual Gem Drops',
+            photo: 'floral-earrings',
             designType: 'EARRINGS',
             variationGroups: [
                 {
@@ -115,7 +118,7 @@ test.describe('View design page visual regression', () => {
         const design = await seedSimpleDesign(authToken);
         await mockLinkedListing(page, design.id);
         await page.goto(`/designs/${design.id}`);
-        await expect(page.getByRole('button', { name: 'Send to Etsy' })).toBeVisible({ timeout: 10000 });
+        await expect(page.getByRole('link', { name: 'View on Etsy' })).toBeVisible({ timeout: 10000 });
         await settle(page);
         await expectNoHorizontalScroll(page);
         await expect(page).toHaveScreenshot('view-design-etsy-linked.png', { fullPage: true, mask: [dateAdded(page)] });
@@ -124,8 +127,8 @@ test.describe('View design page visual regression', () => {
     test('edit dialog', async ({ authenticatedPage: page, authToken }) => {
         const design = await seedSimpleDesign(authToken);
         await page.goto(`/designs/${design.id}`);
-        await page.getByRole('button', { name: 'Edit Details' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Edit Design Properties' });
+        await page.getByRole('button', { name: 'Edit design' }).click();
+        const dialog = page.getByRole('dialog', { name: 'Edit design' });
         await expect(dialog.locator('.ProseMirror')).toHaveText('A delicate beaded necklace');
         await settle(page);
         await expect(dialog).toHaveScreenshot('view-design-edit-dialog.png');
@@ -134,8 +137,8 @@ test.describe('View design page visual regression', () => {
     test('inventory dialog', async ({ authenticatedPage: page, authToken }) => {
         const design = await seedSimpleDesign(authToken);
         await page.goto(`/designs/${design.id}`);
-        await page.getByRole('button', { name: 'Manage Inventory' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Manage Design Inventory' });
+        await page.getByRole('button', { name: 'Manage inventory' }).click();
+        const dialog = page.getByRole('dialog', { name: /^Stock for / });
         await expect(dialog).toBeVisible();
         await settle(page);
         await expect(dialog).toHaveScreenshot('view-design-inventory-dialog.png');

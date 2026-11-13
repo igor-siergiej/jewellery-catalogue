@@ -36,9 +36,10 @@ function Thumbnail({ item, onRemove }: { item: File | string; onRemove: () => vo
                 variant="destructive"
                 size="icon"
                 onClick={onRemove}
-                className="absolute top-1 right-1 w-5 h-5 rounded-full"
+                className="absolute right-0 top-0 size-11 rounded-full md:right-1 md:top-1 md:size-5"
+                aria-label="Remove image"
             >
-                <X className="w-3 h-3" />
+                <X className="size-4 md:size-3" />
             </Button>
         </div>
     );

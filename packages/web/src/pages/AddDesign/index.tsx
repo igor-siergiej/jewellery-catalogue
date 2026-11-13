@@ -1,126 +1,68 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAuth } from '@imapps/web-utils';
-import { DesignType, type FormDesign, formDesignSchema } from '@jewellery-catalogue/types';
-import { useQuery } from '@tanstack/react-query';
+import { type FormDesign, formDesignSchema } from '@jewellery-catalogue/types';
 import { Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { type SubmitHandler, useForm } from 'react-hook-form';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
-import { ButtonGroup } from '@/components/ui/button-group';
 import { Card } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
 
-import { DRAFTS_ENDPOINT } from '../../api/endpoints';
 import makeAddDesignRequest from '../../api/endpoints/addDesign';
-import { getMaterialsQuery } from '../../api/endpoints/getMaterials';
-import { AddMaterialsTable } from '../../components/AddMaterialsTable';
-import MakerDocsSection from '../../components/MakerDocsSection';
-import MultiImageUpload from '../../components/MultiImageUpload';
-import PriceBreakdown from '../../components/PriceBreakdown';
-import RichTextEditor from '../../components/RichTextEditor';
-import SuggestedPrice from '../../components/SuggestedPrice';
-import TimeInput from '../../components/TimeInput';
-import { computeVariants, VariationGroupBuilder } from '../../components/VariationGroupBuilder';
+import { DesignForm } from '../../components/DesignForm';
 import { DESIGNS_PAGE } from '../../constants/routes';
-import { useAlert } from '../../context/Alert';
 import { AlertStoreActions } from '../../context/Alert/types';
-import { useDraftStatus } from '../../context/DraftStatus';
-import { useDraftAutosave } from '../../hooks/useDraftAutosave';
-import { useUserSettings } from '../../hooks/useUserSettings';
-import { DESIGN_TYPE_LABELS } from '../../lib/materialLabels';
-import { getTotalMaterialCosts } from '../../utils/getPriceOfMaterials';
-import { getWageCosts } from '../../utils/getWageCost';
-import { errorContext, logger } from '../../utils/logger';
+import { useDesignFormSupport } from '../../hooks/useDesignFormSupport';
+import { useDraftPage } from '../../hooks/useDraftPage';
+
+const DEFAULT_VALUES: Partial<FormDesign> = {
+    name: '',
+    timeRequired: '',
+    materials: [],
+    description: '',
+    totalMaterialCosts: 0,
+    images: [],
+    diagramImages: [],
+    makingNotes: '',
+    lowStockThreshold: undefined,
+    variationGroups: [],
+    variants: [],
+};
 
 const AddDesign: React.FC = () => {
-    const form = useForm({
+    const form = useForm<FormDesign>({
         resolver: zodResolver(formDesignSchema),
         mode: 'onSubmit',
-        defaultValues: {
-            name: '',
-            timeRequired: '',
-            materials: [],
-            description: '',
-            totalMaterialCosts: 0,
-            images: [],
-            diagramImages: [],
-            makingNotes: '',
-            lowStockThreshold: undefined,
-            variationGroups: [],
-            variants: [],
-        },
+        defaultValues: DEFAULT_VALUES,
     });
 
-    const { accessToken, login, logout } = useAuth();
     const [isMakingRequest, setIsMakingRequest] = useState(false);
-    const [isLoadingDraft, setIsLoadingDraft] = useState(false);
-    const { hourlyWage, profitMargin, markupMultiplier, hourlyRate } = useUserSettings();
-    const [searchParams] = useSearchParams();
-    const draftIdParam = searchParams.get('draftId');
-
-    const { data } = useQuery({
-        ...getMaterialsQuery(() => accessToken, login, logout),
-        enabled: !!accessToken,
-    });
-
-    const selectedMaterials = form.watch('materials');
-    const currentTimeRequired = form.watch('timeRequired');
-    const variationGroups = form.watch('variationGroups') ?? [];
-
-    const { dispatch } = useAlert();
     const navigate = useNavigate();
-    const { setDraftStatus, clearDraftStatus } = useDraftStatus();
 
-    const { uploadedImageId, deleteAndClearDraft } = useDraftAutosave({
+    const { accessToken, login, logout, dispatch, materialsQuery, computeFormVariants, reportSaveError } =
+        useDesignFormSupport(form);
+
+    const { data } = materialsQuery;
+
+    const { isLoadingDraft, uploadedImageId, deleteAndClearDraft } = useDraftPage({
         form,
         type: 'design',
-        initialDraftId: draftIdParam,
-        getAccessToken: () => accessToken,
-        onTokenRefresh: login,
-        onTokenClear: logout,
-        onStatusChange: setDraftStatus,
+        onLoaded: (draft) => {
+            if (draft.data) {
+                form.reset({ ...DEFAULT_VALUES, ...(draft.data as Partial<FormDesign>) });
+            }
+
+            if (draft.imageId) {
+                form.setValue('images', [draft.imageId]);
+            }
+        },
     });
-
-    useEffect(() => () => clearDraftStatus(), [clearDraftStatus]);
-
-    // Load draft on mount if draftId param present
-    useEffect(() => {
-        if (!draftIdParam || !accessToken) return;
-
-        setIsLoadingDraft(true);
-
-        fetch(`${DRAFTS_ENDPOINT}/${draftIdParam}`, {
-            headers: { Authorization: `Bearer ${accessToken}` },
-        })
-            .then((res) => res.json())
-            .then((draft) => {
-                if (draft?.data) {
-                    form.reset(draft.data);
-                }
-
-                if (draft?.imageId) {
-                    form.setValue('images', [draft.imageId]);
-                }
-            })
-            .catch(() => {})
-            .finally(() => setIsLoadingDraft(false));
-    }, [draftIdParam, accessToken, form.reset, form.setValue]);
 
     const onSubmit: SubmitHandler<FormDesign> = async (formData) => {
         setIsMakingRequest(true);
 
         try {
-            const variants = computeVariants(
-                variationGroups,
-                selectedMaterials,
-                hourlyWage,
-                profitMargin,
-                currentTimeRequired
-            );
+            const variants = computeFormVariants();
 
             // Replace first File with draft-uploaded imageId if available
             let images = formData.images ?? [];
@@ -142,57 +84,19 @@ const AddDesign: React.FC = () => {
             dispatch({
                 type: AlertStoreActions.SHOW_ALERT,
                 payload: {
-                    title: 'Yahoooo!',
-                    message: 'Added design successfully!',
+                    title: 'Design created',
+                    message: 'Added to your catalogue.',
                     severity: 'success',
                     variant: 'standard',
                 },
             });
             navigate(DESIGNS_PAGE.route);
         } catch (e) {
-            logger.error('Adding design failed', errorContext(e));
-            const message = e instanceof Error ? e.message : 'Unknown Error';
-
-            dispatch({
-                type: AlertStoreActions.SHOW_ALERT,
-                payload: {
-                    title: 'Error occured during the adding of the design! :(',
-                    message: `Details: ${message}`,
-                    severity: 'error',
-                    variant: 'standard',
-                },
-            });
+            reportSaveError('Adding design failed', e);
         } finally {
             setIsMakingRequest(false);
         }
     };
-
-    useEffect(() => {
-        if (!data) return;
-
-        const materialsCost = selectedMaterials.length > 0 ? getTotalMaterialCosts(selectedMaterials, []) : 0;
-        const rawWage = getWageCosts(currentTimeRequired) * hourlyWage;
-        const timeSpentCost = Number.isFinite(rawWage) ? parseFloat(rawWage.toFixed(2)) : 0;
-        const subtotal = materialsCost + timeSpentCost;
-        const finalPrice = parseFloat((subtotal * (1 + profitMargin / 100)).toFixed(2));
-
-        form.setValue('totalMaterialCosts', materialsCost);
-
-        if (variationGroups.length > 0) {
-            const variants = computeVariants(
-                variationGroups,
-                selectedMaterials,
-                hourlyWage,
-                profitMargin,
-                currentTimeRequired
-            );
-
-            const minPrice = variants.length > 0 ? Math.min(...variants.map((v) => v.price)) : 0;
-            form.setValue('price', minPrice >= 0 ? minPrice : 0);
-        } else {
-            form.setValue('price', finalPrice >= 0 ? finalPrice : 0);
-        }
-    }, [selectedMaterials, currentTimeRequired, hourlyWage, profitMargin, data, variationGroups, form.setValue]);
 
     if (isLoadingDraft || !data) {
         return null;
@@ -204,371 +108,19 @@ const AddDesign: React.FC = () => {
         }
     };
 
-    const hasVariationGroups = variationGroups.length > 0;
-
     return (
         <div className="container mx-auto max-w-5xl px-4 py-8">
-            <Card className="p-6 md:p-8">
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} onKeyDown={handleFormKeyDown} className="space-y-8">
-                        <div>
-                            <h1 className="text-2xl font-bold leading-[50px] truncate">Adding New Design</h1>
-                            <div className="border-b border-border mt-2" />
-                        </div>
-
-                        {/* Design Details Section */}
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-                            <div className="md:col-span-4">
-                                <h2 className="text-lg font-medium pt-1.5 md:text-center">Design Details</h2>
-                            </div>
-                            <div className="md:col-span-8">
-                                <div className="flex flex-col gap-4 sm:flex-row">
-                                    <div className="flex-1">
-                                        <FormField
-                                            control={form.control}
-                                            name="name"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Name</FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder="Enter design name"
-                                                            className="max-w-[300px]"
-                                                            {...field}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                    <div className="flex-1">
-                                        <TimeInput form={form} />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr className="border-t border-border" />
-
-                        {/* Design Type Section */}
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-                            <div className="md:col-span-4">
-                                <h2 className="text-lg font-medium pt-1.5 md:text-center">Design Type</h2>
-                            </div>
-                            <div className="md:col-span-8">
-                                <FormField
-                                    control={form.control}
-                                    name="designType"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Type</FormLabel>
-                                            <FormControl>
-                                                <ButtonGroup className="flex-wrap">
-                                                    {(Object.keys(DesignType) as Array<DesignType>).map((type) => (
-                                                        <Button
-                                                            key={type}
-                                                            type="button"
-                                                            variant={field.value === type ? 'secondary' : 'outline'}
-                                                            onClick={() =>
-                                                                field.onChange(field.value === type ? undefined : type)
-                                                            }
-                                                        >
-                                                            {DESIGN_TYPE_LABELS[type]}
-                                                        </Button>
-                                                    ))}
-                                                </ButtonGroup>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-                        </div>
-
-                        <hr className="border-t border-border" />
-
-                        {/* Upload Images Section */}
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-                            <div className="md:col-span-4">
-                                <h2 className="text-lg font-medium text-center h-[30px] leading-[30px]">
-                                    Upload Images
-                                </h2>
-                            </div>
-                            <div className="md:col-span-8">
-                                <FormField
-                                    control={form.control}
-                                    name="images"
-                                    render={({ field, fieldState }) => (
-                                        <FormItem>
-                                            <FormControl>
-                                                <MultiImageUpload
-                                                    value={field.value ?? []}
-                                                    onChange={field.onChange}
-                                                    hasError={!!fieldState.error}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-                        </div>
-
-                        <hr className="border-t border-border" />
-
-                        {/* Maker Docs Section */}
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-                            <div className="md:col-span-4">
-                                <h2 className="text-lg font-medium text-center">Maker Docs</h2>
-                                <p className="text-xs text-muted-foreground text-center mt-1">
-                                    Private — diagrams and notes never sent to Etsy
-                                </p>
-                            </div>
-                            <div className="md:col-span-8">
-                                <MakerDocsSection control={form.control} />
-                            </div>
-                        </div>
-
-                        <hr className="border-t border-border" />
-
-                        {/* Add Materials Section */}
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-                            <div className="md:col-span-4">
-                                <h2 className="text-lg font-medium text-center">
-                                    {hasVariationGroups ? 'Shared Materials' : 'Add Materials'}
-                                </h2>
-                                {hasVariationGroups && (
-                                    <p className="text-xs text-muted-foreground text-center mt-1">
-                                        Used in every variant
-                                    </p>
-                                )}
-                            </div>
-                            <div className="md:col-span-8">
-                                <FormField
-                                    control={form.control}
-                                    name="materials"
-                                    render={({ field, fieldState }) => (
-                                        <FormItem>
-                                            <FormControl>
-                                                <AddMaterialsTable
-                                                    availableMaterials={data}
-                                                    setValue={form.setValue}
-                                                    hasError={!!fieldState.error}
-                                                    value={field.value}
-                                                />
-                                            </FormControl>
-                                            {fieldState.error && (
-                                                <p className="text-sm font-medium text-destructive mt-2">
-                                                    {fieldState.error.message ||
-                                                        JSON.stringify(fieldState.error, null, 2)}
-                                                </p>
-                                            )}
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-                        </div>
-
-                        <hr className="border-t border-border" />
-
-                        {/* Variation Groups Section */}
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-                            <div className="md:col-span-4">
-                                <h2 className="text-lg font-medium text-center">Variations</h2>
-                                <p className="text-xs text-muted-foreground text-center mt-1">
-                                    Optional — define selectable options like gemstone or wire type
-                                </p>
-                            </div>
-                            <div className="md:col-span-8">
-                                <FormField
-                                    control={form.control}
-                                    name="variationGroups"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormControl>
-                                                <VariationGroupBuilder
-                                                    availableMaterials={data}
-                                                    value={field.value ?? []}
-                                                    onChange={field.onChange}
-                                                    sharedMaterials={selectedMaterials}
-                                                    hourlyWage={hourlyWage}
-                                                    profitMargin={profitMargin}
-                                                    timeRequired={currentTimeRequired}
-                                                    markupMultiplier={markupMultiplier}
-                                                    hourlyRate={hourlyRate}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-                        </div>
-
-                        <hr className="border-t border-border" />
-
-                        {/* Set Price Section */}
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-                            <div className="md:col-span-4">
-                                <h2 className="text-lg font-medium text-center">Set Price</h2>
-                            </div>
-                            <div className="md:col-span-8">
-                                <PriceBreakdown
-                                    materialsCost={(() => {
-                                        if (hasVariationGroups) {
-                                            const variants = computeVariants(
-                                                variationGroups,
-                                                selectedMaterials,
-                                                hourlyWage,
-                                                profitMargin,
-                                                currentTimeRequired
-                                            );
-
-                                            return variants.length > 0
-                                                ? Math.min(...variants.map((v) => v.totalMaterialCosts))
-                                                : 0;
-                                        }
-
-                                        return form.watch('totalMaterialCosts') ?? 0;
-                                    })()}
-                                    timeRequired={currentTimeRequired}
-                                    hourlyWage={hourlyWage}
-                                    profitMargin={profitMargin}
-                                    priceField={
-                                        hasVariationGroups ? (
-                                            <div className="space-y-1">
-                                                <p className="text-sm font-medium">Final Price</p>
-                                                <p className="text-sm text-muted-foreground">
-                                                    Varies per variant — see prices in Variations preview above.
-                                                </p>
-                                            </div>
-                                        ) : (
-                                            <FormField
-                                                control={form.control}
-                                                name="price"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>Final Price</FormLabel>
-                                                        <FormControl>
-                                                            <InputGroup className="max-w-[180px]">
-                                                                <InputGroupAddon align="inline-start">
-                                                                    <InputGroupText>£</InputGroupText>
-                                                                </InputGroupAddon>
-                                                                <InputGroupInput
-                                                                    type="number"
-                                                                    step="0.01"
-                                                                    placeholder="0.00"
-                                                                    {...field}
-                                                                    value={field.value ?? ''}
-                                                                    onChange={(e) => {
-                                                                        const value = e.target.value;
-                                                                        field.onChange(
-                                                                            value === '' ? undefined : Number(value)
-                                                                        );
-                                                                    }}
-                                                                />
-                                                            </InputGroup>
-                                                        </FormControl>
-                                                        <SuggestedPrice
-                                                            materialsCost={form.watch('totalMaterialCosts') ?? 0}
-                                                            timeRequired={currentTimeRequired}
-                                                            markupMultiplier={markupMultiplier}
-                                                            hourlyRate={hourlyRate}
-                                                            onUse={(price) => field.onChange(price)}
-                                                        />
-                                                        <FormDescription>
-                                                            Auto-calculated above. Edit to override.
-                                                        </FormDescription>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                        )
-                                    }
-                                />
-                            </div>
-                        </div>
-
-                        <hr className="border-t border-border" />
-
-                        {/* Add Description Section */}
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-                            <div className="md:col-span-4">
-                                <h2 className="text-lg font-medium text-center">Add Description</h2>
-                            </div>
-                            <div className="md:col-span-8">
-                                <FormField
-                                    control={form.control}
-                                    name="description"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Description (Optional)</FormLabel>
-                                            <FormControl>
-                                                <RichTextEditor
-                                                    value={field.value || ''}
-                                                    onChange={field.onChange}
-                                                    placeholder="Add notes about how to create this design..."
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-                        </div>
-
-                        <hr className="border-t border-border" />
-
-                        {/* Low Stock Threshold Section */}
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-                            <div className="md:col-span-4">
-                                <h2 className="text-lg font-medium text-center">Stock Alert</h2>
-                            </div>
-                            <div className="md:col-span-8">
-                                <FormField
-                                    control={form.control}
-                                    name="lowStockThreshold"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Low Stock Threshold (Optional)</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    placeholder="e.g., 5"
-                                                    className="max-w-[300px]"
-                                                    type="number"
-                                                    step="1"
-                                                    min="0"
-                                                    {...field}
-                                                    value={field.value ?? ''}
-                                                    onChange={(e) => {
-                                                        const value = e.target.value;
-                                                        field.onChange(value === '' ? undefined : Number(value));
-                                                    }}
-                                                />
-                                            </FormControl>
-                                            <FormDescription>
-                                                Alert when finished items drop below this quantity
-                                            </FormDescription>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-                        </div>
-
-                        <hr className="border-t border-border" />
-
-                        {/* Submit Button */}
-                        <div className="flex justify-end">
-                            <Button type="submit" disabled={isMakingRequest} className="min-w-[140px]">
-                                {isMakingRequest && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Create Design
-                            </Button>
-                        </div>
-                    </form>
-                </Form>
+            <h1 className="mb-6 truncate font-display text-3xl font-semibold">New design</h1>
+            <Card className="p-4 md:p-8">
+                <form onSubmit={form.handleSubmit(onSubmit)} onKeyDown={handleFormKeyDown}>
+                    <DesignForm form={form} mode="create" materials={data} />
+                    <div className="sticky bottom-0 -mx-4 mt-6 flex justify-end border-t border-border bg-card px-4 py-3 md:static md:mx-0 md:border-0 md:px-0 md:pb-0">
+                        <Button type="submit" disabled={isMakingRequest} className="w-full md:w-auto md:min-w-[140px]">
+                            {isMakingRequest && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Create design
+                        </Button>
+                    </div>
+                </form>
             </Card>
         </div>
     );

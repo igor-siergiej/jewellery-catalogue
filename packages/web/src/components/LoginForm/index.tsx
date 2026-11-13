@@ -17,9 +17,9 @@ export const LoginForm: React.FC = () => (
     <AuthFormBase
         schema={loginSchema}
         endpoint="/login"
-        errorTitle="Login Error"
-        submitLabel="Login"
-        loadingLabel="Logging in..."
+        errorTitle="Couldn't log in"
+        submitLabel="Log in"
+        loadingLabel="Logging in…"
         passwordAutoComplete="current-password"
     />
 );

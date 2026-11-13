@@ -45,6 +45,8 @@ async function openPushDialog(page: Page, name: string) {
     return page.getByRole('dialog');
 }
 
+test.describe.configure({ mode: 'serial' });
+
 test.describe('Etsy listing copy', () => {
     test('generated copy is editable and the edits are what gets pushed', async ({ authenticatedPage: page }) => {
         await mockEtsyReady(page);
@@ -58,7 +60,7 @@ test.describe('Etsy listing copy', () => {
         const dialog = await openPushDialog(page, 'Copy Gen Earrings');
         await expect(dialog.getByLabel('Title')).toHaveValue('Copy Gen Earrings');
 
-        await dialog.getByRole('button', { name: 'Generate with AI' }).click();
+        await dialog.getByRole('button', { name: 'Write title and description' }).click();
         await expect(dialog.getByLabel('Title')).toHaveValue(GENERATED.title);
         await expect(dialog.getByLabel('Description')).toHaveValue(GENERATED.description);
         await expect(dialog.getByText('3/13')).toBeVisible();
@@ -85,7 +87,7 @@ test.describe('Etsy listing copy', () => {
         );
 
         const dialog = await openPushDialog(page, 'Copy Gen Failure');
-        await dialog.getByRole('button', { name: 'Generate with AI' }).click();
+        await dialog.getByRole('button', { name: 'Write title and description' }).click();
 
         await expect(dialog.getByText("AI features aren't set up yet")).toBeVisible();
         await expect(dialog.getByLabel('Title')).toHaveValue('Copy Gen Failure');

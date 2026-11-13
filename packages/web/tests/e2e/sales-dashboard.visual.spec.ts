@@ -7,6 +7,9 @@ const test = visualTest({ mobile: MOCK_TOKEN_VISUAL_SALES_MOBILE, desktop: MOCK_
 
 test.describe('Sales dashboard visual regression', () => {
     test('populated state', async ({ authenticatedPage: page }) => {
+        await page.route('**/api/etsy/connection', (route) =>
+            route.fulfill({ json: { connected: true, shopName: 'Test Shop' } })
+        );
         await page.route('**/api/sales/report**', (route) =>
             route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(SALES_REPORT) })
         );

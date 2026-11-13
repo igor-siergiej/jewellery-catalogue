@@ -1,6 +1,6 @@
 import { useAuth } from '@imapps/web-utils';
 import { useMutation } from '@tanstack/react-query';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 import { makePriceSuggestionRequest } from '@/api/endpoints/priceSuggestion';
 import { Button } from '@/components/ui/button';
@@ -13,9 +13,11 @@ const errorMessage = (error: Error): string => aiErrorMessage(error, "Couldn't g
 // An optional second opinion; the deterministic SuggestedPrice in the edit form stays the default.
 export const PriceAdvice = ({ designId }: { designId: string }) => {
     const { accessToken, login, logout } = useAuth();
+
     const advice = useMutation({
         mutationFn: () => makePriceSuggestionRequest(designId, () => accessToken, login, logout),
     });
+
     const result = advice.data;
 
     return (
@@ -27,12 +29,12 @@ export const PriceAdvice = ({ designId }: { designId: string }) => {
                 disabled={advice.isPending}
                 onClick={() => advice.mutate()}
             >
-                {advice.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                Ask AI for a price range
+                {advice.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+                Suggest a price range
             </Button>
             {advice.isError && <p className="text-sm text-destructive">{errorMessage(advice.error)}</p>}
             {result && (
-                <div className="rounded-xl border bg-card p-4 text-sm space-y-1" data-testid="price-advice">
+                <div className="rounded-lg border bg-card p-4 text-sm space-y-1" data-testid="price-advice">
                     <p className="text-lg font-semibold">
                         {money(result.low)} – {money(result.high)}{' '}
                         <span className="text-sm font-normal text-muted-foreground">

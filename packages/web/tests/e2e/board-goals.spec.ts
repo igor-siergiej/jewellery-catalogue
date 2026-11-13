@@ -18,7 +18,7 @@ async function apiGetGoals(): Promise<ApiGoal[]> {
     return res.json();
 }
 
-const goalCard = (page: Page, title: string) => page.getByRole('button', { name: `Edit goal ${title}` });
+const goalCard = (page: Page, title: string) => page.getByRole('article', { name: title, exact: true });
 
 /**
  * Etsy-tracked goals read their value from Etsy on create and sync. The e2e stack has no Etsy, so these goals are
@@ -58,23 +58,23 @@ test.describe.serial('Board goals', () => {
     test('adding a manual goal shows its progress', async ({ authenticatedPage: page }) => {
         await page.goto('/board');
         await expect(page.getByText('0 goals')).toBeVisible();
-        await page.getByRole('button', { name: 'Add Goal' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Add Goal' });
+        await page.getByRole('button', { name: 'Add goal' }).click();
+        const dialog = page.getByRole('dialog', { name: 'Add goal' });
 
-        await dialog.getByPlaceholder('Goal title').fill('List 40 designs');
-        await expect(dialog.getByRole('button', { name: 'Add Goal' })).toBeDisabled();
-        await dialog.getByPlaceholder('Target (e.g. 50)').fill('0');
-        await expect(dialog.getByRole('button', { name: 'Add Goal' })).toBeDisabled();
-        await dialog.getByPlaceholder('Target (e.g. 50)').fill('40');
-        await dialog.getByPlaceholder('Unit (optional, e.g. listings)').fill('listings');
-        await dialog.getByRole('button', { name: 'Add Goal' }).click();
+        await dialog.getByLabel('Title').fill('List 40 designs');
+        await expect(dialog.getByRole('button', { name: 'Add goal' })).toBeDisabled();
+        await dialog.getByLabel('Target', { exact: true }).fill('0');
+        await expect(dialog.getByRole('button', { name: 'Add goal' })).toBeDisabled();
+        await dialog.getByLabel('Target', { exact: true }).fill('40');
+        await dialog.getByLabel('Unit').fill('listings');
+        await dialog.getByRole('button', { name: 'Add goal' }).click();
         await expect(dialog).toBeHidden();
 
         const card = goalCard(page, 'List 40 designs');
         await expect(card).toContainText('0/40 listings');
         await expect(card.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
         await expect(card.getByRole('button', { name: 'Sync from Etsy' })).toHaveCount(0);
-        await expect(page.getByText('1 goals')).toBeVisible();
+        await expect(page.getByText('1 goal', { exact: true })).toBeVisible();
 
         await page.reload();
         await expect(goalCard(page, 'List 40 designs')).toBeVisible();
@@ -95,16 +95,16 @@ test.describe.serial('Board goals', () => {
         await expect(card.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '20');
 
         await card.click();
-        let dialog = page.getByRole('dialog', { name: 'Edit Goal' });
+        let dialog = page.getByRole('dialog', { name: 'Edit goal' });
         await dialog.getByLabel('Current progress').fill('5');
-        await dialog.getByRole('button', { name: 'Save Changes' }).click();
+        await dialog.getByRole('button', { name: 'Save changes' }).click();
         await expect(card).toContainText('5/10');
         await expect(card.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '50');
 
         await card.click();
-        dialog = page.getByRole('dialog', { name: 'Edit Goal' });
+        dialog = page.getByRole('dialog', { name: 'Edit goal' });
         await dialog.getByLabel('Current progress').fill('12');
-        await dialog.getByRole('button', { name: 'Save Changes' }).click();
+        await dialog.getByRole('button', { name: 'Save changes' }).click();
         await expect(card).toContainText('12/10');
         await expect(card.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '100');
     });
@@ -112,16 +112,16 @@ test.describe.serial('Board goals', () => {
     test('an Etsy-tracked goal syncs its value from Etsy', async ({ authenticatedPage: page }) => {
         await mockEtsyGoals(page, 4);
         await page.goto('/board');
-        await page.getByRole('button', { name: 'Add Goal' }).click();
-        const dialog = page.getByRole('dialog', { name: 'Add Goal' });
-        await dialog.getByPlaceholder('Goal title').fill('Active listings');
-        await dialog.getByPlaceholder('Target (e.g. 50)').fill('30');
-        await dialog.getByRole('combobox').click();
-        await page.getByRole('option', { name: 'Etsy — Active listings' }).click();
-        await dialog.getByRole('button', { name: 'Add Goal' }).click();
+        await page.getByRole('button', { name: 'Add goal' }).click();
+        const dialog = page.getByRole('dialog', { name: 'Add goal' });
+        await dialog.getByLabel('Title').fill('Active listings');
+        await dialog.getByLabel('Target', { exact: true }).fill('30');
+        await dialog.getByLabel('Track from').click();
+        await page.getByRole('option', { name: 'Etsy active listings' }).click();
+        await dialog.getByRole('button', { name: 'Add goal' }).click();
 
         const card = goalCard(page, 'Active listings');
-        await expect(card).toContainText('Etsy · Active listings');
+        await expect(card).toContainText('Etsy active listings');
         await expect(card).toContainText('4/30');
         const [goal] = await apiGetGoals();
 
@@ -151,9 +151,9 @@ test.describe.serial('Board goals', () => {
         const card = goalCard(page, 'Total sales');
         await card.getByRole('button', { name: 'Sync from Etsy' }).click();
 
-        await expect(page.getByText('Error occured during syncing goal from Etsy! :(')).toBeVisible();
+        await expect(page.getByText("Couldn't sync the goal from Etsy. Try again.")).toBeVisible();
         await expect(card).toContainText('7/100');
         // The sync button doesn't open the edit dialog
-        await expect(page.getByRole('dialog', { name: 'Edit Goal' })).toHaveCount(0);
+        await expect(page.getByRole('dialog', { name: 'Edit goal' })).toHaveCount(0);
     });
 });

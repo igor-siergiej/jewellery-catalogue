@@ -86,8 +86,8 @@ const TableRow: React.FC<TableRowProps> = ({
     handleDeleteClick,
     getMaterialById,
 }) => (
-    <div className="grid grid-cols-14 gap-4 p-4 border-b hover:bg-muted/30 transition-colors">
-        <div className="col-span-4 flex items-center">
+    <div className="grid grid-cols-1 gap-3 p-4 border-b hover:bg-muted/30 transition-colors md:grid-cols-14 md:gap-4">
+        <div className="flex items-center md:col-span-4">
             {row.isEditing ? (
                 <Select
                     value={row.id.startsWith('new-') ? '' : row.id}
@@ -108,7 +108,7 @@ const TableRow: React.FC<TableRowProps> = ({
                 <span>{row.name}</span>
             )}
         </div>
-        <div className="col-span-3 flex items-center gap-1.5 flex-wrap">
+        <div className="flex flex-wrap items-center gap-1.5 md:col-span-3">
             {(() => {
                 if (row.id.startsWith('new-')) {
                     return <span className="text-sm text-muted-foreground">-</span>;
@@ -119,7 +119,7 @@ const TableRow: React.FC<TableRowProps> = ({
                 return material ? <MaterialAttributeBadges material={material} /> : null;
             })()}
         </div>
-        <div className="col-span-5 flex items-center">
+        <div className="flex items-center md:col-span-5">
             {row.isEditing ? (
                 <div className="flex items-center gap-2 w-full">
                     <Input
@@ -140,7 +140,7 @@ const TableRow: React.FC<TableRowProps> = ({
                 <span>{formatValue(row.required, row.id)}</span>
             )}
         </div>
-        <div className="col-span-2 flex items-center gap-2">
+        <div className="flex items-center gap-2 md:col-span-2">
             {row.isEditing ? (
                 <>
                     <Button
@@ -148,7 +148,7 @@ const TableRow: React.FC<TableRowProps> = ({
                         size="sm"
                         variant="outline"
                         onClick={() => handleSaveClick(row.rowKey)}
-                        className="h-8 w-8 p-0"
+                        className="h-11 w-11 p-0 md:h-8 md:w-8"
                         aria-label="Save material"
                     >
                         <Save className="h-4 w-4" />
@@ -158,7 +158,7 @@ const TableRow: React.FC<TableRowProps> = ({
                         size="sm"
                         variant="outline"
                         onClick={() => handleCancelClick(row.rowKey)}
-                        className="h-8 w-8 p-0"
+                        className="h-11 w-11 p-0 md:h-8 md:w-8"
                         aria-label="Cancel editing material"
                     >
                         <X className="h-4 w-4" />
@@ -171,7 +171,7 @@ const TableRow: React.FC<TableRowProps> = ({
                         size="sm"
                         variant="outline"
                         onClick={() => handleEditClick(row.rowKey)}
-                        className="h-8 w-8 p-0"
+                        className="h-11 w-11 p-0 md:h-8 md:w-8"
                         aria-label="Edit material"
                     >
                         <Edit3 className="h-4 w-4" />
@@ -181,7 +181,7 @@ const TableRow: React.FC<TableRowProps> = ({
                         size="sm"
                         variant="outline"
                         onClick={() => handleDeleteClick(row.rowKey)}
-                        className="h-8 w-8 p-0"
+                        className="h-11 w-11 p-0 md:h-8 md:w-8"
                         aria-label="Remove material"
                     >
                         <Trash2 className="h-4 w-4" />
@@ -501,7 +501,7 @@ const EmptyState: React.FC<{
             {hasMaterials && (
                 <Button type="button" onClick={handleAddMaterial} size="sm" className="gap-2 mt-2">
                     <Plus className="h-4 w-4" />
-                    Add Material
+                    Add material
                 </Button>
             )}
         </div>
@@ -509,10 +509,10 @@ const EmptyState: React.FC<{
 };
 
 const TableHeader = () => (
-    <div className="grid grid-cols-14 gap-4 p-4 bg-muted/50 border-b font-medium text-sm">
+    <div className="hidden grid-cols-14 gap-4 p-4 bg-muted/50 border-b font-medium text-sm md:grid">
         <div className="col-span-4">Material</div>
-        <div className="col-span-3">Type & Attributes</div>
-        <div className="col-span-5">Required Length/Quantity</div>
+        <div className="col-span-3">Type and attributes</div>
+        <div className="col-span-5">Required length or quantity</div>
         <div className="col-span-2">Actions</div>
     </div>
 );
@@ -548,7 +548,7 @@ const TableFooter: React.FC<{
             ) : (
                 <Button type="button" variant="outline" onClick={handleAddMaterial} className="gap-2">
                     <Plus className="h-4 w-4" />
-                    Add Material
+                    Add material
                 </Button>
             )}
         </div>

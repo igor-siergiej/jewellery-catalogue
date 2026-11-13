@@ -182,6 +182,18 @@ describe('DesignService', () => {
             expect(result.favourite).toBe(false);
         });
 
+        it('should add a design with no images', async () => {
+            mockIdGenerator.generate.mockReset();
+            mockIdGenerator.generate.mockReturnValueOnce('design-id-123');
+            mockDesignRepo.insert.mockResolvedValue(undefined);
+
+            const result = await service.addDesign(mockDesignData, [], [], [], [], userId);
+
+            expect(mockImageService.uploadImage).not.toHaveBeenCalled();
+            expect(mockDesignRepo.insert).toHaveBeenCalledWith(expect.objectContaining({ imageIds: [] }));
+            expect(result.imageIds).toEqual([]);
+        });
+
         it('should parse materials from string', async () => {
             const materials: Array<RequiredMaterial> = [
                 { materialId: 'material-1', quantity: 2 },

@@ -60,7 +60,7 @@ async function mockConnectedListings(page: Page, extra: unknown[] = []) {
     );
 }
 
-test.describe('Etsy Listings search', () => {
+test.describe('Etsy listings', () => {
     test('search filters listings by title, clearing restores full list', async ({ authenticatedPage: page }) => {
         await mockConnectedListings(page);
 
@@ -92,10 +92,21 @@ test.describe('Etsy Listings search', () => {
 
         await page.getByPlaceholder('Search listings...').fill('nonexistent listing xyz');
 
-        await expect(page.getByText('No Matching Listings')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('No matching listings', { exact: true })).toBeVisible({ timeout: 10000 });
     });
 
-    test('sold-out listing shows a "Sold out" badge and its image', async ({ authenticatedPage: page }) => {
+    test('an unlinked listing shows a "Not linked" tag and a Link button', async ({ authenticatedPage: page }) => {
+        await mockConnectedListings(page);
+
+        await page.goto('/listings');
+
+        await expect(page.getByRole('heading', { level: 1, name: 'Etsy', exact: true })).toBeVisible();
+        const row = page.getByRole('row', { name: /Gold Hoop Earrings/ });
+        await expect(row.getByText('Not linked')).toBeVisible({ timeout: 10000 });
+        await expect(row.getByRole('button', { name: 'Link', exact: true })).toBeVisible();
+    });
+
+    test('sold-out listing shows a "Sold out" tag and its image', async ({ authenticatedPage: page }) => {
         await mockConnectedListings(page, [SOLD_OUT_LISTING]);
 
         await page.goto('/listings');
@@ -105,6 +116,10 @@ test.describe('Etsy Listings search', () => {
         await expect(soldOutRow).toBeVisible({ timeout: 10000 });
         await expect(soldOutRow.getByText('Sold out')).toBeVisible();
         await expect(soldOutRow.locator('img')).toHaveAttribute('src', SOLD_OUT_LISTING.imageUrl);
+        await expect(soldOutRow.getByRole('link', { name: 'View on Etsy' })).toHaveAttribute(
+            'href',
+            SOLD_OUT_LISTING.url
+        );
 
         const activeRow = page.locator('tr').filter({ hasText: 'Silver Moon Pendant Necklace' });
         await expect(activeRow.getByText('Sold out')).not.toBeVisible();

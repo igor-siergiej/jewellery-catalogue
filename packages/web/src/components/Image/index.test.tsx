@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import { Image } from '.';
@@ -29,5 +29,14 @@ describe('Image', () => {
         const { container } = render(<Image imageId="" />);
 
         expect(container.querySelector('img')).toBeNull();
+        expect(screen.getByTestId('image-placeholder')).toBeTruthy();
+    });
+
+    it('shows the placeholder when the image fails to load', () => {
+        render(<Image imageId="abc" />);
+        fireEvent.error(screen.getByRole('img'));
+
+        expect(screen.queryByRole('img')).toBeNull();
+        expect(screen.getByTestId('image-placeholder')).toBeTruthy();
     });
 });

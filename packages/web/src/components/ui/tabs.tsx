@@ -12,7 +12,7 @@ const TabsList = React.forwardRef<
     <TabsPrimitive.List
         ref={ref}
         className={cn(
-            'inline-flex h-9 max-w-full items-center justify-start overflow-x-auto rounded-lg bg-muted p-1 text-muted-foreground',
+            'inline-flex h-9 max-w-full items-center justify-start overflow-x-auto rounded-md bg-muted p-1 text-muted-foreground',
             className
         )}
         {...props}
@@ -28,7 +28,7 @@ const TabsTrigger = React.forwardRef<
     <TabsPrimitive.Trigger
         ref={ref}
         className={cn(
-            'inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow',
+            'inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-none',
             className
         )}
         {...props}
@@ -53,4 +53,13 @@ const TabsContent = React.forwardRef<
 
 TabsContent.displayName = TabsPrimitive.Content.displayName;
 
-export { Tabs, TabsContent, TabsList, TabsTrigger };
+/** Underline tab styling shared by the Designs and Materials lists. */
+const UNDERLINE_TAB_LIST_CLASS = 'h-auto gap-1 rounded-none border-b bg-transparent p-0';
+
+const UNDERLINE_TAB_CLASS =
+    'min-h-11 rounded-none border-b-2 border-transparent px-3 py-1 text-sm md:min-h-9 data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground';
+
+/** Spread on triggers that filter a list in place: there is no panel for the `aria-controls` Radix adds. */
+const FILTER_TAB_PROPS = { 'aria-controls': undefined };
+
+export { FILTER_TAB_PROPS, Tabs, TabsContent, TabsList, TabsTrigger, UNDERLINE_TAB_CLASS, UNDERLINE_TAB_LIST_CLASS };

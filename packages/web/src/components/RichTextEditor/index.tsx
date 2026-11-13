@@ -26,7 +26,7 @@ import { errorContext, logger } from '@/utils/logger';
 
 import { ResizableImage } from './ResizableImage';
 
-export interface RichTextEditorProps {
+interface RichTextEditorProps {
     value: string;
     onChange: (value: string) => void;
     placeholder?: string;
@@ -110,13 +110,14 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
     }
 
     return (
-        <div className="border rounded-md overflow-hidden">
+        <div className="border rounded-md overflow-hidden transition-[box-shadow] has-[.tiptap-editor:focus]:border-ring has-[.tiptap-editor:focus]:ring-[3px] has-[.tiptap-editor:focus]:ring-ring">
             <div className="bg-muted/50 border-b p-2 flex gap-1 flex-wrap">
                 <Button
                     type="button"
                     variant={editor.isActive('heading', { level: 1 }) ? 'secondary' : 'ghost'}
                     size="sm"
                     onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                    aria-label="Heading 1"
                 >
                     <Heading1 className="h-4 w-4" />
                 </Button>
@@ -193,6 +194,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}
                     title="Insert image"
+                    aria-label="Insert image"
                 >
                     {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
                 </Button>

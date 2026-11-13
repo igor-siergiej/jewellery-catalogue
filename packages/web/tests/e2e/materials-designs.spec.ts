@@ -1,9 +1,12 @@
 import { expect, test } from './fixtures';
 import { MOCK_TOKEN } from './mocks/auth';
 import { apiCreateBead, apiCreateDesign, apiGetDesigns, apiProduceDesignVariant } from './utils/api-helpers';
+import { chooseMaterialAction } from './utils/materials-ui';
 
 test.describe.serial('Material pricing and low stock variant flows', () => {
-    test('material price change triggers "Update Design Prices?" dialog', async ({ authenticatedPage: page }) => {
+    test('material price change asks to update prices for the designs that use it', async ({
+        authenticatedPage: page,
+    }) => {
         const bead = await apiCreateBead(MOCK_TOKEN, { name: 'Pricing Test Bead', pricePerPack: 5.0 });
         await apiCreateDesign(MOCK_TOKEN, {
             name: 'Pricing Test Design',
@@ -15,18 +18,19 @@ test.describe.serial('Material pricing and low stock variant flows', () => {
         await page.goto('/materials');
         await page.waitForLoadState('networkidle');
 
-        await page.locator(`tr:has-text("Pricing Test Bead") button:has(span:text("Edit material"))`).click();
+        await chooseMaterialAction(page, 'Pricing Test Bead', 'Edit');
         await page.waitForSelector('input[name="pricePerPack"]', { timeout: 10000 });
 
         await page.locator('input[name="pricePerPack"]').fill('9.99');
-        await page.getByRole('button', { name: 'Update Material' }).click();
+        await page.getByRole('button', { name: 'Save changes' }).click();
 
-        await expect(page.getByText('Update Design Prices?')).toBeVisible({ timeout: 10000 });
-        await expect(page.getByText(/1 design/)).toBeVisible();
+        await expect(page.getByRole('alertdialog', { name: 'Update prices for 1 design?' })).toBeVisible({
+            timeout: 10000,
+        });
 
-        await page.getByRole('button', { name: 'Update Prices' }).click();
+        await page.getByRole('button', { name: 'Update prices' }).click();
 
-        await expect(page.getByText('Prices updated!')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Prices updated', { exact: true })).toBeVisible({ timeout: 10000 });
     });
 
     test('skipping price dialog does not trigger price update', async ({ authenticatedPage: page }) => {
@@ -41,17 +45,19 @@ test.describe.serial('Material pricing and low stock variant flows', () => {
         await page.goto('/materials');
         await page.waitForLoadState('networkidle');
 
-        await page.locator(`tr:has-text("Skip Test Bead") button:has(span:text("Edit material"))`).click();
+        await chooseMaterialAction(page, 'Skip Test Bead', 'Edit');
         await page.waitForSelector('input[name="pricePerPack"]', { timeout: 10000 });
 
         await page.locator('input[name="pricePerPack"]').fill('9.99');
-        await page.getByRole('button', { name: 'Update Material' }).click();
+        await page.getByRole('button', { name: 'Save changes' }).click();
 
-        await expect(page.getByText('Update Design Prices?')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByRole('alertdialog', { name: /Update prices for 1 design/ })).toBeVisible({
+            timeout: 10000,
+        });
         await page.getByRole('button', { name: 'Skip' }).click();
 
-        await expect(page.getByText('Update Design Prices?')).not.toBeVisible();
-        await expect(page.getByText('Prices updated!')).not.toBeVisible();
+        await expect(page.getByRole('alertdialog')).not.toBeVisible();
+        await expect(page.getByText('Prices updated', { exact: true })).not.toBeVisible();
     });
 
     test('material cost update propagates to variant totalMaterialCosts', async ({ authenticatedPage: page }) => {
@@ -107,15 +113,17 @@ test.describe.serial('Material pricing and low stock variant flows', () => {
         await page.goto('/materials');
         await page.waitForLoadState('networkidle');
 
-        await page.locator(`tr:has-text("Variant Cost Bead") button:has(span:text("Edit material"))`).click();
+        await chooseMaterialAction(page, 'Variant Cost Bead', 'Edit');
         await page.waitForSelector('input[name="pricePerPack"]', { timeout: 10000 });
 
         await page.locator('input[name="pricePerPack"]').fill('20.00');
-        await page.getByRole('button', { name: 'Update Material' }).click();
+        await page.getByRole('button', { name: 'Save changes' }).click();
 
-        await expect(page.getByText('Update Design Prices?')).toBeVisible({ timeout: 10000 });
-        await page.getByRole('button', { name: 'Update Prices' }).click();
-        await expect(page.getByText('Prices updated!')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByRole('alertdialog', { name: /Update prices for 1 design/ })).toBeVisible({
+            timeout: 10000,
+        });
+        await page.getByRole('button', { name: 'Update prices' }).click();
+        await expect(page.getByText('Prices updated', { exact: true })).toBeVisible({ timeout: 10000 });
 
         const designs = await apiGetDesigns(MOCK_TOKEN);
         const design = designs.find((d) => d.name === 'Variant Cost Design');
@@ -127,7 +135,9 @@ test.describe.serial('Material pricing and low stock variant flows', () => {
         }
     });
 
-    test('low stock page edit button pre-selects variant in production dialog', async ({ authenticatedPage: page }) => {
+    test('stock ledger row for a variant design links to the design and names the low variant', async ({
+        authenticatedPage: page,
+    }) => {
         const bead1 = await apiCreateBead(MOCK_TOKEN, {
             name: 'Ruby Bead',
             colour: 'ruby',
@@ -154,24 +164,16 @@ test.describe.serial('Material pricing and low stock variant flows', () => {
         });
 
         await page.goto('/home');
-        await page.waitForLoadState('networkidle');
 
-        const variant1RowName = `${design.name} — ${bead1.name}`;
-        const variant1Row = page.locator('tr').filter({ hasText: variant1RowName });
-        await expect(variant1Row).toBeVisible({ timeout: 10000 });
+        const row = page.getByRole('row').filter({ hasText: design.name });
+        await expect(row).toBeVisible({ timeout: 10000 });
+        await expect(row).toContainText(`${bead1.name} · 0 left`);
 
-        await variant1Row.locator('button:has(span:text("Edit design"))').click();
-
-        await expect(page.getByText('Manage Design Inventory')).toBeVisible({ timeout: 10000 });
-        await expect(page.getByRole('heading', { name: 'Select Variant to Produce' })).toBeVisible();
-
-        const selectedBadge = page.locator(`tr:has-text("${bead1.name}")`).filter({ hasText: 'Selected' });
-        await expect(selectedBadge).toBeVisible();
+        await row.getByRole('link', { name: design.name }).click();
+        await expect(page).toHaveURL(`/designs/${design.id}`);
     });
 
-    test('low stock dashboard shows only the low-stock variant row, not the in-stock one', async ({
-        authenticatedPage: page,
-    }) => {
+    test('stock ledger names only the low-stock variant, not the in-stock one', async ({ authenticatedPage: page }) => {
         const bead1 = await apiCreateBead(MOCK_TOKEN, {
             name: 'Amber Bead',
             colour: 'amber',
@@ -207,11 +209,10 @@ test.describe.serial('Material pricing and low stock variant flows', () => {
         await page.goto('/home');
         await page.waitForLoadState('networkidle');
 
-        const v2RowName = `${design.name} — ${bead2.name}`;
-        const v1RowName = `${design.name} — ${bead1.name}`;
-
-        await expect(page.locator('tr').filter({ hasText: v2RowName })).toBeVisible({ timeout: 10000 });
-        await expect(page.locator('tr').filter({ hasText: v1RowName })).not.toBeVisible();
+        const row = page.getByRole('row').filter({ hasText: design.name });
+        await expect(row).toBeVisible({ timeout: 10000 });
+        await expect(row).toContainText(`${bead2.name} · 0 left`);
+        await expect(row).not.toContainText(bead1.name);
     });
 });
 
