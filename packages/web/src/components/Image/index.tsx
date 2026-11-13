@@ -1,5 +1,5 @@
 import { useAuth } from '@imapps/web-utils';
-import { AlertTriangle } from 'lucide-react';
+import { Gem } from 'lucide-react';
 import { useState } from 'react';
 
 import { getImageSrc, type ImageSize } from '../../utils/imageSrc';
@@ -15,8 +15,11 @@ export const Image: React.FC<ImageProps> = ({ imageId, size }) => {
 
     if (error || !imageId) {
         return (
-            <div className="flex items-center justify-center w-full h-full bg-muted rounded-md">
-                <AlertTriangle className="h-8 w-8 text-muted-foreground" />
+            <div
+                className="flex h-full w-full items-center justify-center rounded-md bg-muted"
+                data-testid="image-placeholder"
+            >
+                <Gem className="h-auto w-2/5 max-w-16 text-muted-foreground" strokeWidth={1.5} aria-hidden />
             </div>
         );
     }

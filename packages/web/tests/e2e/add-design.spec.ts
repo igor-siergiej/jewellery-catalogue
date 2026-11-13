@@ -222,4 +222,31 @@ test.describe.serial('Add Design', () => {
         await page.getByRole('button', { name: 'Save material' }).click();
         await expect.poll(() => alerts).toEqual(['Please select a material', 'Please enter a valid required amount']);
     });
+
+    test('a design can be saved without a photo and shows a placeholder in the list and on its page', async ({
+        authenticatedPage: page,
+    }) => {
+        await openAddDesign(page);
+        await page.getByPlaceholder('Enter design name').fill('Photoless Studs');
+        await page.getByLabel('Hours').fill('0');
+        await page.getByLabel('Minutes').fill('30');
+        await page.locator('form').getByRole('radio', { name: 'Earrings' }).click();
+        await addSharedMaterial(page, 'Silver Spacer', 10);
+
+        await page.getByRole('button', { name: 'Create design' }).click();
+        await expect(page.getByText('Design created')).toBeVisible();
+        await expect(page).toHaveURL(/\/designs$/);
+
+        const [design] = await apiGetDesigns(TOKEN);
+        expect(design).toMatchObject({ name: 'Photoless Studs', imageIds: [] });
+
+        const cardImage = page.getByRole('article', { name: 'Photoless Studs' }).getByTestId('design-card-main-image');
+        await expect(cardImage.getByTestId('image-placeholder')).toBeVisible();
+        await expect(cardImage.locator('img')).toHaveCount(0);
+
+        await page.getByRole('link', { name: 'Photoless Studs' }).click();
+        await expect(page.getByRole('heading', { level: 1, name: 'Photoless Studs' })).toBeVisible();
+        await expect(page.getByTestId('image-placeholder')).toBeVisible();
+        await expect(page.locator('main img')).toHaveCount(0);
+    });
 });
