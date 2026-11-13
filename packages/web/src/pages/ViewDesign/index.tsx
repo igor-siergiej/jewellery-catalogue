@@ -1,6 +1,6 @@
 import { useAuth, useUser } from '@imapps/web-utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight, Edit, ExternalLink, PackageOpen } from 'lucide-react';
+import { ChevronLeft, Edit, ExternalLink, PackageOpen } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 
@@ -12,7 +12,9 @@ import DesignDescription from '../../components/DesignDescription';
 import EditDesignDialog from '../../components/EditDesignDialog';
 import EtsyPushDialog from '../../components/EtsyPushDialog';
 import { Image } from '../../components/Image';
+import { type GalleryImage, ImageLightbox } from '../../components/ImageLightbox';
 import InventoryDialog from '../../components/InventoryDialog';
+import { PhotoGallery } from '../../components/PhotoGallery';
 import { PriceAdvice } from '../../components/PriceAdvice';
 import { StateView } from '../../components/StateView';
 import { EtsyStatusTag, StatusTag } from '../../components/StatusTag';
@@ -30,7 +32,6 @@ import {
     METAL_TYPE_LABELS,
     WIRE_TYPE_LABELS,
 } from '../../lib/materialLabels';
-import { cn } from '../../lib/utils';
 import { canMakeLabel } from '../../utils/canMakeLabel';
 
 const ViewDesign = () => {
@@ -42,6 +43,7 @@ const ViewDesign = () => {
     const [inventoryDialogOpen, setInventoryDialogOpen] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [imageIndex, setImageIndex] = useState(0);
+    const [diagramIndex, setDiagramIndex] = useState<number | null>(null);
     const { connected: etsyConnected } = useEtsyConnection();
     const [etsyDialogOpen, setEtsyDialogOpen] = useState(false);
     const trackedDesignId = useRef<string | null>(null);
@@ -84,6 +86,18 @@ const ViewDesign = () => {
     } = design ?? {};
 
     useEtsyStatus(id ?? '', !!id && !!etsy?.listingId);
+
+    const photos: GalleryImage[] =
+        imageIds && imageIds.length > 0
+            ? imageIds.map((imageId, i) => ({ key: imageId, imageId, alt: `${name} photo ${i + 1}` }))
+            : (etsy?.imageUrls ?? []).map((url, i) => ({ key: url, url, alt: `${name} photo ${i + 1}` }));
+
+    const diagrams: GalleryImage[] = (diagramImageIds ?? []).map((imageId, i) => ({
+        key: imageId,
+        imageId,
+        alt: `${name} diagram ${i + 1}`,
+    }));
+
     const queryClient = useQueryClient();
     const producible = useProducible().get(id ?? '');
     const canMake = canMakeLabel(producible);
@@ -158,68 +172,8 @@ const ViewDesign = () => {
                 </div>
 
                 <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[2fr_3fr] lg:gap-12">
-                    <div className="relative lg:sticky lg:top-8">
-                        <div className="aspect-square overflow-hidden rounded-lg border border-border bg-muted">
-                            {imageIds && imageIds.length > 0 ? (
-                                <div
-                                    className="flex h-full transition-transform duration-500 ease-in-out"
-                                    style={{ transform: `translateX(-${imageIndex * 100}%)` }}
-                                >
-                                    {imageIds.map((imageId) => (
-                                        <div key={imageId} className="h-full w-full flex-shrink-0">
-                                            <Image imageId={imageId} size="display" />
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : etsy?.imageUrls && etsy.imageUrls.length > 0 ? (
-                                <img src={etsy.imageUrls[0]} alt={name} className="h-full w-full object-cover" />
-                            ) : (
-                                <Image imageId="" />
-                            )}
-                        </div>
-                        {imageIds && imageIds.length > 1 && (
-                            <>
-                                <button
-                                    type="button"
-                                    aria-label="Previous photo"
-                                    onClick={() => setImageIndex((i) => Math.max(0, i - 1))}
-                                    disabled={imageIndex === 0}
-                                    className="absolute left-2 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card/90 text-foreground transition-opacity hover:bg-card disabled:pointer-events-none disabled:opacity-0"
-                                >
-                                    <ChevronLeft className="size-5" aria-hidden />
-                                </button>
-                                <button
-                                    type="button"
-                                    aria-label="Next photo"
-                                    onClick={() => setImageIndex((i) => Math.min(imageIds.length - 1, i + 1))}
-                                    disabled={imageIndex === imageIds.length - 1}
-                                    className="absolute right-2 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card/90 text-foreground transition-opacity hover:bg-card disabled:pointer-events-none disabled:opacity-0"
-                                >
-                                    <ChevronRight className="size-5" aria-hidden />
-                                </button>
-                                <div className="absolute inset-x-0 bottom-1 flex overflow-x-auto">
-                                    <div className="mx-auto flex">
-                                        {imageIds.map((imageId, i) => (
-                                            <button
-                                                key={imageId}
-                                                type="button"
-                                                aria-label={`Show photo ${i + 1} of ${imageIds.length}`}
-                                                aria-current={i === imageIndex}
-                                                onClick={() => setImageIndex(i)}
-                                                className="flex size-6 shrink-0 items-center justify-center max-md:h-11 max-md:w-11"
-                                            >
-                                                <span
-                                                    className={cn(
-                                                        'h-1.5 rounded-full border border-border transition-all',
-                                                        i === imageIndex ? 'w-4 bg-foreground' : 'w-1.5 bg-card'
-                                                    )}
-                                                />
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </>
-                        )}
+                    <div className="lg:sticky lg:top-8">
+                        <PhotoGallery images={photos} title={name} index={imageIndex} onIndexChange={setImageIndex} />
                     </div>
 
                     <div className="flex min-w-0 flex-col gap-8">
@@ -311,18 +265,27 @@ const ViewDesign = () => {
                                 <h2 className="text-base font-semibold">Maker docs</h2>
                                 <p className="mb-4 text-sm text-muted-foreground">Private, never shown on Etsy</p>
 
-                                {diagramImageIds && diagramImageIds.length > 0 && (
+                                {diagrams.length > 0 && (
                                     <div className="mb-4 flex flex-wrap gap-3">
-                                        {diagramImageIds.map((diagramId) => (
-                                            <div
-                                                key={diagramId}
-                                                className="size-24 overflow-hidden rounded-md border border-border"
+                                        {diagrams.map((diagram, i) => (
+                                            <button
+                                                key={diagram.key}
+                                                type="button"
+                                                aria-label={`Open diagram ${i + 1} of ${diagrams.length}`}
+                                                onClick={() => setDiagramIndex(i)}
+                                                className="size-24 cursor-zoom-in overflow-hidden rounded-md border border-border bg-muted hover:border-ring"
                                             >
-                                                <Image imageId={diagramId} size="display" />
-                                            </div>
+                                                <Image imageId={diagram.imageId ?? ''} size="thumb" alt={diagram.alt} />
+                                            </button>
                                         ))}
                                     </div>
                                 )}
+                                <ImageLightbox
+                                    images={diagrams}
+                                    index={diagramIndex}
+                                    onIndexChange={setDiagramIndex}
+                                    title={`${name} diagrams`}
+                                />
 
                                 {makingNotes && <p className="whitespace-pre-wrap text-sm">{makingNotes}</p>}
                             </section>

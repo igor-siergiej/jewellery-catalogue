@@ -337,4 +337,72 @@ test.describe.serial('View design', () => {
         await expect(page.getByText('Design not found')).toBeVisible();
         await expect(page.getByText('Not Yours')).toHaveCount(0);
     });
+    test('photos scroll in the gallery and open full size with keyboard navigation', async ({
+        authenticatedPage: page,
+    }) => {
+        const design = await apiCreateDesign(TOKEN, {
+            name: 'Three Photos',
+            photos: ['blue-lace-agate-ring', 'celestial-rings', 'floral-earrings'],
+        });
+
+        await page.goto(`/designs/${design.id}`);
+
+        await page.getByRole('button', { name: 'Next photo' }).click();
+        await expect(page.getByRole('button', { name: 'Show photo 2 of 3' })).toHaveAttribute('aria-current', 'true');
+
+        const opener = page.getByRole('button', { name: 'Open photo 2 of 3 full size' });
+        await opener.click();
+        const lightbox = page.getByRole('dialog', { name: 'Three Photos' });
+        await expect(lightbox).toContainText('2 of 3');
+        await expect(lightbox.getByRole('img', { name: 'Three Photos photo 2' })).toBeVisible();
+
+        await page.keyboard.press('ArrowRight');
+        await expect(lightbox).toContainText('3 of 3');
+        await expect(lightbox.getByRole('button', { name: 'Next image' })).toBeDisabled();
+        await page.keyboard.press('ArrowLeft');
+        await expect(lightbox).toContainText('2 of 3');
+
+        await page.keyboard.press('Escape');
+        await expect(lightbox).toBeHidden();
+        await expect(opener).toBeFocused();
+    });
+
+    test('maker docs diagrams open full size', async ({ authenticatedPage: page }) => {
+        const design = await apiCreateDesign(TOKEN, {
+            name: 'Wired Ring',
+            diagrams: ['celestial-rings', 'floral-earrings'],
+        });
+
+        await page.goto(`/designs/${design.id}`);
+
+        const thumb = page.getByRole('button', { name: 'Open diagram 2 of 2' });
+        await thumb.focus();
+        await page.keyboard.press('Enter');
+        const lightbox = page.getByRole('dialog', { name: 'Wired Ring diagrams' });
+        await expect(lightbox).toContainText('2 of 2');
+        await expect(lightbox.getByRole('img', { name: 'Wired Ring diagram 2' })).toBeVisible();
+
+        await lightbox.getByRole('button', { name: 'Previous image' }).click();
+        await expect(lightbox).toContainText('1 of 2');
+        await page.keyboard.press('Escape');
+        await expect(thumb).toBeFocused();
+    });
+
+    test('a design with only Etsy photos can scroll through all of them', async ({ authenticatedPage: page }) => {
+        const design = await seedSimpleDesign();
+        await mockEtsyDesign(page, design.id, {
+            imageIds: [],
+            etsy: {
+                listingId: 6262,
+                state: 'active',
+                lastPushedAt: 1,
+                imageUrls: ['/etsy-1.jpg', '/etsy-2.jpg', '/etsy-3.jpg'],
+            },
+        });
+        await page.goto(`/designs/${design.id}`);
+
+        await expect(page.getByRole('button', { name: /^Show photo \d of 3$/ })).toHaveCount(3);
+        await page.getByRole('button', { name: 'Show photo 3 of 3' }).click();
+        await expect(page.getByRole('button', { name: 'Show photo 3 of 3' })).toHaveAttribute('aria-current', 'true');
+    });
 });

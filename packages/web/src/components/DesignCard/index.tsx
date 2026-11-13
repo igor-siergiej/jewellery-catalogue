@@ -102,7 +102,7 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-                <div className="relative aspect-square w-full" data-testid="design-card-main-image">
+                <div className="relative aspect-square w-full overflow-hidden" data-testid="design-card-main-image">
                     {imageIds?.[0] ? (
                         <Image imageId={imageIds[0]} size="thumb" />
                     ) : etsyImageUrl ? (
