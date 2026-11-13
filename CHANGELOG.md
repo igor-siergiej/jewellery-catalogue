@@ -1,3 +1,10 @@
+# [1.82.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.81.2...v1.82.0) (2026-11-13)
+
+
+### Features
+
+* **web:** Mari's Crystal Jewellery UI redesign ([#141](https://github.com/igor-siergiej/jewellery-catalogue/issues/141)) ([230ee16](https://github.com/igor-siergiej/jewellery-catalogue/commit/230ee161ee1448a615ee9fd7a0d526b69c20bded))
+
 ## [1.81.2](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.81.1...v1.81.2) (2026-11-11)
 
 
