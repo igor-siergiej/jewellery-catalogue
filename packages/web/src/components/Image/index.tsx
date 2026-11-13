@@ -7,9 +7,10 @@ import { getImageSrc, type ImageSize } from '../../utils/imageSrc';
 export interface ImageProps {
     imageId: string;
     size?: ImageSize;
+    alt?: string;
 }
 
-export const Image: React.FC<ImageProps> = ({ imageId, size }) => {
+export const Image: React.FC<ImageProps> = ({ imageId, size, alt }) => {
     const [error, setError] = useState(false);
     const { accessToken } = useAuth();
 
@@ -29,7 +30,7 @@ export const Image: React.FC<ImageProps> = ({ imageId, size }) => {
             src={getImageSrc(imageId, accessToken, size)}
             className="w-full h-full object-contain rounded-md"
             onError={() => setError(true)}
-            alt={`${imageId}`}
+            alt={alt ?? imageId}
         />
     );
 };

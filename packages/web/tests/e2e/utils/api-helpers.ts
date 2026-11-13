@@ -129,10 +129,14 @@ export async function apiCreateDesign(
         variants?: object[];
         designType?: string;
         photo?: FixturePhoto;
+        photos?: FixturePhoto[];
+        diagrams?: FixturePhoto[];
     }
 ): Promise<Design> {
-    const { photo, ...fields } = design;
-    const existingImageIds = photo ? [await apiUploadFixturePhoto(token, photo)] : ['test-placeholder'];
+    const { photo, photos = photo ? [photo] : [], diagrams = [], ...fields } = design;
+    const upload = (list: FixturePhoto[]) => Promise.all(list.map((p) => apiUploadFixturePhoto(token, p)));
+    const existingImageIds = photos.length > 0 ? await upload(photos) : ['test-placeholder'];
+    const existingDiagramImageIds = await upload(diagrams);
 
     const res = await fetch(`${getApiUrl()}/api/designs`, {
         method: 'POST',
@@ -145,6 +149,7 @@ export async function apiCreateDesign(
             price: 1.0,
             // existingImageIds is parsed by the handler with JSON.parse(), so pass as a string
             existingImageIds: JSON.stringify(existingImageIds),
+            existingDiagramImageIds: JSON.stringify(existingDiagramImageIds),
             ...fields,
         }),
     });
