@@ -1,3 +1,10 @@
+# [1.83.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.82.0...v1.83.0) (2026-11-13)
+
+
+### Features
+
+* **web:** open design photos and maker-doc diagrams full size ([#142](https://github.com/igor-siergiej/jewellery-catalogue/issues/142)) ([914794c](https://github.com/igor-siergiej/jewellery-catalogue/commit/914794ca7166637a2ed2bc526f347af0b1902218))
+
 # [1.82.0](https://github.com/igor-siergiej/jewellery-catalogue/compare/v1.81.2...v1.82.0) (2026-11-13)
 
 
