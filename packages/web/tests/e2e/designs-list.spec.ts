@@ -83,6 +83,60 @@ test.describe.serial('Designs list', () => {
         expect(await apiGetDesigns(TOKEN)).toHaveLength(1);
     });
 
+    test('closing a dialog opened from the card menu leaves the page clickable', async ({
+        authenticatedPage: page,
+    }) => {
+        await apiCreateDesign(TOKEN, { name: 'Menu Dialog Design' });
+        await page.goto('/designs');
+
+        const menu = page.getByRole('button', { name: 'More actions for Menu Dialog Design' });
+        const bodyBlocksClicks = () => page.evaluate(() => document.body.style.pointerEvents === 'none');
+
+        await menu.click();
+        await page.getByRole('menuitem', { name: 'Manage inventory' }).click();
+        const inventory = page.getByRole('dialog');
+        await expect(inventory).toBeVisible();
+        await inventory.getByRole('button', { name: 'Close' }).first().click();
+        await expect(inventory).toBeHidden();
+        expect(await bodyBlocksClicks()).toBe(false);
+
+        await menu.click();
+        await page.getByRole('menuitem', { name: 'Delete' }).click();
+        const confirm = page.getByRole('alertdialog');
+        await confirm.getByRole('button', { name: 'Cancel' }).click();
+        await expect(confirm).toBeHidden();
+        expect(await bodyBlocksClicks()).toBe(false);
+
+        await page.getByRole('link', { name: 'Shopping list' }).click();
+        await expect(page).toHaveURL(/\/shopping-list$/);
+    });
+
+    test('card icon buttons are 32px but keep a 44px tap area on a phone', async ({ authenticatedPage: page }) => {
+        await apiCreateDesign(TOKEN, { name: 'Tap Area Design' });
+        await page.setViewportSize({ width: 412, height: 915 });
+        await page.goto('/designs');
+
+        for (const label of ['Add to favourites', 'More actions for Tap Area Design']) {
+            const button = page.getByRole('button', { name: label });
+            const box = (await button.boundingBox())!;
+            expect(box.width).toBeLessThanOrEqual(32);
+
+            const hits = await button.evaluate((el) => {
+                const { left, top, width, height } = el.getBoundingClientRect();
+                const inset = 5;
+
+                return [
+                    [left - inset, top - inset],
+                    [left + width + inset, top - inset],
+                    [left - inset, top + height + inset],
+                    [left + width + inset, top + height + inset],
+                ].map(([x, y]) => el.contains(document.elementFromPoint(x, y)));
+            });
+
+            expect({ label, hits }).toEqual({ label, hits: [true, true, true, true] });
+        }
+    });
+
     test('clicking a card opens the design', async ({ authenticatedPage: page }) => {
         const design = await apiCreateDesign(TOKEN, { name: 'Open Me' });
         await page.goto('/designs');

@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import makeDeleteDesignRequest from '../../api/endpoints/deleteDesign';
 import makeUpdateDesignRequest from '../../api/endpoints/updateDesign';
 import { VIEW_DESIGN_PAGE } from '../../constants/routes';
+import { useMenuAction } from '../../hooks/useMenuAction';
 import { describeDuration } from '../../lib/duration';
 import { getEtsyStatus } from '../../lib/etsyStatus';
 import { pluralise } from '../../lib/utils';
@@ -30,6 +31,7 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const { accessToken, login, logout } = useAuth();
+    const menuAction = useMenuAction();
 
     const handleFavoriteClick = async () => {
         const nextFavourite = !favourite;
@@ -86,13 +88,13 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
                                 <MoreHorizontal />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onSelect={() => setEditDialogOpen(true)}>
+                        <DropdownMenuContent align="end" onCloseAutoFocus={menuAction.onCloseAutoFocus}>
+                            <DropdownMenuItem onSelect={() => menuAction.run(() => setEditDialogOpen(true))}>
                                 <PackageOpen /> Manage inventory
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 className="text-destructive focus:text-destructive"
-                                onSelect={() => setDeleteDialogOpen(true)}
+                                onSelect={() => menuAction.run(() => setDeleteDialogOpen(true))}
                             >
                                 <Trash2 /> Delete
                             </DropdownMenuItem>

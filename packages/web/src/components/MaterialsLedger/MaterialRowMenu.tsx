@@ -8,6 +8,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useMenuAction } from '@/hooks/useMenuAction';
 
 export interface MaterialRowActions {
     onEdit: (material: Material) => void;
@@ -27,6 +28,8 @@ export function MaterialRowMenu({
 }: MaterialRowActions & {
     material: Material;
 }) {
+    const menuAction = useMenuAction();
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -39,19 +42,19 @@ export function MaterialRowMenu({
                     <MoreHorizontal />
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" onCloseAutoFocus={menuAction.onCloseAutoFocus}>
                 <DropdownMenuItem
                     disabled={!material.purchaseUrl}
                     onSelect={() => openPurchaseUrl(material.purchaseUrl)}
                 >
                     <ShoppingBasket /> Buy
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => onEdit(material)}>
+                <DropdownMenuItem onSelect={() => menuAction.run(() => onEdit(material))}>
                     <Pencil /> Edit
                 </DropdownMenuItem>
                 <DropdownMenuItem
                     className="text-destructive focus:text-destructive"
-                    onSelect={() => onDelete(material)}
+                    onSelect={() => menuAction.run(() => onDelete(material))}
                 >
                     <Trash2 /> Delete
                 </DropdownMenuItem>

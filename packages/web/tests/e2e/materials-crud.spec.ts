@@ -67,4 +67,22 @@ test.describe.serial('Materials CRUD via UI', () => {
         await expect(page.getByRole('alertdialog')).not.toBeVisible();
         await expect(page.getByText('Material saved')).toBeVisible({ timeout: 10000 });
     });
+
+    test('cancelling a dialog opened from the row menu leaves the page clickable', async ({
+        authenticatedPage: page,
+    }) => {
+        const bead = await apiCreateBead(TOKEN, { name: 'Menu Dialog Bead' });
+
+        await page.goto('/materials');
+        await expect(page.getByRole('cell', { name: bead.name, exact: true })).toBeVisible({ timeout: 10000 });
+
+        await chooseMaterialAction(page, bead.name, 'Delete');
+        const confirm = page.getByRole('alertdialog');
+        await confirm.getByRole('button', { name: 'Cancel' }).click();
+        await expect(confirm).toBeHidden();
+
+        expect(await page.evaluate(() => document.body.style.pointerEvents === 'none')).toBe(false);
+        await page.getByRole('link', { name: 'Designs', exact: true }).first().click();
+        await expect(page).toHaveURL(/\/designs$/);
+    });
 });
