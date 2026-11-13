@@ -2,14 +2,14 @@ import { useAuth } from '@imapps/web-utils';
 import { DesignType, type Draft } from '@jewellery-catalogue/types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Fuse from 'fuse.js';
-import { FileEdit, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 
 import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog';
-import { Badge } from '@/components/ui/badge';
+import { Image } from '@/components/Image';
+import { StatusTag } from '@/components/StatusTag';
 import { Button } from '@/components/ui/button';
-import { Item, ItemContent, ItemFooter, ItemHeader, ItemTitle } from '@/components/ui/item';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
     FILTER_TAB_PROPS,
@@ -19,10 +19,12 @@ import {
     UNDERLINE_TAB_CLASS,
     UNDERLINE_TAB_LIST_CLASS,
 } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 
 import { getDraftsQuery, makeDeleteDraftRequest } from '../../api/endpoints/drafts';
 import { getDesignsQuery } from '../../api/endpoints/getDesigns';
 import { DesignCard } from '../../components/DesignCard';
+import { CARD_ACTIONS_CLASS, CARD_ICON_BUTTON_CLASS, CARD_ICON_CLASS } from '../../components/DesignCard/cardActions';
 import { ListPageHeader } from '../../components/ListPageHeader';
 import { StateView } from '../../components/StateView';
 import { ADD_DESIGN_PAGE } from '../../constants/routes';
@@ -49,50 +51,49 @@ const DraftCard: React.FC<{ draft: Draft; onDeleted: () => void }> = ({ draft, o
         onDeleted();
     };
 
+    const nameId = `draft-name-${draft.id}`;
+
     return (
         <>
-            <Item
-                variant="outline"
-                className="w-full flex-col items-start bg-card relative cursor-pointer hover:border-primary"
+            <article
+                aria-labelledby={nameId}
+                className="relative flex w-full cursor-pointer flex-col overflow-hidden rounded-lg border bg-card text-card-foreground transition-colors hover:border-primary"
             >
-                <div className="absolute top-2 right-2 z-10 flex gap-1">
+                <div className={CARD_ACTIONS_CLASS}>
                     <Button
                         type="button"
                         variant="outline"
                         size="icon"
-                        className="size-11 text-destructive hover:bg-destructive hover:text-destructive-foreground md:size-8"
+                        className={cn(
+                            CARD_ICON_BUTTON_CLASS,
+                            'text-destructive hover:bg-destructive hover:text-destructive-foreground'
+                        )}
                         onClick={handleDeleteClick}
                         aria-label={`Delete draft ${draft.name}`}
                     >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className={CARD_ICON_CLASS} />
                     </Button>
                 </div>
-                <ItemHeader className="basis-auto justify-center">
-                    <div className="w-full aspect-square md:w-64 md:h-64 md:aspect-auto flex items-center justify-center rounded-md bg-muted border">
-                        <FileEdit className="h-16 w-16 text-muted-foreground" />
-                    </div>
-                </ItemHeader>
-                <ItemContent className="flex-none items-start text-left w-full">
-                    <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="secondary" className="text-xs">
-                            Draft
-                        </Badge>
-                    </div>
-                    <ItemTitle className="text-lg font-semibold w-full whitespace-normal break-words">
+                <div className="relative aspect-square w-full">
+                    <Image imageId={draft.imageId ?? ''} size="thumb" />
+                </div>
+                <div className="flex min-w-0 flex-col gap-1 p-3">
+                    <h2 id={nameId} className="truncate text-base font-semibold" title={draft.name}>
                         <Link
                             to={`${ADD_DESIGN_PAGE.route}?draftId=${draft.id}`}
                             className="after:absolute after:inset-0 after:rounded-lg focus-visible:outline-none focus-visible:after:ring-[3px] focus-visible:after:ring-inset focus-visible:after:ring-primary"
                         >
                             {draft.name}
                         </Link>
-                    </ItemTitle>
-                    <ItemFooter className="flex items-center gap-1 w-full">
-                        <span className="text-xs text-muted-foreground">
-                            {new Date(draft.updatedAt).toLocaleString()}
-                        </span>
-                    </ItemFooter>
-                </ItemContent>
-            </Item>
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                        Edited {new Date(draft.updatedAt).toLocaleDateString()}
+                    </p>
+                    <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                        <StatusTag>Draft</StatusTag>
+                    </div>
+                </div>
+            </article>
 
             <DeleteConfirmDialog
                 name={confirmOpen ? draft.name : null}

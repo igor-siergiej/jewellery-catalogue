@@ -10,7 +10,7 @@ import { VIEW_DESIGN_PAGE } from '../../constants/routes';
 import { useMenuAction } from '../../hooks/useMenuAction';
 import { describeDuration } from '../../lib/duration';
 import { getEtsyStatus } from '../../lib/etsyStatus';
-import { pluralise } from '../../lib/utils';
+import { cn, pluralise } from '../../lib/utils';
 import { track } from '../../utils/analytics';
 import { DeleteConfirmDialog } from '../DeleteConfirmDialog';
 import { Image } from '../Image';
@@ -18,6 +18,7 @@ import InventoryDialog from '../InventoryDialog';
 import { EtsyStatusTag, StatusTag } from '../StatusTag';
 import { Button } from '../ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { CARD_ACTIONS_CLASS, CARD_ICON_BUTTON_CLASS, CARD_ICON_CLASS } from './cardActions';
 
 export interface DesignCardProps {
     design: Design;
@@ -66,26 +67,26 @@ export const DesignCard: React.FC<DesignCardProps> = ({ design, onDesignUpdated,
                 aria-labelledby={nameId}
                 className="relative flex w-full cursor-pointer flex-col overflow-hidden rounded-lg border bg-card text-card-foreground transition-colors hover:border-primary"
             >
-                <div className="absolute right-2 top-2 z-10 flex gap-1">
+                <div className={CARD_ACTIONS_CLASS}>
                     <Button
                         variant="outline"
                         size="icon"
-                        className="size-11 bg-card"
+                        className={CARD_ICON_BUTTON_CLASS}
                         onClick={handleFavoriteClick}
                         aria-label={favourite ? 'Remove from favourites' : 'Add to favourites'}
                         aria-pressed={!!favourite}
                     >
-                        <Heart className={favourite ? 'fill-foreground text-foreground' : ''} />
+                        <Heart className={cn(CARD_ICON_CLASS, favourite && 'fill-foreground text-foreground')} />
                     </Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="outline"
                                 size="icon"
-                                className="size-11 bg-card"
+                                className={CARD_ICON_BUTTON_CLASS}
                                 aria-label={`More actions for ${name}`}
                             >
-                                <MoreHorizontal />
+                                <MoreHorizontal className={CARD_ICON_CLASS} />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" onCloseAutoFocus={menuAction.onCloseAutoFocus}>

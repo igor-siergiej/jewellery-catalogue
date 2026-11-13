@@ -15,7 +15,7 @@ const UserInfo = () => {
     }
 
     return (
-        <div className="flex flex-col gap-1 p-2 group-data-[collapsible=icon]:p-0">
+        <div className="flex flex-col gap-3 p-2 group-data-[collapsible=icon]:gap-1 group-data-[collapsible=icon]:p-0">
             <span className="truncate px-2 text-sm group-data-[collapsible=icon]:hidden font-medium text-sidebar-foreground">
                 {user.username}
             </span>
