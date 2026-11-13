@@ -13,7 +13,7 @@ export const useUserSettings = () => {
     const { accessToken, login, logout } = useAuth();
     const queryClient = useQueryClient();
 
-    const { data, isLoading } = useQuery({
+    const { data, isPending } = useQuery({
         queryKey: QUERY_KEY,
         queryFn: () => makeGetUserSettingsRequest(() => accessToken, login, logout),
         enabled: !!accessToken,
@@ -49,7 +49,8 @@ export const useUserSettings = () => {
         etsyDescriptionTemplate: data?.etsyDescriptionTemplate ?? '',
         etsyTaxonomyMap: data?.etsyTaxonomyMap ?? {},
         etsyShippingProfileId: data?.etsyShippingProfileId ?? null,
-        isLoading,
+        // `isLoading` is false while the query is disabled awaiting the access token, which is when edits get lost.
+        isLoading: isPending,
         updateSettings: updateMutation.mutateAsync,
         recalculate: recalculateMutation.mutateAsync,
         isRecalculating: recalculateMutation.isPending,

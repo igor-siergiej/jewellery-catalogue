@@ -129,6 +129,9 @@ const Settings = () => {
     const [countWarning, setCountWarning] = useState(false);
     const [pendingPriceUpdate, setPendingPriceUpdate] = useState<{ count: number; standalone?: boolean } | null>(null);
     const pricingBusy = pricingStatus === 'saving' || pricingStatus === 'recalculating';
+    // Set in the same commit as the first sync of the local values, so a field is never editable while it still
+    // shows the defaults: an edit made in that window is replaced or appended to when the saved values land.
+    const [pricingHydrated, setPricingHydrated] = useState(false);
 
     useEffect(() => {
         setLocalWage(hourlyWage);
@@ -138,7 +141,10 @@ const Settings = () => {
         setLocalEtsyDescriptionTemplate(etsyDescriptionTemplate);
         setLocalEtsyTaxonomyMap(etsyTaxonomyMap);
         setLocalEtsyShippingProfileId(etsyShippingProfileId);
+
+        if (!pricingLoading) setPricingHydrated(true);
     }, [
+        pricingLoading,
         hourlyWage,
         profitMargin,
         markupMultiplier,
@@ -363,7 +369,7 @@ const Settings = () => {
                         prefix="£"
                         suffix="/hr"
                         step="0.50"
-                        disabled={pricingLoading}
+                        disabled={!pricingHydrated}
                         value={localWage}
                         onChange={setLocalWage}
                     />
@@ -373,7 +379,7 @@ const Settings = () => {
                         maxWidth="max-w-[140px]"
                         suffix="%"
                         step="1"
-                        disabled={pricingLoading}
+                        disabled={!pricingHydrated}
                         value={localMargin}
                         onChange={setLocalMargin}
                     />
@@ -383,7 +389,7 @@ const Settings = () => {
                         maxWidth="max-w-[140px]"
                         suffix="×"
                         step="0.1"
-                        disabled={pricingLoading || pricingBusy}
+                        disabled={!pricingHydrated || pricingBusy}
                         value={localMarkupMultiplier}
                         onChange={setLocalMarkupMultiplier}
                     />
@@ -394,7 +400,7 @@ const Settings = () => {
                         prefix="£"
                         suffix="/hr"
                         step="0.50"
-                        disabled={pricingLoading || pricingBusy}
+                        disabled={!pricingHydrated || pricingBusy}
                         value={localHourlyRate}
                         onChange={setLocalHourlyRate}
                     />
