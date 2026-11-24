@@ -14,6 +14,12 @@ interface LogEntry {
     context?: LogContext;
     url: string;
     timestamp: string;
+    // Stale-bundle clients can be identified by their appVersion; the API
+    // also captures its own userAgent from the request header, so we send
+    // the client-side value too in case the user's browser differs from
+    // what an upstream proxy saw.
+    appVersion: string;
+    userAgent: string;
 }
 
 const ENDPOINT = '/api/logs';
@@ -73,7 +79,15 @@ const enqueue = (level: LogLevel, message: string, context?: LogContext) => {
     if (linesInWindow >= MAX_LINES_PER_MINUTE) return;
     linesInWindow++;
 
-    queue.push({ level, message, context, url: window.location.href, timestamp: new Date().toISOString() });
+    queue.push({
+        level,
+        message,
+        context,
+        url: window.location.href,
+        timestamp: new Date().toISOString(),
+        appVersion: typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'unknown',
+        userAgent: navigator.userAgent,
+    });
     if (queue.length >= MAX_BATCH) {
         flush();
     } else {

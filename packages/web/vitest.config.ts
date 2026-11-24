@@ -10,8 +10,8 @@ export default defineConfig({
     },
     test: {
         environment: 'jsdom',
-        globals: false,
-        setupFiles: ['@testing-library/jest-dom/vitest'],
+        globals: true,
+        setupFiles: ['./src/test-setup.ts'],
         exclude: ['**/node_modules/**', '**/tests/e2e/**'],
     },
 });
